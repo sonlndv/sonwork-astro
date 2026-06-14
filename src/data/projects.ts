@@ -30,5 +30,18 @@ export const projects: Project[] = [
       'TestFlight v1.0, in App Store review',
     ],
   },
+  {
+    slug: 'paddock',
+    name: 'Paddock',
+    tagline: 'F1 widget app',
+    description: 'A glanceable Formula 1 companion — live timing, race calendar, and standings as native iOS/macOS widgets. Built for fans who want the session on their home screen, not buried in an app.',
+    status: 'building',
+    emoji: '🏎️',
+    highlights: [
+      'Native WidgetKit (iOS + macOS), real-time race data',
+      'Self-refreshing Supabase backend, live web showcase',
+      'Free tier + cheap Pro — built solo, idea→shipped in a session',
+    ],
+  },
 ];
 

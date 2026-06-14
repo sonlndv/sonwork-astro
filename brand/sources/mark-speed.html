@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LS15 speed — refined</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira:wght@800&family=Saira+Condensed:wght@800;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d13;--card:#10131c;--ink:#f4f6fc;--ink3:#697088;--blue:#2f6bff;--blue-hi:#5b8bff;--line:rgba(140,160,210,.16)}
+*{margin:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'JetBrains Mono',monospace;min-height:100vh;padding:40px 48px}
+h0{font-family:'Saira Condensed';font-weight:800;font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink3);margin-bottom:26px}
+
+/* THE MARK — refined speed monogram */
+.mark{font-family:'Saira Condensed';font-weight:900;display:inline-flex;align-items:baseline;line-height:.8;transform:skewX(-10deg);letter-spacing:-.03em;font-feature-settings:"ss01";}
+.mark .ls{color:var(--ink)}
+.mark .n{color:var(--blue);margin-left:.06em}
+.mark .n .five{color:var(--blue-hi)}
+/* speed tick */
+.tickwrap{display:inline-flex;flex-direction:column;align-items:flex-start}
+.tick{height:.09em;width:100%;background:linear-gradient(90deg,transparent,var(--blue));transform:skewX(-10deg);margin-top:.12em;border-radius:2px}
+
+.row{display:flex;gap:20px;align-items:stretch;flex-wrap:wrap}
+.cell{background:var(--card);border:1px solid var(--line);border-radius:16px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.cell .lab{position:absolute;top:14px;left:16px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)}
+.glow{position:absolute;inset:0;background:radial-gradient(55% 55% at 50% 45%,rgba(47,107,255,.16),transparent 60%)}
+
+.hero-cell{flex:1 1 100%;height:280px} .hero-cell .mark{font-size:170px}
+.onblue{flex:1;height:200px;background:var(--blue)} .onblue .mark .ls{color:#fff} .onblue .mark .n{color:#0b0d13} .onblue .mark .n .five{color:#0b0d13} .onblue .lab{color:rgba(255,255,255,.6)}
+.onlight{flex:1;height:200px;background:#eef1f8} .onlight .mark .ls{color:#0b0d13} .onlight .lab{color:#8a93a8}
+.ctx{flex:1;height:200px;flex-direction:column;gap:22px}
+/* nav-size */
+.navbar{display:flex;align-items:center;justify-content:space-between;width:78%;padding:10px 0;border-bottom:1px solid var(--line)}
+.navbar .mark{font-size:26px} .navbar .tnav{display:flex;gap:18px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+/* favicon tiles */
+.favs{display:flex;gap:14px;align-items:center}
+.fav{width:64px;height:64px;border-radius:14px;background:var(--blue);display:flex;align-items:center;justify-content:center}
+.fav .mark{font-size:34px} .fav .mark .ls{color:#fff}.fav .mark .n{display:none}
+.fav.alt{background:#10131c;border:1px solid var(--line)} .fav.alt .mark .ls{color:var(--ink)} .fav.alt .mark .n{display:inline;color:var(--blue);font-size:34px}
+.fav.sm{width:36px;height:36px;border-radius:9px} .fav.sm .mark{font-size:19px}
+</style></head><body>
+<h0>LS15 — Speed mark, refined · contexts</h0>
+<div class="row">
+  <div class="cell hero-cell"><div class="glow"></div><span class="lab">Primary</span>
+    <span class="tickwrap"><span class="mark"><span class="ls">LS</span><span class="n">1<span class="five">5</span></span></span><span class="tick"></span></span>
+  </div>
+</div>
+<div class="row" style="margin-top:20px">
+  <div class="cell onblue"><span class="lab">On blue</span><span class="mark"><span class="ls">LS</span><span class="n">15</span></span></div>
+  <div class="cell onlight"><span class="lab">On light</span><span class="mark"><span class="ls">LS</span><span class="n" style="color:#2f6bff">15</span></span></div>
+  <div class="cell ctx"><span class="lab">In the nav</span>
+    <div class="navbar"><span class="mark"><span class="ls">LS</span><span class="n">15</span></span><span class="tnav"><span>Work</span><span>Writing</span><span>About</span></span></div>
+    <div class="favs"><span style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)">Favicon</span><span class="fav"><span class="mark"><span class="ls">LS</span><span class="n">15</span></span></span><span class="fav alt"><span class="mark"><span class="ls">LS</span><span class="n">15</span></span></span><span class="fav sm"><span class="mark"><span class="ls">LS</span><span class="n" style="display:none">15</span></span></span></div>
+  </div>
+</div>
+</body></html>

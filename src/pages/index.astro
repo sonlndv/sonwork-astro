@@ -38,10 +38,23 @@ const totalReadTime = allPosts.reduce((acc, p) => acc + parseInt(p.data.readTime
         <a href="/writing" class="btn-primary">Read the writing</a>
         <a href="/projects" class="btn-ghost">See projects</a>
       </div>
-      <div class="hero-meta text-3">
-        {allPosts.length === 0
-          ? <span>Saigon · building &amp; writing</span>
-          : <><span class="accent">{allPosts.length}</span> {allPosts.length === 1 ? 'post' : 'posts'} · <span class="accent">{totalReadTime}</span> min of reading</>}
+      <div class="hero-meta">
+        <div class="tele tele-live">
+          <span class="tele-v">{String(activeProjects.length).padStart(2,'0')}</span>
+          <span class="tele-k">Ventures live</span>
+        </div>
+        <div class="tele">
+          <span class="tele-v">2026</span>
+          <span class="tele-k">Season</span>
+        </div>
+        <div class="tele">
+          <span class="tele-v">SGN</span>
+          <span class="tele-k">Base · Saigon</span>
+        </div>
+        <div class="tele">
+          <span class="tele-v">{allPosts.length > 0 ? allPosts.length : '—'}</span>
+          <span class="tele-k">Field notes</span>
+        </div>
       </div>
     </section>
 

@@ -1,95 +1,25 @@
 ---
-// `active` accepts 'dashboard' (home, brand logo links there) plus the three
-// nav ids. Nav = Writing · Projects · About.
+// Nav = Work · Writing · About. Brand logo links home.
 interface Props {
   active: 'dashboard' | 'writing' | 'projects' | 'about';
 }
-
 const { active } = Astro.props;
 
 const links: { href: string; label: string; id: Props['active'] }[] = [
+  { href: '/projects', label: 'Work', id: 'projects' },
   { href: '/writing', label: 'Writing', id: 'writing' },
-  { href: '/projects', label: 'Projects', id: 'projects' },
   { href: '/about', label: 'About', id: 'about' },
 ];
 ---
 <nav class="nav">
   <div class="nav-inner">
-    <a href="/" class="nav-brand" aria-label="Sơn — home">
-      <span class="nav-brand-wordmark">Sơn</span><span class="nav-dot">.</span>
+    <a href="/" class="nav-brand" aria-label="sonwork — home">
+      <span class="nav-brand-wordmark">SONWORK</span><span class="nav-dot">.</span>
     </a>
     <div class="nav-links">
       {links.map(link => (
         <a href={link.href} class:list={['nav-link', { active: link.id === active }]}>{link.label}</a>
       ))}
     </div>
-    <button
-      id="theme-toggle"
-      class="theme-toggle"
-      aria-label="Toggle dark mode"
-      title="Toggle dark mode"
-    >
-      <span class="theme-toggle-icon theme-toggle-sun" aria-hidden="true">☀︎</span>
-      <span class="theme-toggle-icon theme-toggle-moon" aria-hidden="true">☽</span>
-    </button>
   </div>
 </nav>
-
-<style>
-  .theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    margin-left: 6px;
-    border: 1px solid var(--border-2);
-    border-radius: 4px;
-    background: transparent;
-    color: var(--text-3);
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-    font-size: 14px;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-  .theme-toggle:hover {
-    background: var(--bg-3);
-    color: var(--text);
-    border-color: var(--border-2);
-  }
-  /* Show sun in dark mode, moon in light mode */
-  .theme-toggle-sun { display: none; }
-  .theme-toggle-moon { display: inline; }
-  [data-theme="dark"] .theme-toggle-sun { display: inline; }
-  [data-theme="dark"] .theme-toggle-moon { display: none; }
-</style>
-
-<script>
-  (function () {
-    const STORAGE_KEY = 'sonwork-theme';
-    const html = document.documentElement;
-
-    function applyTheme(theme: string) {
-      html.setAttribute('data-theme', theme);
-      // Update meta theme-color to match
-      const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-      if (meta) {
-        meta.content = theme === 'dark' ? '#1A1714' : '#FAF6EF';
-      }
-    }
-
-    function toggleTheme() {
-      const current = html.getAttribute('data-theme') ?? 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      localStorage.setItem(STORAGE_KEY, next);
-      applyTheme(next);
-    }
-
-    // Wire up button — runs after DOM is ready (script is deferred by default in Astro)
-    const btn = document.getElementById('theme-toggle');
-    if (btn) {
-      btn.addEventListener('click', toggleTheme);
-    }
-  })();
-</script>
