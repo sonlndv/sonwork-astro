@@ -13,13 +13,17 @@ const links: { href: string; label: string; id: Props['active'] }[] = [
 ---
 <nav class="nav">
   <div class="nav-inner">
-    <a href="/" class="nav-brand" aria-label="sonwork — home">
-      <span class="nav-brand-wordmark">SONWORK</span><span class="nav-dot">.</span>
+    <a href="/" class="nav-brand" aria-label="Sơn — sonwork home">
+      <span class="nav-brand-name">Sơn</span>
+      <span class="nav-brand-sub">Sonwork</span>
     </a>
-    <div class="nav-links">
-      {links.map(link => (
-        <a href={link.href} class:list={['nav-link', { active: link.id === active }]}>{link.label}</a>
-      ))}
+    <div class="nav-right">
+      <div class="nav-links">
+        {links.map(link => (
+          <a href={link.href} class:list={['nav-link', { active: link.id === active }]}>{link.label}</a>
+        ))}
+      </div>
+      <a href="https://perfeat.org" target="_blank" rel="noopener" class="nav-pill">Perfeat ↗</a>
     </div>
   </div>
 </nav>

@@ -18,43 +18,33 @@ const totalReadTime = allPosts.reduce((acc, p) => acc + parseInt(p.data.readTime
 
     <!-- WHO -->
     <section class="hero">
-      <h1 class="hero-name">Sơn Lê</h1>
-      <p class="hero-hook">Still learning. Writing it down as I go.</p>
-      <div class="hero-roles">
-        <span class="role-item">VC</span>
-        <span class="role-sep">→</span>
-        <span class="role-item">Operator</span>
-        <span class="role-sep">→</span>
-        <span class="role-item active">Builder</span>
-        <span class="hero-company">
-          Founder of <a href="https://perfeat.org" target="_blank" rel="noopener" class="accent-link">Perfeat ↗</a>
-        </span>
+      <div class="hero-left">
+        <p class="hero-kick">Solo founder · Saigon · 2026</p>
+        <h1 class="hero-name">Sơn</h1>
+        <p class="hero-role">Builder of <b>companies</b>, one&nbsp;person&nbsp;deep</p>
+        <p class="hero-lead">
+          A one-person holding company — the ventures, the systems, and the
+          field notes, shipped in the open.
+        </p>
+        <div class="hero-ctas">
+          <a href="/projects" class="btn-primary">See the work</a>
+          <a href="/writing" class="btn-ghost">Field log</a>
+        </div>
       </div>
-      <p class="hero-bio">
-        Spent years on the VC side, then the operator side. Now building in Saigon,
-        and writing about what I'm figuring out along the way.
-      </p>
-      <div class="hero-ctas">
-        <a href="/writing" class="btn-primary">Read the writing</a>
-        <a href="/projects" class="btn-ghost">See projects</a>
-      </div>
-      <div class="hero-meta">
-        <div class="tele tele-live">
-          <span class="tele-v">{String(activeProjects.length).padStart(2,'0')}</span>
-          <span class="tele-k">Ventures live</span>
-        </div>
-        <div class="tele">
-          <span class="tele-v">2026</span>
-          <span class="tele-k">Season</span>
-        </div>
-        <div class="tele">
-          <span class="tele-v">SGN</span>
-          <span class="tele-k">Base · Saigon</span>
-        </div>
-        <div class="tele">
-          <span class="tele-v">{allPosts.length > 0 ? allPosts.length : '—'}</span>
-          <span class="tele-k">Field notes</span>
-        </div>
+      <div class="hero-stage" aria-hidden="true">
+        <span class="hero-stage-label">Portrait / Visual</span>
+        <div class="hero-figure"></div>
+        {activeProjects.length > 0 && (
+          <div class="hero-ticket">
+            <div class="ticket-hd"><span>Now building</span><span class="ticket-dot"></span></div>
+            {activeProjects.slice(0,3).map(p => (
+              <div class="ticket-row">
+                <span class="ticket-name">{p.name}</span>
+                <span class="ticket-status">{p.status}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
 
