@@ -27,7 +27,7 @@ const interviews = defineCollection({
     q: z.string(),          // teaser question (agent)
     a: z.string(),          // teaser answer (Sơn)
     draft: z.boolean().default(false),
-    author: z.string().default('lando'), // interviewer — defaults to the editor, Lando
+    author: z.string().default('robin'), // interviewer — Robin runs the interviews
   }),
 });
 
