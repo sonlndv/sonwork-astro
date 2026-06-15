@@ -48,6 +48,7 @@
   --gutter:     48px;
   --gutter-sm:  22px;
   --ease:       cubic-bezier(0.22, 1, 0.36, 1); /* ease-out-quint */
+  --ease-expo:  cubic-bezier(0.16, 1, 0.30, 1); /* ease-out-expo — confident, decisive */
 }
 
 html { scroll-behavior: smooth; }
@@ -234,6 +235,37 @@ a { text-decoration: none; color: inherit; }
 .about-socials { display:flex; gap:24px; }
 .about-social { font-family:var(--mono); font-size:.8125rem; letter-spacing:.04em; text-transform:uppercase; color:var(--accent); transition:opacity .15s; }
 .about-social:hover { opacity:.7; }
+
+/* ── MOTION ─────────────────────────────────────────────────────────────
+   One rehearsed entrance (the hero), one state signal (the live dot), and
+   tactile press feedback. Resting state is always visible — keyframes supply
+   the hidden start via `backwards` fill, so reduced-motion (animation:none)
+   leaves everything on-screen. */
+@keyframes rise      { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+@keyframes name-in   { from { opacity:0; transform:translateY(24px); clip-path:inset(0 100% 0 0); }
+                       to   { opacity:1; transform:none;            clip-path:inset(0 0 0 0); } }
+@keyframes stage-in  { from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:none; } }
+@keyframes line-in   { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@keyframes nav-in    { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:none; } }
+@keyframes dot-pulse { 0%,100% { box-shadow:0 0 0 0 var(--accent-bg2), 0 0 8px var(--accent); }
+                       50%      { box-shadow:0 0 0 5px transparent,     0 0 15px var(--accent); } }
+
+.nav          { animation: nav-in .55s var(--ease) backwards; }
+.hero-kick    { animation: rise .6s var(--ease-expo) .06s backwards; }
+.hero-name    { animation: name-in .85s var(--ease-expo) .14s backwards; will-change: clip-path, transform; }
+.hero-speedline { display:block; height:4px; width:118px; margin:4px 0 18px; border-radius:2px;
+                  background:linear-gradient(90deg, var(--accent), transparent);
+                  box-shadow:0 0 16px var(--accent-bg2); transform-origin:left;
+                  animation: line-in .6s var(--ease-expo) .54s backwards; }
+.hero-role    { animation: rise .7s var(--ease-expo) .30s backwards; }
+.hero-lead    { animation: rise .7s var(--ease-expo) .40s backwards; }
+.hero-ctas    { animation: rise .7s var(--ease-expo) .50s backwards; }
+.hero-stage   { animation: stage-in .85s var(--ease-expo) .34s backwards; }
+.hero-ticket  { animation: rise .7s var(--ease-expo) .66s backwards; }
+.ticket-dot   { animation: dot-pulse 2.6s ease-in-out 1.6s infinite; }
+
+/* tactile press feedback */
+.btn-primary:active, .btn-ghost:active, .nav-pill:active { transform: translateY(0) scale(.97); }
 
 /* SCROLLBAR */
 ::-webkit-scrollbar { width:8px; }
