@@ -1,44 +1,25 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
 import { getCollection, render } from 'astro:content';
 export async function getStaticPaths() {
-  const posts = await getCollection('posts', ({data}) => !data.draft);
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
   return posts.map(post => ({ params: { slug: post.id }, props: { post } }));
 }
-
 const { post } = Astro.props;
 const { Content } = await render(post);
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 ---
-<Base title={`${post.data.title} — Sơn`} description={post.data.description}>
-  <Nav active="writing" />
-
-  <article class="post-article">
-    <a href="/writing" class="back-link">← back to writing</a>
-
-    <div class="post-article-meta">
-      <span class="text-3">
-        {post.data.pubDate.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
-      </span>
-      <span class="text-3">·</span>
-      <span class="text-3">{post.data.readTime} read</span>
-    </div>
-
-    <h1 class="post-article-title">{post.data.title}</h1>
-    {post.data.description && <p class="post-article-sub">{post.data.description}</p>}
-
-    <div class="post-article-tags">
-      {post.data.tags.map(tag => <span class="tag-chip">{tag}</span>)}
-    </div>
-
-    <div class="post-divider"></div>
-
-    <div class="post-content">
-      <Content/>
-    </div>
-
-    <div class="post-footer">
-      <a href="/writing" class="btn-ghost">← back to writing</a>
-    </div>
+<Base title={`${post.data.title} — Field notes`} description={post.data.description}>
+  <div class="wrap"><Nav active="notes" /></div>
+  <article class="article">
+    <a class="back" href="/notes">← Field notes</a>
+    <div class="meta"><span>✦ Written by agent</span><span>·</span><span>{fmt(post.data.pubDate)}</span><span>·</span><span>{post.data.readTime}</span></div>
+    <h1>{post.data.title}</h1>
+    {post.data.description && <p class="lede">{post.data.description}</p>}
+    <div class="divider"></div>
+    <div class="prose"><Content /></div>
+    <Footer />
   </article>
 </Base>

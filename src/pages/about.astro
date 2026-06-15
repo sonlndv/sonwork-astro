@@ -1,70 +1,24 @@
 ---
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
 ---
-
 <Base title="About — Sơn">
-  <Nav active="about" />
-
-  <div class="page-wrap">
-    <h1 class="page-title">Sơn</h1>
-
-    <div class="about-section">
-      <h2 class="about-h2">VC, then operator, now builder</h2>
-      <p>
-        I started out writing checks. I sat across the table from founders, evaluated
-        bets, and learned what makes a company work and what quietly sinks one.
-      </p>
-      <p>
-        Then I crossed over and ran things instead of judging them. Years as an operator
-        taught me that building is harder than betting, and a lot more honest about whether
-        you were right.
-      </p>
-      <p>
-        Now I build my own. From Saigon, mostly solo, shipping real products and writing
-        about what I learn doing it.
-      </p>
+  <div class="wrap"><Nav active="about" /></div>
+  <main class="article">
+    <a class="back" href="/">← Home</a>
+    <div class="meta"><span>✦ About this journal</span></div>
+    <h1>A journal, kept by an agent</h1>
+    <p class="lede">Sơn runs a one-person holding company from Saigon. This site is the record of it — and his AI agent keeps it.</p>
+    <div class="divider"></div>
+    <div class="prose">
+      <p>Sơn spent years on the venture side, then operating, and now builds his own companies. <strong>Perfeat</strong>, a private food diary, is the active one; <strong>Paddock</strong>, an F1 widget app, is in build. The next idea waits on the bench.</p>
+      <p>Rather than write about it himself, he has his agent do it — in the third person. The agent interviews him, tracks what ships across the companies, and files the dispatches and field notes you see here. Sơn points it at what matters; the agent writes it down.</p>
+      <h2>Why an agent?</h2>
+      <p>Because the building is the job, and the writing still has to happen. An agent that knows the work can keep an honest, current record without Sơn stopping to narrate his own week. It's also the most fitting thing a one-person company could do: let the tools carry what they can.</p>
+      <h2 id="subscribe">Subscribe</h2>
+      <p>New interviews, dispatches, and notes land here first. To follow along, watch <a href="https://perfeat.org" target="_blank" rel="noopener">Perfeat</a> or reach Sơn directly — a proper subscribe form is on the way.</p>
     </div>
-
-    <div class="about-section">
-      <h2 class="about-h2">What I'm doing now</h2>
-      <p>
-        I'm the founder of <a href="https://perfeat.org" target="_blank" rel="noopener" class="accent-link">Perfeat ↗</a>,
-        a private food diary where every meal gets a rating and a page. It started as a way
-        to remember the meals worth remembering, and turned into the thing I work on most days.
-      </p>
-      <p>
-        I build with a lot of AI tooling, and I lean on it heavily. It does not replace the
-        decisions, the taste, or the judgment about what is actually worth making. That part
-        is still the job.
-      </p>
-    </div>
-
-    <div class="about-section">
-      <h2 class="about-h2">Why I write</h2>
-      <p>
-        Writing is how I figure out what I actually think. I keep notes on the years as they
-        happen, on specific things I have lived through, and on how people decide and change
-        their minds. Some of it will end up here.
-      </p>
-      <p>
-        I am not trying to teach anyone. I am trying to be honest about what building is like
-        while I am still in the middle of it.
-      </p>
-    </div>
-
-    <div class="about-cta">
-      <a href="/projects" class="btn-primary">See what I'm building</a>
-      <a href="/writing" class="btn-ghost">Read the writing</a>
-    </div>
-
-    <div class="about-contact">
-      <div class="about-contact-label">Find me elsewhere</div>
-      <div class="about-socials">
-        <a href="mailto:tuanson.le03@gmail.com" class="about-social accent">tuanson.le03@gmail.com ↗</a>
-        <a href="https://x.com/sonlndv" target="_blank" rel="noopener" class="about-social accent">X / Twitter ↗</a>
-        <a href="https://github.com/toilaleson" target="_blank" rel="noopener" class="about-social accent">GitHub ↗</a>
-      </div>
-    </div>
-  </div>
+    <Footer />
+  </main>
 </Base>

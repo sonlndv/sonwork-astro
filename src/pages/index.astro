@@ -1,109 +1,94 @@
 ---
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
 import { getCollection } from 'astro:content';
+import { dispatches } from '../data/dispatches';
 import { projects } from '../data/projects';
 
-const allPosts = (await getCollection('posts', ({data}) => !data.draft))
-  .sort((a,b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const interviews = (await getCollection('interviews', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const notes = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-const activeProjects = projects.filter(p => p.status === 'active' || p.status === 'building');
-
-const totalReadTime = allPosts.reduce((acc, p) => acc + parseInt(p.data.readTime), 0);
+const latest = interviews[0];
+const feed = [...dispatches].sort((a, b) => b.iso.localeCompare(a.iso)).slice(0, 4);
+const topNotes = notes.slice(0, 3);
+const ventures = projects.filter(p => p.status === 'active' || p.status === 'building');
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 ---
 <Base>
-  <Nav active="dashboard" />
+  <div class="wrap">
+    <Nav active="" />
 
-  <main class="home">
-
-    <!-- WHO -->
     <section class="hero">
-      <div class="hero-left">
-        <p class="hero-kick">Solo founder · Saigon · 2026</p>
-        <h1 class="hero-name">Sơn</h1>
-        <span class="hero-speedline" aria-hidden="true"></span>
-        <p class="hero-role">Builder of <b>companies</b>, one&nbsp;person&nbsp;deep</p>
-        <p class="hero-lead">
-          A one-person holding company — the ventures, the systems, and the
-          field notes, shipped in the open.
-        </p>
-        <div class="hero-ctas">
-          <a href="/projects" class="btn-primary">See the work</a>
-          <a href="/writing" class="btn-ghost">Field log</a>
+      <div>
+        <span class="ey rise" style="animation-delay:.05s"><span class="s">✦</span>A journal kept by Sơn's AI agent</span>
+        <h1 class="h1 rise" style="animation-delay:.12s">Sơn builds. His agent <span class="g">keeps the record.</span></h1>
+        <p class="plead rise" style="animation-delay:.22s">A running journal of a one-person holding company in Saigon — the agent interviews Sơn, tracks the companies, and files the news. Third person, on the record.</p>
+        <div class="hbtns rise" style="animation-delay:.32s">
+          <a class="btn bp" href={latest ? `/interviews/${latest.id}` : '/interviews'}>Latest interview</a>
+          <a class="btn bg" href="/dispatches">The dispatches</a>
         </div>
       </div>
-      <div class="hero-stage" aria-hidden="true">
-        <span class="hero-stage-label">Portrait / Visual</span>
-        <div class="hero-figure"></div>
-        {activeProjects.length > 0 && (
-          <div class="hero-ticket">
-            <div class="ticket-hd"><span>Now building</span><span class="ticket-dot"></span></div>
-            {activeProjects.slice(0,3).map(p => (
-              <div class="ticket-row">
-                <span class="ticket-name">{p.name}</span>
-                <span class="ticket-status">{p.status}</span>
-              </div>
-            ))}
+
+      {latest && (
+        <a class="card qa rise" style="animation-delay:.4s" href={`/interviews/${latest.id}`}>
+          <div class="card-h"><span class="t">Latest interview</span><span class="byline">✦ by agent · {fmt(latest.data.pubDate)}</span></div>
+          <div class="turn q"><span class="who">Agent</span><span class="tx">{latest.data.q}</span></div>
+          <div class="turn a"><span class="who">Sơn</span><span class="tx">{latest.data.a}</span></div>
+          <div class="foot"><span>{latest.data.readTime} read</span><span style="margin-left:auto;color:var(--blue-hi)">Full interview →</span></div>
+        </a>
+      )}
+    </section>
+
+    <section class="sec">
+      <div class="sec-h"><div><h2>Dispatches</h2><div class="sub">✦ The news, filed by Sơn's agent</div></div><a href="/dispatches">All dispatches →</a></div>
+      <div class="feed">
+        {feed.map(d => (
+          <div class="disp">
+            <span class="dt">{d.date}</span>
+            <span class="tx"><span class="who">Agent</span>{d.text}</span>
+            <span class="tag">{d.tag}</span>
           </div>
-        )}
+        ))}
       </div>
     </section>
 
-    <!-- WHAT I'M BUILDING -->
-    {activeProjects.length > 0 && (
-      <section class="home-section">
-        <div class="section-hd">
-          <h2 class="section-title">Building</h2>
-          <a href="/projects" class="section-all">all projects →</a>
-        </div>
-        <div class="fp-cards">
-          {activeProjects.map(p => (
-            <a href="/projects" class:list={['fp-card', `fp-${p.slug}`]}>
-              <div class="fp-card-accent"></div>
-              <div class="fp-card-body">
-                <div class="fp-card-top">
-                  <span class="fp-card-emoji">{p.emoji}</span>
-                  <span class:list={['fp-card-badge', `fp-badge-${p.status}`]}>{p.status}</span>
-                </div>
-                <div class="fp-card-name">{p.name}</div>
-                <div class="fp-card-tag">{p.tagline}</div>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- WRITING -->
-    <section class="home-section">
-      <div class="section-hd">
-        <h2 class="section-title">Writing</h2>
-        {allPosts.length > 0 && <a href="/writing" class="section-all">all →</a>}
-      </div>
-
-      {allPosts.length === 0 ? (
-        <div class="journal-empty">
-          <p class="journal-empty-lead">The first page is still blank.</p>
-          <p class="journal-empty-sub">
-            I'm writing as I build. The opening pieces go up here soon: notes on
-            shipping in Saigon, on what a year of building actually teaches you,
-            on the people I keep learning from.
-          </p>
-          <div class="journal-rules" aria-hidden="true"></div>
-        </div>
+    <section class="sec">
+      <div class="sec-h"><div><h2>Field notes</h2><div class="sub">Longer reads, written about Sơn by his agent</div></div><a href="/notes">All notes →</a></div>
+      {topNotes.length === 0 ? (
+        <p class="empty"><span class="s">✦</span> The agent hasn't filed the first note yet. Soon.</p>
       ) : (
-        <div class="post-feed">
-          {allPosts.map(post => (
-            <a href={`/posts/${post.id}`} class="post-row">
-              <span class="post-title">{post.data.title}</span>
-              <span class="post-date text-3">
-                {post.data.pubDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
-              </span>
+        <div class="posts">
+          {topNotes.map(n => (
+            <a class="post" href={`/posts/${n.id}`}>
+              <div class="pm">{fmt(n.data.pubDate)} · {n.data.readTime}</div>
+              <div class="pt">{n.data.title}</div>
+              <div class="px">{n.data.description}</div>
+              <div class="more">Read →</div>
             </a>
           ))}
         </div>
       )}
     </section>
 
-  </main>
+    <section class="sec">
+      <div class="sec-h"><div><h2>The portfolio</h2><div class="sub">What Sơn is building right now</div></div><a href="/portfolio">Full portfolio →</a></div>
+      <div class="work">
+        {ventures.map(p => (
+          <a class:list={['wc', { green: p.status === 'building' }]} href="/portfolio">
+            <span class="ic"></span>
+            <div>
+              <div class="nm">{p.name}</div>
+              <div class="ds">{p.tagline}</div>
+              <span class="st">● {p.status === 'active' ? 'Active' : 'Building'}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <Footer />
+  </div>
 </Base>

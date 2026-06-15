@@ -1,29 +1,33 @@
 ---
-// Nav = Work · Writing · About. Brand logo links home.
-interface Props {
-  active: 'dashboard' | 'writing' | 'projects' | 'about';
-}
-const { active } = Astro.props;
-
-const links: { href: string; label: string; id: Props['active'] }[] = [
-  { href: '/projects', label: 'Work', id: 'projects' },
-  { href: '/writing', label: 'Writing', id: 'writing' },
+interface Props { active?: 'interviews' | 'dispatches' | 'notes' | 'about' | '' }
+const { active = '' } = Astro.props;
+const links = [
+  { href: '/interviews', label: 'Interviews', id: 'interviews' },
+  { href: '/dispatches', label: 'Dispatches', id: 'dispatches' },
+  { href: '/notes', label: 'Notes', id: 'notes' },
   { href: '/about', label: 'About', id: 'about' },
 ];
 ---
 <nav class="nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-brand" aria-label="Sơn — sonwork home">
-      <span class="nav-brand-name">Sơn</span>
-      <span class="nav-brand-sub">Sonwork</span>
-    </a>
-    <div class="nav-right">
-      <div class="nav-links">
-        {links.map(link => (
-          <a href={link.href} class:list={['nav-link', { active: link.id === active }]}>{link.label}</a>
-        ))}
-      </div>
-      <a href="https://perfeat.org" target="_blank" rel="noopener" class="nav-pill">Perfeat ↗</a>
-    </div>
+  <a class="logo" href="/" aria-label="LS15 — home"><span class="ls">LS</span><span class="fif">15</span></a>
+  <div class="nav-r">
+    {links.map(l => <a class:list={['nlink', { on: l.id === active }]} href={l.href}>{l.label}</a>)}
+    <button class="tog" id="theme-toggle" type="button" aria-label="Toggle light/dark">◐</button>
+    <a class="cta nlink-keep" href="/about#subscribe">Subscribe</a>
   </div>
 </nav>
+<script is:inline>
+  (() => {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    const root = document.documentElement;
+    const sync = () => { btn.textContent = root.getAttribute('data-theme') === 'light' ? '☾' : '☀'; };
+    sync();
+    btn.addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+      sync();
+    });
+  })();
+</script>

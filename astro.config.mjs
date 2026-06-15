@@ -3,6 +3,6 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://sonwork.org',
-  redirects: { '/series': '/writing' },
+  redirects: { '/series': '/notes', '/writing': '/notes', '/projects': '/portfolio' },
   integrations: [sitemap()],
 });
