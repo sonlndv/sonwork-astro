@@ -1,10 +1,11 @@
 ---
-interface Props { active?: 'journal' | 'series' | 'interviews' | 'about' | '' }
+interface Props { active?: 'journal' | 'series' | 'interviews' | 'reading' | 'about' | '' }
 const { active = '' } = Astro.props;
 const links = [
   { href: '/journal', label: 'Journal', id: 'journal' },
   { href: '/series', label: 'Series', id: 'series' },
   { href: '/interviews', label: 'Interviews', id: 'interviews' },
+  { href: '/reading', label: 'Reading', id: 'reading' },
   { href: '/about', label: 'About', id: 'about' },
 ];
 ---

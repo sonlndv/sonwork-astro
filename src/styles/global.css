@@ -89,6 +89,16 @@ a{color:inherit;text-decoration:none}
 .ivr:hover .q{color:var(--blue-hi)}
 .ivr .d{font-family:var(--mono);font-size:.76rem;color:var(--ink3);white-space:nowrap;grid-column:2;grid-row:2}
 
+/* reading / books */
+.books{border-top:1px solid var(--line)}
+.bk{display:grid;grid-template-columns:1fr auto;gap:3px 20px;padding:20px 2px;border-bottom:1px solid var(--line)}
+.bk .bt{font-weight:700;font-size:1.18rem;letter-spacing:-.01em}
+.bk .ba{color:var(--ink3);font-weight:500;font-size:.92rem;margin-left:8px}
+.bk .bn{grid-column:1;color:var(--ink2);font-size:.98rem;margin-top:2px;max-width:72ch;line-height:1.45}
+.bk .bs{font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);white-space:nowrap;grid-column:2;grid-row:1;display:flex;align-items:center;gap:7px}
+.bk .bs.now{color:var(--blue-hi)}
+.bk .bs .d{width:6px;height:6px;border-radius:50%;background:currentColor}
+
 /* generic page header + list */
 .page{padding:46px 0 70px}
 .page-h{margin-bottom:30px;max-width:62ch}
