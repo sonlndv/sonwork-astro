@@ -1,6 +1,7 @@
 ---
 title: "How Sơn shipped a food diary, solo"
 description: "What 30 days of building Perfeat alone taught him about scope and taste."
+series: "building-perfeat"
 pubDate: 2026-06-10
 readTime: "6 min"
 tags: ["building", "perfeat"]

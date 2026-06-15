@@ -15,10 +15,12 @@ const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'nu
   <div class="wrap"><Nav active="interviews" /></div>
   <article class="article">
     <a class="back" href="/interviews">← Interviews</a>
-    <div class="meta"><span>✦ Interview by agent</span><span>·</span><span>{fmt(iv.data.pubDate)}</span><span>·</span><span>{iv.data.readTime}</span></div>
+    <span class="series-tag">Interview · Agent → Sơn</span>
     <h1>{iv.data.title}</h1>
-    <div class="divider"></div>
-    <div class="prose"><Content /></div>
+    <div class="byl"><span>{fmt(iv.data.pubDate)}</span><span>·</span><span>{iv.data.readTime}</span></div>
+    <div class="rule"></div>
+    <div class="body"><Content /></div>
+    <div class="snav" style="grid-template-columns:1fr"><a href="/interviews"><div class="l">← Back</div><div class="t">All interviews</div></a></div>
     <Footer />
   </article>
 </Base>

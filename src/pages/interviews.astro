@@ -5,25 +5,25 @@ import Footer from '../components/Footer.astro';
 import { getCollection } from 'astro:content';
 const interviews = (await getCollection('interviews', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 ---
-<Base title="Interviews — Sơn">
+<Base title="Interviews — The LS15 Journal">
   <div class="wrap">
     <Nav active="interviews" />
     <main class="page">
       <div class="page-h">
-        <h1>Interviews</h1>
-        <p>Sơn, on the record. His agent asks the questions — about the work, the calls, and what building one company at a time actually feels like.</p>
+        <h1>Short interviews</h1>
+        <p>Sơn, on the record — short Q&As, the agent asking, about the work and the calls behind it.</p>
       </div>
       {interviews.length === 0 ? (
         <p class="empty"><span class="s">✦</span> No interviews filed yet.</p>
       ) : (
-        <div class="list">
+        <div class="iv">
           {interviews.map(iv => (
-            <a class="lrow" href={`/interviews/${iv.id}`}>
-              <span class="lt">{iv.data.q}</span>
-              <span class="ld">{fmt(iv.data.pubDate)} · {iv.data.readTime}</span>
-              <span class="lx">{iv.data.a}</span>
+            <a class="ivr" href={`/interviews/${iv.id}`}>
+              <span class="who">Agent → Sơn</span>
+              <span class="q">“{iv.data.q}”</span>
+              <span class="d">{fmt(iv.data.pubDate)} · {iv.data.readTime}</span>
             </a>
           ))}
         </div>

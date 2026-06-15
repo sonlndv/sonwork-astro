@@ -5,7 +5,7 @@ import Footer from '../components/Footer.astro';
 import { projects } from '../data/projects';
 const label = (s: string) => s === 'active' ? 'Active' : s === 'building' ? 'Building' : s === 'parked' ? 'Parked' : 'Exploring';
 ---
-<Base title="Portfolio — Sơn">
+<Base title="Portfolio — The LS15 Journal">
   <div class="wrap">
     <Nav active="" />
     <main class="page">
@@ -13,12 +13,12 @@ const label = (s: string) => s === 'active' ? 'Active' : s === 'building' ? 'Bui
         <h1>The portfolio</h1>
         <p>A one-person holding company, run like a small portfolio: a few bets, each kept deliberately small.</p>
       </div>
-      <div class="list">
+      <div class="entries">
         {projects.map(p => (
-          <div class="lrow" style="cursor:default">
-            <span class="lt">{p.name}{p.url && <a href={p.url} target="_blank" rel="noopener" style="color:var(--blue-hi);font-size:.9rem;font-weight:600;margin-left:12px">Visit ↗</a>}</span>
-            <span class="ld">{label(p.status)}</span>
-            <span class="lx">{p.description}</span>
+          <div class="entry" style="cursor:default">
+            <span class="etag">{label(p.status)}</span>
+            <span class="et">{p.name}{p.url && <a href={p.url} target="_blank" rel="noopener" style="color:var(--blue-hi);font-size:.85rem;font-weight:600;margin-left:12px">Visit ↗</a>}</span>
+            <span class="ex">{p.description}</span>
           </div>
         ))}
       </div>

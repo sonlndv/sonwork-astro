@@ -1,21 +1,24 @@
 ---
-interface Props { active?: 'interviews' | 'dispatches' | 'notes' | 'about' | '' }
+interface Props { active?: 'journal' | 'series' | 'interviews' | 'about' | '' }
 const { active = '' } = Astro.props;
 const links = [
+  { href: '/journal', label: 'Journal', id: 'journal' },
+  { href: '/series', label: 'Series', id: 'series' },
   { href: '/interviews', label: 'Interviews', id: 'interviews' },
-  { href: '/dispatches', label: 'Dispatches', id: 'dispatches' },
-  { href: '/notes', label: 'Notes', id: 'notes' },
   { href: '/about', label: 'About', id: 'about' },
 ];
 ---
-<nav class="nav">
-  <a class="logo" href="/" aria-label="LS15 — home"><span class="ls">LS</span><span class="fif">15</span></a>
-  <div class="nav-r">
+<header class="mast">
+  <a class="bm" href="/" aria-label="The LS15 Journal — home">
+    <span class="logo">LS<span class="f">15</span></span>
+    <span class="mastname">The Journal</span>
+  </a>
+  <nav class="nav">
     {links.map(l => <a class:list={['nlink', { on: l.id === active }]} href={l.href}>{l.label}</a>)}
     <button class="tog" id="theme-toggle" type="button" aria-label="Toggle light/dark">◐</button>
-    <a class="cta nlink-keep" href="/about#subscribe">Subscribe</a>
-  </div>
-</nav>
+    <a class="sub" href="/about#subscribe">Subscribe</a>
+  </nav>
+</header>
 <script is:inline>
   (() => {
     const btn = document.getElementById('theme-toggle');

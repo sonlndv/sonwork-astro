@@ -3,23 +3,40 @@ import Base from '../../layouts/Base.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
 import { getCollection, render } from 'astro:content';
+import { seriesName } from '../../data/series';
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
-  return posts.map(post => ({ params: { slug: post.id }, props: { post } }));
+  return posts.map(post => ({ params: { slug: post.id }, props: { post, all: posts } }));
 }
-const { post } = Astro.props;
+const { post, all } = Astro.props;
 const { Content } = await render(post);
 const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+const siblings = all
+  .filter(p => p.data.series && p.data.series === post.data.series)
+  .sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+const idx = siblings.findIndex(p => p.id === post.id);
+const part = idx >= 0 ? `Part ${idx + 1} of ${siblings.length}` : null;
+const prev = idx > 0 ? siblings[idx - 1] : null;
+const next = idx >= 0 && idx < siblings.length - 1 ? siblings[idx + 1] : null;
+const seriesTag = post.data.series ? `${seriesName(post.data.series)}${part ? ` · ${part}` : ''}` : 'Journal';
 ---
-<Base title={`${post.data.title} — Field notes`} description={post.data.description}>
-  <div class="wrap"><Nav active="notes" /></div>
+<Base title={`${post.data.title} — The LS15 Journal`} description={post.data.description}>
+  <div class="wrap"><Nav active="journal" /></div>
   <article class="article">
-    <a class="back" href="/notes">← Field notes</a>
-    <div class="meta"><span>✦ Written by agent</span><span>·</span><span>{fmt(post.data.pubDate)}</span><span>·</span><span>{post.data.readTime}</span></div>
+    <a class="back" href="/journal">← The Journal</a>
+    <a class="series-tag" href={post.data.series ? `/series/${post.data.series}` : '/journal'}>{seriesTag}</a>
     <h1>{post.data.title}</h1>
+    <div class="byl"><span>Written by Sơn's agent</span><span>·</span><span>{fmt(post.data.pubDate)}</span><span>·</span><span>{post.data.readTime}</span></div>
     {post.data.description && <p class="lede">{post.data.description}</p>}
-    <div class="divider"></div>
-    <div class="prose"><Content /></div>
+    <div class="rule"></div>
+    <div class="body"><Content /></div>
+    {(prev || next) && (
+      <div class="snav">
+        {prev ? <a href={`/posts/${prev.id}`}><div class="l">← Previous in series</div><div class="t">{prev.data.title}</div></a> : <span></span>}
+        {next ? <a class="next" href={`/posts/${next.id}`}><div class="l">Next in series →</div><div class="t">{next.data.title}</div></a> : <span></span>}
+      </div>
+    )}
     <Footer />
   </article>
 </Base>

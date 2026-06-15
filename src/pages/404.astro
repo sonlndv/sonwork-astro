@@ -3,18 +3,14 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 ---
-<Base title="404 — Sơn">
-  <div class="wrap">
-    <Nav active="" />
-    <main class="article" style="text-align:center">
-      <div class="meta" style="justify-content:center"><span>✦ Filed under: nowhere</span></div>
-      <h1>This page isn't on the record</h1>
-      <p class="lede">The agent never wrote it, or it has moved on.</p>
-      <div class="hbtns" style="justify-content:center;margin-top:10px">
-        <a class="btn bp" href="/">Back to the journal</a>
-        <a class="btn bg" href="/dispatches">Latest dispatches</a>
-      </div>
-      <Footer />
-    </main>
-  </div>
+<Base title="404 — The LS15 Journal">
+  <div class="wrap"><Nav active="" /></div>
+  <main class="article">
+    <span class="series-tag">Filed under: nowhere</span>
+    <h1>This page isn't on the record</h1>
+    <p class="lede">The agent never wrote it, or it has moved on. Try the journal.</p>
+    <div class="rule"></div>
+    <p><a class="sub" href="/">Back to the journal</a></p>
+    <Footer />
+  </main>
 </Base>
