@@ -1,5 +1,6 @@
 ---
 title: "Sơn's path: from checks to code"
+author: "robin"
 description: "From the VC side of the table to building his own companies."
 series: "from-the-desk"
 pubDate: 2026-04-22

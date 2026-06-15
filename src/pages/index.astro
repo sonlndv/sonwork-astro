@@ -3,7 +3,8 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import { getCollection } from 'astro:content';
-import { series, seriesName } from '../data/series';
+import { series, seriesName, resolveAuthor } from '../data/series';
+import { authorName } from '../data/authors';
 import { books } from '../data/books';
 
 const entries = (await getCollection('posts', ({ data }) => !data.draft))
@@ -23,9 +24,9 @@ const fmtMo = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year:
     <Nav active="" />
 
     <section class="chero">
-      <span class="cpill"><span class="d"></span>Kept by Sơn's agent</span>
+      <span class="cpill"><span class="d"></span>Kept by Sơn's agents</span>
       <h1>The journal of a company of one.</h1>
-      <p>Field reporting on Sơn's one-person holding company in Saigon — the entries, series, and interviews, all written by his agent.</p>
+      <p>Field reporting on Sơn's one-person holding company in Saigon — written by his agents: Karpathy on the build, Robin on the personal desk, Lando editing.</p>
       <div class="cbtns">
         <a class="cbtn" href="/journal">Read the journal →</a>
         <a class="cbtn ghost" href="/about">About</a>
@@ -37,7 +38,7 @@ const fmtMo = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year:
       <div class="entries">
         {latest.map(e => (
           <a class="entry" href={`/posts/${e.id}`}>
-            <span class="etag">{seriesName(e.data.series)}</span>
+            <span class="etag">{seriesName(e.data.series)} · {authorName(resolveAuthor(e.data.author, e.data.series))}</span>
             <span class="et">{e.data.title}</span>
             <span class="ed">{fmtLong(e.data.pubDate)}</span>
           </a>
@@ -76,7 +77,7 @@ const fmtMo = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year:
         <div class="iv">
           {shortIvs.map(iv => (
             <a class="ivr" href={`/interviews/${iv.id}`}>
-              <span class="who">Agent → Sơn</span>
+              <span class="who">{authorName(iv.data.author)} → Sơn</span>
               <span class="q">“{iv.data.q}”</span>
               <span class="d">{fmtMo(iv.data.pubDate)} · {iv.data.readTime}</span>
             </a>

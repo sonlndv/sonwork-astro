@@ -16,3 +16,4 @@ dist/
 # Restructure scratch (CSS parity refs — not part of the site)
 .restructure-refs/
 .gstack/
+.sources/

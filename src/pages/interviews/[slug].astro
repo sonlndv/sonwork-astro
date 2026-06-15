@@ -7,17 +7,19 @@ export async function getStaticPaths() {
   const ivs = await getCollection('interviews', ({ data }) => !data.draft);
   return ivs.map(iv => ({ params: { slug: iv.id }, props: { iv } }));
 }
+import { authorName, authorDesk } from '../../data/authors';
 const { iv } = Astro.props;
 const { Content } = await render(iv);
+const who = authorName(iv.data.author);
 const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 ---
 <Base title={`${iv.data.title} — Interview`} description={iv.data.q}>
   <div class="wrap"><Nav active="interviews" /></div>
   <article class="article">
     <a class="back" href="/interviews">← Interviews</a>
-    <span class="series-tag">Interview · Agent → Sơn</span>
+    <span class="series-tag">Interview · {who} → Sơn</span>
     <h1>{iv.data.title}</h1>
-    <div class="byl"><span>{fmt(iv.data.pubDate)}</span><span>·</span><span>{iv.data.readTime}</span></div>
+    <div class="byl"><span>Interview by {who} · {authorDesk(iv.data.author)}</span><span>·</span><span>{fmt(iv.data.pubDate)}</span><span>·</span><span>{iv.data.readTime}</span></div>
     <div class="rule"></div>
     <div class="body"><Content /></div>
     <div class="snav" style="grid-template-columns:1fr"><a href="/interviews"><div class="l">← Back</div><div class="t">All interviews</div></a></div>

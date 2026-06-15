@@ -1,5 +1,6 @@
 ---
 title: "Company OS: the operating system of a company of one"
+author: "karpathy"
 description: "The least visible bet — the systems and agents that let one person run several companies."
 series: "from-the-desk"
 pubDate: 2026-06-13

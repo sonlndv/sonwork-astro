@@ -1,5 +1,6 @@
 ---
 title: "Why Sơn runs a portfolio of one"
+author: "karpathy"
 description: "One person, a holding structure, and the case for a few small bets at once."
 series: "solo-by-design"
 pubDate: 2026-05-18

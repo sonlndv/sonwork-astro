@@ -13,6 +13,7 @@ const posts = defineCollection({
     readTime: z.string().default('3 min'),
     draft: z.boolean().default(false),
     emoji: z.string().default('📝'),
+    author: z.string().optional(), // byline desk: karpathy | robin | lando (falls back to series default)
   }),
 });
 
@@ -26,6 +27,7 @@ const interviews = defineCollection({
     q: z.string(),          // teaser question (agent)
     a: z.string(),          // teaser answer (Sơn)
     draft: z.boolean().default(false),
+    author: z.string().default('lando'), // interviewer — defaults to the editor, Lando
   }),
 });
 

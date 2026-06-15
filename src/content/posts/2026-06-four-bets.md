@@ -1,5 +1,6 @@
 ---
 title: "What Sơn is building: four bets"
+author: "karpathy"
 description: "The current portfolio of a company of one — and how an idea earns its way up to a company."
 series: "solo-by-design"
 pubDate: 2026-06-14
