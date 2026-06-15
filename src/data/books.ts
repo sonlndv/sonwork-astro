@@ -1,20 +1,16 @@
 // Reading — books on Sơn's shelf. Newest / currently-reading first.
-// status: 'reading' (now) | 'read' (finished). Replace these samples with the real list.
+// status: 'reading' (now) | 'read' (finished).
+// NOTE: only books actually known from the brain go here (no invented titles).
+// Sơn: send your real list and these get added — title, author, status, date, a one-line note.
 export interface Book {
   title: string;
   author: string;
   status: 'reading' | 'read';
-  date?: string;     // when read/started, e.g. "2026"
-  note?: string;     // a one-line take, in the agent's third-person voice
+  date?: string;
+  note?: string;
 }
 
 export const books: Book[] = [
-  { title: 'The Almanack of Naval Ravikant', author: 'Eric Jorgenson', status: 'reading', date: '2026',
-    note: "Sơn keeps it close for the leverage chapters — small team, big surface." },
-  { title: 'Working in Public', author: 'Nadia Eghbal', status: 'read', date: '2026',
-    note: "Shaped how he thinks about building one company in the open." },
-  { title: 'Shape Up', author: 'Ryan Singer', status: 'read', date: '2025',
-    note: "The scope-hammering that shows up in how he ships Perfeat." },
-  { title: 'Thinking in Systems', author: 'Donella Meadows', status: 'read', date: '2025',
-    note: "Why he treats his companies as one portfolio, not separate bets." },
+  { title: 'Influence: The Psychology of Persuasion', author: 'Robert B. Cialdini', status: 'read',
+    note: "On Sơn's shelf — how people actually decide, which carries into how he thinks about product and persuasion." },
 ];
