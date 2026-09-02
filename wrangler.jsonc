@@ -5,8 +5,9 @@
   "compatibility_date": "2026-05-20",
   "workers_dev": true,
   "observability": { "enabled": true },
-  // Custom domain is attached on deploy; the zone must be on this account.
-  "routes": [{ "pattern": "sonwork.org", "custom_domain": true }],
+  // A route, not a custom domain: DNS already proxies through Cloudflare, so the
+  // Worker intercepts at the edge and the old origin is never reached. Reversible.
+  "routes": [{ "pattern": "sonwork.org/*", "zone_name": "sonwork.org" }],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",

@@ -1,5 +1,7 @@
 # Agent commits a report → this builds the site and deploys the Worker.
 # Same shape as pjc-report: git is the trigger, Cloudflare is the target.
+# The build always runs, so a malformed report fails here before it reaches
+# the site. The deploy step waits until CLOUDFLARE_API_TOKEN exists.
 name: Deploy
 
 on:
@@ -12,10 +14,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,10 +28,15 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      # Schema errors fail here, before anything reaches Cloudflare.
-      - run: npm run build
-      - uses: cloudflare/wrangler-action@v3
+      - name: Build (schema gate)
+        run: npm run build
+      - name: Deploy
+        if: env.CF_TOKEN != ''
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
+      - name: Deploy skipped
+        if: env.CF_TOKEN == ''
+        run: echo "::notice::Build OK. Deploy skipped — set the CLOUDFLARE_API_TOKEN secret to enable it."
