@@ -1,0 +1,32 @@
+---
+import Base from '../../layouts/Base.astro';
+import ReportRow from '../../components/ReportRow.astro';
+import { getCollection } from 'astro:content';
+
+const reports = (await getCollection('reports'))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Grouped by year so the archive stays navigable past a thousand documents.
+const byYear = new Map<number, typeof reports>();
+for (const r of reports) {
+  const y = r.data.date.getFullYear();
+  if (!byYear.has(y)) byYear.set(y, []);
+  byYear.get(y)!.push(r);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+<Base title="Research — Sơn Lê" current="reports">
+  <div class="intro" style="padding:72px 0 44px">
+    <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">Everything the bots filed.</h1>
+    <p class="last">{reports.length} {reports.length === 1 ? 'report' : 'reports'}, newest first. Search is at the top of every page once the index builds.</p>
+  </div>
+
+  {years.length === 0 && <p style="color:var(--ink-3)">Nothing filed yet.</p>}
+
+  {years.map(y => (
+    <section>
+      <div class="sh"><h2>{y}</h2><span>{byYear.get(y)!.length} filed</span></div>
+      {byYear.get(y)!.map(entry => <ReportRow entry={entry} />)}
+    </section>
+  ))}
+</Base>

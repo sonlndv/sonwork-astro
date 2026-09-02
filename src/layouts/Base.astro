@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+interface Props { title: string; description?: string; current?: string }
+const { title, description, current } = Astro.props;
+const nav = [
+  { href: '/reports', label: 'Research', key: 'reports' },
+  { href: '/writing', label: 'Writing', key: 'writing' },
+  { href: '/about',   label: 'About',    key: 'about' },
+];
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{title}</title>
+  {description && <meta name="description" content={description} />}
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Be+Vietnam+Pro:wght@400;500&display=swap" />
+</head>
+<body>
+  <header class="w">
+    <div class="bar">
+      <a class="me" href="/">Sơn Lê</a>
+      <nav>
+        {nav.map(n => (
+          <a href={n.href} aria-current={current === n.key ? 'page' : undefined}>{n.label}</a>
+        ))}
+      </nav>
+    </div>
+  </header>
+
+  <main class="w"><slot /></main>
+
+  <footer class="w">
+    <a href="mailto:son@perfeat.org">son@perfeat.org</a>
+    <a href="https://x.com/toilaleson">toilaleson</a>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('writing');
+  return posts.map(entry => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+---
+<Base title={`${d.title} — Sơn Lê`} description={d.dek} current="writing">
+  <article class="doc" style="padding:64px 0 40px" data-pagefind-body>
+    <h1>{d.title}</h1>
+    <div class="stamp">
+      <time datetime={d.date.toISOString().slice(0,10)}>
+        {new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric'}).format(d.date)}
+      </time>
+      <span>{d.lang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
+      <span>{d.public ? 'Public' : 'Private'}</span>
+    </div>
+    <div class="prose"><Content /></div>
+  </article>
+</Base>
