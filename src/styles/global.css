@@ -406,9 +406,9 @@ body::before{z-index:-2}
 @media (max-width:640px){.lb{filter:blur(44px)}}
 
 /* ---------- the mark ---------- */
-.mark-big{position:absolute;right:-30px;top:50%;transform:translateY(-52%);opacity:.14;pointer-events:none;z-index:-1}
+.mark-big{position:absolute;right:-20px;bottom:-30px;width:260px;height:260px;opacity:.09;pointer-events:none;z-index:-1}
 .mark-big circle{filter:drop-shadow(0 0 14px var(--human))}
-@media (max-width:1000px){.mark-big{width:240px;height:240px;right:-40px;opacity:.1}}
+@media (max-width:1200px){.mark-big{display:none}}
 @media (max-width:640px){.mark-big{display:none}}
 .marks{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap;margin:8px 0 44px}
 .marks p{flex:1 1 280px;margin:0;color:var(--ink-3);font-weight:300;font-size:14px}
