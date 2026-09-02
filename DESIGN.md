@@ -62,9 +62,8 @@ locale-aware (`vi-VN` for Vietnamese documents).
 
 ## Space and surface
 
-- A **64px engineering grid** is the material: faintly visible behind the top of
-  every page, fading out by 55% of the viewport, drifting slower than content on
-  scroll.
+- **The sea** is the material: four drifting bodies of light and two sliding
+  caustic textures behind everything (see Pictures). No grid.
 - One **aurora** of `--lume` at 14–16% opacity, centred above the fold. It is the
   only glow.
 - Rules are 1px. Corners are 4–6px. Nothing is a card; rows are separated by
@@ -87,6 +86,7 @@ locale-aware (`vi-VN` for Vietnamese documents).
   (`■ 02 — THE READINGS`) and a large light statement (Sora 300 up to 46px) with
   one muted span, then the list. Sections take ~14vh of air above.
 - **Frame**: two 1px vertical rules bound the column at every width above 640px.
+- **No grid.** Removed once the sea existed; it only added noise.
 - **Alive when still**: the aurora drifts on a 26s alternate loop.
 
 ## Pictures and interaction

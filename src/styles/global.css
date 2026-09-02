@@ -42,6 +42,10 @@
   color-scheme:light;
 }
 @media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]) .sea{background:radial-gradient(80% 60% at 50% -5%,oklch(0.90 0.06 225) 0%,transparent 62%),radial-gradient(60% 50% at 85% 20%,oklch(0.93 0.04 205) 0%,transparent 60%),linear-gradient(180deg,oklch(0.975 0.008 240) 0%,var(--void) 70%)}
+  :root:not([data-theme="dark"]) .lb{mix-blend-mode:normal;filter:blur(80px)}
+  :root:not([data-theme="dark"]) .caustic{mix-blend-mode:multiply;opacity:.10}
+  :root:not([data-theme="dark"]) .c2{opacity:.07}
   :root:not([data-theme="dark"]){
     --void:   oklch(0.985 0.004 250);
     --ground: oklch(0.962 0.008 250);
@@ -66,14 +70,7 @@ body{
   font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
   overflow-x:hidden;
 }
-body::before{
-  content:"";position:fixed;inset:0;z-index:-2;
-  background:
-    linear-gradient(var(--grid) 1px,transparent 1px) 0 0/100% 64px,
-    linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/64px 100%,
-    linear-gradient(180deg,var(--ground) 0%,var(--void) 60%);
-  mask-image:linear-gradient(180deg,#000 0%,#000 55%,transparent 100%);
-}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:linear-gradient(180deg,transparent 0%,var(--void) 100%);opacity:.55}
 body::after{
   content:"";position:fixed;top:-520px;left:50%;transform:translateX(-50%);width:1400px;height:900px;z-index:-1;pointer-events:none;
   background:radial-gradient(ellipse 50% 50% at 50% 50%,color-mix(in oklch,var(--lume) 16%,transparent) 0%,transparent 70%);
@@ -237,10 +234,6 @@ footer a:hover{color:var(--lume)}
    without it. Reduced motion turns all of it off. */
 @media (prefers-reduced-motion:no-preference){
   /* the grid drifts with scroll, slower than content: depth without cost */
-  @supports (animation-timeline:scroll()){
-    body::before{animation:gridDrift linear both;animation-timeline:scroll(root)}
-    @keyframes gridDrift{to{background-position:0 -220px,-220px 0,0 0}}
-  }
   /* rows arrive as they enter, floored so nothing is ever hidden */
   @supports (animation-timeline:view()){
     .r,.b,.p,.notes li{animation:arrive linear both;animation-timeline:view();animation-range:entry 0% entry 40%}
@@ -336,6 +329,7 @@ footer a:hover{color:var(--lume)}
 /* intro: words arrive in sequence, from a visible base */
 @media (prefers-reduced-motion:no-preference){
   .intro .wd{display:inline-block;animation:wd .9s var(--out) both}
+  .intro .cta.wd{display:flex}
   .intro h1 .wd:nth-child(2){animation-delay:.08s}.intro h1 .wd:nth-child(3){animation-delay:.16s}
   .intro p.wd{display:block;animation-delay:.28s}.intro p.last.wd{animation-delay:.38s}
   @keyframes wd{from{transform:translateY(14px);opacity:.35}to{transform:none;opacity:1}}
@@ -437,12 +431,16 @@ body::before{z-index:-2}
   @keyframes cau2{from{transform:scale(1.35) translate(3%,-4%) rotate(1deg)}to{transform:scale(1.28) translate(-4%,4%) rotate(-2deg)}}
 }
 /* bright theme: light on water reads darker-on-paper, so invert the blend */
-:root[data-theme="light"] .sea{background:radial-gradient(90% 70% at 50% -10%,oklch(0.90 0.05 230) 0%,transparent 60%)}
-:root[data-theme="light"] .lb{mix-blend-mode:multiply}
-:root[data-theme="light"] .lb1{background:oklch(0.80 0.09 232 / .35)}
-:root[data-theme="light"] .lb2{background:oklch(0.84 0.08 205 / .3)}
-:root[data-theme="light"] .lb3{background:oklch(0.78 0.10 255 / .28)}
-:root[data-theme="light"] .lb4{background:oklch(0.86 0.07 220 / .25)}
-:root[data-theme="light"] .caustic{mix-blend-mode:multiply;opacity:.09}
-:root[data-theme="light"] .c2{opacity:.06}
+:root[data-theme="light"] .sea{background:
+    radial-gradient(80% 60% at 50% -5%,oklch(0.90 0.06 225) 0%,transparent 62%),
+    radial-gradient(60% 50% at 85% 20%,oklch(0.93 0.04 205) 0%,transparent 60%),
+    linear-gradient(180deg,oklch(0.975 0.008 240) 0%,var(--void) 70%)}
+:root[data-theme="light"] .lb{mix-blend-mode:normal;filter:blur(80px)}
+:root[data-theme="light"] .lb1{background:oklch(0.82 0.10 232 / .45)}
+:root[data-theme="light"] .lb2{background:oklch(0.87 0.08 205 / .40)}
+:root[data-theme="light"] .lb3{background:oklch(0.84 0.09 255 / .35)}
+:root[data-theme="light"] .lb4{background:oklch(0.90 0.06 220 / .35)}
+:root[data-theme="light"] .caustic{mix-blend-mode:multiply;opacity:.10}
+:root[data-theme="light"] .c2{opacity:.07}
+:root[data-theme="light"] body::before{opacity:.3}
 @media (max-width:640px){.lb{filter:blur(44px)}.caustic{opacity:.22}.c2{opacity:.16}}
