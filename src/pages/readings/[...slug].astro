@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Notes from '../../components/Notes.astro';
+import Bot from '../../components/Bot.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -22,7 +23,7 @@ const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/conte
       <h1>{d.title}</h1>
       <div class="stamp">
         <span class="kind">{d.type}</span>
-        <span>by <i>{d.author}</i></span>
+        <span class="by"><Bot size={12} /> <i>{d.author}</i></span>
         <time datetime={d.date.toISOString().slice(0,10)}>{fmt.format(d.date)}</time>
         <span>{d.lang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
         <a class="hist num" href={history} title="Every earlier version, in git">Revision {d.revision} · history ↗</a>

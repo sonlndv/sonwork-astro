@@ -477,3 +477,18 @@ body::before{z-index:-2}
 .face:hover{transform:translateY(-2px);border-color:var(--lume)}
 :root[data-theme="light"] .face img{filter:invert(1) hue-rotate(180deg) saturate(.9) contrast(.95)}
 @media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .face img{filter:invert(1) hue-rotate(180deg) saturate(.9) contrast(.95)}}
+
+/* ---------- the bot: the fleet's face ---------- */
+.bot{display:inline-block;vertical-align:-0.15em;flex:none}
+.by{display:inline-flex;align-items:center;gap:5px}
+.by .bot{vertical-align:0}
+.eyes{transform-origin:12px 9.6px}
+@media (prefers-reduced-motion:no-preference){
+  .eyes{animation:blink 8s ease-in-out infinite}
+  @keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+}
+.empty-bot{display:flex;align-items:center;gap:18px;padding:28px 0}
+.empty-bot .empty{margin:0}
+.empty-bot .bot{opacity:.9}
+.method{display:grid;grid-template-columns:72px minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:640px){.method{grid-template-columns:1fr}.empty-bot{gap:14px}}

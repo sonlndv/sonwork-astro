@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ReportRow from '../components/ReportRow.astro';
 import { getCollection } from 'astro:content';
+import Bot from '../components/Bot.astro';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const recent = reports.slice(0, 8);
@@ -19,7 +20,7 @@ const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5)
   <section id="readings" class="sec">
     <header class="sec-h"><h2>Most recent <span>readings.</span></h2><div class="sec-m"><span>{recent.length} of {reports.length}</span><a href="/readings/">All readings →</a></div></header>
     {recent.length === 0
-      ? <p class="empty">No readings yet. When an agent files one, it appears here.</p>
+      ? <div class="empty-bot"><Bot size={44} title="A reading agent, waiting" /><p class="empty">Nothing filed yet. The bots are reading.</p></div>
       : recent.map(entry => <ReportRow entry={entry} />)}
   </section>
 

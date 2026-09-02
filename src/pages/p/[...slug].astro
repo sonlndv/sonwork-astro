@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
+import Bot from '../../components/Bot.astro';
 
 // Only reports deliberately promoted with `public: true` get a page here.
 // Cloudflare Access bypasses /p/*; everything else on the site stays private.
@@ -18,7 +19,7 @@ const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 
     <h1>{d.title}</h1>
     <div class="stamp">
       <span class="kind">{d.type}</span>
-      <span>by <i>{d.author}</i></span>
+      <span class="by"><Bot size={12} /> <i>{d.author}</i></span>
       <time datetime={d.date.toISOString().slice(0,10)}>{fmt.format(d.date)}</time>
       <span>{d.lang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
     </div>
