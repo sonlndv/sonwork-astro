@@ -1,19 +1,14 @@
 # Deploying sonwork.org
 
-**Current state (2026-09-02):** live at https://sonwork.org via a Worker route.
+**Current state (2026-09-02):** public at https://sonwork.org via a Worker route.
 Deploys run from Cloudflare's Git integration (Workers Builds) on push to `main`.
-The door is a passphrase session in the Worker; Cloudflare Access can be layered
-on later and takes precedence automatically.
 
-## 0. The door (already set)
+## 0. Notes and identity
 
-- Secrets `SITE_PASSPHRASE` and `SESSION_SECRET` are set on the Worker
-  (`npx wrangler secret put <NAME>`). The passphrase is in `~/.sonwork-passphrase`
-  on Sơn's Mac, mode 600. Rotate by putting a new secret; sessions last 30 days.
-- `/login`, `/logout`. A session resolves to `OWNER_EMAIL` for notes.
-- Public without a session: `/p/*`, `/_astro/*`, `/favicon.svg`, `/robots.txt`.
-- To add readers with their own identity, set up Access (section 2); the Worker
-  prefers the Access identity whenever the header is present.
+Everyone can read pages and notes. Writing a note needs an identity on
+`ALLOWED_EMAILS`: either Cloudflare Access (preferred once set up) or the
+passphrase session at `/login` (secrets `SITE_PASSPHRASE`, `SESSION_SECRET`; the
+passphrase is in `~/.sonwork-passphrase` on Sơn's Mac). `/logout` ends a session.
 
 ## 1. Cloudflare
 

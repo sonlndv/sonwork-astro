@@ -106,10 +106,10 @@ reaches roughly 260 documents per year.
 
 **Hard constraints.**
 
-- **Private by default.** Every report sits behind Cloudflare Access. A frontmatter
-  flag (`public: true`) additionally emits a copy at `/p/<slug>/`, which Access
-  bypasses and which carries no notes. The private canonical page stays at
-  `/reports/<slug>/`. The system fails closed: nothing is public without the flag.
+- **Public site (decided 2026-09-02, reversing the earlier private-by-default).**
+  Pages and notes are readable by anyone. Only writing notes requires identity.
+  The `public` frontmatter flag and `/p/` route remain as a no-op that can be
+  re-purposed if privacy returns.
 - **No WeCare material on this site at all.** Stated explicitly by the user.
 - **Nothing is lost when a report is revised.** Agents revise reports often. Every
   version must survive and remain reachable. Git provides the history; the site must
@@ -159,8 +159,8 @@ Real assets that do exist:
 1. **The reader is one person who already trusts the source.** No persuasion, no
    conversion, no social proof. Every element earns its place by helping him read or
    find something.
-2. **Fail closed.** Private is the default state. Publishing is a deliberate act on a
-   single document, never a side effect.
+2. **Only Sơn writes.** The site is public to read; notes are written by one
+   identity. No moderation surface exists because no one else can write.
 3. **The archive outranks the feed.** What is new matters today; what is findable
    matters for years. Retrieval is a first-class feature, not navigation chrome.
 4. **Machine-authored means provenance is content.** Who wrote it, from what, when,

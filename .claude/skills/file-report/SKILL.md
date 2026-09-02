@@ -55,11 +55,10 @@ file, so the archive accumulates a voice rather than a pile of anonymous
 documents. Do not use a person's real name, and do not adopt a retired byline
 (`Robin`, `Karpathy`, `Lando` were used by an earlier fleet and are gone).
 
-## Private by default
+## The site is public
 
-`public` defaults to `false`, and that is the safe state. Set `public: true` only
-when Sơn has said that specific report may be published. Never set it because the
-content seems harmless.
+Everything you file is readable by anyone the moment it deploys. Write accordingly.
+(`public` is a legacy flag; leave it at the default.)
 
 **Never file anything about WeCare.** Not the restructuring, not the ERP work,
 not headcount, vendors, or internal problems. That material does not belong on

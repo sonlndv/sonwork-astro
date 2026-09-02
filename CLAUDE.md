@@ -13,8 +13,7 @@ Astro, static, private by default.
 
 ## Hard rules
 
-- **Private by default.** `public` defaults to `false` in the schema. Never flip
-  it without Sơn saying so for that specific document. Fail closed.
+- **Public to read; only Sơn writes notes.** The `public` flag is currently a no-op.
 - **No WeCare content on this site**, in any form.
 - **Nothing is lost.** Revise reports in place and bump `revision`. Never delete
   or silently replace prior text.
