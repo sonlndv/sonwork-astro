@@ -14,7 +14,9 @@ const { slug } = Astro.props;
 </aside>
 
 <script>
+function bootNotes() {
   const root = document.getElementById('notes') as HTMLElement;
+  if (!root || root.dataset.booted) return; root.dataset.booted = '1';
   const slug = root.dataset.slug!;
   const list = document.getElementById('notes-list')!;
   const form = document.getElementById('notes-form') as HTMLFormElement;
@@ -88,4 +90,6 @@ const { slug } = Astro.props;
   });
   text.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') form.requestSubmit(); });
   load();
+}
+document.addEventListener('astro:page-load', bootNotes);
 </script>

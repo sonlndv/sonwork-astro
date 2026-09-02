@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
 interface Props {
   title: string; description?: string; current?: string;
   lang?: 'en' | 'vi'; indexable?: boolean; wide?: boolean;
@@ -20,12 +21,18 @@ const nav = [
   {description && <meta name="description" content={description} />}
   <meta property="og:title" content={title} />
   {description && <meta property="og:description" content={description} />}
-  <meta name="theme-color" content="#101a2b" />
+  <meta name="theme-color" content="#101a2b" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)" />
   {!indexable && <meta name="robots" content="noindex, nofollow" />}
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <script is:inline>
+    // Apply the stored theme before first paint. No flash.
+    try { const t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch {}
+  </script>
+  <ClientRouter />
 </head>
 <body>
   <header class="w">
@@ -39,6 +46,10 @@ const nav = [
             <span>Search</span><kbd>⌘K</kbd>
           </button>
         )}
+        <button class="tbtn" type="button" id="theme" aria-label="Switch light or dark theme" title="Theme">
+          <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
       </nav>
     </div>
   </header>
@@ -48,6 +59,7 @@ const nav = [
   <footer class="w">
     <a href="mailto:son@perfeat.org">son@perfeat.org</a>
     <a href="https://x.com/toilaleson">toilaleson</a>
+    <a href="/kit/" style="margin-left:auto">kit</a>
   </footer>
 
   {!indexable && (
@@ -57,42 +69,67 @@ const nav = [
   )}
 
   <script>
-    // Search: Pagefind UI is loaded on first open, never on page load.
-    const dlg = document.getElementById('search') as HTMLDialogElement | null;
-    const btn = document.getElementById('open-search');
-    let ready = false;
-    async function openSearch() {
-      if (!dlg) return;
-      if (!ready) {
-        ready = true;
-        const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/pagefind/pagefind-ui.css';
-        document.head.appendChild(css);
-        await new Promise<void>((res) => { const s = document.createElement('script'); s.src = '/pagefind/pagefind-ui.js'; s.onload = () => res(); s.onerror = () => res(); document.head.appendChild(s); });
-        // @ts-ignore
-        if (window.PagefindUI) new window.PagefindUI({ element: '#pagefind', showSubResults: true, showImages: false, excerptLength: 26, translations: { placeholder: 'Search…', zero_results: 'Nothing for [SEARCH_TERM]' } });
-        else document.getElementById('pagefind')!.innerHTML = '<p class="shint">Search index is built at deploy time; it is not available in this preview.</p>';
-      }
-      dlg.showModal();
-      (dlg.querySelector('input') as HTMLInputElement | null)?.focus();
-    }
-    btn?.addEventListener('click', openSearch);
-    document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); dlg?.open ? dlg.close() : openSearch(); }
-    });
-    dlg?.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
-
-    // Note counts on list pages. Silent when the API is absent (static preview).
-    const slots = document.querySelectorAll<HTMLElement>('[data-notes]');
-    if (slots.length) fetch('/api/comments/summary').then(r => r.ok ? r.json() : null).then((idx) => {
-      if (!idx?.counts) return;
-      slots.forEach((el) => {
-        const n = idx.counts[el.dataset.notes!] || 0;
-        if (!n) return;
-        el.textContent = `${n} ${n === 1 ? 'note' : 'notes'} from me`;
-        el.hidden = false;
-        el.previousElementSibling?.removeAttribute('hidden');
+    // Everything here re-binds on every client-side navigation.
+    function boot() {
+      // theme
+      const tb = document.getElementById('theme');
+      tb?.addEventListener('click', () => {
+        const root = document.documentElement;
+        const sysLight = matchMedia('(prefers-color-scheme: light)').matches;
+        const cur = root.dataset.theme || (sysLight ? 'light' : 'dark');
+        const next = cur === 'light' ? 'dark' : 'light';
+        root.dataset.theme = next;
+        try { localStorage.setItem('theme', next); } catch {}
       });
-    }).catch(() => {});
+
+      // search
+      const dlg = document.getElementById('search') as HTMLDialogElement | null;
+      const btn = document.getElementById('open-search');
+      const w = window as any;
+      async function openSearch() {
+        if (!dlg) return;
+        if (!w.__pfLoaded) {
+          w.__pfLoaded = true;
+          const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/pagefind/pagefind-ui.css'; document.head.appendChild(css);
+          await new Promise<void>((res) => { const s = document.createElement('script'); s.src = '/pagefind/pagefind-ui.js'; s.onload = () => res(); s.onerror = () => res(); document.head.appendChild(s); });
+        }
+        const host = document.getElementById('pagefind')!;
+        if (!host.dataset.ready) {
+          host.dataset.ready = '1';
+          if (w.PagefindUI) new w.PagefindUI({ element: '#pagefind', showSubResults: true, showImages: false, excerptLength: 26, translations: { placeholder: 'Search…', zero_results: 'Nothing for [SEARCH_TERM]' } });
+          else host.innerHTML = '<p class="shint">Search index is built at deploy time; not available in this preview.</p>';
+        }
+        dlg.showModal();
+        (dlg.querySelector('input') as HTMLInputElement | null)?.focus();
+      }
+      btn?.addEventListener('click', openSearch);
+      dlg?.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+      if (!w.__keys) { w.__keys = true; document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); const d = document.getElementById('search') as HTMLDialogElement | null; d?.open ? d.close() : openSearch(); }
+      }); }
+
+      // note counts on list pages
+      const slots = document.querySelectorAll<HTMLElement>('[data-notes]');
+      if (slots.length) fetch('/api/comments/summary').then(r => r.ok ? r.json() : null).then((idx) => {
+        if (!idx?.counts) return;
+        slots.forEach((el) => {
+          const n = idx.counts[el.dataset.notes!] || 0; if (!n) return;
+          el.textContent = `${n} ${n === 1 ? 'note' : 'notes'} from me`; el.hidden = false;
+          el.previousElementSibling?.removeAttribute('hidden');
+        });
+      }).catch(() => {});
+
+      // live counters: numbers count up once, to their real value
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {
+          const target = Number(el.dataset.count); if (!Number.isFinite(target)) return;
+          const t0 = performance.now(); const dur = 900;
+          const tick = (t: number) => { const k = Math.min(1, (t - t0) / dur); const e = 1 - Math.pow(1 - k, 4); el.textContent = String(Math.round(target * e)); if (k < 1) requestAnimationFrame(tick); };
+          requestAnimationFrame(tick);
+        });
+      }
+    }
+    document.addEventListener('astro:page-load', boot);
   </script>
 </body>
 </html>

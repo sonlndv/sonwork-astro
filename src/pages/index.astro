@@ -17,8 +17,8 @@ const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
 <Base title="Sơn Lê" description="Personal site of Sơn Lê.">
   <div class="status">
     <span class="live">online</span>
-    <span><b class="num">{agents}</b> agents filing</span>
-    <span><b class="num">{reports.length}</b> reports · <b class="num">{week}</b> this week</span>
+    <span><b class="num" data-count={agents}>{agents}</b> agents filing</span>
+    <span><b class="num" data-count={reports.length}>{reports.length}</b> reports · <b class="num" data-count={week}>{week}</b> this week</span>
     <span>built <b class="num">{built}</b> UTC</span>
   </div>
   <div class="intro">

@@ -46,6 +46,9 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
   <p id="none" hidden style="color:var(--ink-3)">Nothing matches those filters.</p>
 
   <script>
+  function bootFilters() {
+    if (!document.querySelector('.filters') || (document.querySelector('.filters') as HTMLElement).dataset.booted) return;
+    (document.querySelector('.filters') as HTMLElement).dataset.booted = '1';
     const state: Record<string, string> = { type: '', lang: '' };
     const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-type][data-lang]'));
     const sections = Array.from(document.querySelectorAll<HTMLElement>('section[data-year]'));
@@ -73,5 +76,7 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
     }));
     const init = new URLSearchParams(location.search);
     for (const f of ['type', 'lang']) { const v = init.get(f) || ''; const b = document.querySelector<HTMLButtonElement>(`.filters button[data-f="${f}"][data-v="${v}"]`); if (b && v) b.click(); }
+  }
+  document.addEventListener('astro:page-load', bootFilters);
   </script>
 </Base>

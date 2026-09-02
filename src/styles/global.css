@@ -23,6 +23,42 @@
   --out:cubic-bezier(.16,1,.3,1);
   --measure:66ch;
 }
+
+/* Bright theme. Same roles, same rule. Cool paper, deep-navy ink, and the two
+   accents darkened until they pass 4.5:1 as text on the paper. */
+:root[data-theme="light"]{
+  --void:   oklch(0.985 0.004 250);
+  --ground: oklch(0.962 0.008 250);
+  --raise:  oklch(0.935 0.012 250);
+  --line:   oklch(0.820 0.016 250);
+  --line-2: oklch(0.885 0.012 250);
+  --grid:   oklch(0.700 0.020 250 / .22);
+  --ink:    oklch(0.190 0.030 256);
+  --ink-2:  oklch(0.380 0.028 254);
+  --ink-3:  oklch(0.540 0.024 252);
+  --lume:   oklch(0.520 0.150 236);
+  --lume-2: oklch(0.440 0.130 238);
+  --human:  oklch(0.560 0.130 48);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    --void:   oklch(0.985 0.004 250);
+    --ground: oklch(0.962 0.008 250);
+    --raise:  oklch(0.935 0.012 250);
+    --line:   oklch(0.820 0.016 250);
+    --line-2: oklch(0.885 0.012 250);
+    --grid:   oklch(0.700 0.020 250 / .22);
+    --ink:    oklch(0.190 0.030 256);
+    --ink-2:  oklch(0.380 0.028 254);
+    --ink-3:  oklch(0.540 0.024 252);
+    --lume:   oklch(0.520 0.150 236);
+    --lume-2: oklch(0.440 0.130 238);
+    --human:  oklch(0.560 0.130 48);
+    color-scheme:light;
+  }
+}
+:root{color-scheme:dark}
 *{box-sizing:border-box}
 html{scrollbar-color:var(--line) var(--void);scroll-behavior:smooth}
 body{
@@ -40,9 +76,9 @@ body::before{
 }
 body::after{
   content:"";position:fixed;top:-520px;left:50%;transform:translateX(-50%);width:1400px;height:900px;z-index:-1;pointer-events:none;
-  background:radial-gradient(ellipse 50% 50% at 50% 50%,oklch(0.800 0.135 222 / .14) 0%,transparent 70%);
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,color-mix(in oklch,var(--lume) 16%,transparent) 0%,transparent 70%);
 }
-::selection{background:oklch(0.800 0.135 222 / .3)}
+::selection{background:color-mix(in oklch,var(--lume) 32%,transparent)}
 :focus-visible{outline:1.5px solid var(--lume);outline-offset:3px;border-radius:4px}
 input,textarea{caret-color:var(--lume)}
 a{color:inherit;text-decoration:none}
@@ -50,10 +86,10 @@ time,.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter
 .w{max-width:1080px;margin:0 auto;padding:0 32px}
 .w-wide{max-width:1180px}
 
-header{position:sticky;top:0;z-index:20;background:oklch(0.115 0.022 256 / .72);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-2)}
+header{position:sticky;top:0;z-index:20;background:color-mix(in oklch,var(--void) 74%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-2)}
 .bar{display:flex;align-items:center;gap:30px;padding:15px 0}
 .bar .me{font-weight:600;font-size:14.5px;letter-spacing:-0.015em;display:inline-flex;align-items:center;gap:9px}
-.bar .me::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--lume);box-shadow:0 0 12px oklch(0.800 0.135 222 / .7)}
+.bar .me::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--lume);box-shadow:0 0 12px color-mix(in oklch,var(--lume) 70%,transparent)}
 .bar nav{display:flex;gap:22px;margin-left:auto;font-size:13.5px;align-items:center}
 .bar nav a{color:var(--ink-3);transition:color .18s var(--out)}
 .bar nav a:hover,.bar nav a[aria-current]{color:var(--ink)}
@@ -163,14 +199,14 @@ section{padding:0 0 72px}
 .sbtn kbd{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
 @media (max-width:640px){.sbtn kbd,.sbtn span{display:none}}
 dialog#search{border:0;padding:0;background:transparent;width:min(700px,92vw);margin:9vh auto 0}
-dialog#search::backdrop{background:oklch(0.09 0.02 256 / .8);backdrop-filter:blur(6px)}
+dialog#search::backdrop{background:color-mix(in oklch,var(--void) 82%,transparent);backdrop-filter:blur(6px)}
 .sbox{background:var(--ground);border:1px solid var(--line);border-radius:10px;padding:16px 16px 8px;box-shadow:0 30px 70px -30px #000}
 .shint{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin:12px 4px 4px}
 #pagefind{--pagefind-ui-scale:.9;--pagefind-ui-primary:var(--lume);--pagefind-ui-text:var(--ink);--pagefind-ui-background:var(--void);--pagefind-ui-border:var(--line);--pagefind-ui-tag:var(--raise);--pagefind-ui-border-width:1px;--pagefind-ui-border-radius:6px;--pagefind-ui-font:var(--sans)}
 #pagefind .pagefind-ui__result-title{font-weight:500}
 #pagefind .pagefind-ui__result-excerpt{color:var(--ink-2);font-weight:300}
 #pagefind .pagefind-ui__results-area{max-height:56vh;overflow:auto}
-#pagefind mark{background:oklch(0.800 0.135 222 / .28);color:var(--ink)}
+#pagefind mark{background:color-mix(in oklch,var(--lume) 30%,transparent);color:var(--ink)}
 
 .filters{display:flex;flex-direction:column;gap:8px;margin-bottom:36px}
 .fgroup{display:flex;flex-wrap:wrap;gap:6px}
@@ -194,3 +230,52 @@ footer a:hover{color:var(--lume)}
   .r .idx .kind{display:inline}
   .status{gap:14px}
 }
+
+/* ---------- motion ----------
+   Grammar: exponential ease-out, transform and opacity first, one authored moment
+   per surface, scroll-linked where the browser supports it, everything visible
+   without it. Reduced motion turns all of it off. */
+@media (prefers-reduced-motion:no-preference){
+  /* the grid drifts with scroll, slower than content: depth without cost */
+  @supports (animation-timeline:scroll()){
+    body::before{animation:gridDrift linear both;animation-timeline:scroll(root)}
+    @keyframes gridDrift{to{background-position:0 -220px,-220px 0,0 0}}
+  }
+  /* rows arrive as they enter, floored so nothing is ever hidden */
+  @supports (animation-timeline:view()){
+    .r,.b,.p,.notes li{animation:arrive linear both;animation-timeline:view();animation-range:entry 0% entry 40%}
+    @keyframes arrive{from{opacity:.5;transform:translateY(10px)}to{opacity:1;transform:none}}
+  }
+  dialog#search[open] .sbox{animation:pop .26s var(--out)}
+  @keyframes pop{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:none}}
+  .r:hover .idx .kind{transform:translateX(2px)}
+  .r .idx .kind{transition:transform .25s var(--out)}
+  ::view-transition-old(root),::view-transition-new(root){animation-duration:.18s;animation-timing-function:var(--out)}
+}
+/* theme toggle */
+.tbtn{display:inline-flex;align-items:center;font:inherit;color:var(--ink-3);background:none;border:1px solid var(--line-2);border-radius:5px;padding:5px;cursor:pointer;transition:color .18s var(--out),border-color .18s var(--out)}
+.tbtn:hover{color:var(--ink);border-color:var(--line)}
+.tbtn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8}
+:root[data-theme="light"] .tbtn .moon,:root:not([data-theme]) .tbtn .sun{display:none}
+@media (prefers-color-scheme:light){:root:not([data-theme]) .tbtn .sun{display:inline}:root:not([data-theme]) .tbtn .moon{display:none}}
+@media (prefers-color-scheme:dark){:root:not([data-theme]) .tbtn .sun{display:none}:root:not([data-theme]) .tbtn .moon{display:inline}}
+:root[data-theme="dark"] .tbtn .sun{display:none}
+
+/* ---------- kit page ---------- */
+.kit h1{font-weight:600;font-size:clamp(30px,4vw,44px);letter-spacing:-0.04em;margin:0 0 8px}
+.kit .lede{color:var(--ink-3);font-weight:300;max-width:60ch;margin:0 0 40px}
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.sw div{border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
+.sw i{display:block;height:64px}
+.sw b{display:block;font-family:var(--mono);font-size:11px;font-weight:500;padding:8px 10px 2px}
+.sw small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);padding:0 10px 9px}
+.kit .rule{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 40px}
+.kit .rule div{border:1px solid var(--line-2);border-radius:6px;padding:14px 16px;font-size:14px;font-weight:300}
+.kit .rule b{display:block;font-family:var(--mono);font-size:11px;margin-bottom:6px;font-weight:500}
+.kit .rule .m b{color:var(--lume)}.kit .rule .h b{color:var(--human)}
+.ts div{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line-2)}
+.ts code{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.mo{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 40px}
+.mo button{font:inherit;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);background:var(--ground);border:1px solid var(--line-2);border-radius:5px;padding:7px 11px;cursor:pointer}
+.mo button:hover{border-color:var(--lume);color:var(--ink)}
+@media (max-width:640px){.kit .rule{grid-template-columns:1fr}.ts div{grid-template-columns:1fr;gap:4px}}
