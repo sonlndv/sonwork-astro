@@ -92,6 +92,15 @@ the ledger grouped by year.
   Rendered only when there are ≥ 4 readings. Not on the home.
 - **Kind glyphs** (`lib/glyphs.ts`): one drawn line icon per kind, 1.6 stroke.
 
+## Sections: one boundary grammar
+
+Every section on every page is built the same way: a 1px `--line` rule on top,
+a header row with the statement on the left (Sora 300, up to 36px, one muted
+span) and the mono meta or link on the right, sitting on a `--line-2` rule, then
+the content. Sections that are not the ledger alternate onto a `--ground` band
+that runs edge to edge between the frame rules, so the page reads as blocks, not
+as air. No other heading device exists.
+
 ## Components
 
 - **Tally** — mono, in the hero's action row: agents · readings · this week. Real

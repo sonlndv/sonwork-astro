@@ -16,16 +16,16 @@ const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5)
     <div class="tally num wd"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</div>
   </div>
 
-  <section id="readings" class="ledger">
-    <div class="sh"><h2>Most recent</h2><span>{recent.length} of {reports.length}</span><a href="/readings/">All readings →</a></div>
+  <section id="readings" class="sec">
+    <header class="sec-h"><h2>Most recent <span>readings.</span></h2><div class="sec-m"><span>{recent.length} of {reports.length}</span><a href="/readings/">All readings →</a></div></header>
     {recent.length === 0
       ? <p class="empty">No readings yet. When an agent files one, it appears here.</p>
       : recent.map(entry => <ReportRow entry={entry} />)}
   </section>
 
   {writing.length > 0 && (
-    <section id="writing" class="chapter">
-      <h2 class="big">Mine, <span>not theirs.</span></h2>
+    <section id="writing" class="sec band">
+      <header class="sec-h"><h2>Mine, <span>not theirs.</span></h2><div class="sec-m"><span>writing</span><a href="/writing/">All writing →</a></div></header>
       {writing.map(w => (
         <a class="p" href={`/writing/${w.id}/`}>
           <time datetime={w.data.date.toISOString().slice(0,10)}>{new Intl.DateTimeFormat('en-GB',{month:'short',year:'numeric'}).format(w.data.date)}</time>
@@ -35,8 +35,8 @@ const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5)
     </section>
   )}
 
-  <section id="contact" class="chapter">
-    <h2 class="big">I read everything, <span>slowly.</span></h2>
+  <section id="contact" class="sec">
+    <header class="sec-h"><h2>I read everything, <span>slowly.</span></h2><div class="sec-m"><span>contact</span></div></header>
     <div class="contact">
       <a href="mailto:son@perfeat.org"><span class="idx">work</span><b>son@perfeat.org</b><i>→</i></a>
       <a href="mailto:tuanson.le03@gmail.com"><span class="idx">personal</span><b>tuanson.le03@gmail.com</b><i>→</i></a>

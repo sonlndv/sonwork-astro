@@ -9,7 +9,8 @@ const posts = (await getCollection('writing'))
     <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">Writing.</h1>
     <p class="last">Mine, not theirs.</p>
   </div>
-  <section>
+  <section class="sec">
+    <header class="sec-h"><h2>All <span>writing.</span></h2><div class="sec-m"><span>{posts.length} posts</span></div></header>
     {posts.length === 0 && <p style="color:var(--ink-3)">Nothing here yet.</p>}
     {posts.map(w => (
       <a class="p" href={`/writing/${w.id}/`}>
