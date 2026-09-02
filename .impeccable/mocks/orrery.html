@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sơn Lê</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Be+Vietnam+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground: oklch(0.158 0.036 252);
+  --below:  oklch(0.108 0.030 254);
+  --hair:   oklch(0.288 0.028 251);
+  --hair-2: oklch(0.235 0.026 251);
+  --ink:    oklch(0.948 0.014 88);
+  --ink-2:  oklch(0.762 0.020 88);
+  --ink-3:  oklch(0.575 0.022 250);
+  --lume:   oklch(0.812 0.084 224);
+  --lume-d: oklch(0.640 0.072 226);
+
+  --ns:"Newsreader",Georgia,serif;
+  --bv:"Be Vietnam Pro",system-ui,sans-serif;
+  --out:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+html{scrollbar-color:var(--hair) var(--below);scroll-behavior:smooth}
+body{
+  margin:0;color:var(--ink);background:var(--below);
+  font-family:var(--ns);font-size:18px;line-height:1.62;-webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* depth: two layers of falloff, light from high left */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background:linear-gradient(176deg,var(--ground) 0%,var(--ground) 26%,var(--below) 92%);
+}
+body::after{
+  content:"";position:fixed;top:-460px;right:-260px;width:1180px;height:1180px;z-index:-1;pointer-events:none;
+  background:radial-gradient(circle,oklch(0.812 0.084 224 / .13) 0%,transparent 62%);
+}
+::selection{background:oklch(0.812 0.084 224 / .26)}
+:focus-visible{outline:1.5px solid var(--lume);outline-offset:4px;border-radius:3px}
+a{color:inherit;text-decoration:none}
+.w{max-width:1040px;margin:0 auto;padding:0 36px}
+.col{max-width:768px}
+time{font-variant-numeric:tabular-nums}
+
+header{padding:36px 0 0}
+.bar{display:flex;align-items:baseline;gap:28px}
+.bar .me{font-family:var(--bv);font-size:15px;font-weight:500;letter-spacing:-0.01em}
+.bar nav{display:flex;gap:22px;margin-left:auto;font-family:var(--bv);font-size:14px}
+.bar nav a{color:var(--ink-3);transition:color .18s var(--out)}
+.bar nav a:hover{color:var(--ink)}
+
+/* ---------- hero + orrery ---------- */
+.hero{display:grid;grid-template-columns:1fr 400px;gap:56px;align-items:center;padding:84px 0 80px}
+.hero h1{
+  font-family:var(--ns);font-weight:200;font-size:clamp(32px,4.4vw,50px);
+  line-height:1.16;letter-spacing:-0.028em;margin:0 0 26px;text-wrap:balance;
+}
+.hero h1 em{font-style:italic;font-weight:300;color:var(--lume)}
+.hero p{color:var(--ink-2);font-size:19px;line-height:1.66;margin:0 0 16px;max-width:54ch}
+.hero .last{color:var(--ink-3);font-size:17px}
+
+.orrery{position:relative;aspect-ratio:1;width:100%}
+.orrery svg{width:100%;height:100%;overflow:visible}
+.ring{fill:none;stroke:var(--hair);stroke-width:.8}
+.spin{transform-origin:200px 200px}
+.body{fill:var(--lume)}
+.body.dim{fill:var(--lume-d)}
+.core{fill:var(--ink)}
+.glow{fill:var(--lume);opacity:.16}
+.olabel{font-family:var(--bv);font-size:9.5px;fill:var(--ink-3);letter-spacing:.02em}
+.ocap{
+  font-family:var(--bv);font-size:12px;color:var(--ink-3);text-align:center;
+  margin-top:16px;line-height:1.5;
+}
+.ocap b{color:var(--ink-2);font-weight:500}
+
+@media (prefers-reduced-motion:no-preference){
+  .s1{animation:orb 54s linear infinite}
+  .s2{animation:orb 84s linear infinite}
+  .s3{animation:orb 128s linear infinite}
+  .s4{animation:orb 196s linear infinite}
+  @keyframes orb{to{transform:rotate(360deg)}}
+  /* Labels ride the body but stay upright: inverse rotation about the body. */
+  .a1{animation:orb-r 54s linear infinite}
+  .a2{animation:orb-r 84s linear infinite}
+  .a3{animation:orb-r 128s linear infinite}
+  .a4{animation:orb-r 196s linear infinite}
+  @keyframes orb-r{to{transform:rotate(-360deg)}}
+  .pulse{animation:pl 5.5s ease-in-out infinite}
+  @keyframes pl{0%,100%{opacity:.13}50%{opacity:.26}}
+  /* One authored entrance. Transform only: text is never hidden, at any moment,
+     with or without the animation running. */
+  .rise{animation:rise 1.05s var(--out) both}
+  @keyframes rise{from{transform:translateY(18px)}to{transform:none}}
+  .d1{animation-delay:.04s}.d2{animation-delay:.14s}.d3{animation-delay:.24s}
+}
+
+section{padding:0 0 74px}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:28px;padding-bottom:13px;border-bottom:1px solid var(--hair)}
+.sh h2{font-family:var(--bv);font-size:14px;font-weight:500;margin:0;color:var(--ink-2)}
+.sh span{font-family:var(--bv);font-size:13px;color:var(--ink-3)}
+.sh a{margin-left:auto;font-family:var(--bv);font-size:13px;color:var(--ink-3);transition:color .18s var(--out)}
+.sh a:hover{color:var(--lume)}
+
+.r{display:block;padding:22px 0;border-bottom:1px solid var(--hair-2);position:relative}
+.r:last-child{border-bottom:0}
+.r::before{
+  content:"";position:absolute;left:-36px;right:-36px;top:0;bottom:0;border-radius:8px;
+  background:oklch(0.22 0.034 250);opacity:0;transition:opacity .28s var(--out);z-index:-1;
+}
+.r:hover::before{opacity:1}
+.r h3{
+  font-family:var(--ns);font-weight:400;font-size:23px;line-height:1.32;letter-spacing:-0.014em;
+  margin:0 0 7px;text-wrap:balance;transition:color .18s var(--out);
+}
+.r:hover h3{color:var(--lume)}
+.r p{color:var(--ink-2);font-size:17px;line-height:1.58;margin:0 0 10px;max-width:64ch}
+.r .m{font-family:var(--bv);font-size:12.5px;color:var(--ink-3);display:flex;gap:11px;flex-wrap:wrap;align-items:center}
+.r .m i{font-style:normal;color:var(--ink-2)}
+.r .m .sep{width:2.5px;height:2.5px;border-radius:50%;background:var(--hair)}
+.r .m .n{color:var(--lume)}
+
+/* scroll-linked reveal that degrades to fully visible */
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    .r,.b,.p{animation:arrive linear both;animation-timeline:view();animation-range:entry 0% entry 46%}
+    /* Floor the opacity at .45 so a row is legible even mid-reveal or if the
+       timeline never advances. Content is never gated on motion. */
+    @keyframes arrive{from{opacity:.45;transform:translateY(14px)}to{opacity:1;transform:none}}
+  }
+}
+
+.b{display:block;padding:20px 0;border-bottom:1px solid var(--hair-2)}
+.b:last-child{border-bottom:0}
+.b h3{font-family:var(--ns);font-weight:400;font-size:20px;margin:0 0 4px;transition:color .18s var(--out)}
+.b:hover h3{color:var(--lume)}
+.b p{margin:0;color:var(--ink-3);font-size:16px;line-height:1.55}
+
+.p{display:flex;gap:20px;align-items:baseline;padding:15px 0;border-bottom:1px solid var(--hair-2)}
+.p:last-child{border-bottom:0}
+.p time{font-family:var(--bv);font-size:12.5px;color:var(--ink-3);flex:none;width:66px}
+.p h3{font-family:var(--ns);font-weight:400;font-size:19px;margin:0;line-height:1.42;transition:color .18s var(--out)}
+.p:hover h3{color:var(--lume)}
+
+footer{padding:32px 0 76px;border-top:1px solid var(--hair);font-family:var(--bv);font-size:13.5px;color:var(--ink-3);display:flex;gap:22px;flex-wrap:wrap}
+footer a{color:var(--ink-2)}
+footer a:hover{color:var(--lume)}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;gap:44px;padding:56px 0 60px}
+  .orrery{max-width:330px;margin:0 auto;order:-1}
+}
+@media (max-width:640px){
+  body{font-size:17px}
+  .w{padding:0 22px}
+  header{padding:26px 0 0}
+  .bar{flex-wrap:wrap;gap:10px 18px}
+  .bar nav{margin-left:0;width:100%;gap:18px}
+  .hero h1{font-size:30px}
+  .hero p{font-size:17.5px}
+  .orrery{max-width:270px}
+  .r::before{left:-22px;right:-22px}
+  .r h3{font-size:21px}
+  .p{flex-direction:column;gap:3px}
+  .p time{width:auto}
+  section{padding-bottom:54px}
+}
+</style>
+</head>
+<body>
+
+<header class="w">
+  <div class="bar">
+    <span class="me">Sơn Lê</span>
+    <nav><a href="#research">Research</a><a href="#writing">Writing</a><a href="#">About</a></nav>
+  </div>
+</header>
+
+<main class="w">
+
+  <div class="hero">
+    <div>
+      <h1 class="rise d1">I build small companies, and I keep a fleet of <em>research bots</em> reading for me.</h1>
+      <p class="rise d2">I'm Sơn. I work on Perfeat and Paddock from Ho Chi Minh City, mostly alone, mostly in public. Somewhere between an operator and an engineer, depending on the week.</p>
+      <p class="last rise d3">They read what I can't get to. Everything they find is kept below, in English and Vietnamese, with my arguments in the margin.</p>
+    </div>
+
+    <figure class="orrery" style="margin:0">
+      <svg viewBox="0 0 400 400" role="img" aria-label="The fleet: four research agents orbiting a shared brain of 712 pages. Body size shows how much each agent filed this month.">
+        <circle class="glow pulse" cx="200" cy="200" r="62"/>
+        <circle class="ring" cx="200" cy="200" r="66"/>
+        <circle class="ring" cx="200" cy="200" r="104"/>
+        <circle class="ring" cx="200" cy="200" r="142"/>
+        <circle class="ring" cx="200" cy="200" r="180"/>
+
+        <circle class="core" cx="200" cy="200" r="5.5"/>
+        <text class="olabel" x="200" y="222" text-anchor="middle">712 pages</text>
+
+        <g class="spin s1"><circle class="body" cx="266" cy="200" r="5"/>
+          <g class="a1" style="transform-origin:266px 200px"><text class="olabel" x="278" y="204">atlas</text></g></g>
+        <g class="spin s2"><circle class="body" cx="200" cy="96" r="3.8"/>
+          <g class="a2" style="transform-origin:200px 96px"><text class="olabel" x="211" y="100">ferrous</text></g></g>
+        <g class="spin s3"><circle class="body dim" cx="58" cy="200" r="3.2"/>
+          <g class="a3" style="transform-origin:58px 200px"><text class="olabel" x="69" y="204">bàn giấy</text></g></g>
+        <g class="spin s4"><circle class="body dim" cx="200" cy="380" r="2.6"/>
+          <g class="a4" style="transform-origin:200px 380px"><text class="olabel" x="210" y="384">mực</text></g></g>
+      </svg>
+      <figcaption class="ocap"><b>The fleet.</b> Four agents, one brain. Size is what each filed this month.</figcaption>
+    </figure>
+  </div>
+
+  <section id="research" class="col">
+    <div class="sh">
+      <h2>What the bots found</h2><span>this week</span>
+      <a href="#">All 712 →</a>
+    </div>
+
+    <a class="r" href="#">
+      <h3>Conflict escalates financially before it turns military</h3>
+      <p>Reserve freezes and settlement bans arrive months ahead of any shooting. What the sequencing implies for small open economies.</p>
+      <div class="m"><i>atlas</i><span class="sep"></span><time datetime="2026-09-01">1 September</time><span class="sep"></span><span class="n">2 notes from me</span></div>
+    </a>
+
+    <a class="r" href="#">
+      <h3>The KV cache can become larger than the model</h3>
+      <p>Serving economics stop being about parameter count once context grows. Prefill and decode want optimising as different workloads.</p>
+      <div class="m"><i>ferrous</i><span class="sep"></span><time datetime="2026-09-01">1 September</time></div>
+    </a>
+
+    <a class="r" href="#">
+      <h3>Lý tưởng càng lớn, kiểm chứng thực tế càng phải chặt</h3>
+      <p>Khi tham vọng mở rộng, cơ chế kiểm chứng phải mở rộng theo. Ghi chú về những nơi điều đó đã không xảy ra.</p>
+      <div class="m"><i>bàn giấy</i><span class="sep"></span><time datetime="2026-09-01">1 tháng 9</time><span class="sep"></span><span class="n">1 note from me</span></div>
+    </a>
+
+    <a class="r" href="#">
+      <h3>Electricity demand is a reality check on industrial growth</h3>
+      <p>Reported GDP grew above 8 percent while power output rose 4.9. Industrial production usually drags power upward, so the gap wants explaining.</p>
+      <div class="m"><i>atlas</i><span class="sep"></span><time datetime="2026-08-31">31 August</time></div>
+    </a>
+  </section>
+
+  <section class="col">
+    <div class="sh"><h2>What I'm building</h2></div>
+    <a class="b" href="#"><h3>Perfeat</h3><p>Eyewear, direct to customer. Vietnam first.</p></a>
+    <a class="b" href="#"><h3>Paddock</h3><p>Software for people who run things, built the way I wish someone had built it for me.</p></a>
+  </section>
+
+  <section id="writing" class="col">
+    <div class="sh"><h2>Writing</h2><span>mine, not theirs</span></div>
+    <a class="p" href="#"><time datetime="2026-08-20">Aug 2026</time><h3>What a one-person holding company actually costs</h3></a>
+    <a class="p" href="#"><time datetime="2026-07-11">Jul 2026</time><h3>Bốn ván cược cho mười năm tới</h3></a>
+    <a class="p" href="#"><time datetime="2026-06-02">Jun 2026</time><h3>Shipping alone, and the parts nobody warns you about</h3></a>
+  </section>
+
+</main>
+
+<footer class="w">
+  <a href="#">son@perfeat.org</a>
+  <a href="#">toilaleson</a>
+  <span style="margin-left:auto">Mockup · placeholder content</span>
+</footer>
+
+</body>
+</html>

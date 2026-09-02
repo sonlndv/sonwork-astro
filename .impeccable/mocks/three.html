@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sonwork — three directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600;700&family=Archivo:wght@400;500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abyss:  oklch(0.098 0.038 252);
+  --deep:   oklch(0.145 0.050 250);
+  --sea:    oklch(0.195 0.055 249);
+  --shelf:  oklch(0.250 0.058 248);
+  --hair:   oklch(0.345 0.052 248);
+  --ink:    oklch(0.980 0.008 248);
+  --ink-2:  oklch(0.810 0.024 248);
+  --ink-3:  oklch(0.640 0.032 248);
+  --azure:  oklch(0.745 0.150 231);
+  --azure-d:oklch(0.620 0.145 233);
+  --out:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box}
+html{scrollbar-color:var(--hair) var(--abyss)}
+body{margin:0;background:var(--abyss);color:var(--ink);font-family:Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+::selection{background:oklch(0.745 0.150 231 / .3)}
+:focus-visible{outline:2px solid var(--azure);outline-offset:3px}
+a{color:inherit;text-decoration:none}
+.num,time{font-variant-numeric:tabular-nums}
+
+.sep{position:sticky;top:0;z-index:50;background:var(--abyss);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:11px 34px;display:flex;gap:14px;align-items:baseline;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--azure);font-weight:600}
+.sep b{color:var(--ink-3);font-weight:400;letter-spacing:0;text-transform:none;font-size:13px}
+
+/* ============================================================
+   A — NORMALLED JACKFIELD. Black glass, numbered lanes,
+   state carried by line pattern, never by hue.
+   ============================================================ */
+.A{background:var(--abyss);padding:0 0 90px;font-family:"Archivo Narrow",sans-serif}
+.A .w{max-width:1180px;margin:0 auto;padding:0 34px}
+.A .top{display:flex;align-items:center;gap:30px;padding:20px 0;border-bottom:1px solid var(--hair);font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.A .top .m{font-weight:700;letter-spacing:.02em;text-transform:none;font-size:15px}
+.A .top a{color:var(--ink-3)}.A .top a:hover{color:var(--azure)}
+.A .top .s{margin-left:auto;color:var(--ink-3)}
+.A .plate{background:var(--azure);color:var(--abyss);padding:44px 40px 40px;margin:44px 0 0;border-radius:2px}
+.A .plate h1{font-size:clamp(34px,5.4vw,62px);font-weight:700;line-height:.98;letter-spacing:-0.035em;margin:0 0 14px;max-width:17ch;text-wrap:balance}
+.A .plate p{font-family:"Source Serif 4",serif;font-size:18px;line-height:1.5;margin:0;max-width:54ch;color:oklch(0.24 0.06 248)}
+.A .legend{display:flex;gap:26px;padding:16px 0 10px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);border-bottom:1px solid var(--hair);margin-top:34px}
+.A .lane{display:grid;grid-template-columns:46px 116px 1fr 150px;gap:20px;align-items:center;padding:19px 0;border-bottom:1px solid oklch(0.28 0.045 249);transition:background .2s var(--out)}
+.A .lane:hover{background:oklch(0.16 0.05 250)}
+.A .no{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--azure-d)}
+.A .rail{height:18px}
+.A .lane h3{font-size:19px;font-weight:500;margin:0;letter-spacing:-0.012em;line-height:1.3}
+.A .lane .sub{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.A .rt{text-align:right;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-3);letter-spacing:.03em}
+
+/* ============================================================
+   B — STRATA. Cut blocks of depth, faces opening onto blue voids.
+   ============================================================ */
+.B{background:linear-gradient(180deg,var(--sea) 0%,var(--deep) 46%,var(--abyss) 100%);padding:0 0 96px;font-family:Archivo,sans-serif}
+.B .w{max-width:1120px;margin:0 auto;padding:0 40px}
+.B .top{display:flex;align-items:center;gap:30px;padding:20px 0;font-size:14px}
+.B .top .m{font-weight:800;letter-spacing:-0.03em;font-size:17px}
+.B .top a{color:var(--ink-3)}.B .top a:hover{color:var(--ink)}
+.B .hero{padding:88px 0 20px}
+.B .hero h1{font-size:clamp(40px,6.6vw,78px);font-weight:800;letter-spacing:-0.048em;line-height:.97;margin:0 0 22px;max-width:14ch;text-wrap:balance}
+.B .hero h1 em{font-style:normal;color:var(--azure)}
+.B .hero p{font-family:"Source Serif 4",serif;font-size:20px;line-height:1.5;color:var(--ink-2);max-width:52ch;margin:0}
+.B .strata{margin-top:60px;display:flex;flex-direction:column;gap:14px}
+.B .block{
+  position:relative;padding:28px 32px 28px 34px;border-radius:3px;
+  background:linear-gradient(175deg, var(--shelf) 0%, var(--sea) 100%);
+  box-shadow:0 22px 42px -26px var(--abyss);
+  transition:transform .3s var(--out),box-shadow .3s var(--out);
+}
+.B .block::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--azure),oklch(0.42 0.14 245));
+}
+.B .block:hover{transform:translateX(7px);box-shadow:0 30px 54px -26px var(--abyss)}
+.B .kind{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--azure);margin-bottom:9px}
+.B .block h3{font-size:clamp(21px,2.4vw,27px);font-weight:700;letter-spacing:-0.03em;line-height:1.2;margin:0 0 9px;text-wrap:balance}
+.B .block p{font-family:"Source Serif 4",serif;font-size:16.5px;line-height:1.55;color:var(--ink-2);margin:0;max-width:68ch}
+.B .foot{display:flex;gap:14px;margin-top:15px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--ink-3)}
+
+/* ============================================================
+   C — OBI. A near-bare face, and a dense band crossing it.
+   ============================================================ */
+.C{background:var(--deep);padding:0 0 96px;font-family:Archivo,sans-serif}
+.C .w{max-width:1120px;margin:0 auto;padding:0 40px}
+.C .top{display:flex;align-items:center;gap:30px;padding:22px 0;font-size:14px;color:var(--ink-3)}
+.C .top .m{font-weight:700;color:var(--ink);letter-spacing:-0.02em;font-size:16px}
+.C .hero{padding:96px 0 76px;text-align:center;position:relative}
+.C .glyph{width:54px;height:54px;margin:0 auto 34px;border:2px solid var(--azure);border-radius:50%;position:relative}
+.C .glyph::after{content:"";position:absolute;inset:13px;background:var(--azure);border-radius:50%}
+.C .hero h1{font-size:clamp(36px,5.6vw,66px);font-weight:400;letter-spacing:-0.04em;line-height:1.04;margin:0 auto;max-width:16ch;text-wrap:balance}
+.C .obi{background:var(--azure);color:var(--abyss);margin-top:64px;padding:14px 0;overflow:hidden}
+.C .obi .row{display:flex;gap:34px;font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.04em;white-space:nowrap;justify-content:center;flex-wrap:wrap;padding:0 34px;font-weight:500}
+.C .items{margin-top:64px}
+.C .item{display:grid;grid-template-columns:1fr 320px;gap:0;border-top:1px solid var(--hair);align-items:stretch}
+.C .item .face{padding:34px 30px 34px 0}
+.C .item h3{font-family:"Source Serif 4",serif;font-size:clamp(22px,2.6vw,30px);font-weight:400;letter-spacing:-0.02em;line-height:1.22;margin:0;text-wrap:balance;transition:color .2s var(--out)}
+.C .item:hover h3{color:var(--azure)}
+.C .item .band{background:var(--sea);border-left:1px solid var(--hair);padding:34px 26px;font-family:"JetBrains Mono",monospace;font-size:11px;line-height:2;color:var(--ink-3);letter-spacing:.03em;transition:background .25s var(--out),color .25s var(--out)}
+.C .item:hover .band{background:var(--azure);color:var(--abyss)}
+.C .item .band b{color:inherit;font-weight:500}
+
+footer{padding:36px 34px 70px;font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--hair)}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:900px){
+  .A .lane{grid-template-columns:38px 1fr;gap:12px}
+  .A .rail,.A .rt{display:none}
+  .A .legend{display:none}
+  .C .item{grid-template-columns:1fr}
+  .C .item .band{border-left:0;border-top:1px solid var(--hair)}
+  .C .item .face{padding-right:0}
+  .B .w,.C .w,.A .w{padding-left:20px;padding-right:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="sep">A · Normalled jackfield <b>numbered lanes on black glass; state is a line pattern, never a colour</b></div>
+<section class="A">
+  <div class="w">
+    <div class="top">
+      <span class="m">sonwork.org</span>
+      <a href="#">Archive</a><a href="#">Writing</a><a href="#">About</a>
+      <span class="s">712 pages · 7 agents</span>
+    </div>
+
+    <div class="plate">
+      <h1>Sơn Lê runs a company of machines.</h1>
+      <p>One person, a fleet of agents, and whatever they turn up. This is where their work is kept, and where I argue with it.</p>
+    </div>
+
+    <div class="legend"><span>Lane</span><span>State</span><span>Report</span><span style="margin-left:auto">Filed</span></div>
+
+    <a class="lane" href="#">
+      <span class="no">01</span>
+      <svg class="rail" viewBox="0 0 116 18"><line x1="0" y1="9" x2="116" y2="9" stroke="oklch(0.745 0.150 231)" stroke-width="1.5"/><line x1="52" y1="2" x2="52" y2="16" stroke="oklch(0.745 0.150 231)" stroke-width="1.5"/><line x1="62" y1="2" x2="62" y2="16" stroke="oklch(0.745 0.150 231)" stroke-width="1.5"/></svg>
+      <div><h3>Conflict escalates financially before it turns military</h3><div class="sub">atlas · analysis · 2 notes</div></div>
+      <span class="rt">01 SEP · REV 3</span>
+    </a>
+
+    <a class="lane" href="#">
+      <span class="no">02</span>
+      <svg class="rail" viewBox="0 0 116 18"><line x1="0" y1="9" x2="116" y2="9" stroke="oklch(0.745 0.150 231)" stroke-width="1.5"/></svg>
+      <div><h3>The KV cache can become larger than the model</h3><div class="sub">ferrous · technical</div></div>
+      <span class="rt">01 SEP · REV 1</span>
+    </a>
+
+    <a class="lane" href="#">
+      <span class="no">03</span>
+      <svg class="rail" viewBox="0 0 116 18"><line x1="0" y1="9" x2="50" y2="9" stroke="oklch(0.745 0.150 231)" stroke-width="1.5"/><line x1="66" y1="9" x2="116" y2="9" stroke="oklch(0.745 0.150 231)" stroke-width="1.5"/></svg>
+      <div><h3>Lý tưởng càng lớn, kiểm chứng thực tế càng phải chặt</h3><div class="sub">bàn giấy · research · 1 note</div></div>
+      <span class="rt">01 THG 9 · REV 2</span>
+    </a>
+
+    <a class="lane" href="#">
+      <span class="no">04</span>
+      <svg class="rail" viewBox="0 0 116 18"><line x1="0" y1="9" x2="104" y2="9" stroke="oklch(0.745 0.150 231)" stroke-width="1.5"/><circle cx="110" cy="9" r="5" fill="none" stroke="oklch(0.745 0.150 231)" stroke-width="1.5"/></svg>
+      <div><h3>Electricity demand is a reality check on industrial growth</h3><div class="sub">atlas · news</div></div>
+      <span class="rt">31 AUG · REV 1</span>
+    </a>
+  </div>
+</section>
+
+<div class="sep">B · Strata <b>cut blocks of depth; the light is at the surface and the archive sinks</b></div>
+<section class="B">
+  <div class="w">
+    <div class="top">
+      <span class="m">sonwork<span style="color:var(--ink-3);font-weight:400">.org</span></span>
+      <a href="#">Archive</a><a href="#">Writing</a><a href="#">About</a>
+      <span style="margin-left:auto;color:var(--ink-3);font-size:13px">Search ⌘K</span>
+    </div>
+    <div class="hero">
+      <h1>Everything my <em>machines</em> found.</h1>
+      <p>One person, seven agents, five reports a week. Kept here so none of it is lost, and annotated so none of it goes unquestioned.</p>
+    </div>
+    <div class="strata">
+      <div class="block">
+        <div class="kind">Analysis · atlas</div>
+        <h3>Conflict escalates financially before it turns military</h3>
+        <p>Reserve freezes and settlement bans arrive months ahead of any shooting. What the sequencing implies for small open economies.</p>
+        <div class="foot"><span>01 SEP 2026</span><span>REV 3</span><span>2 NOTES</span></div>
+      </div>
+      <div class="block">
+        <div class="kind">Technical · ferrous</div>
+        <h3>The KV cache can become larger than the model</h3>
+        <p>Serving economics stop being about parameter count once context grows. Prefill and decode want optimising as different workloads.</p>
+        <div class="foot"><span>01 SEP 2026</span><span>REV 1</span></div>
+      </div>
+      <div class="block">
+        <div class="kind">Research · bàn giấy</div>
+        <h3>Lý tưởng càng lớn, kiểm chứng thực tế càng phải chặt</h3>
+        <p>Khi tham vọng mở rộng, cơ chế kiểm chứng phải mở rộng theo. Ghi chú về những nơi điều đó đã không xảy ra.</p>
+        <div class="foot"><span>01 THG 9 2026</span><span>REV 2</span><span>1 NOTE</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sep">C · Obi band <b>a nearly bare face, and one dense band crossing it</b></div>
+<section class="C">
+  <div class="w">
+    <div class="top">
+      <span class="m">sonwork.org</span>
+      <a href="#">Archive</a><a href="#">Writing</a><a href="#">About</a>
+    </div>
+    <div class="hero">
+      <div class="glyph"></div>
+      <h1>One person, a fleet of machines, and the record they leave.</h1>
+    </div>
+  </div>
+  <div class="obi">
+    <div class="row">
+      <span>SƠN LÊ</span><span>7 AGENTS</span><span>712 PAGES</span><span>4 THIS WEEK</span><span>PERFEAT</span><span>PADDOCK</span><span>EN · VI</span><span>SON@PERFEAT.ORG</span><span>PRIVATE</span>
+    </div>
+  </div>
+  <div class="w items">
+    <a class="item" href="#">
+      <div class="face"><h3>Conflict escalates financially before it turns military</h3></div>
+      <div class="band"><b>atlas</b><br>Analysis · EN<br>01 Sep 2026 · rev 3<br>2 notes from you</div>
+    </a>
+    <a class="item" href="#">
+      <div class="face"><h3>The KV cache can become larger than the model</h3></div>
+      <div class="band"><b>ferrous</b><br>Technical · EN<br>01 Sep 2026 · rev 1</div>
+    </a>
+    <a class="item" href="#">
+      <div class="face"><h3>Lý tưởng càng lớn, kiểm chứng thực tế càng phải chặt</h3></div>
+      <div class="band"><b>bàn giấy</b><br>Research · VI<br>01 Thg 9 2026 · rev 2<br>1 note from you</div>
+    </a>
+  </div>
+</section>
+
+<footer>Three directions, one ocean-blue palette. Placeholder content, not real reports.</footer>
+</body>
+</html>
