@@ -9,22 +9,37 @@ var MAX_PER_DOC = 500;
 var EDIT_WINDOW_MS = 24 * 60 * 60 * 1e3;
 var SLUG_RE = /^[a-z0-9][a-z0-9-]{1,120}$/;
 var ANCHOR_RE = /^[a-z0-9][a-z0-9-]{0,160}$/;
+var COOKIE = "sw_session";
+var SESSION_DAYS = 30;
 var worker_default = {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname.startsWith("/api/")) {
+    const p = url.pathname;
+    if (p === "/login") return login(request, env, url);
+    if (p === "/logout") return redirect("/login", { "set-cookie": `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
+    if (p.startsWith("/api/")) {
       try {
         return await api(request, env, url);
       } catch (e) {
         return json({ error: "internal", detail: String(e?.message || e) }, 500);
       }
     }
+    if (isPublic(p)) return env.ASSETS.fetch(request);
+    const me = await identity(request, env);
+    if (!me) return redirect("/login?next=" + encodeURIComponent(p + url.search));
     return env.ASSETS.fetch(request);
   }
 };
-function identity(request, env) {
-  const email = request.headers.get("cf-access-authenticated-user-email") || env.DEV_EMAIL || null;
-  return email ? email.trim().toLowerCase() : null;
+function isPublic(p) {
+  return p.startsWith("/p/") || p.startsWith("/_astro/") || p === "/favicon.svg" || p === "/robots.txt";
+}
+__name(isPublic, "isPublic");
+async function identity(request, env) {
+  const access = request.headers.get("cf-access-authenticated-user-email");
+  if (access) return access.trim().toLowerCase();
+  if (await validSession(request, env)) return String(env.OWNER_EMAIL || "owner").toLowerCase();
+  if (env.DEV_EMAIL) return String(env.DEV_EMAIL).toLowerCase();
+  return null;
 }
 __name(identity, "identity");
 function allowed(email, env) {
@@ -32,6 +47,66 @@ function allowed(email, env) {
   return !!email && list.includes(email);
 }
 __name(allowed, "allowed");
+async function hmac(env, data) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(String(env.SESSION_SECRET || "")), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+__name(hmac, "hmac");
+async function equal(env, a, b) {
+  return await hmac(env, "cmp:" + a) === await hmac(env, "cmp:" + b);
+}
+__name(equal, "equal");
+function cookieOf(request) {
+  const m = (request.headers.get("cookie") || "").match(new RegExp("(?:^|;\\s*)" + COOKIE + "=([^;]+)"));
+  return m ? m[1] : null;
+}
+__name(cookieOf, "cookieOf");
+async function validSession(request, env) {
+  if (!env.SESSION_SECRET) return false;
+  const c = cookieOf(request);
+  if (!c) return false;
+  const [exp, sig] = c.split(".");
+  if (!exp || !sig || Number(exp) < Date.now() / 1e3) return false;
+  return await hmac(env, exp) === sig;
+}
+__name(validSession, "validSession");
+async function login(request, env, url) {
+  const next = safeNext(url.searchParams.get("next"));
+  if (!env.SITE_PASSPHRASE || !env.SESSION_SECRET) return page("Door not configured", "Set SITE_PASSPHRASE and SESSION_SECRET with wrangler secret put.", "", next, 503);
+  if (request.method === "POST") {
+    const form = await request.formData().catch(() => null);
+    const pass = String(form?.get("passphrase") || "");
+    if (pass && await equal(env, pass, env.SITE_PASSPHRASE)) {
+      const exp = String(Math.floor(Date.now() / 1e3) + SESSION_DAYS * 86400);
+      const cookie = `${COOKIE}=${exp}.${await hmac(env, exp)}; Path=/; Max-Age=${SESSION_DAYS * 86400}; HttpOnly; Secure; SameSite=Lax`;
+      return redirect(next, { "set-cookie": cookie });
+    }
+    return page("Not it.", "That passphrase did not match.", "error", next, 401);
+  }
+  if (await validSession(request, env)) return redirect(next);
+  return page("sonwork", "Private. Enter the passphrase.", "", next, 200);
+}
+__name(login, "login");
+function safeNext(n) {
+  return n && n.startsWith("/") && !n.startsWith("//") ? n : "/";
+}
+__name(safeNext, "safeNext");
+function redirect(to, headers = {}) {
+  return new Response(null, { status: 302, headers: { location: to, ...headers } });
+}
+__name(redirect, "redirect");
+function page(title, msg, cls, next, status) {
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${title} \u2014 S\u01A1n L\xEA</title>
+<style>:root{color-scheme:dark}body{margin:0;min-height:100vh;display:grid;place-items:center;background:oklch(0.115 0.022 256);color:oklch(0.965 0.006 250);font:16px/1.6 Sora,system-ui,sans-serif}
+form{width:min(360px,90vw)}h1{font-weight:600;letter-spacing:-.04em;font-size:28px;margin:0 0 6px;display:flex;align-items:center;gap:10px}h1::before{content:"";width:9px;height:9px;border-radius:2px;background:oklch(0.800 0.135 222);box-shadow:0 0 12px oklch(0.800 0.135 222/.7)}
+p{margin:0 0 22px;color:oklch(0.560 0.020 252);font-weight:300}p.error{color:oklch(0.820 0.095 55)}
+input{width:100%;box-sizing:border-box;font:inherit;color:inherit;background:oklch(0.150 0.026 255);border:1px solid oklch(0.290 0.030 254);border-radius:6px;padding:11px 12px;margin-bottom:10px}input:focus{outline:none;border-color:oklch(0.800 0.135 222)}
+button{font:inherit;font-weight:600;color:oklch(0.115 0.022 256);background:oklch(0.800 0.135 222);border:0;border-radius:6px;padding:10px 16px;cursor:pointer}</style></head>
+<body><form method="post" action="/login?next=${encodeURIComponent(next)}"><h1>${title}</h1><p class="${cls}">${msg}</p><input type="password" name="passphrase" autocomplete="current-password" autofocus required><button type="submit">Enter</button></form></body></html>`;
+  return new Response(html, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
+}
+__name(page, "page");
 async function readDoc(env, slug) {
   const raw = await env.COMMENTS.get(DOC + slug);
   return raw ? JSON.parse(raw) : { slug, comments: [] };
@@ -55,52 +130,38 @@ async function writeIndex(env, slug, count) {
 }
 __name(writeIndex, "writeIndex");
 async function api(request, env, url) {
-  const p = url.pathname;
-  const m = request.method;
-  const me = identity(request, env);
+  const p = url.pathname, m = request.method;
+  const me = await identity(request, env);
   if (!me) return json({ error: "unauthenticated" }, 401);
-  if (p === "/api/me" && m === "GET") {
-    return json({ email: me, canWrite: allowed(me, env) });
-  }
-  if (p === "/api/comments/summary" && m === "GET") {
-    const idx = await readIndex(env);
-    return json(idx, 200, { "cache-control": "no-store" });
-  }
+  if (p === "/api/me" && m === "GET") return json({ email: me, canWrite: allowed(me, env) });
+  if (p === "/api/comments/summary" && m === "GET") return json(await readIndex(env), 200, { "cache-control": "no-store" });
   if (p === "/api/comments/export" && m === "GET") {
     const idx = await readIndex(env);
-    const slugs = Object.keys(idx.counts).sort();
     const parts = [`# Notes from S\u01A1n
 
 Exported ${(/* @__PURE__ */ new Date()).toISOString()}
 `];
-    for (const slug of slugs) {
+    for (const slug of Object.keys(idx.counts).sort()) {
       const doc = await readDoc(env, slug);
       if (!doc.comments.length) continue;
       parts.push(`
 ## /reports/${slug}/
 `);
-      for (const c of doc.comments) {
-        parts.push(`- **${c.anchor === "top" ? "whole document" : "#" + c.anchor}** \xB7 ${c.createdAt}
+      for (const c of doc.comments) parts.push(`- **${c.anchor === "top" ? "whole document" : "#" + c.anchor}** \xB7 ${c.createdAt}
   ${c.text.replace(/\n/g, "\n  ")}
 `);
-      }
     }
-    return new Response(parts.join("\n"), {
-      headers: { "content-type": "text/markdown; charset=utf-8", "cache-control": "no-store" }
-    });
+    return new Response(parts.join("\n"), { headers: { "content-type": "text/markdown; charset=utf-8", "cache-control": "no-store" } });
   }
   if (p === "/api/comments" && m === "GET") {
     const slug = url.searchParams.get("doc") || "";
     if (!SLUG_RE.test(slug)) return json({ error: "bad doc" }, 400);
-    const doc = await readDoc(env, slug);
-    return json({ ...doc, canWrite: allowed(me, env) }, 200, { "cache-control": "no-store" });
+    return json({ ...await readDoc(env, slug), canWrite: allowed(me, env) }, 200, { "cache-control": "no-store" });
   }
   if (p === "/api/comments" && m === "POST") {
     if (!allowed(me, env)) return json({ error: "forbidden" }, 403);
     const body = await request.json().catch(() => null);
-    const slug = String(body?.doc || "");
-    const anchor = String(body?.anchor || "top");
-    const text = String(body?.text || "").trim();
+    const slug = String(body?.doc || ""), anchor = String(body?.anchor || "top"), text = String(body?.text || "").trim();
     if (!SLUG_RE.test(slug)) return json({ error: "bad doc" }, 400);
     if (!ANCHOR_RE.test(anchor)) return json({ error: "bad anchor" }, 400);
     if (!text) return json({ error: "empty" }, 400);
@@ -124,9 +185,8 @@ Exported ${(/* @__PURE__ */ new Date()).toISOString()}
     if (i < 0) return json({ error: "not found" }, 404);
     const c = doc.comments[i];
     if (c.author !== me) return json({ error: "not yours" }, 403);
-    if (m === "DELETE") {
-      doc.comments.splice(i, 1);
-    } else {
+    if (m === "DELETE") doc.comments.splice(i, 1);
+    else {
       if (Date.now() - Date.parse(c.createdAt) > EDIT_WINDOW_MS) return json({ error: "edit window closed; add a new note" }, 403);
       const body = await request.json().catch(() => null);
       const text = String(body?.text || "").trim();
@@ -142,10 +202,7 @@ Exported ${(/* @__PURE__ */ new Date()).toISOString()}
 }
 __name(api, "api");
 function json(data, status = 200, extra = {}) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "content-type": "application/json; charset=utf-8", ...extra }
-  });
+  return new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8", ...extra } });
 }
 __name(json, "json");
 
@@ -196,7 +253,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-ZtI6Iv/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-BO5eMO/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -228,7 +285,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-ZtI6Iv/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-BO5eMO/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

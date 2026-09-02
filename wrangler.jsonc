@@ -12,8 +12,9 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    // Static files are served without waking the Worker. Only the API needs it.
-    "run_worker_first": ["/api/*"]
+    // The Worker is the door: it runs first for everything so private pages
+    // need a session. Public paths are passed straight through inside it.
+    "run_worker_first": ["/*"]
   },
   "kv_namespaces": [
     // Create with: npx wrangler kv namespace create COMMENTS
@@ -23,6 +24,8 @@
   "vars": {
     // Only these identities may write notes. Cloudflare Access supplies the
     // email; anyone else gets 403. Comma-separated.
-    "ALLOWED_EMAILS": "son@perfeat.org,tuanson.le03@gmail.com"
+    "ALLOWED_EMAILS": "son@perfeat.org,tuanson.le03@gmail.com",
+    // Identity a passphrase session resolves to (single-owner mode).
+    "OWNER_EMAIL": "son@perfeat.org"
   }
 }
