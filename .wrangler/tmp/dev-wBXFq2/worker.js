@@ -124,7 +124,6 @@ async function filingAuth(request, env) {
 __name(filingAuth, "filingAuth");
 async function fileReading(request, env) {
   if (!await filingAuth(request, env)) return json({ error: "unauthenticated", hint: "Authorization: Bearer <FILING_TOKEN>" }, 401);
-  if (!env.GITHUB_TOKEN) return json({ error: "filing not configured", hint: "set GITHUB_TOKEN on the Worker" }, 503);
   const b = await request.json().catch(() => null);
   if (!b) return json({ error: "body must be JSON" }, 400);
   const errs = [];
@@ -157,6 +156,7 @@ async function fileReading(request, env) {
   if (!slug) errs.push("slug: could not derive one from the title");
   if (FORBIDDEN.test(title + " " + dek + " " + body)) errs.push("content: WeCare material is not allowed on this site");
   if (errs.length) return json({ error: "invalid", problems: errs }, 422);
+  if (!env.GITHUB_TOKEN) return json({ error: "filing not configured", hint: "set GITHUB_TOKEN on the Worker", wouldFile: `src/content/reports/${date}-${slug}.md` }, 503);
   const y = /* @__PURE__ */ __name((s) => JSON.stringify(s), "y");
   const fm = ["---", `title: ${y(title)}`, `dek: ${y(dek)}`, `date: ${date}`, `type: ${type}`, `author: ${y(author)}`, `lang: ${lang}`, `revision: ${revision}`];
   if (sources.length) fm.push("sources:", ...sources.map((s) => "  - " + y(s)));
