@@ -62,8 +62,9 @@ locale-aware (`vi-VN` for Vietnamese documents).
 
 ## Space and surface
 
-- **The sea** is the material: four drifting bodies of light and two sliding
-  caustic textures behind everything (see Pictures). No grid.
+- **The sea** is the material: one body of light, high and left, drifting on a
+  70s loop. Quieter pass (2026-09-02) removed the other three, the caustics, the
+  aurora drift and the cursor spotlight: they read as điệu. No grid.
 - One **aurora** of `--lume` at 14–16% opacity, centred above the fold. It is the
   only glow.
 - Rules are 1px. Corners are 4–6px. Nothing is a card; rows are separated by
@@ -87,7 +88,6 @@ locale-aware (`vi-VN` for Vietnamese documents).
   one muted span, then the list. Sections take ~14vh of air above.
 - **Frame**: two 1px vertical rules bound the column at every width above 640px.
 - **No grid.** Removed once the sea existed; it only added noise.
-- **Alive when still**: the aurora drifts on a 26s alternate loop.
 
 ## Pictures and interaction
 
@@ -97,8 +97,6 @@ locale-aware (`vi-VN` for Vietnamese documents).
   title; click opens it. Server-rendered SVG, complete without JavaScript.
 - **Kind glyphs** (`lib/glyphs.ts`): one drawn line icon per kind, 1.6 stroke,
   round joins, beside every row and stamp. They tilt on hover.
-- **Cursor spotlight**: a 520px radial of `--lume` at 9% follows the pointer over
-  the grid. Pointer devices only, off under reduced motion.
 - **Row peek**: title and dek slide 4px and the dek brightens on hover.
 - **Intro cadence**: the three lines of the headline and the two paragraphs arrive
   in sequence from a visible base (opacity floor 35%).

@@ -44,8 +44,6 @@
 @media (prefers-color-scheme:light){
   :root:not([data-theme="dark"]) .sea{background:radial-gradient(80% 60% at 50% -5%,oklch(0.90 0.06 225) 0%,transparent 62%),radial-gradient(60% 50% at 85% 20%,oklch(0.93 0.04 205) 0%,transparent 60%),linear-gradient(180deg,oklch(0.975 0.008 240) 0%,var(--void) 70%)}
   :root:not([data-theme="dark"]) .lb{mix-blend-mode:normal;filter:blur(80px)}
-  :root:not([data-theme="dark"]) .caustic{mix-blend-mode:multiply;opacity:.10}
-  :root:not([data-theme="dark"]) .c2{opacity:.07}
   :root:not([data-theme="dark"]){
     --void:   oklch(0.985 0.004 250);
     --ground: oklch(0.962 0.008 250);
@@ -305,10 +303,6 @@ footer a:hover{color:var(--lume)}
 .r:hover .kind svg{transform:rotate(-8deg) scale(1.15)}
 .kind svg{transition:transform .3s var(--out)}
 
-/* cursor spotlight on the grid */
-.spot{position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:radial-gradient(520px circle at var(--mx,-999px) var(--my,-999px),color-mix(in oklch,var(--lume) 9%,transparent),transparent 62%)}
-:root[data-theme="light"] .spot{background:radial-gradient(520px circle at var(--mx,-999px) var(--my,-999px),color-mix(in oklch,var(--lume) 12%,transparent),transparent 62%)}
 
 /* row peek: the dek lifts and the title leads on hover */
 .r h3,.r p{transition:transform .3s var(--out),color .18s var(--out)}
@@ -345,11 +339,6 @@ main.w::before,main.w::after{content:"";position:absolute;top:0;bottom:0;width:1
 main.w::before{left:0}main.w::after{right:0}
 @media (max-width:640px){main.w::before,main.w::after{display:none}}
 
-/* aurora drifts, slowly: the page is alive even when still */
-@media (prefers-reduced-motion:no-preference){
-  body::after{animation:drift 26s ease-in-out infinite alternate}
-  @keyframes drift{from{transform:translateX(-50%) translate(-140px,0)}to{transform:translateX(-50%) translate(160px,60px)}}
-}
 
 /* hero */
 .hero{min-height:calc(100vh - 110px);display:flex;flex-direction:column;justify-content:center;padding:40px 0 60px}
@@ -406,29 +395,13 @@ main.w::before{left:0}main.w::after{right:0}
 body::before{z-index:-2}
 .sea{position:fixed;inset:-10%;z-index:-3;pointer-events:none;overflow:hidden;
   background:
-    radial-gradient(80% 60% at 50% -5%,oklch(0.30 0.085 232) 0%,transparent 62%),
-    radial-gradient(60% 50% at 85% 20%,oklch(0.24 0.08 205) 0%,transparent 60%),
-    linear-gradient(180deg,oklch(0.17 0.045 250) 0%,var(--void) 70%)}
+    radial-gradient(80% 60% at 50% -5%,oklch(0.25 0.07 236) 0%,transparent 62%),
+    linear-gradient(180deg,oklch(0.16 0.04 250) 0%,var(--void) 70%)}
 .lb{position:absolute;border-radius:50%;filter:blur(64px);will-change:transform;mix-blend-mode:screen}
-.lb1{width:60vw;height:60vw;left:-10vw;top:-16vw;background:oklch(0.58 0.15 232 / .36)}
-.lb2{width:46vw;height:46vw;right:-8vw;top:6vw;background:oklch(0.66 0.13 205 / .28)}
-.lb3{width:54vw;height:54vw;left:24vw;top:34vw;background:oklch(0.48 0.14 255 / .30)}
-.lb4{width:38vw;height:38vw;right:12vw;bottom:-12vw;background:oklch(0.70 0.12 220 / .22)}
-.caustic{position:absolute;inset:0;width:100%;height:100%;opacity:.22;mix-blend-mode:screen;will-change:transform;transform:scale(1.3)}
-.c2{opacity:.16}
+.lb1{width:70vw;height:70vw;left:-14vw;top:-26vw;background:oklch(0.52 0.12 232 / .30)}
 @media (prefers-reduced-motion:no-preference){
-  .lb1{animation:sw1 38s ease-in-out infinite alternate}
-  .lb2{animation:sw2 47s ease-in-out infinite alternate}
-  .lb3{animation:sw3 59s ease-in-out infinite alternate}
-  .lb4{animation:sw4 43s ease-in-out infinite alternate}
-  @keyframes sw1{to{transform:translate(18vw,14vw) scale(1.15)}}
-  @keyframes sw2{to{transform:translate(-16vw,20vw) scale(.9)}}
-  @keyframes sw3{to{transform:translate(-22vw,-16vw) scale(1.2)}}
-  @keyframes sw4{to{transform:translate(12vw,-18vw) scale(1.1)}}
-  .c1{animation:cau1 70s linear infinite alternate}
-  .c2{animation:cau2 95s linear infinite alternate}
-  @keyframes cau1{from{transform:scale(1.3) translate(-4%,-3%) rotate(0deg)}to{transform:scale(1.42) translate(4%,3%) rotate(2deg)}}
-  @keyframes cau2{from{transform:scale(1.35) translate(3%,-4%) rotate(1deg)}to{transform:scale(1.28) translate(-4%,4%) rotate(-2deg)}}
+  .lb1{animation:sw1 70s ease-in-out infinite alternate}
+  @keyframes sw1{to{transform:translate(14vw,10vw) scale(1.08)}}
 }
 /* bright theme: light on water reads darker-on-paper, so invert the blend */
 :root[data-theme="light"] .sea{background:
@@ -436,11 +409,6 @@ body::before{z-index:-2}
     radial-gradient(60% 50% at 85% 20%,oklch(0.93 0.04 205) 0%,transparent 60%),
     linear-gradient(180deg,oklch(0.975 0.008 240) 0%,var(--void) 70%)}
 :root[data-theme="light"] .lb{mix-blend-mode:normal;filter:blur(80px)}
-:root[data-theme="light"] .lb1{background:oklch(0.82 0.10 232 / .45)}
-:root[data-theme="light"] .lb2{background:oklch(0.87 0.08 205 / .40)}
-:root[data-theme="light"] .lb3{background:oklch(0.84 0.09 255 / .35)}
-:root[data-theme="light"] .lb4{background:oklch(0.90 0.06 220 / .35)}
-:root[data-theme="light"] .caustic{mix-blend-mode:multiply;opacity:.10}
-:root[data-theme="light"] .c2{opacity:.07}
+:root[data-theme="light"] .lb1{background:oklch(0.84 0.08 232 / .40)}
 :root[data-theme="light"] body::before{opacity:.35}
-@media (max-width:640px){.lb{filter:blur(44px)}.caustic{opacity:.22}.c2{opacity:.16}}
+@media (max-width:640px){.lb{filter:blur(44px)}}
