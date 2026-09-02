@@ -1,5 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import { glyph } from '../lib/glyphs';
 interface Props { entry: CollectionEntry<'reports'>; href?: string }
 const { entry, href = `/reports/${entry.id}/` } = Astro.props;
 const d = entry.data;
@@ -7,7 +8,7 @@ const iso = d.date.toISOString().slice(0, 10);
 const idx = iso.replace(/-/g, '.');
 ---
 <a class="r" href={href} lang={d.lang}>
-  <div class="idx"><time datetime={iso}>{idx}</time><span class="kind">{d.type}</span>{d.lang === 'vi' && <span>vi</span>}</div>
+  <div class="idx"><time datetime={iso}>{idx}</time><span class="kind" set:html={glyph(d.type, 12) + `<em>${d.type}</em>`} />{d.lang === 'vi' && <span>vi</span>}</div>
   <div>
     <h3>{d.title}</h3>
     <p>{d.dek}</p>

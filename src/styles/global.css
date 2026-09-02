@@ -279,3 +279,67 @@ footer a:hover{color:var(--lume)}
 .mo button{font:inherit;font-family:var(--mono);font-size:11.5px;color:var(--ink-2);background:var(--ground);border:1px solid var(--line-2);border-radius:5px;padding:7px 11px;cursor:pointer}
 .mo button:hover{border-color:var(--lume);color:var(--ink)}
 @media (max-width:640px){.kit .rule{grid-template-columns:1fr}.ts div{grid-template-columns:1fr;gap:4px}}
+
+/* ---------- picture: the archive field ---------- */
+.field{margin:0 0 72px;position:relative;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding:14px 0 10px}
+.field svg{display:block;width:100%}
+.field-bg{height:260px;position:absolute;inset:14px 0 auto 0}
+.field-bg line{stroke:var(--line-2);stroke-width:1;vector-effect:non-scaling-stroke}
+.field-fg{height:260px;position:relative;overflow:visible}
+.field-labels{position:absolute;left:0;top:14px;height:260px;width:0}
+.field-labels span{position:absolute;transform:translateY(-50%);display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;color:var(--ink-3);white-space:nowrap;background:var(--void);padding-right:8px}
+.field-labels span i{font-style:normal}
+.field .link{stroke:var(--lume);stroke-opacity:.28;stroke-width:1;stroke-dasharray:3 4}
+.field .node{cursor:pointer}
+.field .halo{fill:var(--lume);opacity:0;transition:opacity .25s var(--out)}
+.field .dot{fill:var(--lume);transition:transform .3s var(--out);transform-box:fill-box;transform-origin:center}
+.field .node text{font-family:var(--sans);font-size:12px;fill:var(--ink);opacity:0;transition:opacity .2s var(--out);pointer-events:none;paint-order:stroke;stroke:var(--void);stroke-width:4px;stroke-linejoin:round}
+.field .node:hover .halo,.field .node:focus-visible .halo{opacity:.16}
+.field .node:hover .dot,.field .node:focus-visible .dot{transform:scale(1.45)}
+.field .node:hover text,.field .node:focus-visible text{opacity:1}
+.field .empty{font-family:var(--mono);font-size:12px;fill:var(--ink-3)}
+.field figcaption{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:10px}
+@media (prefers-reduced-motion:no-preference){
+  .field .dot{animation:breathe 6s ease-in-out infinite;animation-delay:var(--d)}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+  .field .node:hover .dot{animation:none}
+}
+@media (max-width:640px){.field-bg,.field-fg,.field-labels{height:200px}.field-labels span i{display:none}}
+
+/* kind glyph in rows and stamps */
+.kind{display:inline-flex;align-items:center;gap:5px}
+.kind em{font-style:normal}
+.r:hover .kind svg{transform:rotate(-8deg) scale(1.15)}
+.kind svg{transition:transform .3s var(--out)}
+
+/* cursor spotlight on the grid */
+.spot{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(520px circle at var(--mx,-999px) var(--my,-999px),color-mix(in oklch,var(--lume) 9%,transparent),transparent 62%)}
+:root[data-theme="light"] .spot{background:radial-gradient(520px circle at var(--mx,-999px) var(--my,-999px),color-mix(in oklch,var(--lume) 12%,transparent),transparent 62%)}
+
+/* row peek: the dek lifts and the title leads on hover */
+.r h3,.r p{transition:transform .3s var(--out),color .18s var(--out)}
+.r:hover h3{transform:translateX(4px)}
+.r:hover p{transform:translateX(4px);color:var(--ink)}
+
+/* contact */
+.contact{display:grid;gap:0}
+.contact a{display:grid;grid-template-columns:118px 1fr auto;gap:22px;align-items:center;padding:16px 0;border-bottom:1px solid var(--line-2);transition:background .2s var(--out)}
+.contact a:last-child{border-bottom:0}
+.contact a b{font-weight:500;font-size:17px;letter-spacing:-0.02em;transition:color .18s var(--out)}
+.contact a i{font-style:normal;color:var(--ink-3);transition:transform .3s var(--out),color .18s var(--out)}
+.contact a:hover b{color:var(--lume)}
+.contact a:hover i{transform:translateX(5px);color:var(--lume)}
+.contact .idx{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+@media (max-width:640px){.contact a{grid-template-columns:1fr auto;gap:6px 14px}.contact .idx{grid-column:1/-1}}
+
+/* intro: words arrive in sequence, from a visible base */
+@media (prefers-reduced-motion:no-preference){
+  .intro .wd{display:inline-block;animation:wd .9s var(--out) both}
+  .intro h1 .wd:nth-child(2){animation-delay:.08s}.intro h1 .wd:nth-child(3){animation-delay:.16s}
+  .intro p.wd{display:block;animation-delay:.28s}.intro p.last.wd{animation-delay:.38s}
+  @keyframes wd{from{transform:translateY(14px);opacity:.35}to{transform:none;opacity:1}}
+  @supports (animation-timeline:view()){
+    .sh,.field,.contact a{animation:arrive linear both;animation-timeline:view();animation-range:entry 0% entry 35%}
+  }
+}

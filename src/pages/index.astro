@@ -1,40 +1,40 @@
 ---
 import Base from '../layouts/Base.astro';
 import ReportRow from '../components/ReportRow.astro';
+import Field from '../components/Field.astro';
 import { getCollection } from 'astro:content';
 
-const reports = (await getCollection('reports'))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const recent = reports.slice(0, 5);
-
-const writing = (await getCollection('writing'))
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-  .slice(0, 4);
+const writing = (await getCollection('writing')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 4);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
 const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
 ---
-<Base title="Sơn Lê" description="Personal site of Sơn Lê.">
+<Base title="Sơn Lê" description="Sơn Lê builds small companies and keeps a fleet of research bots reading for him. Their readings, his notes.">
   <div class="status">
     <span class="live">online</span>
     <span><b class="num" data-count={agents}>{agents}</b> agents filing</span>
-    <span><b class="num" data-count={reports.length}>{reports.length}</b> reports · <b class="num" data-count={week}>{week}</b> this week</span>
+    <span><b class="num" data-count={reports.length}>{reports.length}</b> readings · <b class="num" data-count={week}>{week}</b> this week</span>
     <span>built <b class="num">{built}</b> UTC</span>
   </div>
+
   <div class="intro">
-    <h1>I build small companies, and I keep a fleet of <em>research bots</em> reading for me.</h1>
-    <p>I'm Sơn. I work on Perfeat and Paddock from Ho Chi Minh City, mostly alone, mostly in public. Somewhere between an operator and an engineer, depending on the week.</p>
-    <p class="last">The bots read what I can't get to. Everything they find is kept below, in English and Vietnamese, with my arguments in the margin.</p>
+    <h1><span class="wd">I build small companies,</span> <span class="wd">and I keep a fleet of</span> <span class="wd"><em>research bots</em> reading for me.</span></h1>
+    <p class="wd">I'm Sơn. I work on Perfeat and Paddock from Ho Chi Minh City, mostly alone, mostly in public. Somewhere between an operator and an engineer, depending on the week.</p>
+    <p class="last wd">The bots read what I can't get to: news, breakdowns, business research, models. Everything they find is kept below, in English and Vietnamese, with my notes in the margin.</p>
   </div>
 
-  <section>
+  <Field reports={reports} />
+
+  <section id="readings">
     <div class="sh">
-      <h2>What the bots found</h2>
+      <h2>The readings</h2>
       <span>{recent.length === 0 ? 'nothing filed yet' : 'most recent'}</span>
-      {reports.length > recent.length && <a href="/reports">All {reports.length} →</a>}
+      {reports.length > 0 && <a href="/reports/">All {reports.length} →</a>}
     </div>
     {recent.length === 0
-      ? <p style="color:var(--ink-3);font-size:17px">No reports yet. When an agent commits one, it appears here.</p>
+      ? <p style="color:var(--ink-3);font-weight:300">No readings yet. When an agent commits one, it appears here.</p>
       : recent.map(entry => <ReportRow entry={entry} />)}
   </section>
 
@@ -45,16 +45,23 @@ const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
   </section>
 
   {writing.length > 0 && (
-    <section>
+    <section id="writing">
       <div class="sh"><h2>Writing</h2><span>mine, not theirs</span></div>
       {writing.map(w => (
         <a class="p" href={`/writing/${w.id}/`}>
-          <time datetime={w.data.date.toISOString().slice(0,10)}>
-            {new Intl.DateTimeFormat('en-GB',{month:'short',year:'numeric'}).format(w.data.date)}
-          </time>
+          <time datetime={w.data.date.toISOString().slice(0,10)}>{new Intl.DateTimeFormat('en-GB',{month:'short',year:'numeric'}).format(w.data.date)}</time>
           <h3>{w.data.title}</h3>
         </a>
       ))}
     </section>
   )}
+
+  <section id="contact">
+    <div class="sh"><h2>Contact</h2><span>I read everything, slowly</span></div>
+    <div class="contact">
+      <a href="mailto:son@perfeat.org"><span class="idx">work</span><b>son@perfeat.org</b><i>→</i></a>
+      <a href="mailto:tuanson.le03@gmail.com"><span class="idx">personal</span><b>tuanson.le03@gmail.com</b><i>→</i></a>
+      <a href="https://www.linkedin.com/in/toilaleson" rel="me"><span class="idx">linkedin</span><b>in/toilaleson</b><i>↗</i></a>
+    </div>
+  </section>
 </Base>

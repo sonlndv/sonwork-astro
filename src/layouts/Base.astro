@@ -58,9 +58,10 @@ const nav = [
 
   <footer class="w">
     <a href="mailto:son@perfeat.org">son@perfeat.org</a>
-    <a href="https://x.com/toilaleson">toilaleson</a>
+    <a href="https://www.linkedin.com/in/toilaleson">linkedin</a>
     <a href="/kit/" style="margin-left:auto">kit</a>
   </footer>
+  <div class="spot" aria-hidden="true"></div>
 
   {(
     <dialog id="search" aria-label="Search">
@@ -118,6 +119,12 @@ const nav = [
           el.previousElementSibling?.removeAttribute('hidden');
         });
       }).catch(() => {});
+
+      // cursor spotlight on the grid (pointer devices only)
+      if (matchMedia('(pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches && !(window as any).__spot) {
+        (window as any).__spot = true; let raf = 0;
+        document.addEventListener('pointermove', (e) => { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; document.documentElement.style.setProperty('--mx', e.clientX + 'px'); document.documentElement.style.setProperty('--my', e.clientY + 'px'); }); });
+      }
 
       // live counters: numbers count up once, to their real value
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {

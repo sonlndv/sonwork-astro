@@ -73,8 +73,23 @@ locale-aware (`vi-VN` for Vietnamese documents).
   margin at 260px).
 - Section rhythm: 72px between sections, 34px above a section head, 22px below.
 
+## Pictures and interaction
+
+- **The field** (`Field.astro`): the archive drawn as a map under the intro. x is
+  time, rows are kinds, node size is revision count, dashed hairlines join reports
+  by the same agent. Nodes breathe slowly; hover or focus lifts one and reveals its
+  title; click opens it. Server-rendered SVG, complete without JavaScript.
+- **Kind glyphs** (`lib/glyphs.ts`): one drawn line icon per kind, 1.6 stroke,
+  round joins, beside every row and stamp. They tilt on hover.
+- **Cursor spotlight**: a 520px radial of `--lume` at 9% follows the pointer over
+  the grid. Pointer devices only, off under reduced motion.
+- **Row peek**: title and dek slide 4px and the dek brightens on hover.
+- **Intro cadence**: the three lines of the headline and the two paragraphs arrive
+  in sequence from a visible base (opacity floor 35%).
+
 ## Components
 
+- **Contact** — three rows (work mail, personal mail, LinkedIn) with an arrow that travels on hover.
 - **Status line** — mono, under the header on the home page. Real numbers from
   the build: agents filing, reports, this week, build time. Numbers count up once.
 - **Ledger row** (`.r`) — 118px mono index column (date, type, `vi`) beside title,

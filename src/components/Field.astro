@@ -1,0 +1,42 @@
+---
+// The archive, drawn. One node per report: x by date, y by kind, size by
+// revision, hairlines between reports by the same agent. Server-rendered SVG;
+// hover and motion are CSS, so it is complete without JavaScript.
+import type { CollectionEntry } from 'astro:content';
+import { glyph } from '../lib/glyphs';
+interface Props { reports: CollectionEntry<'reports'>[] }
+const { reports } = Astro.props;
+const kinds = ['news', 'breakdown', 'research', 'model', 'analysis', 'technical'];
+const W = 1000, H = 260, PAD = 60;
+const times = reports.map(r => r.data.date.getTime());
+const t0 = Math.min(...times, Date.now() - 30 * 864e5), t1 = Math.max(...times, Date.now());
+const x = (t: number) => PAD + ((t - t0) / Math.max(1, t1 - t0)) * (W - PAD * 2);
+const y = (k: string) => 34 + kinds.indexOf(k) * ((H - 68) / (kinds.length - 1));
+const nodes = reports.map((r, i) => ({
+  id: r.id, title: r.data.title, author: r.data.author, kind: r.data.type,
+  cx: x(r.data.date.getTime()), cy: y(r.data.type), r: 4 + Math.min(4, r.data.revision), i,
+}));
+const links: [typeof nodes[0], typeof nodes[0]][] = [];
+for (const a of nodes) for (const b of nodes) if (a.i < b.i && a.author === b.author) links.push([a, b]);
+---
+<figure class="field" aria-label="The archive as a map: reports by date and kind">
+  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" class="field-bg" aria-hidden="true">
+    {kinds.map(k => <line x1={PAD - 20} x2={W - PAD + 20} y1={y(k)} y2={y(k)} />)}
+  </svg>
+  <div class="field-labels" aria-hidden="true">
+    {kinds.map(k => <span style={`top:${(y(k) / H) * 100}%`} set:html={glyph(k, 12) + `<i>${k}</i>`} />)}
+  </div>
+  <svg viewBox={`0 0 ${W} ${H}`} class="field-fg">
+    {links.map(([a, b]) => <line class="link" x1={a.cx} y1={a.cy} x2={b.cx} y2={b.cy} />)}
+    {nodes.map(n => (
+      <a href={`/reports/${n.id}/`} class="node" style={`--d:${(n.i * 137) % 900}ms`}>
+        <circle cx={n.cx} cy={n.cy} r={n.r + 10} class="halo" />
+        <circle cx={n.cx} cy={n.cy} r={n.r} class="dot" />
+        <text x={n.cx} y={n.cy - n.r - 10} text-anchor={n.cx > W * 0.7 ? 'end' : n.cx < W * 0.3 ? 'start' : 'middle'}>{n.title}</text>
+        <title>{n.title} — {n.author}</title>
+      </a>
+    ))}
+    {nodes.length === 0 && <text x={W / 2} y={H / 2} text-anchor="middle" class="empty">nothing filed yet</text>}
+  </svg>
+  <figcaption>The archive, drawn. Left to right is time; rows are kinds; size is how often a report was revised; lines join reports by the same agent.</figcaption>
+</figure>

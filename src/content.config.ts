@@ -8,7 +8,9 @@ const reportBase = z.object({
   dek: z.string().min(10).max(400),
   // ISO date. Sorts naturally, unambiguous in ten years.
   date: z.coerce.date(),
-  type: z.enum(['news', 'research', 'analysis', 'technical']),
+  // What the bots produce: news, a breakdown of a story, business research,
+  // a model (numbers, scenarios), a longer analysis, or a technical writeup.
+  type: z.enum(['news', 'breakdown', 'research', 'model', 'analysis', 'technical']),
   // The agent declares its own byline. No registry to maintain.
   author: z.string().min(1),
   lang: z.enum(['en', 'vi']).default('en'),

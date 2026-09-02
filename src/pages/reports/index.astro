@@ -13,12 +13,12 @@ for (const r of reports) {
   byYear.get(y)!.push(r);
 }
 const years = [...byYear.keys()].sort((a, b) => b - a);
-const types = ['news', 'research', 'analysis', 'technical'] as const;
+const types = ['news', 'breakdown', 'research', 'model', 'analysis', 'technical'] as const;
 const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] === v).length;
 ---
 <Base title="Research — Sơn Lê" current="reports">
   <div class="intro" style="padding:72px 0 36px">
-    <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">Everything the bots filed.</h1>
+    <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">The readings, all of them.</h1>
     <p class="last"><span id="shown">{reports.length}</span> of {reports.length}, newest first. ⌘K searches the full text.</p>
   </div>
 
