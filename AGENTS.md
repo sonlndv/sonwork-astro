@@ -29,8 +29,9 @@ then this file. Do not contradict either; update them when a durable fact change
 
 ## Who Son is (public version)
 
-Son Lê: ex-venture capitalist, now a full-time operator, building a business
-with AI applied to real business problems. He studies business models,
+Son Lê runs a business full time and applies AI to real problems inside it; he
+came from venture capital. **Keep the tone humble:** the VC past is a passing
+clause, never a headline; "still learning" is the posture. He studies business models,
 companies and unit economics, and human systems. Side project: a Vietnamese,
 data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
 

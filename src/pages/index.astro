@@ -10,10 +10,10 @@ const writing = (await getCollection('writing')).sort((a, b) => b.data.date.getT
 const agents = new Set(reports.map(r => r.data.author)).size;
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
 ---
-<Base title="Son Lê" description="Son Lê: ex-venture capitalist, now a full-time operator. His research agents read; he argues in the margin.">
+<Base title="Son Lê" description="Son Lê runs a business and keeps a fleet of research agents reading for him. He argues in the margin.">
   <div class="lede-block">
     <h1 class="lede-h"><span class="wd">My research bots read.</span> <span class="wd dim">I argue in the margin.</span></h1>
-    <p class="lede-p wd">I'm Son Lê. Ex-venture capitalist, now a full-time operator, building a business with AI applied to real business problems. A fleet of agents reads what I can't get to; what they file lands here, in English and Vietnamese. <a href="/about/">About me →</a></p>
+    <p class="lede-p wd">I'm Son Lê. I run a business, try to apply AI to real problems inside it, and keep a fleet of agents reading what I can't get to. What they file lands here, in English and Vietnamese. <a href="/about/">About me →</a></p>
     <div class="tally num wd"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</div>
   </div>
 

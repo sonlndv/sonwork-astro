@@ -136,9 +136,10 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 ## Brand Commitments
 
 - Name: **Son Lê** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
-- **Public framing, in his words (2026-09-02):** ex-venture capitalist, now a
-  full-time operator, building a business with AI applied to real business
-  problems. That is the whole public story.
+- **Public framing:** he runs a business full time and applies AI to real
+  problems inside it; he came from venture capital. **Tone is humble** (his
+  request, 2026-09-03): the VC past is a passing clause, never the headline, and
+  "still learning" is the posture. Never "I used to invest".
 - **Never name his employer or the business he operates**, on the site, in
   readings, or in any published text. The credential is "operator".
 - Stopped and not to be shown as current: Perfeat (D2C eyewear), Paddock,
