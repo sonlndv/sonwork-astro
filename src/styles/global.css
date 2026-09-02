@@ -81,8 +81,6 @@ time,.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter
 header{position:sticky;top:0;z-index:20;background:color-mix(in oklch,var(--void) 74%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-2)}
 .bar{display:flex;align-items:center;gap:30px;padding:15px 0}
 .bar .me{font-weight:600;font-size:14.5px;letter-spacing:-0.015em;display:inline-flex;align-items:center;gap:9px}
-.bar .me .mark{transition:transform .35s var(--out)}
-.bar .me:hover .mark{transform:rotate(-6deg)}
 .bar nav{display:flex;gap:22px;margin-left:auto;font-size:13.5px;align-items:center}
 .bar nav a{color:var(--ink-3);transition:color .18s var(--out)}
 .bar nav a:hover,.bar nav a[aria-current]{color:var(--ink)}
@@ -405,10 +403,13 @@ body::before{z-index:-2}
 :root[data-theme="light"] body::before{opacity:.35}
 @media (max-width:640px){.lb{filter:blur(44px)}}
 
-/* ---------- the mark ---------- */
-.mark-big{position:absolute;right:-20px;bottom:-30px;width:260px;height:260px;opacity:.09;pointer-events:none;z-index:-1}
-.mark-big circle{filter:drop-shadow(0 0 14px var(--human))}
-@media (max-width:1200px){.mark-big{display:none}}
+/* ---------- LS15 ---------- */
+.ls15{display:inline-flex;align-items:baseline;font-family:"Saira Condensed",Sora,sans-serif;font-weight:900;font-size:var(--s,22px);line-height:.8;letter-spacing:-.02em;transform:skewX(-11deg);white-space:nowrap;user-select:none}
+.ls15 b{font-weight:900;color:var(--ink)}
+.ls15 i{font-style:normal;font-weight:900;color:var(--lume);margin-left:.04em}
+.bar .me{padding:4px 0}
+.bar .me .ls15{transition:transform .35s var(--out)}
+.bar .me:hover .ls15{transform:skewX(-11deg) translateX(2px)}
 @media (max-width:640px){.mark-big{display:none}}
 .marks{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap;margin:8px 0 44px}
 .marks p{flex:1 1 280px;margin:0;color:var(--ink-3);font-weight:300;font-size:14px}

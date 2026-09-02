@@ -3,7 +3,6 @@ import Base from '../layouts/Base.astro';
 import ReportRow from '../components/ReportRow.astro';
 import Field from '../components/Field.astro';
 import Statement from '../components/Statement.astro';
-import Mark from '../components/Mark.astro';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -31,7 +30,6 @@ const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
     <p class="wd">I'm Sơn. Perfeat and Paddock, from Ho Chi Minh City, mostly alone, mostly in public. Somewhere between an operator and an engineer, depending on the week.</p>
     <div class="cta wd"><a class="btn" href="#readings">Read what they found</a><a class="lnk" href="/about/">About me</a></div>
     <div class="scrollhint" aria-hidden="true">scroll<i></i></div>
-    <Mark class="mark-big" size={360} stroke={0.5} />
   </div>
 
   <Statement kicker="01 — the idea"

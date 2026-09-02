@@ -1,11 +1,10 @@
 ---
-// The mark: a document (cool square) with a note in its margin (warm dot).
-// It is the site's one rule drawn: the machines are cool, Sơn is warm.
-interface Props { size?: number; class?: string; stroke?: number }
-const { size = 16, class: cls = '', stroke = 1.8 } = Astro.props;
+// LS15 — Sơn's mark. Condensed, skewed like a driver number: LS in ink, 15 in
+// the accent. Built from type so it is crisp at every size; Saira Condensed is
+// loaded for the mark only and appears nowhere else on the site.
+interface Props { size?: number; class?: string; label?: boolean }
+const { size = 22, class: cls = '', label = true } = Astro.props;
 ---
-<svg class:list={['mark', cls]} width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-  <rect x="3" y="4" width="14" height="16" rx="2.5" stroke="var(--lume)" stroke-width={stroke}/>
-  <path d="M7 9.5h6M7 13h6M7 16.5h4" stroke="var(--lume)" stroke-width={stroke} stroke-linecap="round" opacity=".55"/>
-  <circle cx="20" cy="8" r="2.6" fill="var(--human)"/>
-</svg>
+<span class:list={['ls15', cls]} style={`--s:${size}px`} aria-label={label ? 'LS15 — Sơn Lê' : undefined} role={label ? 'img' : undefined}>
+  <b>LS</b><i>15</i>
+</span>

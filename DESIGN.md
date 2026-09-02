@@ -12,12 +12,14 @@ The system has exactly one idea, and everything else serves it:
 
 A living version of this document renders from the real tokens at `/kit/`.
 
-## Mark
+## Mark — LS15
 
-A document with a note in its margin: a rounded square with three text lines in
-`--lume`, and one dot in `--human` at its top-right edge. It is the one rule drawn.
-Used at 17px in the header (tilts 6° on hover), as the favicon, at 360px and 14%
-opacity as the ornament behind the hero, and on `/kit/`. Never recoloured.
+Sơn's mark, recovered from his own earlier brand work (`pre-wipe-2026-09-02`,
+"Speed" direction): **LS** in ink and **15** in the accent, Saira Condensed 900,
+skewed −11°, the register of a driver number (LN4). Saira Condensed is loaded for
+the mark and used nowhere else. It stands alone in the header (no wordmark
+beside it), nudges 2px on hover, and is the favicon as the LS pair on an accent
+tile. It is never used as a background ornament.
 
 ## Delight (one thesis)
 

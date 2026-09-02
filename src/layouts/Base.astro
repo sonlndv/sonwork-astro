@@ -25,10 +25,12 @@ const nav = [
   <meta name="theme-color" content="#101a2b" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)" />
   {!indexable && <meta name="robots" content="noindex, nofollow" />}
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
+  <link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Saira+Condensed:wght@800;900&display=swap" />
   <script is:inline>
     // Apply the stored theme before first paint. No flash.
     try { const t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch {}
@@ -39,7 +41,7 @@ const nav = [
   <div class="sea" aria-hidden="true"><span class="lb lb1"></span></div>
   <header class="w">
     <div class="bar">
-      <a class="me" href="/"><Mark size={17} /> Sơn Lê</a>
+      <a class="me" href="/" aria-label="Home"><Mark size={24} label={false} /></a>
       <nav>
         {nav.map(n => <a href={n.href} aria-current={current === n.key ? 'page' : undefined}>{n.label}</a>)}
         {(
