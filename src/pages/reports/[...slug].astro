@@ -24,9 +24,6 @@ const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/conte
         <time datetime={d.date.toISOString().slice(0,10)}>{fmt.format(d.date)}</time>
         <span>{d.lang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
         <a class="hist num" href={history} title="Every earlier version, in git">Revision {d.revision} · history ↗</a>
-        {d.public
-          ? <a class="pub" href={`/p/${entry.id}/`}>Public ↗</a>
-          : <span>Private</span>}
       </div>
       <div class="prose"><Content /></div>
       {d.sources?.length ? (

@@ -24,16 +24,9 @@ var worker_default = {
         return json({ error: "internal", detail: String(e?.message || e) }, 500);
       }
     }
-    if (isPublic(p)) return env.ASSETS.fetch(request);
-    const me = await identity(request, env);
-    if (!me) return redirect("/login?next=" + encodeURIComponent(p + url.search));
     return env.ASSETS.fetch(request);
   }
 };
-function isPublic(p) {
-  return p.startsWith("/p/") || p.startsWith("/_astro/") || p === "/favicon.svg" || p === "/robots.txt";
-}
-__name(isPublic, "isPublic");
 async function identity(request, env) {
   const access = request.headers.get("cf-access-authenticated-user-email");
   if (access) return access.trim().toLowerCase();
@@ -132,8 +125,8 @@ __name(writeIndex, "writeIndex");
 async function api(request, env, url) {
   const p = url.pathname, m = request.method;
   const me = await identity(request, env);
-  if (!me) return json({ error: "unauthenticated" }, 401);
-  if (p === "/api/me" && m === "GET") return json({ email: me, canWrite: allowed(me, env) });
+  const canWrite = allowed(me, env);
+  if (p === "/api/me" && m === "GET") return json({ email: me, canWrite });
   if (p === "/api/comments/summary" && m === "GET") return json(await readIndex(env), 200, { "cache-control": "no-store" });
   if (p === "/api/comments/export" && m === "GET") {
     const idx = await readIndex(env);
@@ -156,10 +149,11 @@ Exported ${(/* @__PURE__ */ new Date()).toISOString()}
   if (p === "/api/comments" && m === "GET") {
     const slug = url.searchParams.get("doc") || "";
     if (!SLUG_RE.test(slug)) return json({ error: "bad doc" }, 400);
-    return json({ ...await readDoc(env, slug), canWrite: allowed(me, env) }, 200, { "cache-control": "no-store" });
+    return json({ ...await readDoc(env, slug), canWrite }, 200, { "cache-control": "no-store" });
   }
   if (p === "/api/comments" && m === "POST") {
-    if (!allowed(me, env)) return json({ error: "forbidden" }, 403);
+    if (!me) return json({ error: "unauthenticated" }, 401);
+    if (!canWrite) return json({ error: "forbidden" }, 403);
     const body = await request.json().catch(() => null);
     const slug = String(body?.doc || ""), anchor = String(body?.anchor || "top"), text = String(body?.text || "").trim();
     if (!SLUG_RE.test(slug)) return json({ error: "bad doc" }, 400);
@@ -177,7 +171,8 @@ Exported ${(/* @__PURE__ */ new Date()).toISOString()}
   }
   const one = p.match(/^\/api\/comments\/([0-9a-f-]{36})$/);
   if (one && (m === "DELETE" || m === "PATCH")) {
-    if (!allowed(me, env)) return json({ error: "forbidden" }, 403);
+    if (!me) return json({ error: "unauthenticated" }, 401);
+    if (!canWrite) return json({ error: "forbidden" }, 403);
     const slug = url.searchParams.get("doc") || "";
     if (!SLUG_RE.test(slug)) return json({ error: "bad doc" }, 400);
     const doc = await readDoc(env, slug);
@@ -253,7 +248,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-BO5eMO/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-eBjO5U/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -285,7 +280,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-BO5eMO/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-eBjO5U/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

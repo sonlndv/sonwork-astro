@@ -1,12 +1,10 @@
 // sonwork.org — Cloudflare Worker.
 // Serves the static site through env.ASSETS, guards it, and handles /api/* notes.
 //
-// Door, in order of precedence:
-//   1. Cloudflare Access, when present: Cf-Access-Authenticated-User-Email is identity.
-//   2. Otherwise a passphrase session cookie (SITE_PASSPHRASE + SESSION_SECRET),
-//      which identifies the visitor as OWNER_EMAIL. Single-owner mode.
-//   3. Nothing → /login for pages, 401 for the API.
-// Public: /p/*, built assets, favicon, robots, and the login page itself.
+// The site is public. Identity matters only for writing notes:
+//   1. Cloudflare Access, when present: Cf-Access-Authenticated-User-Email.
+//   2. Otherwise a passphrase session cookie (/login), which resolves to OWNER_EMAIL.
+// Reading notes needs nothing.
 //
 // Notes live in KV, one key per document, plus an index for counts and export.
 
@@ -33,16 +31,9 @@ export default {
       catch (e) { return json({ error: 'internal', detail: String(e?.message || e) }, 500); }
     }
 
-    if (isPublic(p)) return env.ASSETS.fetch(request);
-    const me = await identity(request, env);
-    if (!me) return redirect('/login?next=' + encodeURIComponent(p + url.search));
     return env.ASSETS.fetch(request);
   },
 };
-
-function isPublic(p) {
-  return p.startsWith('/p/') || p.startsWith('/_astro/') || p === '/favicon.svg' || p === '/robots.txt';
-}
 
 // -------------------- identity --------------------
 
@@ -126,10 +117,11 @@ async function writeIndex(env, slug, count) {
 
 async function api(request, env, url) {
   const p = url.pathname, m = request.method;
+  // Reading is public. Writing needs an identity that is on the allow list.
   const me = await identity(request, env);
-  if (!me) return json({ error: 'unauthenticated' }, 401);
+  const canWrite = allowed(me, env);
 
-  if (p === '/api/me' && m === 'GET') return json({ email: me, canWrite: allowed(me, env) });
+  if (p === '/api/me' && m === 'GET') return json({ email: me, canWrite });
 
   if (p === '/api/comments/summary' && m === 'GET') return json(await readIndex(env), 200, { 'cache-control': 'no-store' });
 
@@ -148,11 +140,12 @@ async function api(request, env, url) {
   if (p === '/api/comments' && m === 'GET') {
     const slug = url.searchParams.get('doc') || '';
     if (!SLUG_RE.test(slug)) return json({ error: 'bad doc' }, 400);
-    return json({ ...(await readDoc(env, slug)), canWrite: allowed(me, env) }, 200, { 'cache-control': 'no-store' });
+    return json({ ...(await readDoc(env, slug)), canWrite }, 200, { 'cache-control': 'no-store' });
   }
 
   if (p === '/api/comments' && m === 'POST') {
-    if (!allowed(me, env)) return json({ error: 'forbidden' }, 403);
+    if (!me) return json({ error: 'unauthenticated' }, 401);
+    if (!canWrite) return json({ error: 'forbidden' }, 403);
     const body = await request.json().catch(() => null);
     const slug = String(body?.doc || ''), anchor = String(body?.anchor || 'top'), text = String(body?.text || '').trim();
     if (!SLUG_RE.test(slug)) return json({ error: 'bad doc' }, 400);
@@ -170,7 +163,8 @@ async function api(request, env, url) {
 
   const one = p.match(/^\/api\/comments\/([0-9a-f-]{36})$/);
   if (one && (m === 'DELETE' || m === 'PATCH')) {
-    if (!allowed(me, env)) return json({ error: 'forbidden' }, 403);
+    if (!me) return json({ error: 'unauthenticated' }, 401);
+    if (!canWrite) return json({ error: 'forbidden' }, 403);
     const slug = url.searchParams.get('doc') || '';
     if (!SLUG_RE.test(slug)) return json({ error: 'bad doc' }, 400);
     const doc = await readDoc(env, slug);

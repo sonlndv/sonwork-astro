@@ -12,9 +12,8 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    // The Worker is the door: it runs first for everything so private pages
-    // need a session. Public paths are passed straight through inside it.
-    "run_worker_first": ["/*"]
+    // Static files are served without waking the Worker.
+    "run_worker_first": ["/api/*", "/login", "/logout"]
   },
   "kv_namespaces": [
     // Create with: npx wrangler kv namespace create COMMENTS

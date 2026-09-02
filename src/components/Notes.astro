@@ -61,14 +61,14 @@ function bootNotes() {
       }
     }
     form.hidden = !canWrite;
-    hint.hidden = notes.length > 0;
-    if (!notes.length) hint.textContent = canWrite ? 'Nothing yet. This margin is yours; the document is theirs.' : 'No notes yet.';
+    hint.hidden = false;
+    if (canWrite) { hint.hidden = notes.length > 0; hint.textContent = 'Nothing yet. This margin is yours; the document is theirs.'; }
+    else hint.innerHTML = (notes.length ? '' : 'No notes yet. ') + '<a href="/login?next=' + encodeURIComponent(location.pathname) + '">Sơn signs in here</a>';
   }
 
   async function load() {
     try {
       const r = await fetch(`/api/comments?doc=${slug}`);
-      if (r.status === 401) { root.hidden = false; hint.hidden = false; hint.textContent = 'Sign in to see notes.'; return; }
       if (!r.ok) throw new Error(String(r.status));
       const d = await r.json();
       render(d.comments || [], !!d.canWrite);
