@@ -136,10 +136,11 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 ## Brand Commitments
 
 - Name: **Son Lê** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
-- **Public framing:** he runs a business full time and applies AI to real
-  problems inside it; he came from venture capital. **Tone is humble** (his
-  request, 2026-09-03): the VC past is a passing clause, never the headline, and
-  "still learning" is the posture. Never "I used to invest".
+- **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
+  (employer unnamed) and is trying to build a business of his own on the side,
+  using AI on real problems. He came from venture capital; that is a passing
+  clause, never the headline. **Never say he runs a business or used to invest.**
+  Humble, "still learning", "trying to build" is the posture.
 - **Never name his employer or the business he operates**, on the site, in
   readings, or in any published text. The credential is "operator".
 - Stopped and not to be shown as current: Perfeat (D2C eyewear), Paddock,

@@ -29,9 +29,10 @@ then this file. Do not contradict either; update them when a durable fact change
 
 ## Who Son is (public version)
 
-Son Lê runs a business full time and applies AI to real problems inside it; he
-came from venture capital. **Keep the tone humble:** the VC past is a passing
-clause, never a headline; "still learning" is the posture. He studies business models,
+Son Lê has a full-time job as an operator (employer unnamed) and is trying to
+build a business of his own on the side, using AI on real problems. He came
+from venture capital; passing clause, never a headline. **Keep the tone
+humble:** "trying to build", "still learning". Never say he runs a business. He studies business models,
 companies and unit economics, and human systems. Side project: a Vietnamese,
 data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
 
