@@ -403,3 +403,46 @@ main.w::before{left:0}main.w::after{right:0}
   }
 }
 @media (max-width:640px){.hero{min-height:auto;padding:36px 0 50px}.hero h1{font-size:40px}.stmt{min-height:auto;padding:12vh 0}.chapter{padding:9vh 0 6vh}.scrollhint{display:none}}
+
+/* ---------- the sea: light through water, behind the grid ----------
+   Four soft bodies of light drift on long, unequal loops so the pattern never
+   repeats; two static caustic textures slide across each other so the
+   interference reads as moving water. Everything stays far below the text
+   contrast floor. */
+body::before{z-index:-2}
+.sea{position:fixed;inset:-10%;z-index:-3;pointer-events:none;overflow:hidden;
+  background:
+    radial-gradient(80% 60% at 50% -5%,oklch(0.30 0.085 232) 0%,transparent 62%),
+    radial-gradient(60% 50% at 85% 20%,oklch(0.24 0.08 205) 0%,transparent 60%),
+    linear-gradient(180deg,oklch(0.17 0.045 250) 0%,var(--void) 70%)}
+.lb{position:absolute;border-radius:50%;filter:blur(64px);will-change:transform;mix-blend-mode:screen}
+.lb1{width:60vw;height:60vw;left:-10vw;top:-22vw;background:oklch(0.60 0.15 232 / .55)}
+.lb2{width:46vw;height:46vw;right:-8vw;top:-2vw;background:oklch(0.68 0.13 205 / .42)}
+.lb3{width:54vw;height:54vw;left:24vw;top:30vw;background:oklch(0.48 0.14 255 / .42)}
+.lb4{width:38vw;height:38vw;right:12vw;bottom:-12vw;background:oklch(0.70 0.12 220 / .30)}
+.caustic{position:absolute;inset:0;width:100%;height:100%;opacity:.30;mix-blend-mode:screen;will-change:transform;transform:scale(1.3)}
+.c2{opacity:.22}
+@media (prefers-reduced-motion:no-preference){
+  .lb1{animation:sw1 38s ease-in-out infinite alternate}
+  .lb2{animation:sw2 47s ease-in-out infinite alternate}
+  .lb3{animation:sw3 59s ease-in-out infinite alternate}
+  .lb4{animation:sw4 43s ease-in-out infinite alternate}
+  @keyframes sw1{to{transform:translate(18vw,14vw) scale(1.15)}}
+  @keyframes sw2{to{transform:translate(-16vw,20vw) scale(.9)}}
+  @keyframes sw3{to{transform:translate(-22vw,-16vw) scale(1.2)}}
+  @keyframes sw4{to{transform:translate(12vw,-18vw) scale(1.1)}}
+  .c1{animation:cau1 70s linear infinite alternate}
+  .c2{animation:cau2 95s linear infinite alternate}
+  @keyframes cau1{from{transform:scale(1.3) translate(-4%,-3%) rotate(0deg)}to{transform:scale(1.42) translate(4%,3%) rotate(2deg)}}
+  @keyframes cau2{from{transform:scale(1.35) translate(3%,-4%) rotate(1deg)}to{transform:scale(1.28) translate(-4%,4%) rotate(-2deg)}}
+}
+/* bright theme: light on water reads darker-on-paper, so invert the blend */
+:root[data-theme="light"] .sea{background:radial-gradient(90% 70% at 50% -10%,oklch(0.90 0.05 230) 0%,transparent 60%)}
+:root[data-theme="light"] .lb{mix-blend-mode:multiply}
+:root[data-theme="light"] .lb1{background:oklch(0.80 0.09 232 / .35)}
+:root[data-theme="light"] .lb2{background:oklch(0.84 0.08 205 / .3)}
+:root[data-theme="light"] .lb3{background:oklch(0.78 0.10 255 / .28)}
+:root[data-theme="light"] .lb4{background:oklch(0.86 0.07 220 / .25)}
+:root[data-theme="light"] .caustic{mix-blend-mode:multiply;opacity:.09}
+:root[data-theme="light"] .c2{opacity:.06}
+@media (max-width:640px){.lb{filter:blur(44px)}.caustic{opacity:.22}.c2{opacity:.16}}
