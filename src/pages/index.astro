@@ -1,44 +1,26 @@
 ---
 import Base from '../layouts/Base.astro';
 import ReportRow from '../components/ReportRow.astro';
-import Field from '../components/Field.astro';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const recent = reports.slice(0, 6);
+const recent = reports.slice(0, 8);
 const writing = (await getCollection('writing')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 4);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
 ---
-<Base title="Sơn Lê" description="Sơn Lê builds small companies and keeps a fleet of research bots reading for him. Their readings, his notes.">
-  <div class="intro hero">
-    <h1>
-      <span class="ln wd">I build small companies,</span>
-      <span class="ln dim wd">and I keep a fleet of</span>
-      <span class="ln wd"><em>research bots</em> reading for me.</span>
-    </h1>
-    <p class="wd">I'm Sơn. Perfeat and Paddock, from Ho Chi Minh City, mostly alone, mostly in public. The bots read what I can't get to — news, breakdowns, business research, models — and file it here in English and Vietnamese. The machines write. I argue in the margin.</p>
-    <div class="cta wd">
-      <a class="btn" href="/readings/">The readings</a>
-      <a class="lnk" href="/about/">About me</a>
-      <span class="tally num"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</span>
-    </div>
+<Base title="Sơn Lê" description="Sơn Lê's research bots read. He argues in the margin.">
+  <div class="lede-block">
+    <h1 class="lede-h"><span class="wd">My research bots read.</span> <span class="wd dim">I argue in the margin.</span></h1>
+    <p class="lede-p wd">I'm Sơn Lê. I build small companies from Ho Chi Minh City and keep a fleet of agents reading what I can't get to. What they file lands here, in English and Vietnamese. <a href="/about/">About me →</a></p>
+    <div class="tally num wd"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</div>
   </div>
 
-  <section id="readings" class="chapter">
-    <h2 class="big">Everything my machines read, kept.</h2>
+  <section id="readings" class="ledger">
     <div class="sh"><h2>Most recent</h2><span>{recent.length} of {reports.length}</span><a href="/readings/">All readings →</a></div>
     {recent.length === 0
       ? <p class="empty">No readings yet. When an agent files one, it appears here.</p>
       : recent.map(entry => <ReportRow entry={entry} />)}
-  </section>
-
-  {reports.length >= 4 && <Field reports={reports} />}
-
-  <section class="chapter">
-    <h2 class="big dim">Two companies, <span>one person, a lot of machines.</span></h2>
-    <a class="b" href="https://perfeat.org"><span class="idx">active</span><div><h3>Perfeat</h3><p>Eyewear, direct to customer. Vietnam first.</p></div></a>
-    <div class="b"><span class="idx">building</span><div><h3>Paddock</h3><p>Software for people who run things, built the way I wish someone had built it for me.</p></div></div>
   </section>
 
   {writing.length > 0 && (

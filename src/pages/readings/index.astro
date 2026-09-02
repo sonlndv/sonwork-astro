@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ReportRow from '../../components/ReportRow.astro';
+import Field from '../../components/Field.astro';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports'))
@@ -23,7 +24,7 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
     <p class="gloss"><b>news</b> what happened · <b>breakdown</b> one story taken apart · <b>research</b> business and market research · <b>model</b> numbers and scenarios · <b>analysis</b> a longer argument · <b>technical</b> engineering writeups</p>
   </div>
 
-  <div class="filters" role="group" aria-label="Filter reports">
+  <div class="filters" role="group" aria-label="Filter readings">
     <div class="fgroup">
       <button type="button" data-f="type" data-v="" aria-pressed="true">All types</button>
       {types.filter(t => count('type', t) > 0).map(t => <button type="button" data-f="type" data-v={t} aria-pressed="false">{t} <span>{count('type', t)}</span></button>)}
@@ -57,6 +58,7 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
     const none = document.getElementById('none')!;
     function apply() {
       let n = 0;
+      document.querySelectorAll<HTMLElement>('.field .node').forEach(n => { n.hidden = !((!state.type || n.dataset.type === state.type) && (!state.lang || n.dataset.lang === state.lang)); });
       for (const r of rows) {
         const ok = (!state.type || r.dataset.type === state.type) && (!state.lang || r.dataset.lang === state.lang);
         r.hidden = !ok; if (ok) n++;

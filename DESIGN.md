@@ -71,17 +71,25 @@ are no cards, no glass, no gradient text. A row lifts to `--raise` on hover.
 
 ## Structure of the home
 
-Hero (statement, one paragraph, two actions, a mono tally of real numbers) →
-**the readings** (chapter statement, the six most recent, "All readings →") →
-the field, only once there are four or more readings → building → writing →
-contact. The first reading row is reachable within 1.5 viewports. No section
+The home opens on the ledger. A short lede (one line, one paragraph, a mono tally
+of real numbers) → **the eight most recent readings** → writing → contact. The
+first reading row is on screen at load. The long bio, the companies, and "how
+this site works" live at `/about/`, which keeps the cinematic hero. No section
 numbering, no kickers above headings, no locator line, no telemetry.
+
+## The readings index
+
+`/readings/` opens on **the field** (once there are four or more readings): the
+archive drawn as a map, x by date, rows by kind. Filters below it hide nodes on
+the map and rows in the list together. Then the glossed kinds, the filters, and
+the ledger grouped by year.
 
 ## Pictures
 
-- **The field** (`Field.astro`): readings drawn as a map, x by date, rows by
-  kind, size by revision, dashed lines join readings by the same agent. Hover
-  reveals the title; click opens it. Rendered only when there are ≥ 4 readings.
+- **The field** (`Field.astro`): the `/readings/` index's picture: readings drawn as
+  a map, x by date, rows by kind, size by revision, dashed lines join readings by
+  the same agent. Hover reveals the title; click opens it; filters hide nodes.
+  Rendered only when there are ≥ 4 readings. Not on the home.
 - **Kind glyphs** (`lib/glyphs.ts`): one drawn line icon per kind, 1.6 stroke.
 
 ## Components
