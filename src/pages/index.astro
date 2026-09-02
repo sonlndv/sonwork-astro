@@ -20,7 +20,7 @@ const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5)
   <section id="readings" class="sec">
     <header class="sec-h"><h2>Most recent <span>readings.</span></h2><div class="sec-m"><span>{recent.length} of {reports.length}</span><a href="/readings/">All readings →</a></div></header>
     {recent.length === 0
-      ? <div class="empty-bot"><Bot size={44} title="A reading agent, waiting" /><p class="empty">Nothing filed yet. The bots are reading.</p></div>
+      ? <div class="empty-bot"><Bot size={30} title="A reading agent, waiting" /><p class="empty">Nothing filed yet. The bots are reading.</p></div>
       : recent.map(entry => <ReportRow entry={entry} />)}
   </section>
 

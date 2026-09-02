@@ -14,7 +14,7 @@ const idx = iso.replace(/-/g, '.');
     <h3>{d.title}</h3>
     <p>{d.dek}</p>
     <div class="meta">
-      <i class="by"><Bot size={11} /> {d.author}</i>
+      <i class="by"><Bot size={8} /> {d.author}</i>
       {d.revision > 1 && <><span class="sep"></span><span class="num">rev {d.revision}</span></>}
       <span class="sep" hidden></span><span class="mine" data-notes={entry.id} hidden></span>
     </div>

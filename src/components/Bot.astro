@@ -5,9 +5,10 @@
 // rarely. No pupils, no mouth, no hair. Never stretched.
 interface Props { size?: number; class?: string; title?: string }
 const { size = 16, class: cls = '', title } = Astro.props;
-const h = Math.round(size * 1.25);
+// size is the width; the ribbon is 16 wide by 28 tall, drawn edge to edge.
+const h = Math.round(size * 1.75);
 ---
-<svg class:list={['bot', cls]} width={size} height={h} viewBox="0 0 24 30" aria-hidden={title ? undefined : 'true'} role={title ? 'img' : undefined}>
+<svg class:list={['bot', cls]} width={size} height={h} viewBox="4 0 16 28" aria-hidden={title ? undefined : 'true'} role={title ? 'img' : undefined}>
   {title && <title>{title}</title>}
   <path d="M4 3.2C4 1.4 5.4 0 7.2 0h9.6C18.6 0 20 1.4 20 3.2V28l-8-6.4L4 28Z" fill="var(--lume)"/>
   <g class="eyes" fill="var(--void)">

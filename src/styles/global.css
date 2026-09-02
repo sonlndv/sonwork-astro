@@ -483,6 +483,7 @@ body::before{z-index:-2}
 .by{display:inline-flex;align-items:center;gap:5px}
 .by .bot{vertical-align:0}
 .eyes{transform-origin:12px 9.6px}
+.by .bot{vertical-align:-0.2em}
 @media (prefers-reduced-motion:no-preference){
   .eyes{animation:blink 8s ease-in-out infinite}
   @keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
@@ -490,5 +491,7 @@ body::before{z-index:-2}
 .empty-bot{display:flex;align-items:center;gap:18px;padding:28px 0}
 .empty-bot .empty{margin:0}
 .empty-bot .bot{opacity:.9}
-.method{display:grid;grid-template-columns:72px minmax(0,1fr);gap:28px;align-items:start}
+/* the method block sits on the ledger grid: 118px index column, 22px gap */
+.method{display:grid;grid-template-columns:118px minmax(0,1fr);gap:22px;align-items:start}
+.method .bot{margin-top:6px}
 @media (max-width:640px){.method{grid-template-columns:1fr}.empty-bot{gap:14px}}
