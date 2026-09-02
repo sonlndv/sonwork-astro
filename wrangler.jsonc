@@ -13,7 +13,7 @@
     "binding": "ASSETS",
     "not_found_handling": "404-page",
     // Static files are served without waking the Worker.
-    "run_worker_first": ["/api/*", "/login", "/logout"]
+    "run_worker_first": ["/api/*", "/login", "/logout", "/reports/*"]
   },
   "kv_namespaces": [
     // Create with: npx wrangler kv namespace create COMMENTS

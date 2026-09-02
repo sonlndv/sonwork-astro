@@ -15,6 +15,7 @@ var worker_default = {
   async fetch(request, env) {
     const url = new URL(request.url);
     const p = url.pathname;
+    if (p.startsWith("/reports/")) return redirect("/readings/" + p.slice(9) + url.search, {}, 301);
     if (p === "/login") return login(request, env, url);
     if (p === "/logout") return redirect("/login", { "set-cookie": `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
     if (p.startsWith("/api/")) {
@@ -85,8 +86,8 @@ function safeNext(n) {
   return n && n.startsWith("/") && !n.startsWith("//") ? n : "/";
 }
 __name(safeNext, "safeNext");
-function redirect(to, headers = {}) {
-  return new Response(null, { status: 302, headers: { location: to, ...headers } });
+function redirect(to, headers = {}, status = 302) {
+  return new Response(null, { status, headers: { location: to, ...headers } });
 }
 __name(redirect, "redirect");
 function page(title, msg, cls, next, status) {
@@ -138,7 +139,7 @@ Exported ${(/* @__PURE__ */ new Date()).toISOString()}
       const doc = await readDoc(env, slug);
       if (!doc.comments.length) continue;
       parts.push(`
-## /reports/${slug}/
+## /readings/${slug}/
 `);
       for (const c of doc.comments) parts.push(`- **${c.anchor === "top" ? "whole document" : "#" + c.anchor}** \xB7 ${c.createdAt}
   ${c.text.replace(/\n/g, "\n  ")}
@@ -248,7 +249,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-eBjO5U/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-ZXlbc5/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -280,7 +281,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-eBjO5U/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-ZXlbc5/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

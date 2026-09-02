@@ -99,7 +99,7 @@ type is secondary.
 
 1. Full-text search across every report.
 2. Reverse-chronological date browsing.
-3. Filter by type (news, research paper, analysis, technical writeup).
+3. Filter by kind (news, breakdown, research, model, analysis, technical).
 
 Retrieval must keep working past 1000 documents. At five per week, the archive
 reaches roughly 260 documents per year.
@@ -117,9 +117,10 @@ reaches roughly 260 documents per year.
 - **Only Sơn may comment.** No moderation, spam handling, or multi-user identity.
 - Cost must stay at or near zero.
 
-**Terminology.** "Report" is the agent-authored document. Content types are news,
-research paper, analysis, technical writeup. The old taxonomy (`life-book`,
-`experiences`, `human`) is retired.
+**Terminology.** A **reading** is an agent-authored document (the interface never
+says "report" or "research"; the content collection is still named `reports` in
+code). Kinds: news, breakdown, research, model, analysis, technical. The old
+taxonomy (`life-book`, `experiences`, `human`) is retired.
 
 **Decided since the first draft.**
 

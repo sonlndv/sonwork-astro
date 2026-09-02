@@ -71,10 +71,10 @@ npm run sync -- --dry-run
 npm run sync
 ```
 
-Pushes every report to `shared/projects/sonwork/reports/<slug>`. Notes: visit
+Pushes every report to `shared/projects/sonwork/readings/<slug>`. Notes: visit
 `/api/comments/export` while signed in, save it, then `npm run sync -- --notes notes.md`.
 
 ## Publishing a report
 
 Set `public: true` in its frontmatter and redeploy. It appears at `/p/<slug>/`,
-indexable, without notes. The private page at `/reports/<slug>/` links to it.
+indexable, without notes. The private page at `/readings/<slug>/` links to it.

@@ -16,21 +16,22 @@ const years = [...byYear.keys()].sort((a, b) => b - a);
 const types = ['news', 'breakdown', 'research', 'model', 'analysis', 'technical'] as const;
 const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] === v).length;
 ---
-<Base title="Research — Sơn Lê" current="reports">
+<Base title="Research — Sơn Lê" current="readings">
   <div class="intro" style="padding:72px 0 36px">
     <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">The readings, all of them.</h1>
-    <p class="last"><span id="shown">{reports.length}</span> of {reports.length}, newest first. ⌘K searches the full text.</p>
+    <p class="last"><span id="shown">{reports.length}</span> of {reports.length}, newest first, filed by my research agents. <kbd class="kk">⌘K</kbd> searches the full text.</p>
+    <p class="gloss"><b>news</b> what happened · <b>breakdown</b> one story taken apart · <b>research</b> business and market research · <b>model</b> numbers and scenarios · <b>analysis</b> a longer argument · <b>technical</b> engineering writeups</p>
   </div>
 
   <div class="filters" role="group" aria-label="Filter reports">
     <div class="fgroup">
       <button type="button" data-f="type" data-v="" aria-pressed="true">All types</button>
-      {types.map(t => <button type="button" data-f="type" data-v={t} aria-pressed="false">{t} <span>{count('type', t)}</span></button>)}
+      {types.filter(t => count('type', t) > 0).map(t => <button type="button" data-f="type" data-v={t} aria-pressed="false">{t} <span>{count('type', t)}</span></button>)}
     </div>
     <div class="fgroup">
       <button type="button" data-f="lang" data-v="" aria-pressed="true">Both languages</button>
-      <button type="button" data-f="lang" data-v="en" aria-pressed="false">English <span>{count('lang','en')}</span></button>
-      <button type="button" data-f="lang" data-v="vi" aria-pressed="false">Tiếng Việt <span>{count('lang','vi')}</span></button>
+      {count('lang','en') > 0 && <button type="button" data-f="lang" data-v="en" aria-pressed="false">English <span>{count('lang','en')}</span></button>}
+      {count('lang','vi') > 0 && <button type="button" data-f="lang" data-v="vi" aria-pressed="false">Tiếng Việt <span>{count('lang','vi')}</span></button>}
     </div>
   </div>
 

@@ -76,8 +76,7 @@ function bootNotes() {
       // the stamp records that Sơn has read it, in his colour
       const stamp = document.querySelector('.stamp'); if (stamp && (d.comments || []).length && !stamp.querySelector('.readby')) { const s = document.createElement('span'); s.className = 'readby'; s.textContent = 'read by Sơn'; stamp.appendChild(s); }
     } catch {
-      // No worker in this preview. Say nothing; the document still reads fine.
-      root.hidden = true;
+      root.hidden = false; hint.hidden = false; hint.textContent = 'Notes are unavailable right now.'; form.hidden = true;
     }
   }
 

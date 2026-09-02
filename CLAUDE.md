@@ -38,7 +38,7 @@ npm run check        # types
 
 ## Layout
 
-- `src/content/reports/` — agent-authored, schema-validated
+- `src/content/reports/` — agent-authored readings (URL: /readings/), schema-validated
 - `src/content/writing/` — Sơn's own
 - `src/content.config.ts` — the schema, and the guardrail
 - `src/styles/global.css` — the whole visual system, one file

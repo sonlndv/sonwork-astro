@@ -23,6 +23,7 @@ export default {
     const url = new URL(request.url);
     const p = url.pathname;
 
+    if (p.startsWith('/reports/')) return redirect('/readings/' + p.slice(9) + url.search, {}, 301);
     if (p === '/login') return login(request, env, url);
     if (p === '/logout') return redirect('/login', { 'set-cookie': `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
 
@@ -89,7 +90,7 @@ async function login(request, env, url) {
   return page('sonwork', 'Private. Enter the passphrase.', '', next, 200);
 }
 function safeNext(n) { return n && n.startsWith('/') && !n.startsWith('//') ? n : '/'; }
-function redirect(to, headers = {}) { return new Response(null, { status: 302, headers: { location: to, ...headers } }); }
+function redirect(to, headers = {}, status = 302) { return new Response(null, { status, headers: { location: to, ...headers } }); }
 function page(title, msg, cls, next, status) {
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${title} — Sơn Lê</title>
 <style>:root{color-scheme:dark}body{margin:0;min-height:100vh;display:grid;place-items:center;background:oklch(0.115 0.022 256);color:oklch(0.965 0.006 250);font:16px/1.6 Sora,system-ui,sans-serif}
@@ -131,7 +132,7 @@ async function api(request, env, url) {
     for (const slug of Object.keys(idx.counts).sort()) {
       const doc = await readDoc(env, slug);
       if (!doc.comments.length) continue;
-      parts.push(`\n## /reports/${slug}/\n`);
+      parts.push(`\n## /readings/${slug}/\n`);
       for (const c of doc.comments) parts.push(`- **${c.anchor === 'top' ? 'whole document' : '#' + c.anchor}** · ${c.createdAt}\n  ${c.text.replace(/\n/g, '\n  ')}\n`);
     }
     return new Response(parts.join('\n'), { headers: { 'content-type': 'text/markdown; charset=utf-8', 'cache-control': 'no-store' } });

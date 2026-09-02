@@ -8,7 +8,7 @@ interface Props {
 }
 const { title, description, current, lang = 'en', indexable = true, wide = false } = Astro.props;
 const nav = [
-  { href: '/reports/', label: 'Research', key: 'reports' },
+  { href: '/readings/', label: 'Readings', key: 'readings' },
   { href: '/writing/', label: 'Writing',  key: 'writing' },
   { href: '/about/',   label: 'About',    key: 'about' },
 ];
@@ -22,6 +22,8 @@ const nav = [
   {description && <meta name="description" content={description} />}
   <meta property="og:title" content={title} />
   {description && <meta property="og:description" content={description} />}
+  <meta property="og:image" content="https://sonwork.org/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="theme-color" content="#101a2b" media="(prefers-color-scheme: dark)" />
   <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)" />
   {!indexable && <meta name="robots" content="noindex, nofollow" />}
@@ -61,9 +63,9 @@ const nav = [
   <main class:list={['w', { 'w-wide': wide }]}><slot /></main>
 
   <footer class="w">
-    <a href="mailto:son@perfeat.org">son@perfeat.org</a>
-    <a href="https://www.linkedin.com/in/toilaleson">linkedin</a>
-    <a href="/kit/" style="margin-left:auto">kit</a>
+    <span>Sơn Lê · Ho Chi Minh City</span>
+    <a href="/about/" style="margin-left:auto">About</a>
+    <a href="https://www.linkedin.com/in/toilaleson">LinkedIn</a>
   </footer>
 
   {(
@@ -75,6 +77,8 @@ const nav = [
   <script>
     // Everything here re-binds on every client-side navigation.
     function boot() {
+      // the shortcut hint should name the key the visitor actually has
+      if (!/Mac|iPhone|iPad/.test(navigator.platform)) document.querySelectorAll('kbd').forEach(k => { if (k.textContent === '⌘K') k.textContent = 'Ctrl K'; });
       // theme
       const tb = document.getElementById('theme');
       tb?.addEventListener('click', () => {

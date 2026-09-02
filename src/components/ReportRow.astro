@@ -2,7 +2,7 @@
 import type { CollectionEntry } from 'astro:content';
 import { glyph } from '../lib/glyphs';
 interface Props { entry: CollectionEntry<'reports'>; href?: string }
-const { entry, href = `/reports/${entry.id}/` } = Astro.props;
+const { entry, href = `/readings/${entry.id}/` } = Astro.props;
 const d = entry.data;
 const iso = d.date.toISOString().slice(0, 10);
 const idx = iso.replace(/-/g, '.');

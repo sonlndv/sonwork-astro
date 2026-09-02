@@ -29,7 +29,7 @@ for (const a of nodes) for (const b of nodes) if (a.i < b.i && a.author === b.au
   <svg viewBox={`0 0 ${W} ${H}`} class="field-fg">
     {links.map(([a, b]) => <line class="link" x1={a.cx} y1={a.cy} x2={b.cx} y2={b.cy} />)}
     {nodes.map(n => (
-      <a href={`/reports/${n.id}/`} class="node" style={`--d:${(n.i * 137) % 900}ms`}>
+      <a href={`/readings/${n.id}/`} class="node" style={`--d:${(n.i * 137) % 900}ms`}>
         <circle cx={n.cx} cy={n.cy} r={n.r + 10} class="halo" />
         <circle cx={n.cx} cy={n.cy} r={n.r} class="dot" />
         <text x={n.cx} y={n.cy - n.r - 10} text-anchor={n.cx > W * 0.7 ? 'end' : n.cx < W * 0.3 ? 'start' : 'middle'}>{n.title}</text>

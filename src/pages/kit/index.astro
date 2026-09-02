@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Mark from '../../components/Mark.astro';
+import { glyph } from '../../lib/glyphs';
 const roles = [
   ['--void','Page ground'],['--ground','Section ground'],['--raise','Hover / raised'],
   ['--line','Rule, strong'],['--line-2','Rule, quiet'],
@@ -29,23 +30,25 @@ const roles = [
 
     <div class="sh"><h2>Type</h2><span>Sora for words · JetBrains Mono for data only</span></div>
     <div class="ts">
-      <div><code>display · 600 · −0.045em</code><span style="font-weight:600;font-size:40px;letter-spacing:-0.045em;line-height:1.02">Everything the bots filed.</span></div>
+      <div><code>hero · 500 · −0.045em · up to 96px</code><span style="font-weight:500;font-size:44px;letter-spacing:-0.045em;line-height:1">I build small companies.</span></div>
+      <div><code>chapter · 300 · −0.035em</code><span style="font-weight:300;font-size:34px;letter-spacing:-0.035em;line-height:1.12">Everything my machines read, <span style="color:var(--ink-3)">kept.</span></span></div>
       <div><code>title · 500 · −0.025em</code><span style="font-weight:500;font-size:20px;letter-spacing:-0.025em">Conflict escalates financially before it turns military</span></div>
       <div><code>body · 300 · 17px / 1.7</code><span style="font-weight:300;font-size:17px">Reserve freezes and settlement bans arrive months ahead of any shooting. Lý tưởng càng lớn, kiểm chứng thực tế càng phải chặt.</span></div>
-      <div><code>label · mono · 11.5px</code><span class="mono" style="font-size:11.5px;color:var(--ink-3)">2026.09.01 · analysis · rev 3 · <span style="color:var(--human)">2 notes from me</span></span></div>
+      <div><code>label · mono · 12px floor</code><span class="mono" style="font-size:11.5px;color:var(--ink-3)">2026.09.01 · analysis · rev 3 · <span style="color:var(--human)">2 notes from me</span></span></div>
     </div>
 
-    <div class="sh" style="margin-top:44px"><h2>Space &amp; surface</h2><span>64px grid · 4–6px radii · 1px rules</span></div>
-    <p class="lede" style="margin-bottom:24px">Layout sits on a 64px engineering grid that is faintly visible as material. Rules are 1px; corners are 4–6px; there are no cards, no glass, no gradients on text. Depth comes from the grid drifting slower than content, the aurora at the top, and a single raised tone on hover.</p>
+    <div class="sh" style="margin-top:44px"><h2>Space &amp; surface</h2><span>1px rules · 4–6px radii · no grid</span></div>
+    <p class="lede" style="margin-bottom:24px">The ground is near-black with one static body of light, high and left. Rules are 1px; corners are 4–6px; there are no cards, no glass, no gradients on text, no background pattern. Depth comes from a single raised tone on hover and from scale.</p>
+    <div class="sh"><h2>Kinds</h2><span>six kinds of reading, one glyph each</span></div>
+    <div class="glyphs">{['news','breakdown','research','model','analysis','technical'].map(t => <span class="kind" set:html={glyph(t, 16) + '<em>' + t + '</em>'} />)}</div>
 
     <div class="sh"><h2>Motion</h2><span>ease-out quart · one authored moment per surface</span></div>
     <div class="mo">
-      <button type="button" data-demo="line">replay: hero line draws</button>
       <button type="button" data-demo="count">replay: counters</button>
       <button type="button" data-demo="theme">flip theme</button>
     </div>
     <div class="intro" style="padding:20px 0 30px;position:relative" id="demo-line"><p style="margin:0;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)">status <b class="num" data-count="712" style="color:var(--ink-2)">712</b> pages · <b class="num" data-count="7" style="color:var(--ink-2)">7</b> agents</p></div>
-    <p class="lede">Grammar: transform and opacity first; scroll-linked reveals floored at 50% opacity so nothing is ever hidden; page changes crossfade in 180ms; the grid drifts with scroll; numbers count up once to their real value. <code class="mono">prefers-reduced-motion</code> turns every one of these off.</p>
+    <p class="lede">Grammar: transform and opacity first; scroll-linked reveals floored at 50% opacity so nothing is ever hidden; page changes crossfade in 180ms; numbers count up once to their real value; the hero lines land in sequence. Nothing in the background moves. <code class="mono">prefers-reduced-motion</code> turns every one of these off.</p>
   </div>
 
   <script>

@@ -10,7 +10,7 @@ description: >-
 
 # Filing a report
 
-One report is one markdown file in `src/content/reports/`. Git is the source of
+One report is one markdown file in `src/content/readings/`. Git is the source of
 truth. The site renders it; gbrain remembers it.
 
 ## Filename
@@ -95,7 +95,7 @@ invented number is a defect that outlives you in the archive.
 1. `npm run build` — it must pass.
 2. Commit the single markdown file with a message naming the report.
 3. `npm run sync` pushes every report to gbrain under
-   `shared/projects/sonwork/reports/<slug>`. If you have the gbrain MCP tools
+   `shared/projects/sonwork/readings/<slug>`. If you have the gbrain MCP tools
    directly, `put_page` with that slug and the file's full content does the same.
 4. If Sơn has left notes on an earlier revision (visible at `/api/comments/export`
    when signed in, or in gbrain under `shared/projects/sonwork/notes`), read them
