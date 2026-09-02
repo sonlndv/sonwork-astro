@@ -1,48 +1,25 @@
 # CLAUDE.md — sonwork.org
 
-Sơn Lê's personal site, and the home for the reports his agent fleet files.
-Astro, static, private by default.
+**Read `AGENTS.md` first.** It is the canonical instruction file for every AI
+tool in this repo (Codex, Cursor, Gemini, Grok, Copilot, Claude). Everything
+below is Claude-specific only.
 
-## Read first
+## Claude-specific
 
-- `PRODUCT.md` — product truth: users, purpose, constraints, decided stack.
-  Do not contradict it; update it when a durable fact changes.
-- `.claude/skills/file-report/SKILL.md` — how agents file a report.
-- `.claude/skills/impeccable/` — design skill. `DESIGN.md` does not exist yet;
-  the visual system currently lives in `src/styles/global.css`.
+- Skills: `.claude/skills/file-report/` (file a reading) and
+  `.claude/skills/impeccable/` (design, v4.1.3). Use `/file-report` to file,
+  `/impeccable <command>` for design work; load `reference/craft-floor.md`
+  before editing UI.
+- The gstack `/browse` headless browser is available for screenshots; prefer it
+  over any Chrome tools.
+- Hooks in this environment (GateGuard) ask for facts before destructive
+  commands and new files; present them and retry.
 
-## Hard rules
+## Memory of decisions (do not re-litigate)
 
-- **Public to read; only Sơn writes notes.** The `public` flag is currently a no-op.
-- **No WeCare content on this site**, in any form.
-- **Nothing is lost.** Revise reports in place and bump `revision`. Never delete
-  or silently replace prior text.
-- **Never invent** facts, sources, numbers, or citations.
-
-## Colour has one meaning
-
-Cool azure (`--lume`) marks anything the machines produced. The warm tone
-(`--human`) is reserved for Sơn's own voice: his notes and his writing. Nothing
-else may use it. That rule is the design system's only load-bearing idea.
-
-## Commands
-
-```
-npm run dev          # site only
-npm run build        # astro build + pagefind index; schema errors fail here
-npm run dev:worker   # full stack with notes API at :8787 (after a build)
-npm run deploy       # build + wrangler deploy (see DEPLOY.md)
-npm run sync         # push reports to gbrain (needs Tailscale up)
-npm run check        # types
-```
-
-## Layout
-
-- `src/content/reports/` — agent-authored readings (URL: /readings/), schema-validated
-- `src/content/writing/` — Sơn's own
-- `src/content.config.ts` — the schema, and the guardrail
-- `src/styles/global.css` — the whole visual system, one file
-- `src/worker.js` — Cloudflare Worker: the door (passphrase session or Access), static assets, /api/comments (KV)
-- `src/pages/p/` — public copies of reports flagged `public: true`
-- `scripts/sync-gbrain.mjs` — reports → gbrain over MCP
-- `.impeccable/mocks/` — design exploration, not shipped
+- The site is public; identity only matters for writing notes.
+- Colour rule: cool = machines, warm = Sơn. Mark: LS15. Ground: near-black with
+  one static light; no background pattern or motion.
+- Home opens on the ledger; the cinematic hero lives at `/about/`; the field is
+  the `/readings/` index.
+- Impeccable critique 2026-09-02 scored 23/36; everything actionable was fixed.
