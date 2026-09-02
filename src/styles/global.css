@@ -387,11 +387,8 @@ main.w::before{left:0}main.w::after{right:0}
 }
 @media (max-width:640px){.hero{min-height:auto;padding:36px 0 50px}.hero h1{font-size:40px}.stmt{min-height:auto;padding:12vh 0}.chapter{padding:9vh 0 6vh}.scrollhint{display:none}}
 
-/* ---------- the sea: light through water, behind the grid ----------
-   Four soft bodies of light drift on long, unequal loops so the pattern never
-   repeats; two static caustic textures slide across each other so the
-   interference reads as moving water. Everything stays far below the text
-   contrast floor. */
+/* ---------- the sea: one body of light, high and left, drifting slowly.
+   Quieter pass kept only this; everything else read as ornament. */
 body::before{z-index:-2}
 .sea{position:fixed;inset:-10%;z-index:-3;pointer-events:none;overflow:hidden;
   background:
