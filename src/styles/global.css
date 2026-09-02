@@ -343,3 +343,63 @@ footer a:hover{color:var(--lume)}
     .sh,.field,.contact a{animation:arrive linear both;animation-timeline:view();animation-range:entry 0% entry 35%}
   }
 }
+
+/* ---------- cinematic feel: scale, air, focus ---------- */
+/* hard vertical rules framing the page, like a printed column */
+.w{position:relative}
+main.w::before,main.w::after{content:"";position:absolute;top:0;bottom:0;width:1px;background:var(--line-2);pointer-events:none}
+main.w::before{left:0}main.w::after{right:0}
+@media (max-width:640px){main.w::before,main.w::after{display:none}}
+
+/* aurora drifts, slowly: the page is alive even when still */
+@media (prefers-reduced-motion:no-preference){
+  body::after{animation:drift 26s ease-in-out infinite alternate}
+  @keyframes drift{from{transform:translateX(-50%) translate(-140px,0)}to{transform:translateX(-50%) translate(160px,60px)}}
+}
+
+/* hero */
+.hero{min-height:calc(100vh - 110px);display:flex;flex-direction:column;justify-content:center;padding:40px 0 60px}
+.loc{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);letter-spacing:.06em;margin-bottom:34px;display:flex;align-items:center;gap:10px}
+.loc em{font-style:normal;color:var(--line)}
+.dotc{width:6px;height:6px;border-radius:50%;background:var(--lume);box-shadow:0 0 10px var(--lume)}
+.hero h1{font-size:clamp(44px,7.2vw,96px);font-weight:500;letter-spacing:-0.045em;line-height:1;max-width:none;margin:0 0 34px}
+.hero h1 .ln{display:block}
+.hero h1 .dim{color:var(--ink-3)}
+.hero p{font-size:clamp(17px,1.5vw,20px);max-width:52ch}
+.cta{display:flex;gap:24px;align-items:center;margin-top:10px}
+.btn{font-weight:600;font-size:14px;color:var(--void);background:var(--lume);border-radius:999px;padding:13px 22px;transition:transform .3s var(--out),box-shadow .3s var(--out)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 12px 30px -12px var(--lume)}
+.lnk{font-size:14px;color:var(--ink-2);border-bottom:1px solid var(--line);padding-bottom:2px;transition:color .18s var(--out),border-color .18s var(--out)}
+.lnk:hover{color:var(--ink);border-color:var(--ink)}
+.scrollhint{position:absolute;right:0;bottom:22px;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:10px}
+.scrollhint i{display:block;width:1px;height:26px;background:var(--line)}
+@media (prefers-reduced-motion:no-preference){.scrollhint i{animation:hint 2.2s var(--out) infinite}@keyframes hint{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}}
+
+/* chapters: a pinned rail marker on the left, a big light statement, then the list */
+.chapter{position:relative;padding:14vh 0 10vh}
+.rail{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:9px;margin-bottom:26px}
+.rail .mark::before{content:"";display:inline-block;width:6px;height:6px;background:var(--lume);margin-right:9px;vertical-align:1px}
+.big{font-size:clamp(28px,3.6vw,46px);font-weight:300;letter-spacing:-0.035em;line-height:1.12;margin:0 0 48px;max-width:22ch;text-wrap:balance}
+.big span{color:var(--ink-3)}
+.big.dim{color:var(--ink-3)}.big.dim span{color:var(--ink)}
+.chapter .sh{margin-top:10px}
+
+/* the statement: words come into focus as you scroll */
+.stmt{position:relative;min-height:88vh;display:flex;flex-direction:column;justify-content:center;padding:8vh 0}
+.stmt-p{font-size:clamp(28px,4.2vw,58px);font-weight:400;letter-spacing:-0.035em;line-height:1.14;margin:0;max-width:22ch}
+.stmt .wd{display:inline;color:var(--ink)}
+.stmt .wd.acc{color:var(--lume)}
+.stmt-bar{margin-top:44px;width:min(420px,60%);height:1px;background:var(--line-2);position:relative;overflow:hidden}
+.stmt-bar i{position:absolute;inset:0;background:var(--lume);transform-origin:left;transform:scaleX(1)}
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    .stmt .wd{color:var(--ink-3);filter:blur(4px);animation:focus linear both;animation-timeline:view();animation-range-start:entry calc(18% + var(--i) * 1.1%);animation-range-end:entry calc(60% + var(--i) * 1.1%)}
+    .stmt .wd.acc{animation-name:focusacc}
+    @keyframes focus{to{color:var(--ink);filter:blur(0)}}
+    @keyframes focusacc{to{color:var(--lume);filter:blur(0)}}
+    .stmt-bar i{animation:bar linear both;animation-timeline:view();animation-range:entry 20% entry 90%}
+    @keyframes bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+    .big{animation:arrive linear both;animation-timeline:view();animation-range:entry 0% entry 45%}
+  }
+}
+@media (max-width:640px){.hero{min-height:auto;padding:36px 0 50px}.hero h1{font-size:40px}.stmt{min-height:auto;padding:12vh 0}.chapter{padding:9vh 0 6vh}.scrollhint{display:none}}

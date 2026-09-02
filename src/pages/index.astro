@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ReportRow from '../components/ReportRow.astro';
 import Field from '../components/Field.astro';
+import Statement from '../components/Statement.astro';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -19,18 +20,29 @@ const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
     <span>built <b class="num">{built}</b> UTC</span>
   </div>
 
-  <div class="intro">
-    <h1><span class="wd">I build small companies,</span> <span class="wd">and I keep a fleet of</span> <span class="wd"><em>research bots</em> reading for me.</span></h1>
-    <p class="wd">I'm Sơn. I work on Perfeat and Paddock from Ho Chi Minh City, mostly alone, mostly in public. Somewhere between an operator and an engineer, depending on the week.</p>
-    <p class="last wd">The bots read what I can't get to: news, breakdowns, business research, models. Everything they find is kept below, in English and Vietnamese, with my notes in the margin.</p>
+  <div class="intro hero">
+    <div class="loc"><span class="dotc"></span>SƠN LÊ <em>/</em> HỒ CHÍ MINH CITY <em>/</em> <span class="num">{built.slice(0,10)}</span></div>
+    <h1>
+      <span class="ln wd">I build small companies,</span>
+      <span class="ln dim wd">and I keep a fleet of</span>
+      <span class="ln wd"><em>research bots</em> reading for me.</span>
+    </h1>
+    <p class="wd">I'm Sơn. Perfeat and Paddock, from Ho Chi Minh City, mostly alone, mostly in public. Somewhere between an operator and an engineer, depending on the week.</p>
+    <div class="cta wd"><a class="btn" href="#readings">Read what they found</a><a class="lnk" href="/about/">About me</a></div>
+    <div class="scrollhint" aria-hidden="true">scroll<i></i></div>
   </div>
+
+  <Statement kicker="01 — the idea"
+    text="The bots read what I can't get to: *news, breakdowns, business research, models.* Everything they find is kept here, in English and Vietnamese, *with my notes in the margin.* The machines write. I argue." />
 
   <Field reports={reports} />
 
-  <section id="readings">
+  <section id="readings" class="chapter">
+    <div class="rail"><span class="mark">02 — the readings</span></div>
+    <h2 class="big">Everything my machines read, kept.</h2>
     <div class="sh">
-      <h2>The readings</h2>
-      <span>{recent.length === 0 ? 'nothing filed yet' : 'most recent'}</span>
+      <h2>Most recent</h2>
+      <span>{recent.length === 0 ? 'nothing filed yet' : `${recent.length} of ${reports.length}`}</span>
       {reports.length > 0 && <a href="/reports/">All {reports.length} →</a>}
     </div>
     {recent.length === 0
@@ -38,15 +50,19 @@ const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
       : recent.map(entry => <ReportRow entry={entry} />)}
   </section>
 
-  <section>
-    <div class="sh"><h2>What I'm building</h2></div>
+  <section class="chapter">
+    <div class="rail"><span class="mark">03 — building</span></div>
+    <h2 class="big dim">Two companies, <span>one person, a lot of machines.</span></h2>
+    <div class="sh"><h2>Now</h2></div>
     <a class="b" href="https://perfeat.org"><span class="idx">active</span><div><h3>Perfeat</h3><p>Eyewear, direct to customer. Vietnam first.</p></div></a>
     <a class="b" href="#"><span class="idx">building</span><div><h3>Paddock</h3><p>Software for people who run things, built the way I wish someone had built it for me.</p></div></a>
   </section>
 
   {writing.length > 0 && (
-    <section id="writing">
-      <div class="sh"><h2>Writing</h2><span>mine, not theirs</span></div>
+    <section id="writing" class="chapter">
+      <div class="rail"><span class="mark">04 — writing</span></div>
+      <h2 class="big">Mine, <span>not theirs.</span></h2>
+      <div class="sh"><h2>Recent</h2></div>
       {writing.map(w => (
         <a class="p" href={`/writing/${w.id}/`}>
           <time datetime={w.data.date.toISOString().slice(0,10)}>{new Intl.DateTimeFormat('en-GB',{month:'short',year:'numeric'}).format(w.data.date)}</time>
@@ -56,8 +72,10 @@ const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
     </section>
   )}
 
-  <section id="contact">
-    <div class="sh"><h2>Contact</h2><span>I read everything, slowly</span></div>
+  <section id="contact" class="chapter">
+    <div class="rail"><span class="mark">05 — contact</span></div>
+    <h2 class="big">I read everything, <span>slowly.</span></h2>
+    <div class="sh"><h2>Reach me</h2></div>
     <div class="contact">
       <a href="mailto:son@perfeat.org"><span class="idx">work</span><b>son@perfeat.org</b><i>→</i></a>
       <a href="mailto:tuanson.le03@gmail.com"><span class="idx">personal</span><b>tuanson.le03@gmail.com</b><i>→</i></a>

@@ -73,6 +73,22 @@ locale-aware (`vi-VN` for Vietnamese documents).
   margin at 260px).
 - Section rhythm: 72px between sections, 34px above a section head, 22px below.
 
+## Feel: cinematic (added after the levo-studio / atalanta references)
+
+- **Hero at scale**: Sora 500 up to 96px, tracking -0.045em, line-height 1. Line
+  two is muted (`--ink-3`), the key phrase is `--lume`. A mono locator line above
+  (`● SƠN LÊ / HỒ CHÍ MINH CITY / date`), a pill CTA and a text link below, a
+  "scroll" hint with a breathing rule bottom-right. The hero fills the viewport.
+- **The statement** (`Statement.astro`): a near-full-viewport paragraph at up to
+  58px whose words sharpen from muted-and-blurred to ink as it scrolls into view,
+  each word offset by its index; `*phrases*` set in the accent. A progress rule
+  draws beneath it. CSS scroll timelines; fully visible without support.
+- **Chapters**: every home section opens with a mono rail marker
+  (`■ 02 — THE READINGS`) and a large light statement (Sora 300 up to 46px) with
+  one muted span, then the list. Sections take ~14vh of air above.
+- **Frame**: two 1px vertical rules bound the column at every width above 640px.
+- **Alive when still**: the aurora drifts on a 26s alternate loop.
+
 ## Pictures and interaction
 
 - **The field** (`Field.astro`): the archive drawn as a map under the intro. x is
