@@ -34,14 +34,28 @@ Only addresses in `ALLOWED_EMAILS` (wrangler.jsonc) can write; everyone Access a
 Add an invited reader by adding their email to the Allow policy. They see everything, including your notes.
 To let someone read without seeing notes, that needs a second Worker rule; not built.
 
-## 3. Local development
+## 3. Continuous deploy (how agents publish)
+
+`.github/workflows/deploy.yml` builds and deploys on every push to `main`.
+It needs two repository secrets, set once:
+
+```bash
+gh secret set CLOUDFLARE_ACCOUNT_ID --body "<account id from: npx wrangler whoami>"
+gh secret set CLOUDFLARE_API_TOKEN            # paste a token made from the
+                                              # "Edit Cloudflare Workers" template
+```
+
+After that, an agent's commit of one markdown file is a deploy. A malformed
+report fails the build in CI and never reaches the site.
+
+## 4. Local development
 
 ```bash
 npm run dev            # site only, no API
 npm run build && npm run dev:worker   # full stack at http://localhost:8787, you are son@perfeat.org
 ```
 
-## 4. gbrain
+## 5. gbrain (optional)
 
 ```bash
 npm run sync -- --dry-run
