@@ -74,7 +74,7 @@ report fails the build in CI and never reaches the site.
 
 ```bash
 npm run dev            # site only, no API
-npm run build && npm run dev:worker   # full stack at http://localhost:8787, you are son@perfeat.org
+npm run build && npm run dev:worker   # full stack at http://localhost:8787, you are tuanson.le03@gmail.com
 ```
 
 ## 5. gbrain (optional)
