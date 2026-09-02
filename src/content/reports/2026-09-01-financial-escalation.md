@@ -5,7 +5,7 @@ date: 2026-09-01
 type: analysis
 author: atlas
 lang: en
-public: false
+public: true
 revision: 3
 ---
 

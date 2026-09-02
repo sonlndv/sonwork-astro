@@ -1,0 +1,89 @@
+---
+interface Props { slug: string }
+const { slug } = Astro.props;
+---
+<aside class="notes" id="notes" data-slug={slug} hidden>
+  <div class="nh"><h2>My notes</h2><span id="notes-count"></span></div>
+  <ol id="notes-list"></ol>
+  <form id="notes-form" hidden>
+    <label>On<select id="notes-anchor"><option value="top">the whole document</option></select></label>
+    <textarea id="notes-text" rows="4" maxlength="4000" placeholder="What I think of this…" required></textarea>
+    <div class="nrow"><button type="submit">Add note</button><span id="notes-status"></span></div>
+  </form>
+  <p class="nhint" id="notes-hint" hidden></p>
+</aside>
+
+<script>
+  const root = document.getElementById('notes') as HTMLElement;
+  const slug = root.dataset.slug!;
+  const list = document.getElementById('notes-list')!;
+  const form = document.getElementById('notes-form') as HTMLFormElement;
+  const sel = document.getElementById('notes-anchor') as HTMLSelectElement;
+  const text = document.getElementById('notes-text') as HTMLTextAreaElement;
+  const status = document.getElementById('notes-status')!;
+  const count = document.getElementById('notes-count')!;
+  const hint = document.getElementById('notes-hint')!;
+  const article = document.querySelector('.prose')!;
+  type Note = { id: string; anchor: string; text: string; createdAt: string; author: string };
+
+  // Sections a note can attach to: every heading in the document.
+  const headings = Array.from(article.querySelectorAll<HTMLElement>('h2[id], h3[id]'));
+  for (const h of headings) {
+    const o = document.createElement('option'); o.value = h.id; o.textContent = h.textContent || h.id; sel.appendChild(o);
+  }
+  const labelFor = (a: string) => a === 'top' ? 'whole document' : (headings.find(h => h.id === a)?.textContent || '#' + a);
+  const when = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(iso));
+
+  function render(notes: Note[], canWrite: boolean) {
+    root.hidden = false;
+    list.innerHTML = '';
+    count.textContent = notes.length ? String(notes.length) : '';
+    document.querySelectorAll('.nmark').forEach(m => m.remove());
+    for (const n of notes) {
+      const li = document.createElement('li'); li.id = 'note-' + n.id;
+      li.innerHTML = `<p></p><div class="nmeta"><a href="#${n.anchor === 'top' ? '' : n.anchor}"></a> · <time></time>${canWrite ? ' · <button type="button" class="ndel">delete</button>' : ''}</div>`;
+      li.querySelector('p')!.textContent = n.text;
+      li.querySelector('a')!.textContent = labelFor(n.anchor);
+      li.querySelector('time')!.textContent = when(n.createdAt);
+      li.querySelector('.ndel')?.addEventListener('click', async () => {
+        if (!confirm('Delete this note?')) return;
+        const r = await fetch(`/api/comments/${n.id}?doc=${slug}`, { method: 'DELETE' });
+        if (r.ok) load();
+      });
+      list.appendChild(li);
+      // A warm marker beside the section this note is about.
+      const h = n.anchor === 'top' ? null : headings.find(x => x.id === n.anchor);
+      if (h && !h.querySelector('.nmark')) {
+        const m = document.createElement('a'); m.className = 'nmark'; m.href = '#note-' + n.id; m.title = 'My note on this section'; m.textContent = '✎';
+        h.appendChild(m);
+      }
+    }
+    form.hidden = !canWrite;
+    if (!notes.length && !canWrite) { hint.hidden = false; hint.textContent = 'No notes yet.'; }
+  }
+
+  async function load() {
+    try {
+      const r = await fetch(`/api/comments?doc=${slug}`);
+      if (r.status === 401) { root.hidden = false; hint.hidden = false; hint.textContent = 'Sign in to see notes.'; return; }
+      if (!r.ok) throw new Error(String(r.status));
+      const d = await r.json();
+      render(d.comments || [], !!d.canWrite);
+    } catch {
+      // No worker in this preview. Say nothing; the document still reads fine.
+      root.hidden = true;
+    }
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.textContent = 'Saving…';
+    const r = await fetch('/api/comments', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ doc: slug, anchor: sel.value, text: text.value }),
+    });
+    if (r.ok) { text.value = ''; status.textContent = ''; load(); }
+    else { const err = await r.json().catch(() => ({})); status.textContent = err.error || 'Could not save.'; }
+  });
+  load();
+</script>

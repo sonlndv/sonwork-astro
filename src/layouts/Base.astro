@@ -1,21 +1,28 @@
 ---
 import '../styles/global.css';
-interface Props { title: string; description?: string; current?: string }
-const { title, description, current } = Astro.props;
+interface Props {
+  title: string; description?: string; current?: string;
+  lang?: 'en' | 'vi'; indexable?: boolean; wide?: boolean;
+}
+const { title, description, current, lang = 'en', indexable = false, wide = false } = Astro.props;
 const nav = [
-  { href: '/reports', label: 'Research', key: 'reports' },
-  { href: '/writing', label: 'Writing', key: 'writing' },
-  { href: '/about',   label: 'About',    key: 'about' },
+  { href: '/reports/', label: 'Research', key: 'reports' },
+  { href: '/writing/', label: 'Writing',  key: 'writing' },
+  { href: '/about/',   label: 'About',    key: 'about' },
 ];
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{title}</title>
   {description && <meta name="description" content={description} />}
-  <meta name="robots" content="noindex, nofollow" />
+  <meta property="og:title" content={title} />
+  {description && <meta property="og:description" content={description} />}
+  <meta name="theme-color" content="#101a2b" />
+  {!indexable && <meta name="robots" content="noindex, nofollow" />}
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300&family=Be+Vietnam+Pro:wght@400;500&display=swap" />
@@ -25,18 +32,67 @@ const nav = [
     <div class="bar">
       <a class="me" href="/">Sơn Lê</a>
       <nav>
-        {nav.map(n => (
-          <a href={n.href} aria-current={current === n.key ? 'page' : undefined}>{n.label}</a>
-        ))}
+        {nav.map(n => <a href={n.href} aria-current={current === n.key ? 'page' : undefined}>{n.label}</a>)}
+        {!indexable && (
+          <button class="sbtn" type="button" id="open-search" aria-label="Search (⌘K)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
+            <span>Search</span><kbd>⌘K</kbd>
+          </button>
+        )}
       </nav>
     </div>
   </header>
 
-  <main class="w"><slot /></main>
+  <main class:list={['w', { 'w-wide': wide }]}><slot /></main>
 
   <footer class="w">
     <a href="mailto:son@perfeat.org">son@perfeat.org</a>
     <a href="https://x.com/toilaleson">toilaleson</a>
   </footer>
+
+  {!indexable && (
+    <dialog id="search" aria-label="Search">
+      <div class="sbox"><div id="pagefind"></div><p class="shint">Esc to close · searches every report and post, in both languages</p></div>
+    </dialog>
+  )}
+
+  <script>
+    // Search: Pagefind UI is loaded on first open, never on page load.
+    const dlg = document.getElementById('search') as HTMLDialogElement | null;
+    const btn = document.getElementById('open-search');
+    let ready = false;
+    async function openSearch() {
+      if (!dlg) return;
+      if (!ready) {
+        ready = true;
+        const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/pagefind/pagefind-ui.css';
+        document.head.appendChild(css);
+        await new Promise<void>((res) => { const s = document.createElement('script'); s.src = '/pagefind/pagefind-ui.js'; s.onload = () => res(); s.onerror = () => res(); document.head.appendChild(s); });
+        // @ts-ignore
+        if (window.PagefindUI) new window.PagefindUI({ element: '#pagefind', showSubResults: true, showImages: false, excerptLength: 26, translations: { placeholder: 'Search…', zero_results: 'Nothing for [SEARCH_TERM]' } });
+        else document.getElementById('pagefind')!.innerHTML = '<p class="shint">Search index is built at deploy time; it is not available in this preview.</p>';
+      }
+      dlg.showModal();
+      (dlg.querySelector('input') as HTMLInputElement | null)?.focus();
+    }
+    btn?.addEventListener('click', openSearch);
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); dlg?.open ? dlg.close() : openSearch(); }
+    });
+    dlg?.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+
+    // Note counts on list pages. Silent when the API is absent (static preview).
+    const slots = document.querySelectorAll<HTMLElement>('[data-notes]');
+    if (slots.length) fetch('/api/comments/summary').then(r => r.ok ? r.json() : null).then((idx) => {
+      if (!idx?.counts) return;
+      slots.forEach((el) => {
+        const n = idx.counts[el.dataset.notes!] || 0;
+        if (!n) return;
+        el.textContent = `${n} ${n === 1 ? 'note' : 'notes'} from me`;
+        el.hidden = false;
+        el.previousElementSibling?.removeAttribute('hidden');
+      });
+    }).catch(() => {});
+  </script>
 </body>
 </html>

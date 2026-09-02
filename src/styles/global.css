@@ -119,3 +119,58 @@ footer a:hover{color:var(--lume)}
   .p time{width:auto}
   section{padding-bottom:56px}
 }
+
+/* ---------- wide reading layout with the notes margin ---------- */
+.w-wide{max-width:1060px}
+.docgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:48px;padding:64px 0 40px}
+@media (min-width:1000px){.docgrid{grid-template-columns:minmax(0,1fr) 250px;gap:56px}}
+.doc .stamp i{font-style:normal;color:var(--ink-2)}
+.doc .stamp .kind{color:var(--lume)}
+.doc .stamp .pub{color:var(--lume);text-decoration:underline;text-underline-offset:3px}
+.srcs{padding-top:38px}
+.srcs .b h3{font-size:16px;word-break:break-all}
+.pubnote{font-family:var(--bv);font-size:13px;color:var(--ink-3);border-top:1px solid var(--hair);margin-top:40px;padding-top:20px}
+.pubnote i{font-style:normal;color:var(--ink-2)}
+.pubnote a{color:var(--lume)}
+
+/* notes: Sơn's voice, warm, in the margin */
+.notes{font-family:var(--bv);font-size:13.5px;align-self:start;position:sticky;top:28px}
+.nh{display:flex;align-items:baseline;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--hair);margin-bottom:14px}
+.nh h2{font-size:13.5px;font-weight:500;margin:0;color:var(--human)}
+.nh span{color:var(--ink-3);font-size:12.5px}
+.notes ol{list-style:none;margin:0 0 16px;padding:0}
+.notes li{padding:12px 13px;margin-bottom:10px;border-radius:10px;background:color-mix(in oklch,var(--human) 9%,var(--raise));border:1px solid color-mix(in oklch,var(--human) 22%,var(--hair))}
+.notes li p{margin:0 0 8px;color:var(--ink);line-height:1.5;font-family:var(--ns);font-size:15.5px}
+.nmeta{font-size:11.5px;color:var(--ink-3)}
+.nmeta a{color:var(--human)}
+.ndel{background:none;border:0;padding:0;color:var(--ink-3);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.ndel:hover{color:var(--human)}
+.notes form label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--ink-3);margin-bottom:9px}
+.notes select,.notes textarea{font:inherit;font-family:var(--bv);font-size:13.5px;color:var(--ink);background:var(--below);border:1px solid var(--hair);border-radius:8px;padding:8px 10px;width:100%}
+.notes textarea{font-family:var(--ns);font-size:15.5px;line-height:1.5;resize:vertical}
+.notes select:focus,.notes textarea:focus{outline:none;border-color:var(--human)}
+.nrow{display:flex;align-items:center;gap:12px;margin-top:9px}
+.notes button[type=submit]{font:inherit;font-family:var(--bv);font-size:13px;font-weight:500;color:var(--below);background:var(--human);border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+#notes-status{font-size:12px;color:var(--ink-3)}
+.nhint{color:var(--ink-3);font-size:12.5px;margin:0}
+.nmark{font-family:var(--bv);font-size:.6em;color:var(--human);margin-left:.55em;vertical-align:middle;text-decoration:none}
+@media (max-width:999px){.notes{position:static}}
+
+/* search */
+.sbtn{display:inline-flex;align-items:center;gap:7px;font:inherit;font-family:var(--bv);font-size:14px;color:var(--ink-3);background:none;border:0;padding:0;cursor:pointer;transition:color .18s var(--out)}
+.sbtn:hover{color:var(--ink)}
+.sbtn kbd{font:inherit;font-size:11px;color:var(--ink-3);border:1px solid var(--hair);border-radius:5px;padding:1px 5px}
+@media (max-width:640px){.sbtn kbd,.sbtn span{display:none}}
+dialog#search{border:0;padding:0;background:transparent;width:min(680px,92vw);margin:9vh auto 0}
+dialog#search::backdrop{background:oklch(0.10 0.03 254 / .78);backdrop-filter:blur(6px)}
+.sbox{background:var(--ground);border:1px solid var(--hair);border-radius:14px;padding:18px 18px 10px;box-shadow:0 30px 70px -30px oklch(0.05 0.02 254)}
+.shint{font-family:var(--bv);font-size:12px;color:var(--ink-3);margin:12px 4px 4px}
+#pagefind{
+  --pagefind-ui-scale:.92;--pagefind-ui-primary:var(--lume);--pagefind-ui-text:var(--ink);
+  --pagefind-ui-background:var(--below);--pagefind-ui-border:var(--hair);--pagefind-ui-tag:var(--raise);
+  --pagefind-ui-border-width:1px;--pagefind-ui-border-radius:9px;--pagefind-ui-font:var(--bv);
+}
+#pagefind .pagefind-ui__result-title{font-family:var(--ns);font-weight:400}
+#pagefind .pagefind-ui__result-excerpt{color:var(--ink-2)}
+#pagefind .pagefind-ui__results-area{max-height:56vh;overflow:auto}
+#pagefind mark{background:oklch(0.790 0.082 224 / .28);color:var(--ink)}

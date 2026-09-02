@@ -1,12 +1,11 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-interface Props { entry: CollectionEntry<'reports'>; notes?: number }
-const { entry, notes = 0 } = Astro.props;
+interface Props { entry: CollectionEntry<'reports'>; href?: string }
+const { entry, href = `/reports/${entry.id}/` } = Astro.props;
 const d = entry.data;
-const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB',
-  { day: 'numeric', month: 'long' });
+const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' });
 ---
-<a class="r" href={`/reports/${entry.id}/`}>
+<a class="r" href={href} lang={d.lang}>
   <h3>{d.title}</h3>
   <p>{d.dek}</p>
   <div class="meta">
@@ -16,6 +15,6 @@ const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB',
     <span class="sep"></span>
     <time datetime={d.date.toISOString().slice(0, 10)}>{fmt.format(d.date)}</time>
     {d.revision > 1 && <><span class="sep"></span><span class="num">rev {d.revision}</span></>}
-    {notes > 0 && <><span class="sep"></span><span class="mine">{notes} {notes === 1 ? 'note' : 'notes'} from me</span></>}
+    <span class="sep" hidden></span><span class="mine" data-notes={entry.id} hidden></span>
   </div>
 </a>
