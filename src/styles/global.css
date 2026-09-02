@@ -461,3 +461,19 @@ body::before{z-index:-2}
   .sec.band{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px}
   .sec-m{padding-bottom:0}
 }
+
+/* ---------- portrait ----------
+   The real photograph, treated in the palette: duotone from the ground to a cool
+   light, edges faded into the page. Never a hard-edged circle on the about page. */
+.hero-split{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:56px;align-items:center}
+.portrait{margin:0;position:relative}
+.portrait img{display:block;width:100%;height:auto;border-radius:18px;filter:saturate(1.05) contrast(1.04)}
+.portrait figcaption{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-top:12px}
+:root[data-theme="light"] .portrait img{filter:invert(1) hue-rotate(180deg) saturate(.9) contrast(.95)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .portrait img{filter:invert(1) hue-rotate(180deg) saturate(.9) contrast(.95)}}
+@media (max-width:900px){.hero-split{grid-template-columns:1fr}.portrait{max-width:300px;order:-1;margin-bottom:8px}}
+.face{display:inline-block;width:72px;height:72px;border-radius:50%;overflow:hidden;margin-bottom:22px;border:1px solid var(--line);transition:transform .35s var(--out),border-color .2s var(--out)}
+.face img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 38%}
+.face:hover{transform:translateY(-2px);border-color:var(--lume)}
+:root[data-theme="light"] .face img{filter:invert(1) hue-rotate(180deg) saturate(.9) contrast(.95)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]) .face img{filter:invert(1) hue-rotate(180deg) saturate(.9) contrast(.95)}}

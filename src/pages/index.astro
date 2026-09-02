@@ -11,6 +11,7 @@ const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5)
 ---
 <Base title="Sơn Lê" description="Sơn Lê's research bots read. He argues in the margin.">
   <div class="lede-block">
+    <a class="face" href="/about/" aria-label="About Sơn"><img src="/portrait.jpg" width="72" height="72" alt="" /></a>
     <h1 class="lede-h"><span class="wd">My research bots read.</span> <span class="wd dim">I argue in the margin.</span></h1>
     <p class="lede-p wd">I'm Sơn Lê. I build small companies from Ho Chi Minh City and keep a fleet of agents reading what I can't get to. What they file lands here, in English and Vietnamese. <a href="/about/">About me →</a></p>
     <div class="tally num wd"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</div>

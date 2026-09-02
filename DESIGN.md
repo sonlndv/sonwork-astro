@@ -86,6 +86,14 @@ the ledger grouped by year.
 
 ## Pictures
 
+- **The portrait** (`public/portrait.jpg`): Sơn's real photograph, treated in the
+  palette: luminance mapped from `--void` to a cool light, mids pushed dark, edges
+  faded into the ground, light grain. 720px JPEG, ~120KB. Beside the hero on
+  `/about/` with a mono caption; a 72px round face beside the home lede. Bright
+  theme inverts it to shadow-on-paper. The source photo is never committed
+  (`.impeccable/refs/portrait/` is ignored); regenerate with
+  `.impeccable/refs/portrait/process.html` if replacing the photo.
+
 - **The field** (`Field.astro`): the `/readings/` index's picture: readings drawn as
   a map, x by date, rows by kind, size by revision, dashed lines join readings by
   the same agent. Hover reveals the title; click opens it; filters hide nodes.
