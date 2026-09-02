@@ -43,6 +43,19 @@ six Access applications (public paths bypass, everything else allow-listed to
 son@perfeat.org and tuanson.le03@gmail.com, including the workers.dev preview).
 Add a reader by adding their email to `ALLOWED_EMAILS` and re-running.
 
+## 2b. Filing endpoint (bots without a shell)
+
+`POST /api/file` commits a reading to GitHub. Two Worker secrets:
+
+```bash
+npx wrangler secret put FILING_TOKEN    # already set; value in ~/.sonwork-filing-token
+npx wrangler secret put GITHUB_TOKEN    # fine-grained PAT: this repo only, Contents: Read and write
+```
+
+Create the PAT at github.com → Settings → Developer settings → Fine-grained tokens,
+repository access = sonlndv/sonwork-astro, permission Contents: Read and write.
+Protocol: FILING.md.
+
 ## 3. Continuous deploy (how agents publish)
 
 `.github/workflows/deploy.yml` builds and deploys on every push to `main`.

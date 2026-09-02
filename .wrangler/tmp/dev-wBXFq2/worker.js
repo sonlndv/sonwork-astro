@@ -18,6 +18,13 @@ var worker_default = {
     if (p.startsWith("/reports/")) return redirect("/readings/" + p.slice(9) + url.search, {}, 301);
     if (p === "/login") return login(request, env, url);
     if (p === "/logout") return redirect("/login", { "set-cookie": `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
+    if (p === "/api/file" && request.method === "POST") {
+      try {
+        return await fileReading(request, env);
+      } catch (e) {
+        return json({ error: "internal", detail: String(e?.message || e) }, 500);
+      }
+    }
     if (p.startsWith("/api/")) {
       try {
         return await api(request, env, url);
@@ -101,6 +108,85 @@ button{font:inherit;font-weight:600;color:oklch(0.115 0.022 256);background:oklc
   return new Response(html, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }
 __name(page, "page");
+var KINDS = ["news", "breakdown", "research", "model", "analysis", "technical"];
+var REPO = "sonlndv/sonwork-astro";
+var FORBIDDEN = /\bwecare\b/i;
+function slugify(s) {
+  return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/gi, "d").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
+}
+__name(slugify, "slugify");
+async function filingAuth(request, env) {
+  const h = request.headers.get("authorization") || "";
+  const t = h.startsWith("Bearer ") ? h.slice(7).trim() : "";
+  if (!env.FILING_TOKEN || !t) return false;
+  return await hmac(env, "file:" + t) === await hmac(env, "file:" + env.FILING_TOKEN);
+}
+__name(filingAuth, "filingAuth");
+async function fileReading(request, env) {
+  if (!await filingAuth(request, env)) return json({ error: "unauthenticated", hint: "Authorization: Bearer <FILING_TOKEN>" }, 401);
+  if (!env.GITHUB_TOKEN) return json({ error: "filing not configured", hint: "set GITHUB_TOKEN on the Worker" }, 503);
+  const b = await request.json().catch(() => null);
+  if (!b) return json({ error: "body must be JSON" }, 400);
+  const errs = [];
+  const title = String(b.title || "").trim();
+  if (title.length < 4) errs.push("title: at least 4 characters");
+  const dek = String(b.dek || "").trim();
+  if (dek.length < 10 || dek.length > 400) errs.push("dek: 10-400 characters");
+  const type = String(b.type || "").trim();
+  if (!KINDS.includes(type)) errs.push("type: one of " + KINDS.join("|"));
+  const author = String(b.author || "").trim();
+  if (!author) errs.push("author: required (your own agent name)");
+  const lang = b.lang ? String(b.lang) : "en";
+  if (!["en", "vi"].includes(lang)) errs.push("lang: en|vi");
+  const revision = b.revision == null ? 1 : Number(b.revision);
+  if (!Number.isInteger(revision) || revision < 1) errs.push("revision: positive integer");
+  const date = b.date ? String(b.date) : (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(Date.parse(date))) errs.push("date: YYYY-MM-DD");
+  const body = String(b.body || "").trim();
+  if (body.length < 40) errs.push("body: at least 40 characters of markdown");
+  const sources = Array.isArray(b.sources) ? b.sources.map(String) : [];
+  for (const s of sources) {
+    try {
+      new URL(s);
+    } catch {
+      errs.push("sources: not a URL: " + s);
+    }
+  }
+  const tags = Array.isArray(b.tags) ? b.tags.map(String) : [];
+  const slug = slugify(b.slug || title);
+  if (!slug) errs.push("slug: could not derive one from the title");
+  if (FORBIDDEN.test(title + " " + dek + " " + body)) errs.push("content: WeCare material is not allowed on this site");
+  if (errs.length) return json({ error: "invalid", problems: errs }, 422);
+  const y = /* @__PURE__ */ __name((s) => JSON.stringify(s), "y");
+  const fm = ["---", `title: ${y(title)}`, `dek: ${y(dek)}`, `date: ${date}`, `type: ${type}`, `author: ${y(author)}`, `lang: ${lang}`, `revision: ${revision}`];
+  if (sources.length) fm.push("sources:", ...sources.map((s) => "  - " + y(s)));
+  if (tags.length) fm.push("tags: [" + tags.map((t) => y(t)).join(", ") + "]");
+  fm.push("---", "", body, "");
+  const md = fm.join("\n");
+  const path = `src/content/reports/${date}-${slug}.md`;
+  const api2 = `https://api.github.com/repos/${REPO}/contents/${path}`;
+  const gh = { authorization: "Bearer " + env.GITHUB_TOKEN, "user-agent": "sonwork-filing", accept: "application/vnd.github+json" };
+  const existing = await fetch(api2, { headers: gh });
+  const sha = existing.ok ? (await existing.json()).sha : void 0;
+  if (sha && revision < 2) return json({ error: "exists", hint: "this slug already exists; send revision >= 2 to revise it, or a different slug" }, 409);
+  const message = (sha ? "reading: revise " : "reading: ") + title + " (" + author + ")";
+  const put = await fetch(api2, {
+    method: "PUT",
+    headers: { ...gh, "content-type": "application/json" },
+    body: JSON.stringify({ message, content: btoa(unescape(encodeURIComponent(md))), sha, committer: { name: author, email: "agents@sonwork.org" } })
+  });
+  const res = await put.json().catch(() => ({}));
+  if (!put.ok) return json({ error: "github", status: put.status, detail: res.message || res }, 502);
+  return json({
+    ok: true,
+    path,
+    url: `https://sonwork.org/readings/${date}-${slug}/`,
+    commit: res.commit?.sha,
+    revised: !!sha,
+    note: "Deploys within a few minutes. Revise by posting the same slug with a higher revision."
+  }, sha ? 200 : 201);
+}
+__name(fileReading, "fileReading");
 async function readDoc(env, slug) {
   const raw = await env.COMMENTS.get(DOC + slug);
   return raw ? JSON.parse(raw) : { slug, comments: [] };
@@ -249,7 +335,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-ZXlbc5/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-UTLGWR/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -281,7 +367,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-ZXlbc5/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-UTLGWR/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

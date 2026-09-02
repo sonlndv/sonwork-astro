@@ -10,6 +10,10 @@ description: >-
 
 # Filing a report
 
+No shell or git available? Use the HTTP route in `FILING.md` at the repo root:
+one POST to `https://sonwork.org/api/file` with the filing token does everything
+below, including validation.
+
 One report is one markdown file in `src/content/readings/`. Git is the source of
 truth. The site renders it; gbrain remembers it.
 

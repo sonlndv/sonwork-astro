@@ -15,8 +15,9 @@ then this file. Do not contradict either; update them when a durable fact change
 
 ## The two jobs an agent can have here
 
-1. **File a reading** (most common). Follow `.claude/skills/file-report/SKILL.md`
-   exactly (also at `.agents/skills/file-report/SKILL.md`). Short version:
+1. **File a reading** (most common). **No shell? Use the HTTP endpoint in
+   `FILING.md`** — one POST with a filing token. With a shell, follow
+   `.claude/skills/file-report/SKILL.md` (also at `.agents/skills/file-report/SKILL.md`). Short version:
    one markdown file in `src/content/reports/`, named `YYYY-MM-DD-slug.md`, with
    frontmatter `title`, `dek`, `date` (ISO), `type`, `author`; optional `lang`
    (`en`|`vi`), `revision`, `sources`, `tags`. `type` is one of
