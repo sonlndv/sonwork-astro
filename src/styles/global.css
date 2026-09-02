@@ -491,7 +491,11 @@ body::before{z-index:-2}
 .empty-bot{display:flex;align-items:center;gap:18px;padding:28px 0}
 .empty-bot .empty{margin:0}
 .empty-bot .bot{opacity:.9}
-/* the method block sits on the ledger grid: 118px index column, 22px gap */
-.method{display:grid;grid-template-columns:118px minmax(0,1fr);gap:22px;align-items:start}
-.method .bot{margin-top:6px}
-@media (max-width:640px){.method{grid-template-columns:1fr}.empty-bot{gap:14px}}
+/* the method: prose at its measure, the bot composed beside it — sized to the
+   block, anchored to the column's right edge (where the header meta sits),
+   centred on the paragraphs */
+.method{display:grid;grid-template-columns:minmax(0,62ch) minmax(0,1fr);gap:40px;align-items:center}
+.method-fig{margin:0;justify-self:end;display:flex;flex-direction:column;align-items:center;gap:12px}
+.method-fig figcaption{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+@media (max-width:760px){.method{grid-template-columns:1fr;gap:24px}.method-fig{justify-self:start;flex-direction:row;gap:14px}.method-fig .bot{width:40px;height:70px}}
+@media (max-width:640px){.empty-bot{gap:14px}}
