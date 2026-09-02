@@ -43,7 +43,7 @@ npm run check        # types
 - `src/content/writing/` — Sơn's own
 - `src/content.config.ts` — the schema, and the guardrail
 - `src/styles/global.css` — the whole visual system, one file
-- `src/worker.js` — Cloudflare Worker: static assets + /api/comments (KV)
+- `src/worker.js` — Cloudflare Worker: the door (passphrase session or Access), static assets, /api/comments (KV)
 - `src/pages/p/` — public copies of reports flagged `public: true`
 - `scripts/sync-gbrain.mjs` — reports → gbrain over MCP
 - `.impeccable/mocks/` — design exploration, not shipped
