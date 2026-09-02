@@ -62,9 +62,8 @@ locale-aware (`vi-VN` for Vietnamese documents).
 
 ## Space and surface
 
-- **The sea** is the material: one body of light, high and left, drifting on a
-  70s loop. Quieter pass (2026-09-02) removed the other three, the caustics, the
-  aurora drift and the cursor spotlight: they read as điệu. No grid.
+- **Ground**: near-black with one static body of light, high and left. Nothing
+  in the background moves. (Option 1 of the quieter pass, 2026-09-02.) No grid.
 - One **aurora** of `--lume` at 14–16% opacity, centred above the fold. It is the
   only glow.
 - Rules are 1px. Corners are 4–6px. Nothing is a card; rows are separated by
