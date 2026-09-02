@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
+import Mark from '../components/Mark.astro';
 interface Props {
   title: string; description?: string; current?: string;
   lang?: 'en' | 'vi'; indexable?: boolean; wide?: boolean;
@@ -38,7 +39,7 @@ const nav = [
   <div class="sea" aria-hidden="true"><span class="lb lb1"></span></div>
   <header class="w">
     <div class="bar">
-      <a class="me" href="/">Sơn Lê</a>
+      <a class="me" href="/"><Mark size={17} /> Sơn Lê</a>
       <nav>
         {nav.map(n => <a href={n.href} aria-current={current === n.key ? 'page' : undefined}>{n.label}</a>)}
         {(

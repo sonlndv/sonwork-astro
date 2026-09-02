@@ -12,6 +12,20 @@ The system has exactly one idea, and everything else serves it:
 
 A living version of this document renders from the real tokens at `/kit/`.
 
+## Mark
+
+A document with a note in its margin: a rounded square with three text lines in
+`--lume`, and one dot in `--human` at its top-right edge. It is the one rule drawn.
+Used at 17px in the header (tilts 6° on hover), as the favicon, at 360px and 14%
+opacity as the ornament behind the hero, and on `/kit/`. Never recoloured.
+
+## Delight (one thesis)
+
+The machines write, Sơn argues. The only celebrated action is keeping a note: the
+status says "Kept.", the new card settles with a warm ring, its ✎ marker pings once
+beside the section, and the document's stamp gains "read by Sơn" in his colour.
+Nothing else on the site celebrates anything.
+
 ## Colour
 
 All colour is authored in OKLCH. Roles, not hues, are what components reference.

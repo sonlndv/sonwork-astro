@@ -81,7 +81,8 @@ time,.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter
 header{position:sticky;top:0;z-index:20;background:color-mix(in oklch,var(--void) 74%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-2)}
 .bar{display:flex;align-items:center;gap:30px;padding:15px 0}
 .bar .me{font-weight:600;font-size:14.5px;letter-spacing:-0.015em;display:inline-flex;align-items:center;gap:9px}
-.bar .me::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--lume);box-shadow:0 0 12px color-mix(in oklch,var(--lume) 70%,transparent)}
+.bar .me .mark{transition:transform .35s var(--out)}
+.bar .me:hover .mark{transform:rotate(-6deg)}
 .bar nav{display:flex;gap:22px;margin-left:auto;font-size:13.5px;align-items:center}
 .bar nav a{color:var(--ink-3);transition:color .18s var(--out)}
 .bar nav a:hover,.bar nav a[aria-current]{color:var(--ink)}
@@ -403,3 +404,19 @@ body::before{z-index:-2}
 :root[data-theme="light"] .lb1{background:oklch(0.84 0.08 232 / .40)}
 :root[data-theme="light"] body::before{opacity:.35}
 @media (max-width:640px){.lb{filter:blur(44px)}}
+
+/* ---------- the mark ---------- */
+.mark-big{position:absolute;right:-30px;top:50%;transform:translateY(-52%);opacity:.14;pointer-events:none;z-index:-1}
+.mark-big circle{filter:drop-shadow(0 0 14px var(--human))}
+@media (max-width:1000px){.mark-big{width:240px;height:240px;right:-40px;opacity:.1}}
+@media (max-width:640px){.mark-big{display:none}}
+.marks{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap;margin:8px 0 44px}
+.marks p{flex:1 1 280px;margin:0;color:var(--ink-3);font-weight:300;font-size:14px}
+/* the note that was just kept settles into place; its marker announces itself once */
+@media (prefers-reduced-motion:no-preference){
+  .notes li.kept{animation:kept .7s var(--out)}
+  @keyframes kept{from{transform:translateY(6px);box-shadow:0 0 0 0 color-mix(in oklch,var(--human) 40%,transparent)}to{transform:none;box-shadow:0 0 0 12px transparent}}
+  .nmark.kept{animation:ping 1.2s var(--out)}
+  @keyframes ping{0%{transform:scale(.6);opacity:0}40%{transform:scale(1.4);opacity:1}100%{transform:scale(1);opacity:1}}
+}
+.stamp .readby{color:var(--human)}

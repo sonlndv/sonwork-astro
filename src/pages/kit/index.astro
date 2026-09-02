@@ -1,5 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
+import Mark from '../../components/Mark.astro';
 const roles = [
   ['--void','Page ground'],['--ground','Section ground'],['--raise','Hover / raised'],
   ['--line','Rule, strong'],['--line-2','Rule, quiet'],
@@ -11,6 +12,9 @@ const roles = [
   <div class="kit" style="padding:56px 0 20px">
     <h1>Kit</h1>
     <p class="lede">The visual system, rendered from the live tokens. Flip the theme in the header; every value below updates. The full guideline is <code class="mono">DESIGN.md</code> in the repo.</p>
+
+    <div class="sh"><h2>Mark</h2><span>a document, and a note in its margin</span></div>
+    <div class="marks"><Mark size={96} stroke={1.2} /><Mark size={48} /><Mark size={24} /><Mark size={16} /><p>The site's one rule, drawn: the reading is cool, the note is warm. It is the favicon, the header, and the ornament behind the hero.</p></div>
 
     <div class="sh"><h2>Colour</h2><span>OKLCH tokens · hex shown as rendered</span></div>
     <div class="sw" id="sw">
