@@ -22,16 +22,16 @@ projected load roughly four orders of magnitude below every free-tier limit.
   the index so a query loads only what it needs; 10,000 pages stay under 300kB total
   payload. Detects language from the `lang` attribute and indexes each language
   independently, with Vietnamese supported. Fits the bilingual archive directly.
-- Hosting: Cloudflare Pages.
+- Hosting: a Cloudflare Worker serving the static build as assets (same shape as
+  the org's pjc-report). `npm run deploy`. See DEPLOY.md.
 - Access control: Cloudflare Access. Free to 50 users, which covers the invited
   group without a plan change.
 - Comments API: Cloudflare Workers. Free tier 100K requests/day.
-- Comment storage: Cloudflare D1. Free tier 5GB, 5M row reads/day, 100K row
-  writes/day. Chosen over Supabase because it deploys inside the same Worker as the
-  site, with no second service and no second auth system. Supabase is an equally
-  free swap if the Cloudflare dependency should not deepen.
-  - Note: since 2026-09-01, D1 free-plan queries hard-fail once daily row limits are
-    exceeded rather than degrading. Rate-limit the comment write path.
+- Comment storage: Cloudflare KV, one key per document plus an index key for
+  counts and export. Chosen after studying the org's own pjc-report, which runs
+  the same pattern in production. Simpler than D1 (no SQL, no schema), and the
+  cross-document view is served by the index key. Free tier: 100K reads/day,
+  1K writes/day; each note costs two writes, capped in the Worker.
 
 Build-versus-buy was evaluated. Wiki.js, Docmost, Outline, and BookStack would all
 supply git-backed markdown, search, permissions, and in some cases comments for
@@ -106,8 +106,10 @@ reaches roughly 260 documents per year.
 
 **Hard constraints.**
 
-- **Private by default.** Every report sits behind auth. A frontmatter flag promotes
-  an individual report to public. The system must fail closed, never open.
+- **Private by default.** Every report sits behind Cloudflare Access. A frontmatter
+  flag (`public: true`) additionally emits a copy at `/p/<slug>/`, which Access
+  bypasses and which carries no notes. The private canonical page stays at
+  `/reports/<slug>/`. The system fails closed: nothing is public without the flag.
 - **No WeCare material on this site at all.** Stated explicitly by the user.
 - **Nothing is lost when a report is revised.** Agents revise reports often. Every
   version must survive and remain reachable. Git provides the history; the site must
@@ -119,29 +121,28 @@ reaches roughly 260 documents per year.
 research paper, analysis, technical writeup. The old taxonomy (`life-book`,
 `experiences`, `human`) is retired.
 
-**Undecided, do not invent.**
+**Decided since the first draft.**
 
-- Whether reports carry **agent bylines**. The previous site used a named masthead
-  (Karpathy on build, Robin on personal and reading, Lando as editor). The user was
-  asked and has not yet answered. Attribution matters more than usual because every
-  document is machine-written, so this needs resolving before the report page is
-  designed.
-- Whether comments live in Cloudflare D1 or Supabase.
-- Exact frontmatter schema. To be defined alongside the report-authoring skill.
+- **Agent bylines: yes, self-declared.** Each agent writes its own `author` in
+  frontmatter and keeps it across reports. No registry. The retired names (Robin,
+  Karpathy, Lando) may not be reused. Confirmed by the user 2026-09-02.
+- **Comments live in Cloudflare KV**, not D1 or Supabase (see Stack).
+- **Frontmatter schema** is `src/content.config.ts`. It is the contract agents
+  write against and the build enforces.
 
 ## Brand Commitments
 
 - Name: Sơn Lê. Domain: sonwork.org.
-- Prior identity assets (bio prose, socials `toilaleson`, `son@perfeat.org`) exist in
-  git tag `pre-wipe-2026-09-02` and can be recovered. The user has not yet said
-  whether to carry them forward or write fresh.
+- Contact carried forward: `son@perfeat.org`, `toilaleson`. The homepage bio prose
+  is a first draft written during the build and should be replaced in Sơn's own
+  words; the prior bio remains recoverable in tag `pre-wipe-2026-09-02`.
 - No binding visual constraint has been stated. The previous visual direction
   ("Racing Line": dark canvas, electric blue, F1 telemetry) was deliberately wiped
   and is an explicit anti-reference, not a starting point.
 
 ## Evidence on Hand
 
-**No reports exist yet.** The site is being built before its content. The first
+**No real reports exist yet.** The site is being built before its content. The first
 deliverable is a working site plus a skill that lets agents author reports into it.
 Any sample report shown during development is a placeholder and must be labeled as
 such. Do not fabricate report content, counts, sources, or dates.

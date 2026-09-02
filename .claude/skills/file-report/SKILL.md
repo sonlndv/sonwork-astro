@@ -95,5 +95,9 @@ invented number is a defect that outlives you in the archive.
 
 1. `npm run build` — it must pass.
 2. Commit the single markdown file with a message naming the report.
-3. Sync the same markdown to gbrain under `shared/projects/sonwork/reports/<slug>`
-   so the fleet retains the document alongside its atoms.
+3. `npm run sync` pushes every report to gbrain under
+   `shared/projects/sonwork/reports/<slug>`. If you have the gbrain MCP tools
+   directly, `put_page` with that slug and the file's full content does the same.
+4. If Sơn has left notes on an earlier revision (visible at `/api/comments/export`
+   when signed in, or in gbrain under `shared/projects/sonwork/notes`), read them
+   before revising. They are the reason a revision exists.

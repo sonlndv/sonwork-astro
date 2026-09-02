@@ -11,6 +11,8 @@ const { entry } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
 const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+// Every revision survives in git. Surface it instead of only claiming it.
+const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/content/reports/${entry.id}.md`;
 ---
 <Base title={`${d.title} — Sơn Lê`} description={d.dek} current="reports" lang={d.lang} wide>
   <div class="docgrid">
@@ -21,7 +23,7 @@ const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 
         <span>by <i>{d.author}</i></span>
         <time datetime={d.date.toISOString().slice(0,10)}>{fmt.format(d.date)}</time>
         <span>{d.lang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
-        <span class="num">Revision {d.revision}</span>
+        <a class="hist num" href={history} title="Every earlier version, in git">Revision {d.revision} · history ↗</a>
         {d.public
           ? <a class="pub" href={`/p/${entry.id}/`}>Public ↗</a>
           : <span>Private</span>}

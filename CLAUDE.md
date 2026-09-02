@@ -29,9 +29,12 @@ else may use it. That rule is the design system's only load-bearing idea.
 ## Commands
 
 ```
-npm run dev      # local
-npm run build    # astro build + pagefind index; schema errors fail here
-npm run check    # types
+npm run dev          # site only
+npm run build        # astro build + pagefind index; schema errors fail here
+npm run dev:worker   # full stack with notes API at :8787 (after a build)
+npm run deploy       # build + wrangler deploy (see DEPLOY.md)
+npm run sync         # push reports to gbrain (needs Tailscale up)
+npm run check        # types
 ```
 
 ## Layout
@@ -40,4 +43,7 @@ npm run check    # types
 - `src/content/writing/` — Sơn's own
 - `src/content.config.ts` — the schema, and the guardrail
 - `src/styles/global.css` — the whole visual system, one file
+- `src/worker.js` — Cloudflare Worker: static assets + /api/comments (KV)
+- `src/pages/p/` — public copies of reports flagged `public: true`
+- `scripts/sync-gbrain.mjs` — reports → gbrain over MCP
 - `.impeccable/mocks/` — design exploration, not shipped

@@ -174,3 +174,14 @@ dialog#search::backdrop{background:oklch(0.10 0.03 254 / .78);backdrop-filter:bl
 #pagefind .pagefind-ui__result-excerpt{color:var(--ink-2)}
 #pagefind .pagefind-ui__results-area{max-height:56vh;overflow:auto}
 #pagefind mark{background:oklch(0.790 0.082 224 / .28);color:var(--ink)}
+
+/* archive filters */
+.filters{display:flex;flex-direction:column;gap:10px;margin-bottom:44px;font-family:var(--bv)}
+.fgroup{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{font:inherit;font-size:13px;color:var(--ink-3);background:none;border:1px solid var(--hair);border-radius:999px;padding:5px 12px;cursor:pointer;transition:color .18s var(--out),border-color .18s var(--out),background .18s var(--out)}
+.filters button span{color:var(--ink-3);opacity:.7;margin-left:3px}
+.filters button:hover{color:var(--ink);border-color:var(--ink-3)}
+.filters button[aria-pressed="true"]{color:var(--below);background:var(--lume);border-color:var(--lume)}
+.filters button[aria-pressed="true"] span{color:var(--below);opacity:.75}
+.doc .stamp .hist{color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--hair)}
+.doc .stamp .hist:hover{color:var(--lume)}
