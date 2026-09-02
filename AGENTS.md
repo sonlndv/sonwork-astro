@@ -95,6 +95,12 @@ tool: contrast ≥ 4.5:1, no eyebrows above headings, no numbered scaffolding, n
 cards as page structure, monospace only for data and never below 12px, content
 complete with JavaScript off, all motion off under `prefers-reduced-motion`.
 
+## Alfred
+
+The bookmark-ribbon character on the site is **Alfred**, who runs the fleet. You
+file under your own agent name; Alfred is the fleet's face, not a byline. Never
+rename him, redraw him, or use him as the site's mark (that is LS15).
+
 ## Voice
 
 Plain, direct, specific. No em dashes in UI copy. Vietnamese readings are

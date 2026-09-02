@@ -25,13 +25,15 @@ is loaded for the mark and used nowhere else. Alone in the header; favicon is th
 LS pair on a `--lume` tile; the OG image is the mark and the name. Never a
 background ornament.
 
-## The bot — the fleet's face
+## Alfred — he runs the fleet
 
-A bookmark ribbon with two eyes: a reading agent (`Bot.astro`). Grok's locked
+A bookmark ribbon with two eyes, named Alfred (`Bot.astro`). He is the character
+who runs Sơn's fleet of reading agents; the agents byline their own readings and
+work for him. Grok's locked
 mark, redrawn as SVG in the tokens: body `--lume`, eyes `--void`, so it holds
-on both themes. It is the counterpart to LS15: **LS15 is Sơn, the bot is the
+on both themes. It is the counterpart to LS15: **LS15 is Sơn, Alfred is the
 machines.** It stands at 11–12px beside every agent byline (rows and stamps),
-waits at 44px in empty states, sits at 72px beside "How this site works", and
+waits at 44px in empty states, sits at 104px beside "Meet Alfred" on /about/, and
 appears on `/kit/`. It blinks about once every eight seconds (off under reduced
 motion). No pupils, no mouth, no hair; never stretched; never the site's mark.
 Source kit: Google Drive folder "sonwork logo"; gbrain `projects/sonwork`.

@@ -37,7 +37,7 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
     </div>
   </div>
 
-  {years.length === 0 && <div class="empty-bot"><Bot size={30} title="A reading agent, waiting" /><p class="empty">Nothing filed yet. The bots are reading.</p></div>}
+  {years.length === 0 && <div class="empty-bot"><Bot size={30} title="Alfred" /><p class="empty">Nothing filed yet. Alfred has the fleet reading.</p></div>}
   {years.map(y => (
     <section data-year={y} class="sec">
       <header class="sec-h"><h2>{y}</h2><div class="sec-m"><span data-year-count>{byYear.get(y)!.length} filed</span></div></header>
@@ -46,7 +46,7 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
       ))}
     </section>
   ))}
-  <div id="none" hidden class="empty-bot"><Bot size={30} /><p class="empty">Nothing matches those filters.</p></div>
+  <div id="none" hidden class="empty-bot"><Bot size={30} title="Alfred" /><p class="empty">Alfred has nothing that matches those filters.</p></div>
 
   <script>
   function bootFilters() {
