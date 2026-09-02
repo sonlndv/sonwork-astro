@@ -45,7 +45,7 @@ would need migrating.
 
 ## Users
 
-**Primary user: Sơn Lê, reading alone.** He is the sole reader for the foreseeable
+**Primary user: Son Lê, reading alone.** He is the sole reader for the foreseeable
 future, and the sole commenter. The daily job is reading what his agent fleet
 produced since he last looked, and finding a specific document again months later.
 
@@ -55,8 +55,10 @@ onboarding, or persuasion job exists on this site.
 
 ## Product Purpose
 
-sonwork.org is the durable home for the reports Sơn's AI agent fleet produces, plus
-a small personal surface (About, Writing, Contact).
+sonwork.org is Son Lê's site and the durable home for the readings his agent
+fleet files. What he studies and reads about: business-model economics,
+companies and unit economics, human systems (behaviour, game theory, decisions),
+plus news and technical material. AI is his tool, never the subject.
 
 Roughly five reports per week, in English and Vietnamese, spanning news, research
 papers, market and geopolitical analysis, and technical writeups.
@@ -133,10 +135,20 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 
 ## Brand Commitments
 
-- Name: Sơn Lê. Domain: sonwork.org.
-- Contact carried forward: `son@perfeat.org`, `toilaleson`. The homepage bio prose
-  is a first draft written during the build and should be replaced in Sơn's own
-  words; the prior bio remains recoverable in tag `pre-wipe-2026-09-02`.
+- Name: **Son Lê** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
+- **Public framing, in his words (2026-09-02):** ex-venture capitalist, now a
+  full-time operator, building a business with AI applied to real business
+  problems. That is the whole public story.
+- **Never name his employer or the business he operates**, on the site, in
+  readings, or in any published text. The credential is "operator".
+- Stopped and not to be shown as current: Perfeat (D2C eyewear), Paddock,
+  Fitnest, the AI content engine, trading. The site must not mention them.
+- Contact: tuanson.le03@gmail.com (personal), LinkedIn in/toilaleson (handle
+  assumed, unconfirmed), X @toilaleson. The work address is not published.
+- Alfred is the Chief Everything Officer on the Grok Bot stack: coordinates the
+  fleet and owns the website. Other agents (Fred on Hermes, Cowork on Claude) are
+  separate and not part of the site's story.
+- Source of truth for identity: gbrain `brain/user` (fetch by exact slug).
 - No binding visual constraint has been stated. The previous visual direction
   ("Racing Line": dark canvas, electric blue, F1 telemetry) was deliberately wiped
   and is an explicit anti-reference, not a starting point.

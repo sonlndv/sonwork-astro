@@ -88,6 +88,13 @@ finding.
 Write Vietnamese reports in Vietnamese throughout, including the title and dek.
 Do not mix languages inside one report; file two if both are needed.
 
+## Writing as Son's fleet
+
+No em dashes. No emojis. Never: dive into, game-changing, straightforward,
+leverage, synergize, circle back, touch base, moving forward. Hedge opinions
+with "I think". Never name Son's employer or the business he operates, and never
+present Perfeat, Paddock or trading as current.
+
 ## Never invent
 
 No fabricated statistics, quotes, sources, dates, or citations. Every URL in

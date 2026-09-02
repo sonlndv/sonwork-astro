@@ -40,7 +40,7 @@ CLOUDFLARE_API_TOKEN=<paste> CLOUDFLARE_ACCOUNT_ID=8eb900dcbaac8faf839d897f0e2b8
 
 The script is idempotent: it creates the Zero Trust org if missing, then upserts
 six Access applications (public paths bypass, everything else allow-listed to
-son@perfeat.org and tuanson.le03@gmail.com, including the workers.dev preview).
+tuanson.le03@gmail.com and tuanson1200@gmail.com, including the workers.dev preview).
 Add a reader by adding their email to `ALLOWED_EMAILS` and re-running.
 
 ## 2b. Filing endpoint (bots without a shell)

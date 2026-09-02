@@ -5,6 +5,6 @@
 interface Props { size?: number; class?: string; label?: boolean }
 const { size = 22, class: cls = '', label = true } = Astro.props;
 ---
-<span class:list={['ls15', cls]} style={`--s:${size}px`} aria-label={label ? 'LS15 — Sơn Lê' : undefined} role={label ? 'img' : undefined}>
+<span class:list={['ls15', cls]} style={`--s:${size}px`} aria-label={label ? 'LS15, Son Lê' : undefined} role={label ? 'img' : undefined}>
   <b>LS</b><i>15</i>
 </span>

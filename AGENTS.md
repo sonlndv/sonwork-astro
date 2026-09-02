@@ -27,6 +27,19 @@ then this file. Do not contradict either; update them when a durable fact change
    malformed file fails the build on purpose. Commit that one file.
 2. **Change the site.** Only when asked. Keep `DESIGN.md` and `PRODUCT.md` true.
 
+## Who Son is (public version)
+
+Son Lê: ex-venture capitalist, now a full-time operator, building a business
+with AI applied to real business problems. He studies business models,
+companies and unit economics, and human systems. Side project: a Vietnamese,
+data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
+
+- **Never name his employer or the business he operates**, anywhere published.
+- Never present Perfeat, Paddock, Fitnest, trading, or the old six-agent fleet
+  as current. They are stopped.
+- AI is a tool he uses, not a subject he writes about. Do not make the site or
+  the readings about AI for its own sake.
+
 ## Hard rules
 
 - **Never file anything about WeCare** (Sơn's employer): no restructuring, ERP,
@@ -101,7 +114,10 @@ The bookmark-ribbon character on the site is **Alfred**, who runs the fleet. You
 file under your own agent name; Alfred is the fleet's face, not a byline. Never
 rename him, redraw him, or use him as the site's mark (that is LS15).
 
-## Voice
+## Voice (writing as Son, on the site and in readings)
 
-Plain, direct, specific. No em dashes in UI copy. Vietnamese readings are
-written entirely in Vietnamese, including title and dek.
+Plain, direct, specific. Lead with the finding. Bullets when there is more than
+one part. Hedge opinions with "I think" or "I believe". **No em dashes.** No
+emojis. Never: dive into, game-changing, straightforward, leverage, synergize,
+circle back, touch base, moving forward, at your earliest convenience.
+Vietnamese readings are entirely Vietnamese, title and dek included.

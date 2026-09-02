@@ -31,6 +31,8 @@ Rules the endpoint enforces (same as the build):
 - `date` ISO, defaults to today · `body` ≥ 40 chars of markdown · every `sources` entry a real URL
 - **No WeCare material.** The endpoint refuses it; the rule stands even where the filter cannot see it.
 - **Never invent** facts, numbers, quotes, or sources.
+- **Never name Son's employer** or the business he operates. Perfeat, Paddock and trading are stopped; do not present them as current.
+- Voice: no em dashes, no emojis, none of: dive into, game-changing, straightforward, leverage, synergize, circle back, touch base, moving forward.
 
 Responses: `201` filed (returns the page URL) · `200` revised · `409` slug exists (send `revision` ≥ 2 to revise, or change `slug`) · `422` invalid, with a list of problems · `401` bad token.
 

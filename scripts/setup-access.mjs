@@ -15,7 +15,7 @@ const TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 const ACCT = process.env.CLOUDFLARE_ACCOUNT_ID;
 const HOST = process.env.SONWORK_HOST || 'sonwork.org';
 const PREVIEW = process.env.SONWORK_PREVIEW || 'sonwork.tuanson-le03.workers.dev';
-const EMAILS = (process.env.ALLOWED_EMAILS || 'son@perfeat.org,tuanson.le03@gmail.com').split(',').map(s => s.trim()).filter(Boolean);
+const EMAILS = (process.env.ALLOWED_EMAILS || 'tuanson.le03@gmail.com,tuanson1200@gmail.com').split(',').map(s => s.trim()).filter(Boolean);
 if (!TOKEN || !ACCT) { console.error('Set CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID'); process.exit(1); }
 
 const api = async (method, path, body) => {

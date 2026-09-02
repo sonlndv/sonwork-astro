@@ -23,8 +23,8 @@
   "vars": {
     // Only these identities may write notes. Cloudflare Access supplies the
     // email; anyone else gets 403. Comma-separated.
-    "ALLOWED_EMAILS": "son@perfeat.org,tuanson.le03@gmail.com",
+    "ALLOWED_EMAILS": "tuanson.le03@gmail.com,tuanson1200@gmail.com",
     // Identity a passphrase session resolves to (single-owner mode).
-    "OWNER_EMAIL": "son@perfeat.org"
+    "OWNER_EMAIL": "tuanson.le03@gmail.com"
   }
 }

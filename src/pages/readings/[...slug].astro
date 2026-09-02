@@ -17,7 +17,7 @@ const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 
 // Every revision survives in git. Surface it instead of only claiming it.
 const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/content/reports/${entry.id}.md`;
 ---
-<Base title={`${d.title} — Sơn Lê`} description={d.dek} current="readings" lang={d.lang} wide>
+<Base title={`${d.title} — Son Lê`} description={d.dek} current="readings" lang={d.lang} wide>
   <div class="docgrid">
     <article class="doc" data-pagefind-body data-pagefind-meta={`author:${d.author}, type:${d.type}`}>
       <h1>{d.title}</h1>
