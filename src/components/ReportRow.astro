@@ -3,18 +3,18 @@ import type { CollectionEntry } from 'astro:content';
 interface Props { entry: CollectionEntry<'reports'>; href?: string }
 const { entry, href = `/reports/${entry.id}/` } = Astro.props;
 const d = entry.data;
-const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' });
+const iso = d.date.toISOString().slice(0, 10);
+const idx = iso.replace(/-/g, '.');
 ---
 <a class="r" href={href} lang={d.lang}>
-  <h3>{d.title}</h3>
-  <p>{d.dek}</p>
-  <div class="meta">
-    <span class="kind">{d.type}</span>
-    <span class="sep"></span>
-    <i>{d.author}</i>
-    <span class="sep"></span>
-    <time datetime={d.date.toISOString().slice(0, 10)}>{fmt.format(d.date)}</time>
-    {d.revision > 1 && <><span class="sep"></span><span class="num">rev {d.revision}</span></>}
-    <span class="sep" hidden></span><span class="mine" data-notes={entry.id} hidden></span>
+  <div class="idx"><time datetime={iso}>{idx}</time><span class="kind">{d.type}</span>{d.lang === 'vi' && <span>vi</span>}</div>
+  <div>
+    <h3>{d.title}</h3>
+    <p>{d.dek}</p>
+    <div class="meta">
+      <i>{d.author}</i>
+      {d.revision > 1 && <><span class="sep"></span><span class="num">rev {d.revision}</span></>}
+      <span class="sep" hidden></span><span class="mine" data-notes={entry.id} hidden></span>
+    </div>
   </div>
 </a>

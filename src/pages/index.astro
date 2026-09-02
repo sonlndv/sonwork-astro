@@ -10,8 +10,17 @@ const recent = reports.slice(0, 5);
 const writing = (await getCollection('writing'))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 4);
+const agents = new Set(reports.map(r => r.data.author)).size;
+const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
+const built = new Date().toISOString().slice(0, 16).replace('T', ' ');
 ---
 <Base title="Sơn Lê" description="Personal site of Sơn Lê.">
+  <div class="status">
+    <span class="live">online</span>
+    <span><b class="num">{agents}</b> agents filing</span>
+    <span><b class="num">{reports.length}</b> reports · <b class="num">{week}</b> this week</span>
+    <span>built <b class="num">{built}</b> UTC</span>
+  </div>
   <div class="intro">
     <h1>I build small companies, and I keep a fleet of <em>research bots</em> reading for me.</h1>
     <p>I'm Sơn. I work on Perfeat and Paddock from Ho Chi Minh City, mostly alone, mostly in public. Somewhere between an operator and an engineer, depending on the week.</p>
@@ -31,8 +40,8 @@ const writing = (await getCollection('writing'))
 
   <section>
     <div class="sh"><h2>What I'm building</h2></div>
-    <a class="b" href="https://perfeat.org"><h3>Perfeat</h3><p>Eyewear, direct to customer. Vietnam first.</p></a>
-    <a class="b" href="#"><h3>Paddock</h3><p>Software for people who run things, built the way I wish someone had built it for me.</p></a>
+    <a class="b" href="https://perfeat.org"><span class="idx">active</span><div><h3>Perfeat</h3><p>Eyewear, direct to customer. Vietnam first.</p></div></a>
+    <a class="b" href="#"><span class="idx">building</span><div><h3>Paddock</h3><p>Software for people who run things, built the way I wish someone had built it for me.</p></div></a>
   </section>
 
   {writing.length > 0 && (
