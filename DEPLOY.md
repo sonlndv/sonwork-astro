@@ -18,21 +18,23 @@ npm run deploy
 
 Then in the Cloudflare dashboard, route the Worker to `sonwork.org` (Workers → sonwork → Settings → Domains & Routes).
 
-## 2. Access (Zero Trust)
+## 2. Access (Zero Trust) — scripted
 
-Free to 50 users. Create these applications, most specific first:
+Create one API token in the dashboard (My Profile → API Tokens → Create → Custom):
+Workers Scripts: Edit · Workers KV Storage: Edit · Account Settings: Read ·
+Access: Apps and Policies: Edit · Access: Organizations, Identity Providers, and Groups: Edit · Zone: Read.
 
-| Application path | Policy |
-|---|---|
-| `sonwork.org/p/*` | **Bypass** · Everyone (public reports) |
-| `sonwork.org/_astro/*` | **Bypass** · Everyone (stylesheets for public pages) |
-| `sonwork.org/favicon.svg`, `sonwork.org/robots.txt` | **Bypass** · Everyone |
-| `sonwork.org/*` | **Allow** · emails: son@perfeat.org, tuanson.le03@gmail.com |
+Then, once:
 
-The Worker reads `Cf-Access-Authenticated-User-Email` to decide who may write notes.
-Only addresses in `ALLOWED_EMAILS` (wrangler.jsonc) can write; everyone Access admits can read.
-Add an invited reader by adding their email to the Allow policy. They see everything, including your notes.
-To let someone read without seeing notes, that needs a second Worker rule; not built.
+```bash
+gh secret set CLOUDFLARE_API_TOKEN            # paste; used by GitHub Actions
+CLOUDFLARE_API_TOKEN=<paste> CLOUDFLARE_ACCOUNT_ID=8eb900dcbaac8faf839d897f0e2b8716 node scripts/setup-access.mjs
+```
+
+The script is idempotent: it creates the Zero Trust org if missing, then upserts
+six Access applications (public paths bypass, everything else allow-listed to
+son@perfeat.org and tuanson.le03@gmail.com, including the workers.dev preview).
+Add a reader by adding their email to `ALLOWED_EMAILS` and re-running.
 
 ## 3. Continuous deploy (how agents publish)
 
