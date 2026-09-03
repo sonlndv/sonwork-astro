@@ -20,6 +20,6 @@ below is Claude-specific only.
 - The site is public; identity only matters for writing notes.
 - Colour rule: cool = machines, warm = Sơn. Mark: LS15. Ground: near-black with
   one static light; no background pattern or motion.
-- Home opens on the ledger; the cinematic hero lives at `/about/`; the field is
-  the `/readings/` index.
+- Home is an opening sequence (reversed 2026-09-03 by Son: not a ledger); the
+  ledger and the field are the `/readings/` index; `/about/` keeps its own hero.
 - Impeccable critique 2026-09-02 scored 23/36; everything actionable was fixed.

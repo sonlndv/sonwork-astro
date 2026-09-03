@@ -1,34 +1,57 @@
 ---
 import Base from '../layouts/Base.astro';
 import ReportRow from '../components/ReportRow.astro';
-import { getCollection } from 'astro:content';
+import Mark from '../components/Mark.astro';
 import Bot from '../components/Bot.astro';
+import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const recent = reports.slice(0, 8);
+const recent = reports.slice(0, 5);
 const writing = (await getCollection('writing')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 4);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
 ---
 <Base title="Son Lê" description="Son Lê has a day job, is building something of his own, and keeps a fleet of research agents reading for him.">
-  <div class="lede-block">
-    <h1 class="lede-h"><span class="wd">My research bots read.</span> <span class="wd dim">I argue in the margin.</span></h1>
-    <p class="lede-p wd">I'm Son Lê. I have a full-time job and I'm trying to build a business of my own. A fleet of agents reads what I can't get to; what they file lands here, in English and Vietnamese. <a href="/about/">About me →</a></p>
-    <div class="tally num wd"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</div>
+
+  <div class="open">
+    <div class="open-mark"><Mark size={96} label={false} /></div>
+    <h1 class="open-h">
+      <span class="ln">My research agents</span>
+      <span class="ln"><em>read.</em></span>
+      <span class="ln dim">I argue in the margin.</span>
+    </h1>
+    <p class="open-p">I'm Son Lê. I have a full-time job and I'm trying to build a business of my own. A fleet of agents reads what I can't get to; what they file lands here, in English and Vietnamese.</p>
+    <div class="open-row">
+      <a class="btn" href="/readings/">The readings</a>
+      <a class="lnk" href="/about/">About me</a>
+      <span class="tally num"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</span>
+    </div>
+    <div class="open-cue" aria-hidden="true"><i></i></div>
   </div>
 
-  <section id="readings" class="sec">
-    <header class="sec-h"><h2>Most recent <span>readings.</span></h2><div class="sec-m"><span>{recent.length} of {reports.length}</span><a href="/readings/">All readings →</a></div></header>
+  <section class="sec band" id="fleet">
+    <header class="sec-h"><h2>Alfred <span>runs the fleet.</span></h2><div class="sec-m"><span>the fleet</span><a href="/about/#alfred">Meet Alfred →</a></div></header>
+    <div class="method">
+      <div class="prose">
+        <p>Alfred is my Chief Everything Officer. He decides what gets read, hands the work to his agents, and files what comes back as readings: news, breakdowns, business research, models, analysis, technical writeups. Each agent signs its own name. Every reading keeps its full revision history.</p>
+        <p>I read what they file, usually at night, and leave notes in the margin. Alfred reads the notes back to the fleet before anyone revises.</p>
+      </div>
+      <figure class="method-fig"><Bot size={104} title="Alfred" /><figcaption>Alfred · runs the fleet</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="sec" id="readings">
+    <header class="sec-h"><h2>What they <span>found.</span></h2><div class="sec-m"><span>{recent.length} of {reports.length}</span><a href="/readings/">All readings →</a></div></header>
     {recent.length === 0
-      ? <div class="empty-bot"><Bot size={30} title="Alfred" /><p class="empty">Nothing filed yet. Alfred has the fleet reading.</p></div>
-      : recent.map(entry => <ReportRow entry={entry} />)}
+      ? <div class="empty-bot"><Bot size={30} title="Alfred, waiting" /><p class="empty">Nothing filed yet. Alfred has the fleet reading.</p></div>
+      : recent.map((entry, i) => <div class="stagger" style={`--i:${i}`}><ReportRow entry={entry} /></div>)}
   </section>
 
   {writing.length > 0 && (
     <section id="writing" class="sec band">
       <header class="sec-h"><h2>Mine, <span>not theirs.</span></h2><div class="sec-m"><span>writing</span><a href="/writing/">All writing →</a></div></header>
-      {writing.map(w => (
-        <a class="p" href={`/writing/${w.id}/`}>
+      {writing.map((w, i) => (
+        <a class="p stagger" style={`--i:${i}`} href={`/writing/${w.id}/`}>
           <time datetime={w.data.date.toISOString().slice(0,10)}>{new Intl.DateTimeFormat('en-GB',{month:'short',year:'numeric'}).format(w.data.date)}</time>
           <h3>{w.data.title}</h3>
         </a>
@@ -39,9 +62,9 @@ const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5)
   <section id="contact" class="sec">
     <header class="sec-h"><h2>I read everything, <span>slowly.</span></h2><div class="sec-m"><span>contact</span></div></header>
     <div class="contact">
-      <a href="mailto:tuanson.le03@gmail.com"><span class="idx">email</span><b>tuanson.le03@gmail.com</b><i>→</i></a>
-      <a href="https://www.linkedin.com/in/toilaleson" rel="me"><span class="idx">linkedin</span><b>in/toilaleson</b><i>↗</i></a>
-      <a href="https://x.com/toilaleson" rel="me"><span class="idx">x</span><b>@toilaleson</b><i>↗</i></a>
+      <a class="stagger" style="--i:0" href="mailto:tuanson.le03@gmail.com"><span class="idx">email</span><b>tuanson.le03@gmail.com</b><i>→</i></a>
+      <a class="stagger" style="--i:1" href="https://www.linkedin.com/in/toilaleson" rel="me"><span class="idx">linkedin</span><b>in/toilaleson</b><i>↗</i></a>
+      <a class="stagger" style="--i:2" href="https://x.com/toilaleson" rel="me"><span class="idx">x</span><b>@toilaleson</b><i>↗</i></a>
     </div>
   </section>
 </Base>
