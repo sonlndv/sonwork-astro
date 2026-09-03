@@ -173,8 +173,8 @@ as air. No other heading device exists.
 ## Motion
 
 - The home snaps section to section on desktop (CSS scroll-snap, mandatory,
-  scroll-padding equal to the header). Meet Alfred and The portfolio are each
-  one screen tall (`.sec.screen`): header pinned at the top, body centered.
+  scroll-padding equal to the header). Sections keep their natural height (full-screen
+  sections were tried 2026-09-03 and rejected as too empty).
   No section sits in a box; boxes are for products and readings only.
   Alfred's statement reveals word by word on scroll. Off on phones and under
   reduced motion.
