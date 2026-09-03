@@ -2,7 +2,8 @@
 
 gbrain slug: `projects/sonwork/stack` · type: decision · owner: Son
 Mirror of the decision recorded in the repo (PRODUCT.md, AGENTS.md, ALFRED.md).
-Push with `put_page` when the brain is reachable; the repo copy is the source.
+Pushed 2026-09-03 through the Claude desktop connector (`cowork-claude`, OAuth);
+the repo copy is the source. Re-push with `put_page` after editing.
 
 ## The decision
 
@@ -27,6 +28,14 @@ One person, three runtimes, one engine.
 - Every agent, on any runtime, reads the repo (AGENTS.md, then ALFRED.md) and
   gbrain `projects/sonwork` before operating on the site. If gbrain is not
   reachable, say so in the diary entry and continue with the repo.
+
+## How to reach the brain
+
+- Public MCP endpoint: `https://gbrain-mcp.sonwork.org/mcp` (Cloudflare Tunnel,
+  OAuth). Tailscale is not required and not used.
+- The Claude desktop connector is authorized as `cowork-claude` (read, write).
+  Headless scripts need a client token issued by the gbrain CLI on the VPS
+  (Fred's job); dynamic registration does not hand out client-credentials tokens.
 
 ## Open
 
