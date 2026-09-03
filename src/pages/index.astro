@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Mark from '../components/Mark.astro';
 import Bot from '../components/Bot.astro';
 import Found from '../components/Found.astro';
+import Sonar from '../components/Sonar.astro';
 import { glyph } from '../lib/glyphs';
 import { getCollection } from 'astro:content';
 
@@ -50,7 +51,7 @@ const ticker = reports.slice(0, 8);
       {projects.map(p => (
         <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live' }]} href={`/projects/${p.id}/`}>
           <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}</span><span class:list={['port-status', { dim: p.data.status !== 'live' }]}>{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
-          <h3>{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3>
+          <h3>{p.id === 'sonar' && <Sonar size={26} class="inl" />}{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3>
           <p>{p.data.summary}</p>
           {p.data.status === 'live' && (
             <div class="steps">
@@ -66,7 +67,7 @@ const ticker = reports.slice(0, 8);
   </section>
 
   <section class="sec" id="readings">
-    <header class="sec-h"><h2>What Sonar <span>found.</span></h2><div class="sec-m"><span>the research engine · {reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
+    <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>the research engine · {reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
     <Found reports={reports} id="found-home" />
   </section>
 

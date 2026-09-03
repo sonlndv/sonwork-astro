@@ -38,6 +38,14 @@ appears on `/kit/`. It blinks about once every eight seconds (off under reduced
 motion). No pupils, no mouth, no hair; never stretched; never the site's mark.
 Source kit: Google Drive folder "sonwork logo"; gbrain `projects/sonwork`.
 
+## Mark — Sonar
+
+The research engine's own mark: a centre dot and three thin arcs opening to the
+right, a ping mid-sweep (`Sonar.astro`, from Grok's locked reference,
+2026-09-03). Drawn in `--lume`. Used only for Sonar: its portfolio card, its
+profile, the "What Sonar found" header, `/kit/`. Never the site's mark; LS15
+is. Never a background ornament.
+
 ## Colour (OKLCH)
 
 | Token | Dark | Bright | Role |

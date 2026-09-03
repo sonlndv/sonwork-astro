@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import Sonar from '../../components/Sonar.astro';
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const journal = await getCollection('journal');
 const entries = (id: string) => journal.filter(j => j.data.project === id).length;
@@ -15,7 +16,7 @@ const entries = (id: string) => journal.filter(j => j.data.project === id).lengt
     {projects.map(p => (
       <a class="b" href={`/projects/${p.id}/`}>
         <span class="idx">{String(p.data.order).padStart(2, '0')} · {p.data.status}</span>
-        <div><h3>{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3><p>{p.data.summary}</p><p class="mono" style="margin-top:6px;font-size:12px;color:var(--ink-3)">{entries(p.id)} diary {entries(p.id) === 1 ? 'entry' : 'entries'}</p></div>
+        <div><h3>{p.id === 'sonar' && <Sonar size={20} class="inl" />}{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3><p>{p.data.summary}</p><p class="mono" style="margin-top:6px;font-size:12px;color:var(--ink-3)">{entries(p.id)} diary {entries(p.id) === 1 ? 'entry' : 'entries'}</p></div>
       </a>
     ))}
   </section>

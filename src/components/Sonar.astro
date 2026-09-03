@@ -1,0 +1,20 @@
+---
+// Sonar's mark: a centre dot and three thin arcs opening to the right, a ping
+// caught mid-sweep. Redrawn from Grok's locked reference (2026-09-03) in the
+// site tokens so it is crisp at every size and correct in both themes.
+interface Props { size?: number; class?: string; title?: string }
+const { size = 20, class: cls = '', title } = Astro.props;
+const c = 12, a = 35 * Math.PI / 180;
+const arc = (r: number) => {
+  const x1 = (c + r * Math.cos(a)).toFixed(3), y1 = (c - r * Math.sin(a)).toFixed(3);
+  const x2 = (c + r * Math.cos(a)).toFixed(3), y2 = (c + r * Math.sin(a)).toFixed(3);
+  return `M${x1} ${y1}A${r} ${r} 0 1 0 ${x2} ${y2}`;
+};
+---
+<svg class:list={['sonar', cls]} width={size} height={size} viewBox="0 0 24 24" fill="none" role={title ? 'img' : undefined} aria-hidden={title ? undefined : 'true'}>
+  {title && <title>{title}</title>}
+  <circle cx="12" cy="12" r="1.7" fill="var(--lume)"/>
+  <path d={arc(4.6)} stroke="var(--lume)" stroke-width="1.35" stroke-linecap="round"/>
+  <path d={arc(7.3)} stroke="var(--lume)" stroke-width="1.35" stroke-linecap="round"/>
+  <path d={arc(10)} stroke="var(--lume)" stroke-width="1.35" stroke-linecap="round"/>
+</svg>

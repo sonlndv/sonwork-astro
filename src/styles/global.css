@@ -659,3 +659,7 @@ body::before{z-index:-2}
 
 .port-item h3 small,.b h3 small{font-weight:300;font-size:.62em;color:var(--ink-3);letter-spacing:0}
 .doc h1 .tag{font-weight:300;color:var(--ink-3);font-size:.5em;letter-spacing:-0.02em;white-space:nowrap}
+
+/* Sonar's mark, inline before a title */
+.sonar.inl{vertical-align:-0.12em;margin-right:.32em}
+.sec-h h2 .sonar.inl{vertical-align:-0.1em}
