@@ -158,8 +158,8 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   readings, or in any published text. The credential is "operator".
 - Stopped and not to be shown as current: Perfeat (D2C eyewear), Paddock,
   Fitnest, the AI content engine, trading. The site must not mention them.
-- Contact: tuanson.le03@gmail.com (personal), LinkedIn in/toilaleson (handle
-  assumed, unconfirmed), X @toilaleson. The work address is not published.
+- Contact: tuanson.le03@gmail.com (personal), LinkedIn in/sonle2003, X @sonldv
+  (both confirmed by Son 2026-09-03). The work address is not published.
 - Alfred is the Chief Everything Officer on the Grok Bot stack: coordinates the
   fleet and owns the website. Other agents (Fred on Hermes, Cowork on Claude) are
   separate and not part of the site's story.

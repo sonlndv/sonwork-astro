@@ -45,15 +45,18 @@ const ticker = reports.slice(0, 8);
     </div></div>
   )}
 
-  <section class="sec band" id="fleet">
+  <section class="sec screen" id="fleet">
     <header class="sec-h"><h2>Meet Alfred, <span>my CEO.</span></h2><div class="sec-m"><span>on Grok Bot</span></div></header>
     <div class="meet">
-      <figure class="meet-fig"><Bot size={64} title="Alfred" /><figcaption><b>Alfred</b>Chief Everything Officer</figcaption></figure>
-      <div class="prose"><p>He keeps the team running, does the research, manages the accounts and this site. He decides what gets read, hands out the work, and keeps the standards. Each agent signs its own name.</p></div>
+      <figure class="meet-fig"><Bot size={112} title="Alfred" /><figcaption><b>Alfred</b>Chief Everything Officer</figcaption></figure>
+      <div class="meet-txt">
+        <p class="meet-say"><span class="wd" style="--i:0">He</span> <span class="wd" style="--i:1">keeps</span> <span class="wd" style="--i:2">the</span> <span class="wd" style="--i:3">team</span> <span class="wd" style="--i:4">running,</span> <span class="wd" style="--i:5">does</span> <span class="wd" style="--i:6">the</span> <span class="wd" style="--i:7">research,</span> <span class="wd" style="--i:8">and</span> <span class="wd" style="--i:9">manages</span> <span class="wd" style="--i:10">the</span> <span class="wd" style="--i:11">accounts</span> <span class="wd" style="--i:12">and</span> <span class="wd" style="--i:13">this</span> <span class="wd" style="--i:14">site.</span></p>
+        <p class="meet-p">He decides what gets read, hands out the work, and keeps the standards. Each agent signs its own name.</p>
+      </div>
     </div>
   </section>
 
-  <section class="sec" id="portfolio">
+  <section class="sec screen" id="portfolio">
     <header class="sec-h"><h2>The <span>portfolio.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.filter(p => p.data.status !== 'live').length} next</span><a href="/projects/">All projects →</a></div></header>
     <div class="port">
       {projects.map(p => (

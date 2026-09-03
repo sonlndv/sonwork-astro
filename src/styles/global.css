@@ -494,14 +494,17 @@ body::before{z-index:-2}
 /* the method: prose at its measure, the bot composed beside it — sized to the
    block, anchored to the column's right edge (where the header meta sits),
    centred on the paragraphs */
-/* an introduction: portrait left, words right; the band ends where the words end */
-.meet{display:grid;grid-template-columns:200px minmax(0,62ch);gap:40px;align-items:start}
-.meet-fig{margin:0;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+/* an introduction: portrait left, words right. On a desktop the section is one
+   screen, like the opening, and the statement reveals word by word on scroll */
+.meet{display:grid;grid-template-columns:200px minmax(0,1fr);gap:48px;align-items:start}
+.meet-fig{margin:0;display:flex;flex-direction:column;gap:18px;align-items:flex-start}
 .meet-fig figcaption{font-family:var(--mono);font-size:12px;color:var(--ink-3);line-height:1.7}
 .meet-fig figcaption b{display:block;font-weight:500;color:var(--ink)}
-.meet .prose p{margin:0}
-.sec.band{padding-bottom:44px}
-@media (max-width:640px){.meet{grid-template-columns:1fr;gap:20px}.meet-fig{flex-direction:row;align-items:center}}
+.meet-say{font-size:clamp(26px,3.1vw,44px);font-weight:500;letter-spacing:-0.035em;line-height:1.14;margin:0 0 22px;max-width:24ch;text-wrap:balance}
+.meet-say .wd{display:inline-block}
+.meet-p{font-size:17px;font-weight:300;color:var(--ink-2);line-height:1.6;margin:0;max-width:56ch}
+@media (min-width:901px){.sec.screen{min-height:calc(100vh - 62px);display:flex;flex-direction:column;padding-top:36px;padding-bottom:48px}.sec.screen > .sec-h{margin-bottom:0}.sec.screen > :not(.sec-h){margin-top:auto;margin-bottom:auto;padding:26px 0}}
+@media (max-width:640px){.meet{grid-template-columns:1fr;gap:20px}.meet-fig{flex-direction:row;align-items:center}.meet-fig .bot{width:56px;height:98px}}
 @media (max-width:640px){.empty-bot{gap:14px}}
 
 /* ---------- the opening ----------
@@ -536,7 +539,8 @@ body::before{z-index:-2}
     .sec-h h2{animation:rise2 linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
     @keyframes rise2{from{transform:translateY(18px);opacity:.3}to{transform:none;opacity:1}}
     .stagger{animation:rise2 linear both;animation-timeline:view();animation-range-start:entry calc(0% + var(--i,0) * 8%);animation-range-end:entry calc(45% + var(--i,0) * 8%)}
-    .meet .prose{animation:rise2 linear both;animation-timeline:view();animation-range:entry 0% entry 50%}
+    .meet-say .wd{animation:wdin linear both;animation-timeline:view();animation-range:entry calc(6% + var(--i) * 2.5%) entry calc(26% + var(--i) * 2.5%)}
+    @keyframes wdin{from{opacity:.18;transform:translateY(.25em)}to{opacity:1;transform:none}}
     .meet-fig{animation:rise2 linear both;animation-timeline:view();animation-range:entry 0% entry 60%}
     @keyframes slidein{from{transform:translateX(40px);opacity:.2}to{transform:none;opacity:1}}
   }
