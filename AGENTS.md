@@ -37,8 +37,8 @@ companies and unit economics, and human systems. Side project: a Vietnamese,
 data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
 
 - **Never name his employer or the business he operates**, anywhere published.
-- Never present Perfeat, Paddock, Fitnest, trading, or the old six-agent fleet
-  as current. They are stopped.
+- Never present Perfeat, Paddock, Fitnest, trading, F1 YouTube, or the old
+  six-agent fleet as current. They are stopped or removed.
 - AI is a tool he uses, not a subject he writes about. Do not make the site or
   the readings about AI for its own sake.
 
@@ -46,12 +46,15 @@ data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
 
 | Runtime | Who | Does |
 |---|---|---|
-| AI stack | Claude (Code and Cowork) | builds the site, the tools, the docs |
-| Grok Bot | Alfred, Chief Everything Officer | runs the team, does the research, manages the accounts |
-| Hermes | Fred | keeps the memory (gbrain runs on the Hermes host) and the daily loops |
+| AI stack | Claude (Code and Cowork) | where Son works: builds, delivers, ships the site, the tools, the programs |
+| Grok Bot | Alfred, Chief Everything Officer | runs the teams, the research, the management |
+| Hermes | Fred | maintains the gbrain setup and the VPS; researches for Sonar |
 
 Son decides. **Sonar is the engine** the stack researches and writes with; the
-readings are its output. It is not an audience product. Whatever runtime you
+readings are its output. It is not an audience product, and it is not tied to
+one runtime: every project that enters the portfolio uses Sonar for research.
+**The portfolio is Sonar alone right now** (F1 YouTube removed 2026-09-03);
+the next project is Son's call. Whatever runtime you
 are on, before operating on this site: read this file, then `ALFRED.md` (the
 operating brief; it applies to every agent, not only Grok Bot), then gbrain
 `projects/sonwork` (fetch by exact slug) for the current state and decisions.
@@ -63,8 +66,8 @@ that would be a Sonar theme or a new project, decided by Sơn, not a "Writing"
 section. The old pages sit in `.impeccable/retired/`.
 
 **Home vs About:** the home is the business: one person, a team of AI agents,
-the stack as a diagram, then the portfolio: 01 Sonar, the research engine (live, this
-site, `/projects/sonar/`), 02 F1 YouTube (next); the endgame is a full YouTube engine. The readings are
+the stack as a diagram, then the portfolio: Sonar, the research and writing engine
+(live, this site, `/projects/sonar/`), the only project for now. The readings are
 the product in use. The story is find, research, publish; do not write "argue"
 or "notes" into the product story (notes exist as a quiet feature). The person,
 his day job and contact live on `/about/`.

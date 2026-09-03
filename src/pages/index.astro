@@ -16,7 +16,7 @@ const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5)
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const ticker = reports.slice(0, 8);
 ---
-<Base title="Lê Sơn" description="One person, a team of AI agents, building a business. Three runtimes: Claude builds, Alfred runs the team on Grok Bot, Fred keeps the memory on Hermes. Sonar, the engine, researches and writes.">
+<Base title="Lê Sơn" description="One person, a team of AI agents, building a business. Three runtimes: Claude is where Sơn builds, Alfred runs the teams on Grok Bot, Fred maintains the brain and the server on Hermes. Sonar, the engine, researches and writes for every project.">
 
   <div class="open">
     <div class="open-body">
@@ -27,7 +27,7 @@ const ticker = reports.slice(0, 8);
         <span class="line"><span class="ln appear appear--mask" style="--d:.56s">a team of <em>AI agents,</em></span></span>
         <span class="line"><span class="ln dim appear appear--mask" style="--d:.70s">building a business.</span></span>
       </h1>
-      <p class="open-p appear appear--soft" style="--d:.86s;--dur:1.25s">Three runtimes do the work. Claude builds, Alfred runs the team on Grok Bot, Fred keeps the memory on Hermes. I decide. Sonar is the engine they research and write with, and the readings below are what it produced.</p>
+      <p class="open-p appear appear--soft" style="--d:.86s;--dur:1.25s">Three runtimes do the work. Claude is where I build and ship, Alfred runs the teams on Grok Bot, Fred maintains the brain and the server on Hermes. I decide. Sonar is the engine they research and write with, for every project, and the readings below are what it produced.</p>
       <div class="open-row">
         <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">The portfolio</a>
         <a class="lnk appear appear--side" style="--d:1.12s" href="#stack">The stack</a>
@@ -52,7 +52,7 @@ const ticker = reports.slice(0, 8);
   </section>
 
   <section class="sec" id="portfolio">
-    <header class="sec-h"><h2>The <span>portfolio.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.filter(p => p.data.status !== 'live').length} next</span><a href="/projects/">All projects →</a></div></header>
+    <header class="sec-h"><h2>The <span>portfolio.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.length} in the portfolio</span><a href="/projects/">All projects →</a></div></header>
     <div class="port">
       {projects.map(p => (
         <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live' }]} href={`/projects/${p.id}/`}>

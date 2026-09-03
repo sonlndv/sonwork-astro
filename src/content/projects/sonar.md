@@ -10,8 +10,9 @@ themes: [news, country, industry, company, business-model, sociology]
 
 ## What it is
 
-Sonar is the engine the stack researches and writes with. Alfred assigns, the
-agents research and write, and the readings land here with their revision
+Sonar is the engine the whole stack researches and writes with, for every
+project in the portfolio. Alfred assigns, the agents research and write, Fred
+researches from Hermes, and the readings land here with their revision
 history. It is an engine, not an audience: the point is what it produces. The
 name is what it does: it finds the signal, then goes and reads it. It works in themes,
 so every reading answers a question of one kind and the archive stays navigable
@@ -32,6 +33,7 @@ Vietnamese. I decide what the engine focuses on. Every agent signs its own name.
 
 ## Where it goes
 
-Sonar is the first product, and the base for the next ones: an F1 channel
-built the same way, and eventually a full YouTube engine, from finding a topic
-to a published video.
+Sonar is the only project in the portfolio right now, on purpose. It is not
+tied to one runtime: Alfred's teams on Grok Bot and Fred on Hermes both
+research for it, and Claude builds the tooling. Every later project in the
+portfolio will use Sonar for its research; the next project is not decided.

@@ -142,9 +142,9 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 
 - Name: **Lê Sơn** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
 - **The home thesis (Son, 2026-09-03, current):** "One person, a team of AI
-  agents, building a business." The home is the business: the portfolio (01
-  **Sonar**, the research engine, live, this site; 02 F1 YouTube, next; endgame
-  a full YouTube engine), then "What Sonar found" (the readings). Sonar's
+  agents, building a business." The home is the business: the stack diagram,
+  the portfolio (**Sonar**, the research and writing engine, live, this site;
+  the only project as of 2026-09-03, F1 YouTube removed), then "What Sonar found" (the readings). Sonar's
   profile page repeats that block. The engine's story is
   **find, research, publish**; "argue" and "notes" are not part of the product
   story (notes remain a quiet feature). Each project has a profile and a daily
@@ -157,22 +157,22 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 - **Never name his employer or the business he operates**, on the site, in
   readings, or in any published text. The credential is "operator".
 - Stopped and not to be shown as current: Perfeat (D2C eyewear), Paddock,
-  Fitnest, the AI content engine, trading. The site must not mention them.
+  Fitnest, the AI content engine, trading, F1 YouTube (removed 2026-09-03). The site must not mention them.
 - Contact: tuanson.le03@gmail.com (personal), LinkedIn in/sonle2003, X @sonldv
   (both confirmed by Son 2026-09-03). The work address is not published.
 - **The stack (Son, decision 2026-09-03; mirrored to gbrain
   `projects/sonwork/stack`):** one person, three runtimes, one engine. The
-  runtimes are the **AI stack** (Claude: Code and Cowork; builds the site, the
-  tools and the docs), **Grok Bot** (Alfred, Chief Everything Officer; runs the
-  team, does the research, manages the accounts) and **Hermes** (Fred; keeps the
-  memory: gbrain runs on the Hermes host, and the daily loops with it). Son
+  runtimes are the **AI stack** (Claude: Code and Cowork; where Son works,
+  builds, delivers and ships), **Grok Bot** (Alfred, Chief Everything Officer;
+  runs the teams, the research and the management) and **Hermes** (Fred;
+  maintains the gbrain setup and the VPS, and researches for Sonar). Son
   decides. **Sonar is the engine the stack researches and writes with**, not an
   audience product: the readings are its output, and the email list is a quiet
   channel, never the pitch. The home shows the stack as one diagram; no runtime
   or agent gets its own introduction. Say "Claude", not "ChatGPT"; Son does not
   use ChatGPT co-work. Every agent, on any runtime, reads this repo (AGENTS.md)
-  and gbrain `projects/sonwork` before operating on the site. Fred's exact
-  duties beyond the memory are Son's to fill in.
+  and gbrain `projects/sonwork` before operating on the site. Sonar is not tied to one runtime; every later project in the portfolio uses
+  it for research.
 - Source of truth for identity: gbrain `brain/user` (fetch by exact slug).
 - No binding visual constraint has been stated. The previous visual direction
   ("Racing Line": dark canvas, electric blue, F1 telemetry) was deliberately wiped
