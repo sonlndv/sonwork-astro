@@ -54,10 +54,12 @@ Son decides. **Sonar is the engine** the stack researches and writes with; the
 readings are its output. It is not an audience product, and it is not tied to
 one runtime: every project that enters the portfolio uses Sonar for research.
 **The portfolio is Sonar alone right now** (F1 YouTube removed 2026-09-03);
-the next project is Son's call. Whatever runtime you
-are on, before operating on this site: read this file, then `ALFRED.md` (the
-operating brief; it applies to every agent, not only Grok Bot), then gbrain
-`projects/sonwork` (fetch by exact slug) for the current state and decisions.
+the next project is Son's call. This repo is a shared workspace for many
+agents on many runtimes. Whatever runtime you are on, before operating on this
+site: read this file, then `OPERATING.md` (the operating brief: who decides
+what, each runtime's mandate, cadence, standards, the loop), then gbrain
+`projects/sonwork` and `projects/sonwork/stack` (fetch by exact slug) for the
+current state and decisions.
 The brain is reachable at https://gbrain-mcp.sonwork.org/mcp (Cloudflare
 Tunnel, OAuth); Tailscale is not required.
 If you cannot reach gbrain, say so in your diary entry and go on with the repo.

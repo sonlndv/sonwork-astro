@@ -10,7 +10,7 @@ description: >-
 
 # Filing a report
 
-If you are Alfred or a Grok Bot agent, `ALFRED.md` at the repo root is your
+Whichever runtime you are on, `OPERATING.md` at the repo root is your
 operating brief: the business, who decides, cadence, standards, the loop.
 
 No shell or git available? Use the HTTP route in `FILING.md` at the repo root:

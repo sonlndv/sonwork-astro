@@ -148,7 +148,8 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   profile page repeats that block. The engine's story is
   **find, research, publish**; "argue" and "notes" are not part of the product
   story (notes remain a quiet feature). Each project has a profile and a daily
-  build diary. Alfred's operating brief: ALFRED.md.
+  build diary. The operating brief for every agent: OPERATING.md (was
+  ALFRED.md until 2026-09-03; the workspace is shared by many agents).
 - **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
   (employer unnamed) and is trying to build a business of his own on the side,
   using AI on real problems. He came from venture capital; that is a passing

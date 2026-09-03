@@ -1,7 +1,7 @@
 # The stack — sonwork.org (decision, 2026-09-03)
 
 gbrain slug: `projects/sonwork/stack` · type: decision · owner: Son
-Mirror of the decision recorded in the repo (PRODUCT.md, AGENTS.md, ALFRED.md).
+Mirror of the decision recorded in the repo (PRODUCT.md, AGENTS.md, OPERATING.md).
 Pushed 2026-09-03 through the Claude desktop connector (`cowork-claude`, OAuth);
 the repo copy is the source. Re-push with `put_page` after editing.
 
@@ -25,7 +25,8 @@ One person, three runtimes, one engine.
 - No runtime or agent gets its own introduction on the site. The home shows the
   stack as one diagram (`src/components/Stack.astro`), one line per runtime.
 - Say "Claude", never "ChatGPT". Son does not use ChatGPT co-work.
-- Every agent, on any runtime, reads the repo (AGENTS.md, then ALFRED.md) and
+- The repo is a shared workspace for many agents. Every agent, on any runtime,
+  reads the repo (AGENTS.md, then OPERATING.md; there is no per-agent file) and
   gbrain `projects/sonwork` before operating on the site. If gbrain is not
   reachable, say so in the diary entry and continue with the repo.
 

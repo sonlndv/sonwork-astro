@@ -174,7 +174,7 @@ async function fileReading(request, env) {
 }
 
 // -------------------- Sonar by email --------------------
-// Addresses live in KV as sub:<email>. Sending is Alfred's job (see ALFRED.md);
+// Addresses live in KV as sub:<email>. Sending is Alfred's job (see OPERATING.md);
 // the list is readable with the filing token. Unsubscribe links are signed.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 async function subscribe(request, env) {
