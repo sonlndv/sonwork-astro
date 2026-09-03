@@ -1,6 +1,5 @@
 ---
 import Base from '../../layouts/Base.astro';
-import Notes from '../../components/Notes.astro';
 import Bot from '../../components/Bot.astro';
 import { getCollection, render } from 'astro:content';
 import { THEME_LABEL } from '../../lib/glyphs';
@@ -19,7 +18,7 @@ const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 
 const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/content/reports/${entry.id}.md`;
 ---
 <Base title={`${d.title} — Lê Sơn`} description={d.dek} current="readings" lang={d.lang} wide>
-  <div class="docgrid">
+  <div class="docgrid one">
     <article class="doc" data-pagefind-body data-pagefind-meta={`author:${d.author}, type:${d.type}`}>
       <h1>{d.title}</h1>
       <div class="stamp">
@@ -42,6 +41,5 @@ const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/conte
         {newer ? <a class="turn-a r" href={`/readings/${newer.id}/`}><span>Newer · {when(newer.data.date)} →</span><b>{newer.data.title}</b></a> : <span class="turn-a r end"><span>Newest</span></span>}
       </nav>
     </article>
-    <Notes slug={entry.id} />
   </div>
 </Base>

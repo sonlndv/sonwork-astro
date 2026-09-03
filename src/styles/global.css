@@ -663,3 +663,17 @@ body::before{z-index:-2}
 /* Sonar's mark, inline before a title */
 .sonar.inl{vertical-align:-0.12em;margin-right:.32em}
 .sec-h h2 .sonar.inl{vertical-align:-0.1em}
+
+.docgrid.one{grid-template-columns:minmax(0,1fr)!important}
+/* subscribe: one line, one field, one promise */
+.sub{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin-top:26px;padding:18px 20px;border:1px solid var(--line-2);border-radius:12px;background:var(--ground)}
+.sub h4{grid-column:1/-1;margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:-0.015em}
+.sub p{grid-column:1/-1;margin:0 0 8px;font-size:13.5px;font-weight:300;color:var(--ink-3)}
+.sub input{font:inherit;font-size:14px;color:var(--ink);background:var(--void);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
+.sub input:focus{outline:none;border-color:var(--lume)}
+.sub button{font:inherit;font-size:13.5px;font-weight:600;color:var(--void);background:var(--lume);border:0;border-radius:8px;padding:10px 16px;cursor:pointer;white-space:nowrap}
+.sub .msg{grid-column:1/-1;font-family:var(--mono);font-size:12px;color:var(--ink-3);min-height:1em}
+.sub .msg.ok{color:var(--lume)}
+.sub .rss{grid-column:1/-1;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.sub .rss a{color:var(--ink-2)}
+@media (max-width:640px){.sub{grid-template-columns:1fr}.sub button{width:100%}}

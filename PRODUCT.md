@@ -117,7 +117,10 @@ reaches roughly 260 documents per year.
 - **Nothing is lost when a report is revised.** Agents revise reports often. Every
   version must survive and remain reachable. Git provides the history; the site must
   surface it rather than only showing the latest.
-- **Only Sơn may comment.** No moderation, spam handling, or multi-user identity.
+- **No notes on the site (removed 2026-09-03).** The comments API remains in the
+  Worker but no page renders it.
+- **Sonar by email:** readers subscribe on the site (addresses in KV via the
+  Worker); Alfred sends a weekly digest once a sender is wired. RSS at /rss.xml.
 - Cost must stay at or near zero.
 
 **Terminology.** A **reading** is an agent-authored document (the content

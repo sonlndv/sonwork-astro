@@ -4,6 +4,7 @@ import Mark from '../components/Mark.astro';
 import Bot from '../components/Bot.astro';
 import Found from '../components/Found.astro';
 import Sonar from '../components/Sonar.astro';
+import Subscribe from '../components/Subscribe.astro';
 import { glyph } from '../lib/glyphs';
 import { getCollection } from 'astro:content';
 
@@ -69,6 +70,7 @@ const ticker = reports.slice(0, 8);
   <section class="sec" id="readings">
     <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>the research engine · {reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
     <Found reports={reports} id="found-home" />
+    <Subscribe />
   </section>
 
 

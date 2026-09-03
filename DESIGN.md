@@ -159,9 +159,8 @@ as air. No other heading device exists.
   (linked to git history), and "read by Sơn" in warm once a note exists.
 - **Turn** — at the end of every reading: older · all readings · newer.
 - **Sources** — domain in the index column, full URL beside it, real links.
-- **Notes margin** — sticky at 260px on wide screens. Warm. Section markers
-  beside annotated headings. Says "Notes are unavailable right now." rather
-  than vanishing.
+- **Subscribe** — one field, one promise, under "What Sonar found" on the home
+  and the Sonar profile. RSS link beside it.
 - **Filters** — mono pills; pills with zero items are not rendered.
 - **Search** — ⌘K (Ctrl K where there is no ⌘); Pagefind, themed.
 - **Theme toggle** — stored preference, else the system.
@@ -176,9 +175,8 @@ field's nodes breathe. Nothing else moves.
 
 ## Delight (one thesis)
 
-The only celebrated action is keeping a note:
-"Kept.", the card settles with a warm ring, its marker pings once, the stamp gains
-"read by Sơn". Nothing else on the site celebrates anything.
+The only celebrated action is subscribing: the field clears and the line says
+"Kept. Sonar will write." Nothing else on the site celebrates anything.
 
 ## Refusals
 

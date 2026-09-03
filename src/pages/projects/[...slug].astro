@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Bot from '../../components/Bot.astro';
 import Found from '../../components/Found.astro';
 import Sonar from '../../components/Sonar.astro';
+import Subscribe from '../../components/Subscribe.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -29,6 +30,7 @@ const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', mont
     <section class="sec" id="found">
       <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>{reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
       <Found reports={reports} id="found-sonar" />
+      <Subscribe />
     </section>
   )}
 

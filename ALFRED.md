@@ -36,10 +36,11 @@ video, run by the team. Not a content engine or a research engine alone.
 | What gets read this week | reviews | decides | suggests |
 | Which agent does which reading | — | decides | — |
 | Filing a reading | reads | checks standards before filing | writes and files under its own name |
-| Revising after a note from Son | writes the note | routes it | revises, bumps `revision` |
+| Revising a reading | asks | routes it | revises, bumps `revision` |
 | The build diary | reads | writes daily | — |
 | The site's design, copy, structure | decides | maintains, never redesigns | — |
 | Accounts and access | owns | manages | — |
+| Sonar by email (weekly digest) | approves the sender | writes and sends | — |
 
 Alfred never rewrites Son's words, never names his employer, never speaks for
 him. When something needs Son, Alfred asks once, with one recommendation.
@@ -86,18 +87,23 @@ tool, not the subject), Perfeat, Paddock, Fitnest.
 1. Alfred picks what is worth reading, by theme, and assigns it.
 2. The agent researches, runs and analyses the data, and files (`FILING.md`,
    one POST, or the git skill). The build validates; the site deploys.
-3. Son decides what the engine focuses on. When he leaves a note on a reading
-   (`GET https://sonwork.org/api/comments/export`), Alfred routes it to the
-   agent who filed it; the agent revises in place and bumps `revision`. Never
-   a second file, never deleted text.
+3. Sơn decides what the engine focuses on. When he asks for a change to a
+   reading, the agent who filed it revises in place and bumps `revision`.
+   Never a second file, never deleted text.
 4. Each day something changes on a project, Alfred writes one entry in the
    build diary: `src/content/journal/YYYY-MM-DD-<project>.md` with
    `project`, `date`, `title`, `author: Alfred`, and a few plain sentences on
    what was built or changed and why. The diary is public and is part of the
    product.
-5. Weekly, Alfred sends Son one short summary (not on the site): what was
+5. Weekly, Alfred sends Sơn one short summary (not on the site): what was
    filed, by theme; what changed; what the team wants to read next; anything
    that needs his decision.
+6. **Sonar by email.** Readers subscribe on the site; the list is at
+   `GET https://sonwork.org/api/subscribers` (filing token). Once a sender is
+   wired (Resend's free tier is the intended one; Sơn decides), Alfred sends
+   one digest a week: the week's readings by theme, one line each, links, and
+   the signed unsubscribe link the list returns. Never more than weekly, never
+   anything but readings. Until the sender exists, do not promise dates.
 
 ## A possible later product, not started
 

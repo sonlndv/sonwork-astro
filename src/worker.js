@@ -28,6 +28,9 @@ export default {
     if (p === '/login') return login(request, env, url);
     if (p === '/logout') return redirect('/login', { 'set-cookie': `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
 
+    if (p === '/api/subscribe' && request.method === 'POST') { try { return await subscribe(request, env); } catch (e) { return json({ error: 'internal' }, 500); } }
+    if (p === '/api/unsubscribe' && request.method === 'GET') { try { return await unsubscribe(url, env); } catch (e) { return json({ error: 'internal' }, 500); } }
+    if (p === '/api/subscribers' && request.method === 'GET') { try { return await subscribers(request, env); } catch (e) { return json({ error: 'internal' }, 500); } }
     if (p === '/api/file' && request.method === 'POST') {
       try { return await fileReading(request, env); }
       catch (e) { return json({ error: 'internal', detail: String(e?.message || e) }, 500); }
@@ -168,6 +171,37 @@ async function fileReading(request, env) {
   if (!put.ok) return json({ error: 'github', status: put.status, detail: res.message || res }, 502);
   return json({ ok: true, path, url: `https://sonwork.org/readings/${date}-${slug}/`, commit: res.commit?.sha, revised: !!sha,
     note: 'Deploys within a few minutes. Revise by posting the same slug with a higher revision.' }, sha ? 200 : 201);
+}
+
+// -------------------- Sonar by email --------------------
+// Addresses live in KV as sub:<email>. Sending is Alfred's job (see ALFRED.md);
+// the list is readable with the filing token. Unsubscribe links are signed.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+async function subscribe(request, env) {
+  const b = await request.json().catch(() => null);
+  const email = String(b?.email || '').trim().toLowerCase();
+  if (!EMAIL_RE.test(email) || email.length > 200) return json({ error: 'That does not look like an email address.' }, 400);
+  const key = 'sub:' + email;
+  if (await env.COMMENTS.get(key)) return json({ ok: true, already: true });
+  const token = (await hmac(env, 'unsub:' + email)).slice(0, 24);
+  await env.COMMENTS.put(key, JSON.stringify({ email, at: new Date().toISOString(), token }));
+  return json({ ok: true }, 201);
+}
+async function unsubscribe(url, env) {
+  const email = String(url.searchParams.get('e') || '').toLowerCase();
+  const t = String(url.searchParams.get('t') || '');
+  const raw = await env.COMMENTS.get('sub:' + email);
+  if (!raw) return page('Already gone.', 'That address is not on the list.', '', '/', 200);
+  const rec = JSON.parse(raw);
+  if (!t || t !== rec.token) return page('Not it.', 'That unsubscribe link is not valid.', 'error', '/', 400);
+  await env.COMMENTS.delete('sub:' + email);
+  return page('Done.', 'You will not hear from Sonar again.', '', '/', 200);
+}
+async function subscribers(request, env) {
+  if (!(await filingAuth(request, env))) return json({ error: 'unauthenticated' }, 401);
+  const out = []; let cursor;
+  do { const l = await env.COMMENTS.list({ prefix: 'sub:', cursor }); for (const k of l.keys) { const raw = await env.COMMENTS.get(k.name); if (raw) { const r = JSON.parse(raw); out.push({ email: r.email, at: r.at, unsubscribe: `https://sonwork.org/api/unsubscribe?e=${encodeURIComponent(r.email)}&t=${r.token}` }); } } cursor = l.list_complete ? undefined : l.cursor; } while (cursor);
+  return json({ count: out.length, subscribers: out }, 200, { 'cache-control': 'no-store' });
 }
 
 // -------------------- KV --------------------
