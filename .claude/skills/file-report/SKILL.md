@@ -10,6 +10,9 @@ description: >-
 
 # Filing a report
 
+If you are Alfred or a Grok Bot agent, `ALFRED.md` at the repo root is your
+operating brief: the business, who decides, cadence, standards, the loop.
+
 No shell or git available? Use the HTTP route in `FILING.md` at the repo root:
 one POST to `https://sonwork.org/api/file` with the filing token does everything
 below, including validation.

@@ -88,14 +88,15 @@ The home is the **profile of the work**, not of the person (Son, 2026-09-03):
 a business being built with a team of AI agents, run by Alfred. Son's own story
 lives on `/about/`. The ledger lives at `/readings/`.
 
-1. The opening: LS15, "I'm using AI agents to learn how to build a business.
-   This is what we're finding out.", one paragraph naming Alfred as CEO, two
-   actions, the tally, a cue. Choreographed once on load.
+1. The opening: LS15, "One person, a team of AI agents, building a business.",
+   one paragraph (agents do everything, Alfred manages, Son decides), two
+   actions (The portfolio, Meet Alfred), the tally, a cue.
 2. A ticker of what the fleet filed (title, kind glyph, byline), 48s loop,
    pauses on hover, static under reduced motion.
 3. Meet Alfred, my CEO (band): one paragraph, no more, and Alfred sliding in.
-3b. What we're building on: the research and content engine, in three steps
-   (Read, Argue, Publish).
+3b. The portfolio: 01 · Research and Content Engine (live, this site, with the
+   three steps Read / Argue / Publish) beside 02 · Next product ("not yet",
+   dashed). The section header says "The product, in use." over the readings.
 4. What the team found: a compact filter row (All + six kinds with counts,
    empty kinds disabled) at the top of the block that filters in place; one
    **featured** reading (its kind drawn large, accent sweep on hover); a grid

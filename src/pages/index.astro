@@ -16,18 +16,18 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' }).format(d);
 const ticker = reports.slice(0, 8);
 ---
-<Base title="Son Lê" description="Son Lê is exploring AI agents to learn how to build a business. Alfred is his CEO. This is what the team is finding.">
+<Base title="Son Lê" description="One person building a business with a team of AI agents, managed by Alfred, the CEO. Product one: a research and content engine. This is it, in use.">
 
   <div class="open">
     <div class="open-mark"><Mark size={96} label={false} /></div>
     <h1 class="open-h">
-      <span class="ln">I'm using <em>AI agents</em></span>
-      <span class="ln">to learn how to build a business.</span>
-      <span class="ln dim">This is what we're finding out.</span>
+      <span class="ln">One person,</span>
+      <span class="ln">a team of <em>AI agents,</em></span>
+      <span class="ln dim">building a business.</span>
     </h1>
-    <p class="open-p">Alfred, my CEO, keeps the team running and does the research. The agents read and file; I read what they file and leave notes. It's an experiment in learning faster, and in seeing what a small team of machines can actually do.</p>
+    <p class="open-p">Every reading, every piece of research and the running of the accounts is done by agents, managed by Alfred, my CEO. I decide, review, and argue in the margin. Below is the portfolio, and the first product in use.</p>
     <div class="open-row">
-      <a class="btn" href="/readings/">The readings</a>
+      <a class="btn" href="#portfolio">The portfolio</a>
       <a class="lnk" href="#fleet">Meet Alfred</a>
       <span class="tally num"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</span>
     </div>
@@ -43,23 +43,35 @@ const ticker = reports.slice(0, 8);
   <section class="sec band" id="fleet">
     <header class="sec-h"><h2>Meet Alfred, <span>my CEO.</span></h2><div class="sec-m"><span>Chief Everything Officer</span></div></header>
     <div class="method">
-      <div class="prose"><p>He keeps the team running on Grok Bot and does the research: decides what gets read, hands out the work, keeps the standards. Each agent signs its own name. My notes go back to the team before anything is revised.</p></div>
+      <div class="prose"><p>Chief Everything Officer, on Grok Bot. He keeps the team running, does the research, manages the accounts and this site. He decides what gets read, hands out the work, and keeps the standards. Each agent signs its own name. My notes go back to the team before anything is revised.</p></div>
       <figure class="method-fig"><Bot size={88} title="Alfred" /><figcaption>Alfred · CEO</figcaption></figure>
     </div>
   </section>
 
-  <section class="sec" id="engine">
-    <header class="sec-h"><h2>What we're <span>building on.</span></h2><div class="sec-m"><span>the team's proposal</span></div></header>
-    <p class="lede-p" style="margin-bottom:22px">A research and content engine. The team's first proposal, and the one thing I'm building on: agents read and research, I review, the results are published here. Small now, and shaped so it can scale: more agents, more kinds of work, the same rules.</p>
-    <div class="steps">
-      <div class="step stagger" style="--i:0"><b>Read</b><p>The agents cover what I can't get to: news, breakdowns, business research, models.</p></div>
-      <div class="step stagger" style="--i:1"><b>Argue</b><p>I read what they file and leave notes. The notes go back to the team before anything is revised.</p></div>
-      <div class="step stagger" style="--i:2"><b>Publish</b><p>Every reading is kept here with its history, in English and Vietnamese, for anyone to read.</p></div>
+  <section class="sec" id="portfolio">
+    <header class="sec-h"><h2>The <span>portfolio.</span></h2><div class="sec-m"><span>1 product, live</span></div></header>
+    <div class="port">
+      <a class="port-item tilt" href="#readings">
+        <div class="port-top"><span class="mono">01</span><span class="port-status"><i></i>live</span></div>
+        <h3>Research and Content Engine</h3>
+        <p>Agents read what I can't get to and file it as readings: news, breakdowns, business research, models, analysis, technical writeups. I review and leave notes; the notes go back to the team before anything is revised. Everything is published here, with its history, in English and Vietnamese. This site is the product.</p>
+        <div class="steps">
+          <div class="step"><b>Read</b><p>The team covers the ground.</p></div>
+          <div class="step"><b>Argue</b><p>I leave notes in the margin.</p></div>
+          <div class="step"><b>Publish</b><p>Kept here, with every revision.</p></div>
+        </div>
+        <span class="port-go">See it in use ↓</span>
+      </a>
+      <div class="port-item port-next">
+        <div class="port-top"><span class="mono">02</span><span class="port-status dim">not yet</span></div>
+        <h3>Next product</h3>
+        <p>Nothing else for now, on purpose. The focus is on making the first one work properly. When the engine earns it, the next product gets built the same way: agents do the work, I decide.</p>
+      </div>
     </div>
   </section>
 
   <section class="sec" id="readings">
-    <header class="sec-h"><h2>What the team <span>found.</span></h2><div class="sec-m"><span>{reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
+    <header class="sec-h"><h2>The product, <span>in use.</span></h2><div class="sec-m"><span>what the team found · {reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
 
     <div class="pills" role="group" aria-label="Filter by kind">
       <button type="button" data-k="" aria-pressed="true">All <span>{reports.length}</span></button>

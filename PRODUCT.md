@@ -136,13 +136,12 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 ## Brand Commitments
 
 - Name: **Son Lê** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
-- **The home thesis (Son, 2026-09-03, third pass):** "I'm using AI agents to
-  learn how to build a business. This is what we're finding out." Learning and
-  exploring is the frame, not "building a business". Alfred is his CEO: keeps
-  the team running and does the research. The one thing being built on is a
-  **research and content engine** (read, argue, publish), which the team
-  proposed as a structure that can scale. Son's personal story belongs on
-  /about/ only.
+- **The home thesis (Son, 2026-09-03, fourth pass, current):** "One person, a
+  team of AI agents, building a business." The home is the business: the
+  portfolio, with one product live (01 · Research and Content Engine, which is
+  this site) and 02 deliberately "not yet"; then the product in use (the
+  readings). Everything the agents do is managed by Alfred, the CEO. Son's
+  personal story belongs on /about/ only. Alfred's operating brief: ALFRED.md.
 - **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
   (employer unnamed) and is trying to build a business of his own on the side,
   using AI on real problems. He came from venture capital; that is a passing
