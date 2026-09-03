@@ -173,8 +173,7 @@ as air. No other heading device exists.
 ## Motion
 
 - No scroll snapping (tried 2026-09-03, removed the same day: it locked the
-  page). Sections keep their natural height. Alfred's statement reveals word
-  by word on scroll.
+  page). Sections keep their natural height. The stack diagram's three tiles rise as they enter.
 
 Exponential ease-out, transform and opacity first, one authored moment per
 surface, everything visible without it, all off under `prefers-reduced-motion`.

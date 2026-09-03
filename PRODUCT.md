@@ -160,9 +160,19 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   Fitnest, the AI content engine, trading. The site must not mention them.
 - Contact: tuanson.le03@gmail.com (personal), LinkedIn in/sonle2003, X @sonldv
   (both confirmed by Son 2026-09-03). The work address is not published.
-- Alfred is the Chief Everything Officer on the Grok Bot stack: coordinates the
-  fleet and owns the website. Other agents (Fred on Hermes, Cowork on Claude) are
-  separate and not part of the site's story.
+- **The stack (Son, decision 2026-09-03; mirrored to gbrain
+  `projects/sonwork/stack`):** one person, three runtimes, one engine. The
+  runtimes are the **AI stack** (Claude: Code and Cowork; builds the site, the
+  tools and the docs), **Grok Bot** (Alfred, Chief Everything Officer; runs the
+  team, does the research, manages the accounts) and **Hermes** (Fred; keeps the
+  memory: gbrain runs on the Hermes host, and the daily loops with it). Son
+  decides. **Sonar is the engine the stack researches and writes with**, not an
+  audience product: the readings are its output, and the email list is a quiet
+  channel, never the pitch. The home shows the stack as one diagram; no runtime
+  or agent gets its own introduction. Say "Claude", not "ChatGPT"; Son does not
+  use ChatGPT co-work. Every agent, on any runtime, reads this repo (AGENTS.md)
+  and gbrain `projects/sonwork` before operating on the site. Fred's exact
+  duties beyond the memory are Son's to fill in.
 - Source of truth for identity: gbrain `brain/user` (fetch by exact slug).
 - No binding visual constraint has been stated. The previous visual direction
   ("Racing Line": dark canvas, electric blue, F1 telemetry) was deliberately wiped

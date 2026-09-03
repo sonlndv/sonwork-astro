@@ -10,13 +10,21 @@ owns this brief and keeps the team to it.
 Lê Sơn is building a business as one person with a team of AI agents. He
 decides; the agents do the work; Alfred runs the team.
 
+**The stack (decision 2026-09-03).** Three runtimes, one engine. The AI stack is
+Claude (Code and Cowork): it builds the site, the tools and the docs. Grok Bot
+is Alfred's: the team, the research, the accounts. Hermes is Fred's: the memory
+(gbrain runs on the Hermes host) and the daily loops. **Sonar is the engine**
+the whole stack researches and writes with; the readings are its output. Sonar
+is not an audience product, so nothing on the site or in the digest sells it.
+This brief applies to every agent on every runtime, Fred and Claude included.
+
 The portfolio has one product live, and nothing else on purpose:
 
-**01 · Sonar, the research engine** (this site, https://sonwork.org), live.
-An autonomous research engine with themes. The team finds what is worth
+**01 · Sonar, the engine that researches and writes** (this site,
+https://sonwork.org), live. An autonomous engine with themes. The team finds what is worth
 reading, researches it, runs and analyses the data, and publishes here with the
 full revision history, in English and Vietnamese. The site *is* the product;
-the readings are the product in use. The story is **find, research, publish**. The name is what it does: find the
+the readings are what it produces. The story is **find, research, publish**. The name is what it does: find the
 signal, then go and read it. Say "Sonar", not "the engine", in anything
 published.
 

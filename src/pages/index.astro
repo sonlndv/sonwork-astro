@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Mark from '../components/Mark.astro';
 import Bot from '../components/Bot.astro';
+import Stack from '../components/Stack.astro';
 import Found from '../components/Found.astro';
 import Sonar from '../components/Sonar.astro';
 import Subscribe from '../components/Subscribe.astro';
@@ -15,7 +16,7 @@ const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5)
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const ticker = reports.slice(0, 8);
 ---
-<Base title="Lê Sơn" description="One person building a business with a team of AI agents, managed by Alfred, the CEO. Product one: Sonar, the research engine. This is what it found.">
+<Base title="Lê Sơn" description="One person, a team of AI agents, building a business. Three runtimes: Claude builds, Alfred runs the team on Grok Bot, Fred keeps the memory on Hermes. Sonar, the engine, researches and writes.">
 
   <div class="open">
     <div class="open-body">
@@ -26,10 +27,10 @@ const ticker = reports.slice(0, 8);
         <span class="line"><span class="ln appear appear--mask" style="--d:.56s">a team of <em>AI agents,</em></span></span>
         <span class="line"><span class="ln dim appear appear--mask" style="--d:.70s">building a business.</span></span>
       </h1>
-      <p class="open-p appear appear--soft" style="--d:.86s;--dur:1.25s">The research, the publishing and the running of the accounts are done by agents, managed by Alfred, my CEO. I decide what gets built. Below is the portfolio, and the first product in use.</p>
+      <p class="open-p appear appear--soft" style="--d:.86s;--dur:1.25s">Three runtimes do the work. Claude builds, Alfred runs the team on Grok Bot, Fred keeps the memory on Hermes. I decide. Sonar is the engine they research and write with, and the readings below are what it produced.</p>
       <div class="open-row">
         <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">The portfolio</a>
-        <a class="lnk appear appear--side" style="--d:1.12s" href="#fleet">Meet Alfred</a>
+        <a class="lnk appear appear--side" style="--d:1.12s" href="#stack">The stack</a>
       </div>
     </div>
     <div class="open-stats">
@@ -45,18 +46,12 @@ const ticker = reports.slice(0, 8);
     </div></div>
   )}
 
-  <section class="sec screen" id="fleet">
-    <header class="sec-h"><h2>Meet Alfred, <span>my CEO.</span></h2><div class="sec-m"><span>on Grok Bot</span></div></header>
-    <div class="meet">
-      <figure class="meet-fig"><Bot size={112} title="Alfred" /><figcaption><b>Alfred</b>Chief Everything Officer</figcaption></figure>
-      <div class="meet-txt">
-        <p class="meet-say"><span class="wd" style="--i:0">He</span> <span class="wd" style="--i:1">keeps</span> <span class="wd" style="--i:2">the</span> <span class="wd" style="--i:3">team</span> <span class="wd" style="--i:4">running,</span> <span class="wd" style="--i:5">does</span> <span class="wd" style="--i:6">the</span> <span class="wd" style="--i:7">research,</span> <span class="wd" style="--i:8">and</span> <span class="wd" style="--i:9">manages</span> <span class="wd" style="--i:10">the</span> <span class="wd" style="--i:11">accounts</span> <span class="wd" style="--i:12">and</span> <span class="wd" style="--i:13">this</span> <span class="wd" style="--i:14">site.</span></p>
-        <p class="meet-p">He decides what gets read, hands out the work, and keeps the standards. Each agent signs its own name.</p>
-      </div>
-    </div>
+  <section class="sec" id="stack">
+    <header class="sec-h"><h2>The <span>stack.</span></h2><div class="sec-m"><span>one person · three runtimes · one engine</span></div></header>
+    <Stack />
   </section>
 
-  <section class="sec screen" id="portfolio">
+  <section class="sec" id="portfolio">
     <header class="sec-h"><h2>The <span>portfolio.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.filter(p => p.data.status !== 'live').length} next</span><a href="/projects/">All projects →</a></div></header>
     <div class="port">
       {projects.map(p => (

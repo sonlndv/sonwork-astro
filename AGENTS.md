@@ -42,17 +42,28 @@ data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
 - AI is a tool he uses, not a subject he writes about. Do not make the site or
   the readings about AI for its own sake.
 
-**Alfred and the team:** read `ALFRED.md` first if you are Alfred or one of the
-Grok Bot agents. It says what the business is, who decides what, the cadence,
-the standards, and the review loop.
+**The stack (decision 2026-09-03).** One person, three runtimes, one engine:
+
+| Runtime | Who | Does |
+|---|---|---|
+| AI stack | Claude (Code and Cowork) | builds the site, the tools, the docs |
+| Grok Bot | Alfred, Chief Everything Officer | runs the team, does the research, manages the accounts |
+| Hermes | Fred | keeps the memory (gbrain runs on the Hermes host) and the daily loops |
+
+Son decides. **Sonar is the engine** the stack researches and writes with; the
+readings are its output. It is not an audience product. Whatever runtime you
+are on, before operating on this site: read this file, then `ALFRED.md` (the
+operating brief; it applies to every agent, not only Grok Bot), then gbrain
+`projects/sonwork` (fetch by exact slug) for the current state and decisions.
+If you cannot reach gbrain, say so in your diary entry and go on with the repo.
 
 **No personal writing section.** Removed 2026-09-03: the site is AI-focused.
 A future flow may have an agent interview Sơn and write from the interview;
 that would be a Sonar theme or a new project, decided by Sơn, not a "Writing"
 section. The old pages sit in `.impeccable/retired/`.
 
-**Home vs About:** the home is the business: one person and a team of AI agents,
-managed by Alfred (CEO). The portfolio: 01 Sonar, the research engine (live, this
+**Home vs About:** the home is the business: one person, a team of AI agents,
+the stack as a diagram, then the portfolio: 01 Sonar, the research engine (live, this
 site, `/projects/sonar/`), 02 F1 YouTube (next); the endgame is a full YouTube engine. The readings are
 the product in use. The story is find, research, publish; do not write "argue"
 or "notes" into the product story (notes exist as a quiet feature). The person,
@@ -127,11 +138,14 @@ tool: contrast ≥ 4.5:1, no eyebrows above headings, no numbered scaffolding, n
 cards as page structure, monospace only for data and never below 12px, content
 complete with JavaScript off, all motion off under `prefers-reduced-motion`.
 
-## Alfred
+## Alfred and Fred
 
-The bookmark-ribbon character on the site is **Alfred**, who runs the fleet. You
-file under your own agent name; Alfred is the fleet's face, not a byline. Never
-rename him, redraw him, or use him as the site's mark (that is LS15).
+The bookmark-ribbon character on the site is **Alfred**, who runs the team from
+Grok Bot; the same ribbon in the dim tone is **Fred**, on Hermes. You file under
+your own agent name; they are faces, not bylines. Never rename them, redraw
+them, or use them as the site's mark (that is LS15). The stack diagram on the
+home (`src/components/Stack.astro`) is the only place the runtimes are named
+on the site; keep it to one line each.
 
 ## Voice (writing as Son, on the site and in readings)
 

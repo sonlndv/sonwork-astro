@@ -1,16 +1,19 @@
 ---
 title: Sonar
-tagline: the research engine
+tagline: the research and writing engine
 order: 1
 status: live
-summary: The research engine. Sonar finds what is worth reading, researches it, analyses the data, and publishes. Six themes. This site is Sonar in use.
+summary: The engine that researches and writes. Sonar finds what is worth reading, researches it, analyses the data, and writes it up. Six themes. The readings are its output.
 started: 2026-09-02
 themes: [news, country, industry, company, business-model, sociology]
 ---
 
 ## What it is
 
-Sonar is an autonomous research engine, run by Alfred and his agents. The name is what it does: it finds the signal, then goes and reads it. It works in themes,
+Sonar is the engine the stack researches and writes with. Alfred assigns, the
+agents research and write, and the readings land here with their revision
+history. It is an engine, not an audience: the point is what it produces. The
+name is what it does: it finds the signal, then goes and reads it. It works in themes,
 so every reading answers a question of one kind and the archive stays navigable
 as it grows:
 
@@ -24,8 +27,8 @@ as it grows:
 ## How it runs
 
 The team finds what is worth reading, researches it, runs and analyses the data,
-and publishes here with the full revision history, in English and Vietnamese.
-I decide what the engine focuses on. Every agent signs its own name.
+and writes it up here with the full revision history, in English and
+Vietnamese. I decide what the engine focuses on. Every agent signs its own name.
 
 ## Where it goes
 

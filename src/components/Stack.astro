@@ -1,0 +1,32 @@
+---
+// The stack, as a diagram in the site's own language: rules and mono labels.
+// One person decides; three runtimes do the work; one engine, Sonar,
+// researches and writes. Names here are the decision of 2026-09-03
+// (PRODUCT.md, AGENTS.md); change them there first.
+import Bot from './Bot.astro';
+import Sonar from './Sonar.astro';
+---
+<div class="stack" role="img" aria-label="Sơn decides. Three runtimes: Claude, the AI stack, builds. Alfred on Grok Bot runs the team and the research. Fred on Hermes keeps the memory. Sonar researches and writes; the readings are its output.">
+  <div class="stack-src"><span>Sơn</span><em>decides</em></div>
+  <ol class="stack-row">
+    <li class="tile">
+      <span class="rt">AI stack</span>
+      <span class="mk mk-mono" aria-hidden="true">&gt;_</span>
+      <b>Claude</b>
+      <p>Code and Cowork. Builds the site, the tools and the docs.</p>
+    </li>
+    <li class="tile">
+      <span class="rt">Grok Bot</span>
+      <span class="mk"><Bot size={22} /></span>
+      <b>Alfred</b>
+      <p>Chief Everything Officer. Runs the team, does the research, manages the accounts.</p>
+    </li>
+    <li class="tile">
+      <span class="rt">Hermes</span>
+      <span class="mk"><Bot size={22} class="dim" /></span>
+      <b>Fred</b>
+      <p>Keeps the memory. The brain runs here, and the daily loops with it.</p>
+    </li>
+  </ol>
+  <div class="stack-out"><Sonar size={16} /><span>Sonar</span><em>researches and writes · the readings are its output</em></div>
+</div>

@@ -494,16 +494,33 @@ body::before{z-index:-2}
 /* the method: prose at its measure, the bot composed beside it — sized to the
    block, anchored to the column's right edge (where the header meta sits),
    centred on the paragraphs */
-/* an introduction: portrait left, words right. On a desktop the section is one
-   screen, like the opening, and the statement reveals word by word on scroll */
-.meet{display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px;align-items:start}
-.meet-fig{margin:0;display:flex;flex-direction:column;gap:18px;align-items:flex-start}
-.meet-fig figcaption{font-family:var(--mono);font-size:12px;color:var(--ink-3);line-height:1.7}
-.meet-fig figcaption b{display:block;font-weight:500;color:var(--ink)}
-.meet-say{font-size:clamp(24px,2.6vw,36px);font-weight:500;letter-spacing:-0.035em;line-height:1.14;margin:0 0 22px;max-width:24ch;text-wrap:balance}
-.meet-say .wd{display:inline-block}
-.meet-p{font-size:17px;font-weight:300;color:var(--ink-2);line-height:1.6;margin:0;max-width:56ch}
-@media (max-width:640px){.meet{grid-template-columns:1fr;gap:20px}.meet-fig{flex-direction:row;align-items:center}.meet-fig .bot{width:56px;height:98px}}
+/* the stack, as a diagram: one line in, three tiles, one line out */
+.stack{display:grid}
+.stack-src,.stack-out{display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--mono);font-size:12px;color:var(--ink-3);position:relative}
+.stack-src span,.stack-out span{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink)}
+.stack-src{padding-bottom:22px}
+.stack-out{padding-top:22px}
+.stack-src::after,.stack-out::before{content:"";position:absolute;left:50%;width:1px;height:14px;background:var(--line-2)}
+.stack-src::after{bottom:0}
+.stack-out::before{top:0}
+.stack-row{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.tile{margin:0;padding:22px 24px 26px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.tile:first-child{border-left:0;padding-left:0}
+.tile:last-child{padding-right:0}
+.tile .rt{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.tile .mk{height:40px;display:flex;align-items:center;margin:4px 0}
+.tile .mk-mono{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--lume);letter-spacing:-0.02em}
+.tile b{font-size:18px;font-weight:500;letter-spacing:-0.02em}
+.tile p{margin:0;font-size:14px;font-weight:300;color:var(--ink-2);line-height:1.55;max-width:30ch}
+.bot.dim path{fill:var(--ink-3)}
+@media (max-width:640px){
+  .stack-row{grid-template-columns:1fr}
+  .tile{border-left:0;border-top:1px solid var(--line);padding:18px 0 20px}
+  .tile:first-child{border-top:0}
+  .tile p{max-width:none}
+  .stack-src,.stack-out{justify-content:flex-start;flex-wrap:wrap}
+  .stack-src::after,.stack-out::before{left:14px}
+}
 @media (max-width:640px){.empty-bot{gap:14px}}
 
 /* ---------- the opening ----------
@@ -538,9 +555,7 @@ body::before{z-index:-2}
     .sec-h h2{animation:rise2 linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
     @keyframes rise2{from{transform:translateY(18px);opacity:.3}to{transform:none;opacity:1}}
     .stagger{animation:rise2 linear both;animation-timeline:view();animation-range-start:entry calc(0% + var(--i,0) * 8%);animation-range-end:entry calc(45% + var(--i,0) * 8%)}
-    .meet-say .wd{animation:wdin linear both;animation-timeline:view();animation-range:entry calc(6% + var(--i) * 2.5%) entry calc(26% + var(--i) * 2.5%)}
-    @keyframes wdin{from{opacity:.18;transform:translateY(.25em)}to{opacity:1;transform:none}}
-    .meet-fig{animation:rise2 linear both;animation-timeline:view();animation-range:entry 0% entry 60%}
+    .stack-row .tile{animation:rise2 linear both;animation-timeline:view();animation-range:entry 0% entry 45%}
     @keyframes slidein{from{transform:translateX(40px);opacity:.2}to{transform:none;opacity:1}}
   }
 }
