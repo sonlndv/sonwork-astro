@@ -96,8 +96,8 @@ lives on `/about/`. The ledger lives at `/readings/`.
 3. Meet Alfred, my CEO (band): one paragraph, no more, and Alfred sliding in.
 3b. The portfolio: project cards from the `projects` collection (01 Research
    Engine, live, with Find / Research / Publish; 02 F1 YouTube, next), each
-   linking to its profile and build diary. "The product, in use." over the
-   readings. No scroll cue.
+   linking to its profile and build diary. "What Sonar found." over the readings (the `Found` component: theme pills,
+   featured, grid), repeated on `/projects/sonar/`. No scroll cue.
 4. What the team found: a compact filter row (All + six kinds with counts,
    empty kinds disabled) at the top of the block that filters in place; one
    **featured** reading (its kind drawn large, accent sweep on hover); a grid
