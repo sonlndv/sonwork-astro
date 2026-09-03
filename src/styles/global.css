@@ -610,3 +610,6 @@ body::before{z-index:-2}
 .pills button[aria-pressed="true"]{color:var(--void);background:var(--lume);border-color:var(--lume)}
 .pills button[aria-pressed="true"] i,.pills button[aria-pressed="true"] span{color:var(--void)}
 .pills button:disabled{opacity:.38;cursor:default}
+
+/* hidden must win over display:grid/flex on the panels */
+.found [hidden]{display:none!important}
