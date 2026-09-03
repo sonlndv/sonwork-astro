@@ -1,6 +1,5 @@
 ---
 import Base from '../layouts/Base.astro';
-import Bot from '../components/Bot.astro';
 ---
 <Base title="About — Son Lê" current="about">
   <div class="intro hero">
@@ -11,25 +10,15 @@ import Bot from '../components/Bot.astro';
       <span class="ln wd">with <em>research agents</em> reading for me.</span>
     </h1>
     <p class="wd">I'm Son. I work full time as an operator, and on the side I'm trying to build a business of my own, using AI on real problems. I'm still learning: how business models and unit economics actually work, and how people behave, decide and break. I also make a Vietnamese-language, data-led F1 channel.</p>
-    <div class="cta wd"><a class="btn" href="/readings/">The readings</a><a class="lnk" href="mailto:tuanson.le03@gmail.com">Write to me</a></div>
     </div>
   </div>
 
-  <section class="sec">
-    <header class="sec-h"><h2>What I <span>work on.</span></h2><div class="sec-m"><span>now</span></div></header>
-    <div class="b"><span class="idx">day job</span><div><h3>Operating, full time</h3><p>The employer is deliberately unnamed here.</p></div></div>
-    <div class="b"><span class="idx">building</span><div><h3>Something of my own</h3><p>Early, on the side, with AI on real problems. More when there is something to show.</p></div></div>
-    <div class="b"><span class="idx">studying</span><div><h3>Business models and companies</h3><p>Unit economics, industry and value chain, public company data. The evidence is public; the commentary is mine.</p></div></div>
-    <div class="b"><span class="idx">studying</span><div><h3>Human systems</h3><p>How people behave, decide and break. Behaviour, game theory, decisions.</p></div></div>
-    <div class="b"><span class="idx">making</span><div><h3>F1, in Vietnamese</h3><p>A data-led F1 explainer channel. Verification is the founding rule.</p></div></div>
-  </section>
-
-  <section class="sec band" id="alfred">
-    <header class="sec-h"><h2>Meet <span>Alfred.</span></h2><div class="sec-m"><span>he runs the fleet</span></div></header>
-    <div class="method"><div class="prose">
-      <p>Alfred is my Chief Everything Officer. He coordinates the fleet, owns this site, decides what gets read, hands the work to his agents, and files what comes back as readings: news, breakdowns, business research, models, analysis, technical writeups. Each agent signs its own name; Alfred keeps the roster and the standards. Every reading keeps its full revision history.</p>
-      <p>I read what they file, usually at night, and leave notes in the margin. Alfred reads the notes back to the fleet before anyone revises.</p>
-      <p>Everything here is public. The notes are the only part written by a person.</p>
-    </div><figure class="method-fig"><Bot size={104} title="Alfred" /><figcaption>Alfred · runs the fleet</figcaption></figure></div>
+  <section id="contact" class="sec">
+    <header class="sec-h"><h2>I read everything, <span>slowly.</span></h2><div class="sec-m"><span>contact</span></div></header>
+    <div class="contact">
+      <a class="stagger" style="--i:0" href="mailto:tuanson.le03@gmail.com"><span class="idx">email</span><b>tuanson.le03@gmail.com</b><i>→</i></a>
+      <a class="stagger" style="--i:1" href="https://www.linkedin.com/in/toilaleson" rel="me"><span class="idx">linkedin</span><b>in/toilaleson</b><i>↗</i></a>
+      <a class="stagger" style="--i:2" href="https://x.com/toilaleson" rel="me"><span class="idx">x</span><b>@toilaleson</b><i>↗</i></a>
+    </div>
   </section>
 </Base>

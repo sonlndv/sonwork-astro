@@ -128,6 +128,14 @@ const nav = [
         });
       }).catch(() => {});
 
+      // tilt: panels lean toward the pointer (fine pointers only)
+      if (matchMedia('(pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll<HTMLElement>('.tilt').forEach((el) => {
+          el.addEventListener('pointermove', (e) => { const r = el.getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5; const y = (e.clientY - r.top) / r.height - .5; el.style.setProperty('--ry', (x * 6) + 'deg'); el.style.setProperty('--rx', (-y * 6) + 'deg'); });
+          el.addEventListener('pointerleave', () => { el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); });
+        });
+      }
+
       // live counters: numbers count up once, to their real value
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => {

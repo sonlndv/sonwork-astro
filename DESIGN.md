@@ -87,14 +87,18 @@ are no cards, no glass, no gradient text. A row lifts to `--raise` on hover.
 The home is an **opening**, a company-profile arc, decided by Son on 2026-09-03
 (reversing the earlier ledger-first home). The ledger lives at `/readings/`.
 
-1. The opening: LS15 at 96px, the statement at up to 112px ("My research agents
-   read. I argue in the margin."), one paragraph, two actions, the tally, a cue.
-   Choreographed once on load: mark slides in, lines rise in sequence, paragraph,
-   then the row. All from a visible base; reduced motion shows it at rest.
-2. Alfred runs the fleet (band): the method paragraph and Alfred sliding in.
-3. What they found: the five most recent readings, staggered as they enter.
-4. Mine, not theirs (band): writing.
-5. I read everything, slowly: contact.
+1. The opening: LS15 at 96px, the statement at up to 112px, one paragraph, two
+   actions, the tally, a cue. Choreographed once on load from a visible base.
+2. A ticker of what the fleet filed (title, kind glyph, byline), 48s loop,
+   pauses on hover, static under reduced motion.
+3. Alfred runs the fleet (band): the paragraph and Alfred sliding in.
+4. What they found: one **featured** reading (its kind drawn large as the
+   visual, an accent sweep on hover), a two-column grid of the next four that
+   tilts toward the cursor, then a strip of the six kinds with counts that
+   links to the filtered index.
+5. Mine, not theirs (band): writing.
+
+`/about/` is short: the day-job statement, one paragraph, contact.
 
 Every section header draws its rule in the accent and rises as it enters the
 viewport; rows and contact lines stagger by index. CSS scroll timelines only.
