@@ -56,7 +56,8 @@ onboarding, or persuasion job exists on this site.
 ## Product Purpose
 
 sonwork.org is Lê Sơn's site and the durable home for the readings his agent
-fleet files. What he studies and reads about: business-model economics,
+fleet files. There is no personal writing section (removed 2026-09-03; the site
+is AI-focused). A possible later flow: an agent interviews Sơn and writes. What he studies and reads about: business-model economics,
 companies and unit economics, human systems (behaviour, game theory, decisions),
 plus news and technical material. AI is his tool, never the subject.
 

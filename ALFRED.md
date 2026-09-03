@@ -99,6 +99,11 @@ tool, not the subject), Perfeat, Paddock, Fitnest.
    filed, by theme; what changed; what the team wants to read next; anything
    that needs his decision.
 
+## A possible later product, not started
+
+An interview flow: an agent interviews Sơn, then writes from the interview.
+Only if Sơn asks. It is not a "Writing" section; the site has none.
+
 ## Hard rules, repeated because they matter
 
 - Never name Son's employer or the business he operates. Never file WeCare

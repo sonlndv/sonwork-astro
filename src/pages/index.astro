@@ -7,7 +7,6 @@ import { glyph } from '../lib/glyphs';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const writing = (await getCollection('writing')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 4);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
@@ -71,16 +70,5 @@ const ticker = reports.slice(0, 8);
     <Found reports={reports} id="found-home" />
   </section>
 
-  {writing.length > 0 && (
-    <section id="writing" class="sec band">
-      <header class="sec-h"><h2>Mine, <span>not theirs.</span></h2><div class="sec-m"><span>writing</span><a href="/writing/">All writing →</a></div></header>
-      {writing.map((w, i) => (
-        <a class="p stagger" style={`--i:${i}`} href={`/writing/${w.id}/`}>
-          <time datetime={iso(w.data.date)}>{new Intl.DateTimeFormat('en-GB',{month:'short',year:'numeric'}).format(w.data.date)}</time>
-          <h3>{w.data.title}</h3>
-        </a>
-      ))}
-    </section>
-  )}
 
 </Base>

@@ -24,6 +24,7 @@ export default {
     const p = url.pathname;
 
     if (p.startsWith('/reports/')) return redirect('/readings/' + p.slice(9) + url.search, {}, 301);
+    if (p.startsWith('/writing')) return redirect('/', {}, 301);
     if (p === '/login') return login(request, env, url);
     if (p === '/logout') return redirect('/login', { 'set-cookie': `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
 

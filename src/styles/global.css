@@ -642,8 +642,8 @@ body::before{z-index:-2}
    section headers and the ledger; the border sits in the gutter */
 .feat,.port .port-item{margin-left:-28px;margin-right:-28px;padding-left:28px;padding-right:28px}
 .feat{padding-left:28px;padding-right:28px}
-.found .card:nth-child(odd){margin-left:-26px;padding-left:26px}
-.found .card:nth-child(even){margin-right:-26px;padding-right:26px}
+.found .card:nth-child(even){margin-left:-26px;padding-left:26px}   /* left column */
+.found .card:nth-child(odd){margin-right:-26px;padding-right:26px}   /* right column */
 .port .port-item:first-child{margin-right:0}
 .port .port-item:last-child{margin-left:0}
 @media (max-width:900px){.feat,.port .port-item,.found .card{margin-left:-16px!important;margin-right:-16px!important;padding-left:16px!important;padding-right:16px!important}}

@@ -16,6 +16,7 @@ var worker_default = {
     const url = new URL(request.url);
     const p = url.pathname;
     if (p.startsWith("/reports/")) return redirect("/readings/" + p.slice(9) + url.search, {}, 301);
+    if (p.startsWith("/writing")) return redirect("/", {}, 301);
     if (p === "/login") return login(request, env, url);
     if (p === "/logout") return redirect("/login", { "set-cookie": `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` });
     if (p === "/api/file" && request.method === "POST") {
@@ -335,7 +336,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-QESuGj/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-mLKCSq/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -367,7 +368,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-QESuGj/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-mLKCSq/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

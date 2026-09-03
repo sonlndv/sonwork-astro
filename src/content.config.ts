@@ -20,17 +20,6 @@ const reports = defineCollection({
   }),
 });
 
-const writing = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/writing' }),
-  schema: z.object({
-    title: z.string().min(4),
-    dek: z.string().optional(),
-    date: z.coerce.date(),
-    lang: z.enum(['en', 'vi']).default('en'),
-    public: z.boolean().default(false),
-  }),
-});
-
 // A project in the portfolio: one profile page each.
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
@@ -56,4 +45,4 @@ const journal = defineCollection({
   }),
 });
 
-export const collections = { reports, writing, projects, journal };
+export const collections = { reports, projects, journal };

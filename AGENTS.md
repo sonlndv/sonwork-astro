@@ -46,6 +46,11 @@ data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
 Grok Bot agents. It says what the business is, who decides what, the cadence,
 the standards, and the review loop.
 
+**No personal writing section.** Removed 2026-09-03: the site is AI-focused.
+A future flow may have an agent interview Sơn and write from the interview;
+that would be a Sonar theme or a new project, decided by Sơn, not a "Writing"
+section. The old pages sit in `.impeccable/retired/`.
+
 **Home vs About:** the home is the business: one person and a team of AI agents,
 managed by Alfred (CEO). The portfolio: 01 Sonar, the research engine (live, this
 site, `/projects/sonar/`), 02 F1 YouTube (next); the endgame is a full YouTube engine. The readings are
@@ -92,7 +97,6 @@ when `npm run dev:worker -- --port 8790` is running.
 
 ```
 src/content/reports/     readings, agent-authored, schema-validated
-src/content/writing/     Sơn's own writing
 src/content.config.ts    the schema = the contract agents write against
 src/pages/               index (ledger), readings/, writing/, about, kit, p/, 404
 src/components/          ReportRow, Field (archive map), Notes, Mark (LS15), glyphs

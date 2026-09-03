@@ -102,9 +102,9 @@ lives on `/about/`. The ledger lives at `/readings/`.
    empty kinds disabled) at the top of the block that filters in place; one
    **featured** reading (its kind drawn large, accent sweep on hover); a grid
    of the rest that tilts toward the cursor.
-5. Mine, not theirs (band): writing.
 
-`/about/` is short: the day-job statement, one paragraph, contact.
+`/about/` is short: the day-job statement, one paragraph, contact. There is no
+writing section (removed 2026-09-03).
 
 Every section header draws its rule in the accent and rises as it enters the
 viewport; rows and contact lines stagger by index. CSS scroll timelines only.
