@@ -42,9 +42,10 @@ data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
 - AI is a tool he uses, not a subject he writes about. Do not make the site or
   the readings about AI for its own sake.
 
-**Home vs About:** the home page is about the work (a business built with a team
-of AI agents, Alfred as CEO on Grok Bot); the person, his day job and contact
-live on `/about/`. Do not move the personal story onto the home.
+**Home vs About:** the home is the work: Son is *exploring AI agents to learn
+how to build a business*; Alfred is his CEO who keeps the team running and does
+the research; the thing being built on is a research and content engine (read,
+argue, publish). The person, his day job and contact live on `/about/`.
 
 ## Hard rules
 

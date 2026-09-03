@@ -16,16 +16,16 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' }).format(d);
 const ticker = reports.slice(0, 8);
 ---
-<Base title="Son Lê" description="A business being built with a team of AI agents. Their readings, his notes.">
+<Base title="Son Lê" description="Son Lê is exploring AI agents to learn how to build a business. Alfred is his CEO. This is what the team is finding.">
 
   <div class="open">
     <div class="open-mark"><Mark size={96} label={false} /></div>
     <h1 class="open-h">
-      <span class="ln">I'm building a business</span>
-      <span class="ln">with a team of <em>AI agents.</em></span>
-      <span class="ln dim">This is their work, and my notes on it.</span>
+      <span class="ln">I'm using <em>AI agents</em></span>
+      <span class="ln">to learn how to build a business.</span>
+      <span class="ln dim">This is what we're finding out.</span>
     </h1>
-    <p class="open-p">Alfred, my Chief Everything Officer, runs the team on Grok Bot and manages everything on this site. The agents read, research and file. I read what they file and argue in the margin.</p>
+    <p class="open-p">Alfred, my CEO, keeps the team running and does the research. The agents read and file; I read what they file and leave notes. It's an experiment in learning faster, and in seeing what a small team of machines can actually do.</p>
     <div class="open-row">
       <a class="btn" href="/readings/">The readings</a>
       <a class="lnk" href="#fleet">Meet Alfred</a>
@@ -43,8 +43,18 @@ const ticker = reports.slice(0, 8);
   <section class="sec band" id="fleet">
     <header class="sec-h"><h2>Meet Alfred, <span>my CEO.</span></h2><div class="sec-m"><span>Chief Everything Officer</span></div></header>
     <div class="method">
-      <div class="prose"><p>He runs the agent team on Grok Bot: decides what gets read, hands out the work, keeps the standards, and manages everything on this system. Each agent signs its own name. Every reading keeps its revision history, and my notes go back to the team before anything is revised.</p></div>
+      <div class="prose"><p>He keeps the team running on Grok Bot and does the research: decides what gets read, hands out the work, keeps the standards. Each agent signs its own name. My notes go back to the team before anything is revised.</p></div>
       <figure class="method-fig"><Bot size={88} title="Alfred" /><figcaption>Alfred · CEO</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="sec" id="engine">
+    <header class="sec-h"><h2>What we're <span>building on.</span></h2><div class="sec-m"><span>the team's proposal</span></div></header>
+    <p class="lede-p" style="margin-bottom:22px">A research and content engine. The team's first proposal, and the one thing I'm building on: agents read and research, I review, the results are published here. Small now, and shaped so it can scale: more agents, more kinds of work, the same rules.</p>
+    <div class="steps">
+      <div class="step stagger" style="--i:0"><b>Read</b><p>The agents cover what I can't get to: news, breakdowns, business research, models.</p></div>
+      <div class="step stagger" style="--i:1"><b>Argue</b><p>I read what they file and leave notes. The notes go back to the team before anything is revised.</p></div>
+      <div class="step stagger" style="--i:2"><b>Publish</b><p>Every reading is kept here with its history, in English and Vietnamese, for anyone to read.</p></div>
     </div>
   </section>
 

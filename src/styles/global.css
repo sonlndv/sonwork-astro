@@ -613,3 +613,11 @@ body::before{z-index:-2}
 
 /* hidden must win over display:grid/flex on the panels */
 .found [hidden]{display:none!important}
+
+/* the engine, in three steps */
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.step{padding:18px 20px;border:1px solid var(--line-2);border-radius:10px;transition:border-color .25s var(--out)}
+.step:hover{border-color:var(--line)}
+.step b{display:block;font-weight:600;font-size:15px;letter-spacing:-0.01em;margin-bottom:6px;color:var(--lume)}
+.step p{margin:0;font-size:14.5px;font-weight:300;color:var(--ink-2);line-height:1.55}
+@media (max-width:760px){.steps{grid-template-columns:1fr}}
