@@ -15,20 +15,22 @@ for (const r of reports) {
   byYear.get(y)!.push(r);
 }
 const years = [...byYear.keys()].sort((a, b) => b - a);
-const types = ['news', 'breakdown', 'research', 'model', 'analysis', 'technical'] as const;
+import { THEMES } from '../../content.config';
+import { THEME_LABEL } from '../../lib/glyphs';
+const types = THEMES;
 const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] === v).length;
 ---
 <Base title="Readings — Lê Sơn" current="readings">
   <div class="intro" style="padding:72px 0 36px">
     <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">The readings, all of them.</h1>
     <p class="last"><span id="shown">{reports.length}</span> of {reports.length}, newest first, filed by my research agents. <kbd class="kk">⌘K</kbd> searches the full text.</p>
-    <p class="gloss"><b>news</b> what happened · <b>breakdown</b> one story taken apart · <b>research</b> business and market research · <b>model</b> numbers and scenarios · <b>analysis</b> a longer argument · <b>technical</b> engineering writeups</p>
+    <p class="gloss"><b>news</b> short market updates · <b>country</b> a country's model, focus and growth · <b>industry</b> the value chain and what matters in it · <b>company</b> a profile built around operational excellence · <b>business model</b> how a model actually works · <b>sociology</b> game theory and social behaviour, applied to business</p>
   </div>
 
   <div class="filters" role="group" aria-label="Filter readings">
     <div class="fgroup">
       <button type="button" data-f="type" data-v="" aria-pressed="true">All types</button>
-      {types.filter(t => count('type', t) > 0).map(t => <button type="button" data-f="type" data-v={t} aria-pressed="false">{t} <span>{count('type', t)}</span></button>)}
+      {types.filter(t => count('type', t) > 0).map(t => <button type="button" data-f="type" data-v={t} aria-pressed="false">{THEME_LABEL[t]} <span>{count('type', t)}</span></button>)}
     </div>
     <div class="fgroup">
       <button type="button" data-f="lang" data-v="" aria-pressed="true">Both languages</button>

@@ -2,7 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Mark from '../components/Mark.astro';
 import Bot from '../components/Bot.astro';
-import { glyph } from '../lib/glyphs';
+import { glyph, THEME_LABEL } from '../lib/glyphs';
+import { THEMES } from '../content.config';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -10,13 +11,14 @@ const shown = reports.slice(0, 7);
 const writing = (await getCollection('writing')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 4);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
-const kinds = ['news', 'breakdown', 'research', 'model', 'analysis', 'technical'];
+const kinds = [...THEMES];
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const count = (k: string) => reports.filter(r => r.data.type === k).length;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' }).format(d);
 const ticker = reports.slice(0, 8);
 ---
-<Base title="Lê Sơn" description="One person building a business with a team of AI agents, managed by Alfred, the CEO. Product one: a research and content engine. This is it, in use.">
+<Base title="Lê Sơn" description="One person building a business with a team of AI agents, managed by Alfred, the CEO. Product one: an autonomous research engine. This is it, in use.">
 
   <div class="open">
     <div class="open-mark"><Mark size={96} label={false} /></div>
@@ -25,13 +27,12 @@ const ticker = reports.slice(0, 8);
       <span class="ln">a team of <em>AI agents,</em></span>
       <span class="ln dim">building a business.</span>
     </h1>
-    <p class="open-p">Every reading, every piece of research and the running of the accounts is done by agents, managed by Alfred, my CEO. I decide, review, and argue in the margin. Below is the portfolio, and the first product in use.</p>
+    <p class="open-p">The research, the publishing and the running of the accounts are done by agents, managed by Alfred, my CEO. I decide what gets built. Below is the portfolio, and the first product in use.</p>
     <div class="open-row">
       <a class="btn" href="#portfolio">The portfolio</a>
       <a class="lnk" href="#fleet">Meet Alfred</a>
       <span class="tally num"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</span>
     </div>
-    <div class="open-cue" aria-hidden="true"><i></i></div>
   </div>
 
   {ticker.length > 0 && (
@@ -43,30 +44,29 @@ const ticker = reports.slice(0, 8);
   <section class="sec band" id="fleet">
     <header class="sec-h"><h2>Meet Alfred, <span>my CEO.</span></h2><div class="sec-m"><span>Chief Everything Officer</span></div></header>
     <div class="method">
-      <div class="prose"><p>Chief Everything Officer, on Grok Bot. He keeps the team running, does the research, manages the accounts and this site. He decides what gets read, hands out the work, and keeps the standards. Each agent signs its own name. My notes go back to the team before anything is revised.</p></div>
+      <div class="prose"><p>Chief Everything Officer, on Grok Bot. He keeps the team running, does the research, manages the accounts and this site. He decides what gets read, hands out the work, and keeps the standards. Each agent signs its own name.</p></div>
       <figure class="method-fig"><Bot size={88} title="Alfred" /><figcaption>Alfred · CEO</figcaption></figure>
     </div>
   </section>
 
   <section class="sec" id="portfolio">
-    <header class="sec-h"><h2>The <span>portfolio.</span></h2><div class="sec-m"><span>1 product, live</span></div></header>
+    <header class="sec-h"><h2>The <span>portfolio.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.filter(p => p.data.status !== 'live').length} next</span><a href="/projects/">All projects →</a></div></header>
     <div class="port">
-      <a class="port-item tilt" href="#readings">
-        <div class="port-top"><span class="mono">01</span><span class="port-status"><i></i>live</span></div>
-        <h3>Research and Content Engine</h3>
-        <p>Agents read what I can't get to and file it as readings: news, breakdowns, business research, models, analysis, technical writeups. I review and leave notes; the notes go back to the team before anything is revised. Everything is published here, with its history, in English and Vietnamese. This site is the product.</p>
-        <div class="steps">
-          <div class="step"><b>Read</b><p>The team covers the ground.</p></div>
-          <div class="step"><b>Argue</b><p>I leave notes in the margin.</p></div>
-          <div class="step"><b>Publish</b><p>Kept here, with every revision.</p></div>
-        </div>
-        <span class="port-go">See it in use ↓</span>
-      </a>
-      <div class="port-item port-next">
-        <div class="port-top"><span class="mono">02</span><span class="port-status dim">not yet</span></div>
-        <h3>Next product</h3>
-        <p>Nothing else for now, on purpose. The focus is on making the first one work properly. When the engine earns it, the next product gets built the same way: agents do the work, I decide.</p>
-      </div>
+      {projects.map(p => (
+        <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live' }]} href={`/projects/${p.id}/`}>
+          <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}</span><span class:list={['port-status', { dim: p.data.status !== 'live' }]}>{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
+          <h3>{p.data.title}</h3>
+          <p>{p.data.summary}</p>
+          {p.data.status === 'live' && (
+            <div class="steps">
+              <div class="step"><b>Find</b><p>What is worth reading, by theme.</p></div>
+              <div class="step"><b>Research</b><p>Run and analyse the data.</p></div>
+              <div class="step"><b>Publish</b><p>Kept here, with every revision.</p></div>
+            </div>
+          )}
+          <span class="port-go">Profile and build diary →</span>
+        </a>
+      ))}
     </div>
   </section>
 
@@ -75,7 +75,7 @@ const ticker = reports.slice(0, 8);
 
     <div class="pills" role="group" aria-label="Filter by kind">
       <button type="button" data-k="" aria-pressed="true">All <span>{reports.length}</span></button>
-      {kinds.map(k => <button type="button" data-k={k} aria-pressed="false" disabled={count(k) === 0}><i set:html={glyph(k, 11)} />{k} <span>{count(k)}</span></button>)}
+      {kinds.map(k => <button type="button" data-k={k} aria-pressed="false" disabled={count(k) === 0}><i set:html={glyph(k, 11)} />{THEME_LABEL[k]} <span>{count(k)}</span></button>)}
     </div>
 
     {shown.length === 0 ? (
@@ -85,7 +85,7 @@ const ticker = reports.slice(0, 8);
         {shown.map((r, i) => i === 0 ? (
           <a class="feat tilt" data-k={r.data.type} href={`/readings/${r.id}/`} lang={r.data.lang}>
             <div class="feat-body">
-              <div class="feat-kind kind" set:html={glyph(r.data.type, 13) + `<em>${r.data.type}</em>`} />
+              <div class="feat-kind kind" set:html={glyph(r.data.type, 13) + `<em>${THEME_LABEL[r.data.type]}</em>`} />
               <h3>{r.data.title}</h3>
               <p>{r.data.dek}</p>
               <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span><span class="sep"></span><time datetime={iso(r.data.date)}>{when(r.data.date, r.data.lang)}</time>{r.data.revision > 1 && <><span class="sep"></span><span class="num">rev {r.data.revision}</span></>}<span class="feat-go">Read →</span></div>
@@ -94,7 +94,7 @@ const ticker = reports.slice(0, 8);
           </a>
         ) : (
           <a class="card tilt stagger" data-k={r.data.type} style={`--i:${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
-            <div class="card-top"><span class="kind" set:html={glyph(r.data.type, 12) + `<em>${r.data.type}</em>`} /><time datetime={iso(r.data.date)}>{iso(r.data.date).replace(/-/g, '.')}</time></div>
+            <div class="card-top"><span class="kind" set:html={glyph(r.data.type, 12) + `<em>${THEME_LABEL[r.data.type]}</em>`} /><time datetime={iso(r.data.date)}>{iso(r.data.date).replace(/-/g, '.')}</time></div>
             <h3>{r.data.title}</h3>
             <p>{r.data.dek}</p>
             <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span>{r.data.lang === 'vi' && <><span class="sep"></span><span>vi</span></>}</div>

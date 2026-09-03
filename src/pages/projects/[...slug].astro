@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import Bot from '../../components/Bot.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map(entry => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const journal = (await getCollection('journal')).filter(j => j.data.project === entry.id).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const rendered = await Promise.all(journal.map(async j => ({ j, C: (await render(j)).Content })));
+const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(x);
+---
+<Base title={`${d.title} — Lê Sơn`} description={d.summary} current="projects">
+  <article class="doc" style="padding:64px 0 20px">
+    <div class="stamp" style="border:0;margin-bottom:10px;padding:0"><span class="num">{String(d.order).padStart(2,'0')}</span><span class="port-status"><i></i>{d.status}</span>{d.started && <span>since {fmt(d.started)}</span>}</div>
+    <h1>{d.title}</h1>
+    <p class="open-p" style="margin-bottom:34px">{d.summary}</p>
+    <div class="prose"><Content /></div>
+  </article>
+
+  <section class="sec" id="diary">
+    <header class="sec-h"><h2>Build <span>diary.</span></h2><div class="sec-m"><span>{journal.length} {journal.length === 1 ? 'entry' : 'entries'}</span></div></header>
+    {journal.length === 0 && <div class="empty-bot"><Bot size={30} /><p class="empty">Nothing written yet.</p></div>}
+    {rendered.map(({ j, C }) => (
+      <article class="diary">
+        <div class="idx"><time datetime={j.data.date.toISOString().slice(0,10)}>{j.data.date.toISOString().slice(0,10).replace(/-/g,'.')}</time><span class="by"><Bot size={8} /> {j.data.author}</span></div>
+        <div><h3>{j.data.title}</h3><div class="prose small"><C /></div></div>
+      </article>
+    ))}
+  </section>
+</Base>

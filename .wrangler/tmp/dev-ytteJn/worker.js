@@ -108,7 +108,7 @@ button{font:inherit;font-weight:600;color:oklch(0.115 0.022 256);background:oklc
   return new Response(html, { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
 }
 __name(page, "page");
-var KINDS = ["news", "breakdown", "research", "model", "analysis", "technical"];
+var KINDS = ["news", "country", "industry", "company", "business-model", "sociology"];
 var REPO = "sonlndv/sonwork-astro";
 var FORBIDDEN = /\bwecare\b/i;
 function slugify(s) {

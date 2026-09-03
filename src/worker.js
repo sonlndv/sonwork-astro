@@ -113,7 +113,7 @@ button{font:inherit;font-weight:600;color:oklch(0.115 0.022 256);background:oklc
 // file to GitHub (src/content/reports/<date>-<slug>.md). The deploy follows.
 // Revising: send the same slug with a higher revision; the file is replaced.
 
-const KINDS = ['news', 'breakdown', 'research', 'model', 'analysis', 'technical'];
+const KINDS = ['news', 'country', 'industry', 'company', 'business-model', 'sociology'];
 const REPO = 'sonlndv/sonwork-astro';
 const FORBIDDEN = /\bwecare\b/i;
 

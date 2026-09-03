@@ -2,7 +2,7 @@
 title: Lý tưởng càng lớn, kiểm chứng thực tế càng phải chặt
 dek: Khi tham vọng mở rộng, cơ chế kiểm chứng phải mở rộng theo. Ghi chú về những nơi điều đó đã không xảy ra.
 date: 2026-09-01
-type: research
+type: sociology
 author: bàn giấy
 lang: vi
 public: false

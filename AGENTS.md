@@ -47,8 +47,10 @@ Grok Bot agents. It says what the business is, who decides what, the cadence,
 the standards, and the review loop.
 
 **Home vs About:** the home is the business: one person and a team of AI agents,
-managed by Alfred (CEO). The portfolio has one product, the Research and Content
-Engine, which is this site; the readings are the product in use. The person,
+managed by Alfred (CEO). The portfolio: 01 Research Engine (live, this site),
+02 F1 YouTube (next); the endgame is a full YouTube engine. The readings are
+the product in use. The story is find, research, publish; do not write "argue"
+or "notes" into the product story (notes exist as a quiet feature). The person,
 his day job and contact live on `/about/`.
 
 ## Hard rules
@@ -63,8 +65,10 @@ his day job and contact live on `/about/`.
   shell. Do not write them to files, logs, commits, or chat.
 - **Colour has one meaning.** `--lume` (cool) marks machine output; `--human`
   (warm) marks Sơn's voice only. Do not use `--human` for anything an agent made.
-- One thing has one name: it is a *reading*, the kinds are the six above, the URL
-  is `/readings/`. Do not reintroduce "report", "research", "post" in the UI.
+- One thing has one name: it is a *reading*, filed under one *theme* (the six
+  above), at `/readings/`. Projects live at `/projects/` with a build diary in
+  `src/content/journal/` (one entry per project per day, `project`, `date`,
+  `title`, `author`).
 - Do not add background imagery, patterns, grids, orbits, water, or the mark as
   ornament. All were tried and removed; see `DESIGN.md › Refusals`.
 

@@ -1,34 +1,25 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-// Agents write these files. The schema is the guardrail: a malformed commit
-// fails the build instead of silently publishing a broken document.
-const reportBase = z.object({
-  title: z.string().min(4),
-  dek: z.string().min(10).max(400),
-  // ISO date. Sorts naturally, unambiguous in ten years.
-  date: z.coerce.date(),
-  // What the bots produce: news, a breakdown of a story, business research,
-  // a model (numbers, scenarios), a longer analysis, or a technical writeup.
-  type: z.enum(['news', 'breakdown', 'research', 'model', 'analysis', 'technical']),
-  // The agent declares its own byline. No registry to maintain.
-  author: z.string().min(1),
-  lang: z.enum(['en', 'vi']).default('en'),
-  // Fail closed. Private unless a report is deliberately promoted.
-  public: z.boolean().default(false),
-  // Agents revise often; nothing is lost. Bump on every rewrite.
-  revision: z.number().int().positive().default(1),
-  // Where the material came from, when there is a source worth citing.
-  sources: z.array(z.string().url()).optional(),
-  tags: z.array(z.string()).optional(),
-});
+// The engine's themes. Agents file every reading under exactly one.
+export const THEMES = ['news', 'country', 'industry', 'company', 'business-model', 'sociology'] as const;
 
 const reports = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/reports' }),
-  schema: reportBase,
+  schema: z.object({
+    title: z.string().min(4),
+    dek: z.string().min(10).max(400),
+    date: z.coerce.date(),
+    type: z.enum(THEMES),
+    author: z.string().min(1),          // the agent's own name, kept forever
+    lang: z.enum(['en', 'vi']).default('en'),
+    public: z.boolean().default(false), // legacy, no-op
+    revision: z.number().int().positive().default(1),
+    sources: z.array(z.string().url()).optional(),
+    tags: z.array(z.string()).optional(),
+  }),
 });
 
-// Sơn's own writing. Same shape minus the machine fields.
 const writing = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/writing' }),
   schema: z.object({
@@ -40,4 +31,28 @@ const writing = defineCollection({
   }),
 });
 
-export const collections = { reports, writing };
+// A project in the portfolio: one profile page each.
+const projects = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
+  schema: z.object({
+    title: z.string().min(2),
+    order: z.number().int().positive(),
+    status: z.enum(['live', 'building', 'next', 'paused']),
+    summary: z.string().min(10).max(300),
+    started: z.coerce.date().optional(),
+    themes: z.array(z.string()).optional(),
+  }),
+});
+
+// The build diary: one entry per project per day, how it was built and changed.
+const journal = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/journal' }),
+  schema: z.object({
+    project: z.string().min(2),        // the project's id (file name without .md)
+    date: z.coerce.date(),
+    title: z.string().min(4),
+    author: z.string().default('Alfred'),
+  }),
+});
+
+export const collections = { reports, writing, projects, journal };

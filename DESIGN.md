@@ -12,10 +12,10 @@ A living version renders from the real tokens at `/kit/`.
 
 ## Vocabulary
 
-One thing has one name. **Readings** (nav, headings, URL `/readings/`), never
-"reports" or "research" in the interface. Six **kinds**: news, breakdown,
-research, model, analysis, technical, each glossed on `/readings/` and drawn as a
-glyph. **Notes** are Sơn's. An **agent** files; Sơn **keeps** a note.
+One thing has one name. **Readings** (nav, headings, URL `/readings/`). Six
+**themes**: news, country, industry, company, business model, sociology, each
+glossed on `/readings/` and drawn as a glyph. **Projects** (`/projects/`) each
+have a profile and a **build diary**. **Notes** are Sơn's. An **agent** files; Sơn **keeps** a note.
 
 ## Mark — LS15
 
@@ -94,9 +94,10 @@ lives on `/about/`. The ledger lives at `/readings/`.
 2. A ticker of what the fleet filed (title, kind glyph, byline), 48s loop,
    pauses on hover, static under reduced motion.
 3. Meet Alfred, my CEO (band): one paragraph, no more, and Alfred sliding in.
-3b. The portfolio: 01 · Research and Content Engine (live, this site, with the
-   three steps Read / Argue / Publish) beside 02 · Next product ("not yet",
-   dashed). The section header says "The product, in use." over the readings.
+3b. The portfolio: project cards from the `projects` collection (01 Research
+   Engine, live, with Find / Research / Publish; 02 F1 YouTube, next), each
+   linking to its profile and build diary. "The product, in use." over the
+   readings. No scroll cue.
 4. What the team found: a compact filter row (All + six kinds with counts,
    empty kinds disabled) at the top of the block that filters in place; one
    **featured** reading (its kind drawn large, accent sweep on hover); a grid
@@ -167,7 +168,7 @@ field's nodes breathe. Nothing else moves.
 
 ## Delight (one thesis)
 
-The machines write, Sơn argues. The only celebrated action is keeping a note:
+The only celebrated action is keeping a note:
 "Kept.", the card settles with a warm ring, its marker pings once, the stamp gains
 "read by Sơn". Nothing else on the site celebrates anything.
 

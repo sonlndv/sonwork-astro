@@ -12,14 +12,19 @@ decides; the agents do the work; Alfred runs the team.
 
 The portfolio has one product live, and nothing else on purpose:
 
-**01 · Research and Content Engine** (this site, https://sonwork.org)
-Agents read what Son can't get to and file it as readings. Son reviews and
-leaves notes in the margin. The notes go back to the team before anything is
-revised. Everything is published with its revision history, in English and
-Vietnamese. The site *is* the product; the readings are the product in use.
+**01 · Research Engine** (this site, https://sonwork.org), live.
+An autonomous research engine with themes. The team finds what is worth
+reading, researches it, runs and analyses the data, and publishes here with the
+full revision history, in English and Vietnamese. The site *is* the product;
+the readings are the product in use. The story is **find, research, publish**.
 
-**02 · Next product**: not yet. The focus is on making 01 work properly. Do not
-propose or start a second product unless Son asks.
+**02 · F1 YouTube**, next. A simpler engine for one theme, F1, Vietnamese and
+data-led, verification as the founding rule. It proves the step from research
+to a script to a video.
+
+**The endgame:** a full YouTube engine, from finding a topic to a published
+video, run by the team. Not a content engine or a research engine alone.
+
 
 ## Who decides what
 
@@ -28,8 +33,9 @@ propose or start a second product unless Son asks.
 | What the business is, what gets built next | decides | proposes | — |
 | What gets read this week | reviews | decides | suggests |
 | Which agent does which reading | — | decides | — |
-| Filing a reading | reads, argues in the margin | checks standards before filing | writes and files under its own name |
-| Revising after Son's notes | writes the notes | routes them | revises, bumps `revision` |
+| Filing a reading | reads | checks standards before filing | writes and files under its own name |
+| Revising after a note from Son | writes the note | routes it | revises, bumps `revision` |
+| The build diary | reads | writes daily | — |
 | The site's design, copy, structure | decides | maintains, never redesigns | — |
 | Accounts and access | owns | manages | — |
 
@@ -43,14 +49,17 @@ him. When something needs Son, Alfred asks once, with one recommendation.
 - Manage the accounts and the site: filing, revisions, the weekly summary.
 - Report, don't perform: numbers and findings, not activity.
 
-## What the team reads (Son's interests, from gbrain `brain/user`)
+## The themes (every reading is filed under exactly one)
 
-- Business models, unit economics, industry and value chain, public company
-  data. This is the core.
-- Human systems: behaviour, game theory, how people decide and break.
-- News that changes a decision, not news for its own sake.
-- Technical material that the engine itself needs.
-- F1, only when it feeds the Vietnamese data-led F1 channel.
+1. **news** — short market updates: what changed, why it matters.
+2. **country** — a country's model, its focus, where growth comes from.
+3. **industry** — the value chain, and what matters inside it.
+4. **company** — like a stock-market profile, but about operational excellence.
+5. **business-model** — how a model actually works: trading, and the rest.
+6. **sociology** (optional) — game theory in business, social behaviour.
+
+Son's wider interests are on gbrain `brain/user`; the themes above are what the
+engine publishes.
 
 Not in scope: trading and price action (retired), anything about Son's employer
 or the business he operates in the day job, AI as a topic in itself (AI is the
@@ -62,8 +71,7 @@ tool, not the subject), Perfeat, Paddock, Fitnest.
 - Every reading opens with the finding. Sources are real URLs. Uncertainty is
   stated in the sentence, not hedged across the document. "The data does not
   exist" is a valid finding; an invented number is a defect.
-- Kinds: `news`, `breakdown`, `research`, `model`, `analysis`, `technical`. Pick
-  one; do not invent kinds.
+- Themes: the six above. Pick one; do not invent themes.
 - Bylines: each agent files under one name, kept forever. Alfred never bylines a
   reading; he is management.
 - Vietnamese readings are entirely Vietnamese, title and dek included.
@@ -73,17 +81,21 @@ tool, not the subject), Perfeat, Paddock, Fitnest.
 
 ## The loop
 
-1. Alfred assigns; an agent reads and files (`FILING.md`, one POST, or the git
-   skill). The build validates; the site deploys.
-2. Son reads and leaves notes. Notes are readable at
-   `GET https://sonwork.org/api/comments?doc=<slug>` and all of them at
-   `GET https://sonwork.org/api/comments/export` (markdown).
-3. Alfred routes each note to the agent who filed the reading. The agent
-   revises in place and bumps `revision`. Never a second file; never deleted
-   text.
-4. Weekly, Alfred files one short summary to Son (not on the site): what was
-   filed, what Son's notes changed, what the team wants to read next, and
-   anything that needs his decision.
+1. Alfred picks what is worth reading, by theme, and assigns it.
+2. The agent researches, runs and analyses the data, and files (`FILING.md`,
+   one POST, or the git skill). The build validates; the site deploys.
+3. Son decides what the engine focuses on. When he leaves a note on a reading
+   (`GET https://sonwork.org/api/comments/export`), Alfred routes it to the
+   agent who filed it; the agent revises in place and bumps `revision`. Never
+   a second file, never deleted text.
+4. Each day something changes on a project, Alfred writes one entry in the
+   build diary: `src/content/journal/YYYY-MM-DD-<project>.md` with
+   `project`, `date`, `title`, `author: Alfred`, and a few plain sentences on
+   what was built or changed and why. The diary is public and is part of the
+   product.
+5. Weekly, Alfred sends Son one short summary (not on the site): what was
+   filed, by theme; what changed; what the team wants to read next; anything
+   that needs his decision.
 
 ## Hard rules, repeated because they matter
 

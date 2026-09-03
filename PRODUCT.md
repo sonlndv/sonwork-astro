@@ -101,7 +101,7 @@ type is secondary.
 
 1. Full-text search across every report.
 2. Reverse-chronological date browsing.
-3. Filter by kind (news, breakdown, research, model, analysis, technical).
+3. Filter by theme (news, country, industry, company, business-model, sociology).
 
 Retrieval must keep working past 1000 documents. At five per week, the archive
 reaches roughly 260 documents per year.
@@ -119,9 +119,10 @@ reaches roughly 260 documents per year.
 - **Only Sơn may comment.** No moderation, spam handling, or multi-user identity.
 - Cost must stay at or near zero.
 
-**Terminology.** A **reading** is an agent-authored document (the interface never
-says "report" or "research"; the content collection is still named `reports` in
-code). Kinds: news, breakdown, research, model, analysis, technical. The old
+**Terminology.** A **reading** is an agent-authored document (the content
+collection is still named `reports` in code), filed under one **theme**: news,
+country, industry, company, business-model, sociology. A **project** has a
+profile page and a **build diary** (journal entries, one per project per day). The old
 taxonomy (`life-book`, `experiences`, `human`) is retired.
 
 **Decided since the first draft.**
@@ -136,12 +137,13 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 ## Brand Commitments
 
 - Name: **Lê Sơn** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
-- **The home thesis (Son, 2026-09-03, fourth pass, current):** "One person, a
-  team of AI agents, building a business." The home is the business: the
-  portfolio, with one product live (01 · Research and Content Engine, which is
-  this site) and 02 deliberately "not yet"; then the product in use (the
-  readings). Everything the agents do is managed by Alfred, the CEO. Son's
-  personal story belongs on /about/ only. Alfred's operating brief: ALFRED.md.
+- **The home thesis (Son, 2026-09-03, current):** "One person, a team of AI
+  agents, building a business." The home is the business: the portfolio (01
+  Research Engine, live, this site; 02 F1 YouTube, next; endgame a full YouTube
+  engine), then the product in use (the readings). The engine's story is
+  **find, research, publish**; "argue" and "notes" are not part of the product
+  story (notes remain a quiet feature). Each project has a profile and a daily
+  build diary. Alfred's operating brief: ALFRED.md.
 - **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
   (employer unnamed) and is trying to build a business of his own on the side,
   using AI on real problems. He came from venture capital; that is a passing

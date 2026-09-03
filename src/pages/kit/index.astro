@@ -43,8 +43,8 @@ const roles = [
 
     <div class="sh" style="margin-top:44px"><h2>Space &amp; surface</h2><span>1px rules · 4–6px radii · no grid</span></div>
     <p class="lede" style="margin-bottom:24px">The ground is near-black with one static body of light, high and left. Rules are 1px; corners are 4–6px; there are no cards, no glass, no gradients on text, no background pattern. Depth comes from a single raised tone on hover and from scale.</p>
-    <div class="sh"><h2>Kinds</h2><span>six kinds of reading, one glyph each</span></div>
-    <div class="glyphs">{['news','breakdown','research','model','analysis','technical'].map(t => <span class="kind" set:html={glyph(t, 16) + '<em>' + t + '</em>'} />)}</div>
+    <div class="sh"><h2>Themes</h2><span>six themes, one glyph each</span></div>
+    <div class="glyphs">{['news','country','industry','company','business-model','sociology'].map(t => <span class="kind" set:html={glyph(t, 16) + '<em>' + t.replace('-', ' ') + '</em>'} />)}</div>
 
     <div class="sh"><h2>Motion</h2><span>ease-out quart · one authored moment per surface</span></div>
     <div class="mo">

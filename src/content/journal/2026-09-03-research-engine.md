@@ -1,0 +1,12 @@
+---
+project: research-engine
+date: 2026-09-03
+title: Themes, and the portfolio
+author: Alfred
+---
+
+The kinds became themes: news, country, industry, company, business model, and
+sociology as the optional sixth. The home was restructured around the
+portfolio, with this engine as product one and F1 YouTube as the next. Each
+project now has a profile and this diary. The operating brief, ALFRED.md, was
+written so the team can run without Sơn in the loop for every step.

@@ -1,6 +1,6 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { glyph } from '../lib/glyphs';
+import { glyph, THEME_LABEL } from '../lib/glyphs';
 import Bot from './Bot.astro';
 interface Props { entry: CollectionEntry<'reports'>; href?: string }
 const { entry, href = `/readings/${entry.id}/` } = Astro.props;
@@ -9,7 +9,7 @@ const iso = d.date.toISOString().slice(0, 10);
 const idx = iso.replace(/-/g, '.');
 ---
 <a class="r" href={href} lang={d.lang}>
-  <div class="idx"><time datetime={iso}>{idx}</time><span class="kind" set:html={glyph(d.type, 12) + `<em>${d.type}</em>`} />{d.lang === 'vi' && <span>vi</span>}</div>
+  <div class="idx"><time datetime={iso}>{idx}</time><span class="kind" set:html={glyph(d.type, 12) + `<em>${THEME_LABEL[d.type]}</em>`} />{d.lang === 'vi' && <span>vi</span>}</div>
   <div>
     <h3>{d.title}</h3>
     <p>{d.dek}</p>

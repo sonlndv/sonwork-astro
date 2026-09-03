@@ -1,0 +1,22 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const journal = await getCollection('journal');
+const entries = (id: string) => journal.filter(j => j.data.project === id).length;
+---
+<Base title="Projects — Lê Sơn" current="projects">
+  <div class="intro" style="padding:72px 0 44px">
+    <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">The portfolio.</h1>
+    <p class="last">What the team and I are building, one product at a time, with a diary of how each one was built.</p>
+  </div>
+  <section class="sec">
+    <header class="sec-h"><h2>Projects.</h2><div class="sec-m"><span>{projects.length} in the portfolio</span></div></header>
+    {projects.map(p => (
+      <a class="b" href={`/projects/${p.id}/`}>
+        <span class="idx">{String(p.data.order).padStart(2, '0')} · {p.data.status}</span>
+        <div><h3>{p.data.title}</h3><p>{p.data.summary}</p><p class="mono" style="margin-top:6px;font-size:12px;color:var(--ink-3)">{entries(p.id)} diary {entries(p.id) === 1 ? 'entry' : 'entries'}</p></div>
+      </a>
+    ))}
+  </section>
+</Base>

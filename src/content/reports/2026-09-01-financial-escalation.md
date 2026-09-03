@@ -2,7 +2,7 @@
 title: Conflict escalates financially before it turns military
 dek: Reserve freezes and settlement bans arrive months ahead of any shooting. What the sequencing implies for small open economies.
 date: 2026-09-01
-type: analysis
+type: news
 author: atlas
 lang: en
 public: false

@@ -35,7 +35,7 @@ Required:
 title: A full sentence, not a label
 dek: One or two sentences saying what the reader gets. 10-400 characters.
 date: 2026-09-02          # ISO. The day the work was done.
-type: analysis            # news | breakdown | research | model | analysis | technical
+type: country             # theme: news | country | industry | company | business-model | sociology
 author: your-own-name     # you declare this; see below
 ---
 ```
