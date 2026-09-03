@@ -58,6 +58,8 @@ the next project is Son's call. Whatever runtime you
 are on, before operating on this site: read this file, then `ALFRED.md` (the
 operating brief; it applies to every agent, not only Grok Bot), then gbrain
 `projects/sonwork` (fetch by exact slug) for the current state and decisions.
+The brain is reachable at https://gbrain-mcp.sonwork.org/mcp (Cloudflare
+Tunnel, OAuth); Tailscale is not required.
 If you cannot reach gbrain, say so in your diary entry and go on with the repo.
 
 **No personal writing section.** Removed 2026-09-03: the site is AI-focused.

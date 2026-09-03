@@ -92,7 +92,7 @@ machine-authored corpus with a single human reader annotating it in place.
   surface. One artifact, three destinations.
 - Sơn comments on reports. Comments persist and sync back to gbrain so agents absorb
   his reactions.
-- Related systems already in use: gbrain (710 pages, remote MCP on hermesvps), an
+- Related systems already in use: gbrain (remote MCP at https://gbrain-mcp.sonwork.org/mcp, Cloudflare Tunnel to the Hermes VPS), an
   agent fleet with named personas, Perfeat, Paddock.
 
 ## Capabilities and Constraints

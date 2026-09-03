@@ -6,7 +6,10 @@
 //   node scripts/sync-gbrain.mjs --dry-run   # show what would be sent
 //   node scripts/sync-gbrain.mjs --notes notes.md   # also push a notes export
 //
-// Auth: GBRAIN_URL + GBRAIN_TOKEN env, or the gbrain entry in ~/.claude.json.
+// Auth: GBRAIN_URL + GBRAIN_TOKEN env (a bearer issued by the gbrain CLI on the
+// VPS), or a gbrain entry in ~/.claude.json that still carries a static header.
+// The public endpoint https://gbrain-mcp.sonwork.org/mcp uses OAuth; static
+// tokens come from the gbrain admin, not from dynamic registration.
 // Slug convention: shared/projects/sonwork/reports/<file-slug>
 
 import { readFile, readdir } from 'node:fs/promises';
