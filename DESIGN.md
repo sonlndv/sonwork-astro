@@ -172,6 +172,10 @@ as air. No other heading device exists.
 
 ## Motion
 
+- The home snaps section to section on desktop (CSS scroll-snap, mandatory,
+  scroll-padding equal to the header), so every stop lands with the section
+  rule just under the header. Off on phones and under reduced motion.
+
 Exponential ease-out, transform and opacity first, one authored moment per
 surface, everything visible without it, all off under `prefers-reduced-motion`.
 Hero lines land in sequence; counters ease to their value; rows arrive on entry

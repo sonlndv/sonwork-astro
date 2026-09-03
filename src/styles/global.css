@@ -730,3 +730,11 @@ body::before{z-index:-2}
   .open-h{font-size:clamp(28px,9vw,44px)}
   .open-stats{flex-direction:column;gap:10px}
 }
+
+/* the home scrolls section to section on a desktop: each section settles with
+   its rule just under the header, so every stop lands on the same line */
+@media (min-width:901px) and (prefers-reduced-motion:no-preference){
+  html[data-snap]{scroll-snap-type:y mandatory;scroll-padding-top:62px}
+  html[data-snap] .open,html[data-snap] .sec{scroll-snap-align:start}
+  html[data-snap] footer{scroll-snap-align:end}
+}

@@ -4,9 +4,9 @@ import { ClientRouter } from 'astro:transitions';
 import Mark from '../components/Mark.astro';
 interface Props {
   title: string; description?: string; current?: string;
-  lang?: 'en' | 'vi'; indexable?: boolean;
+  lang?: 'en' | 'vi'; indexable?: boolean; snap?: boolean;
 }
-const { title, description, current, lang = 'en', indexable = true } = Astro.props;
+const { title, description, current, lang = 'en', indexable = true, snap = false } = Astro.props;
 const nav = [
   { href: '/readings/', label: 'Readings', key: 'readings' },
   { href: '/projects/', label: 'Projects', key: 'projects' },
@@ -14,7 +14,7 @@ const nav = [
 ];
 ---
 <!doctype html>
-<html lang={lang} style="background:#0b1524">
+<html lang={lang} data-snap={snap ? "" : undefined} style="background:#0b1524">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
