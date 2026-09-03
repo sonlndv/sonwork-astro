@@ -73,7 +73,7 @@ Sơn's own writing on hover. Nowhere else.
 
 ## Typography
 
-- **Instrument Serif italic** for exactly one word in the opening headline.
+- No serif. The emphasised words in the opening headline stay in Sora and take the cool colour.
 - **Sora** for every other word. Hero 500 at `clamp(44px, 7.2vw, 96px)`, tracking
   −0.045em, line-height 1, second line muted. Chapter statements 300 at
   `clamp(28px, 3.6vw, 46px)`, −0.035em, one muted span. Titles 500, −0.025em.
@@ -99,8 +99,7 @@ lives on `/about/`. The ledger lives at `/readings/`.
 
 1. The opening is one composed frame, bottom-anchored: LS15, a small badge
    ("Sonar is live · Alfred runs the team"), the statement in three masked
-   lines with one italic serif word (Instrument Serif, the only serif on the
-   site), one paragraph, two actions, and a stats row pinned at the bottom
+   lines with "AI agents," in the cool colour, one paragraph, two actions, and a stats row pinned at the bottom
    (agents, readings, this week, each with its icon). Every element has its
    own delay; a rest state of opacity 1 plus an animationend handler and a rAF
    fallback mean nothing can stay hidden. Height-aware breakpoints keep the
