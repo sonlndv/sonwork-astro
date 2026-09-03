@@ -6,8 +6,7 @@ import { glyph } from '../lib/glyphs';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const [featured, ...rest] = reports;
-const grid = rest.slice(0, 4);
+const shown = reports.slice(0, 7);
 const writing = (await getCollection('writing')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 4);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
@@ -17,19 +16,19 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' }).format(d);
 const ticker = reports.slice(0, 8);
 ---
-<Base title="Son Lê" description="Son Lê has a day job, is building something of his own, and keeps a fleet of research agents reading for him.">
+<Base title="Son Lê" description="A business being built with a team of AI agents. Their readings, his notes.">
 
   <div class="open">
     <div class="open-mark"><Mark size={96} label={false} /></div>
     <h1 class="open-h">
-      <span class="ln">My research agents</span>
-      <span class="ln"><em>read.</em></span>
-      <span class="ln dim">I argue in the margin.</span>
+      <span class="ln">I'm building a business</span>
+      <span class="ln">with a team of <em>AI agents.</em></span>
+      <span class="ln dim">This is their work, and my notes on it.</span>
     </h1>
-    <p class="open-p">I'm Son Lê. I have a full-time job and I'm trying to build a business of my own. A fleet of agents reads what I can't get to; what they file lands here, in English and Vietnamese.</p>
+    <p class="open-p">Alfred, my Chief Everything Officer, runs the team on Grok Bot and manages everything on this site. The agents read, research and file. I read what they file and argue in the margin.</p>
     <div class="open-row">
       <a class="btn" href="/readings/">The readings</a>
-      <a class="lnk" href="/about/">About me</a>
+      <a class="lnk" href="#fleet">Meet Alfred</a>
       <span class="tally num"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</span>
     </div>
     <div class="open-cue" aria-hidden="true"><i></i></div>
@@ -42,55 +41,46 @@ const ticker = reports.slice(0, 8);
   )}
 
   <section class="sec band" id="fleet">
-    <header class="sec-h"><h2>Alfred <span>runs the fleet.</span></h2><div class="sec-m"><span>the fleet</span></div></header>
+    <header class="sec-h"><h2>Meet Alfred, <span>my CEO.</span></h2><div class="sec-m"><span>Chief Everything Officer</span></div></header>
     <div class="method">
-      <div class="prose">
-        <p>Alfred is my Chief Everything Officer. He decides what gets read, hands the work to his agents, and files what comes back as readings. Each agent signs its own name. Every reading keeps its full revision history.</p>
-        <p>I read what they file, usually at night, and leave notes in the margin. Alfred reads the notes back to the fleet before anyone revises.</p>
-      </div>
-      <figure class="method-fig"><Bot size={104} title="Alfred" /><figcaption>Alfred · runs the fleet</figcaption></figure>
+      <div class="prose"><p>He runs the agent team on Grok Bot: decides what gets read, hands out the work, keeps the standards, and manages everything on this system. Each agent signs its own name. Every reading keeps its revision history, and my notes go back to the team before anything is revised.</p></div>
+      <figure class="method-fig"><Bot size={88} title="Alfred" /><figcaption>Alfred · CEO</figcaption></figure>
     </div>
   </section>
 
   <section class="sec" id="readings">
-    <header class="sec-h"><h2>What they <span>found.</span></h2><div class="sec-m"><span>{reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
+    <header class="sec-h"><h2>What the team <span>found.</span></h2><div class="sec-m"><span>{reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
 
-    {featured ? (
-      <a class="feat tilt" href={`/readings/${featured.id}/`} lang={featured.data.lang}>
-        <div class="feat-body">
-          <div class="feat-kind kind" set:html={glyph(featured.data.type, 13) + `<em>${featured.data.type}</em>`} />
-          <h3>{featured.data.title}</h3>
-          <p>{featured.data.dek}</p>
-          <div class="meta"><span class="by"><Bot size={8} /> {featured.data.author}</span><span class="sep"></span><time datetime={iso(featured.data.date)}>{when(featured.data.date, featured.data.lang)}</time>{featured.data.revision > 1 && <><span class="sep"></span><span class="num">rev {featured.data.revision}</span></>}<span class="feat-go">Read →</span></div>
-        </div>
-        <div class="feat-art" aria-hidden="true" set:html={glyph(featured.data.type, 220)} />
-      </a>
+    <div class="pills" role="group" aria-label="Filter by kind">
+      <button type="button" data-k="" aria-pressed="true">All <span>{reports.length}</span></button>
+      {kinds.map(k => <button type="button" data-k={k} aria-pressed="false" disabled={count(k) === 0}><i set:html={glyph(k, 11)} />{k} <span>{count(k)}</span></button>)}
+    </div>
+
+    {shown.length === 0 ? (
+      <div class="empty-bot"><Bot size={30} title="Alfred, waiting" /><p class="empty">Nothing filed yet. Alfred has the team reading.</p></div>
     ) : (
-      <div class="empty-bot"><Bot size={30} title="Alfred, waiting" /><p class="empty">Nothing filed yet. Alfred has the fleet reading.</p></div>
-    )}
-
-    {grid.length > 0 && (
-      <div class="cards">
-        {grid.map((r, i) => (
-          <a class="card tilt stagger" style={`--i:${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
+      <div class="found">
+        {shown.map((r, i) => i === 0 ? (
+          <a class="feat tilt" data-k={r.data.type} href={`/readings/${r.id}/`} lang={r.data.lang}>
+            <div class="feat-body">
+              <div class="feat-kind kind" set:html={glyph(r.data.type, 13) + `<em>${r.data.type}</em>`} />
+              <h3>{r.data.title}</h3>
+              <p>{r.data.dek}</p>
+              <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span><span class="sep"></span><time datetime={iso(r.data.date)}>{when(r.data.date, r.data.lang)}</time>{r.data.revision > 1 && <><span class="sep"></span><span class="num">rev {r.data.revision}</span></>}<span class="feat-go">Read →</span></div>
+            </div>
+            <div class="feat-art" aria-hidden="true" set:html={glyph(r.data.type, 220)} />
+          </a>
+        ) : (
+          <a class="card tilt stagger" data-k={r.data.type} style={`--i:${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
             <div class="card-top"><span class="kind" set:html={glyph(r.data.type, 12) + `<em>${r.data.type}</em>`} /><time datetime={iso(r.data.date)}>{iso(r.data.date).replace(/-/g, '.')}</time></div>
             <h3>{r.data.title}</h3>
             <p>{r.data.dek}</p>
             <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span>{r.data.lang === 'vi' && <><span class="sep"></span><span>vi</span></>}</div>
           </a>
         ))}
+        <p class="empty none" hidden>Nothing of that kind yet.</p>
       </div>
     )}
-
-    <div class="kinds">
-      {kinds.map((k, i) => (
-        <a class="kind-tile stagger" style={`--i:${i}`} href={`/readings/?type=${k}`}>
-          <span class="kind-ico" set:html={glyph(k, 22)} />
-          <b>{k}</b>
-          <span class="num">{count(k)}</span>
-        </a>
-      ))}
-    </div>
   </section>
 
   {writing.length > 0 && (
@@ -104,4 +94,20 @@ const ticker = reports.slice(0, 8);
       ))}
     </section>
   )}
+
+  <script>
+    function bootPills() {
+      const box = document.querySelector<HTMLElement>('.pills'); if (!box || box.dataset.booted) return; box.dataset.booted = '1';
+      const items = [...document.querySelectorAll<HTMLElement>('.found [data-k]')];
+      const none = document.querySelector<HTMLElement>('.found .none');
+      box.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest('button'); if (!b || b.disabled) return;
+        box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        const k = b.dataset.k || ''; let n = 0;
+        items.forEach(el => { const on = !k || el.dataset.k === k; el.hidden = !on; if (on) n++; });
+        if (none) none.hidden = n > 0;
+      });
+    }
+    document.addEventListener('astro:page-load', bootPills);
+  </script>
 </Base>

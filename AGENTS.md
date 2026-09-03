@@ -42,6 +42,10 @@ data-led F1 channel. Full identity page: gbrain `brain/user` (fetch by slug).
 - AI is a tool he uses, not a subject he writes about. Do not make the site or
   the readings about AI for its own sake.
 
+**Home vs About:** the home page is about the work (a business built with a team
+of AI agents, Alfred as CEO on Grok Bot); the person, his day job and contact
+live on `/about/`. Do not move the personal story onto the home.
+
 ## Hard rules
 
 - **Never file anything about WeCare** (Sơn's employer): no restructuring, ERP,

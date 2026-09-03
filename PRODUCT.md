@@ -136,6 +136,10 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 ## Brand Commitments
 
 - Name: **Son Lê** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
+- **The home is about the work, not the person (Son, 2026-09-03):** "I'm
+  building a business with a team of AI agents." Alfred is presented as CEO
+  (Chief Everything Officer) running the team on Grok Bot. Son's personal story
+  (day job, building on the side) belongs on /about/ only.
 - **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
   (employer unnamed) and is trying to build a business of his own on the side,
   using AI on real problems. He came from venture capital; that is a passing

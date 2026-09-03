@@ -84,18 +84,20 @@ are no cards, no glass, no gradient text. A row lifts to `--raise` on hover.
 
 ## Structure of the home
 
-The home is an **opening**, a company-profile arc, decided by Son on 2026-09-03
-(reversing the earlier ledger-first home). The ledger lives at `/readings/`.
+The home is the **profile of the work**, not of the person (Son, 2026-09-03):
+a business being built with a team of AI agents, run by Alfred. Son's own story
+lives on `/about/`. The ledger lives at `/readings/`.
 
-1. The opening: LS15 at 96px, the statement at up to 112px, one paragraph, two
-   actions, the tally, a cue. Choreographed once on load from a visible base.
+1. The opening: LS15, "I'm building a business with a team of AI agents. This is
+   their work, and my notes on it.", one paragraph naming Alfred as CEO on Grok
+   Bot, two actions, the tally, a cue. Choreographed once on load.
 2. A ticker of what the fleet filed (title, kind glyph, byline), 48s loop,
    pauses on hover, static under reduced motion.
-3. Alfred runs the fleet (band): the paragraph and Alfred sliding in.
-4. What they found: one **featured** reading (its kind drawn large as the
-   visual, an accent sweep on hover), a two-column grid of the next four that
-   tilts toward the cursor, then a strip of the six kinds with counts that
-   links to the filtered index.
+3. Meet Alfred, my CEO (band): one paragraph, no more, and Alfred sliding in.
+4. What the team found: a compact filter row (All + six kinds with counts,
+   empty kinds disabled) at the top of the block that filters in place; one
+   **featured** reading (its kind drawn large, accent sweep on hover); a grid
+   of the rest that tilts toward the cursor.
 5. Mine, not theirs (band): writing.
 
 `/about/` is short: the day-job statement, one paragraph, contact.
