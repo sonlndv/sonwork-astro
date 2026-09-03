@@ -29,7 +29,7 @@ then this file. Do not contradict either; update them when a durable fact change
 
 ## Who Son is (public version)
 
-Son Lê has a full-time job as an operator (employer unnamed) and is trying to
+Lê Sơn has a full-time job as an operator (employer unnamed) and is trying to
 build a business of his own on the side, using AI on real problems. He came
 from venture capital; passing clause, never a headline. **Keep the tone
 humble:** "trying to build", "still learning". Never say he runs a business. He studies business models,

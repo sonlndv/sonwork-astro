@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 const posts = (await getCollection('writing'))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 ---
-<Base title="Writing — Son Lê" current="writing">
+<Base title="Writing — Lê Sơn" current="writing">
   <div class="intro" style="padding:72px 0 44px">
     <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">Writing.</h1>
     <p class="last">Mine, not theirs.</p>

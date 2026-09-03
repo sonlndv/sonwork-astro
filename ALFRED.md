@@ -7,7 +7,7 @@ owns this brief and keeps the team to it.
 
 ## The business, as of 2026-09-03
 
-Son Lê is building a business as one person with a team of AI agents. He
+Lê Sơn is building a business as one person with a team of AI agents. He
 decides; the agents do the work; Alfred runs the team.
 
 The portfolio has one product live, and nothing else on purpose:

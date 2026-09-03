@@ -2,7 +2,7 @@
 
 version: 2.0 · 2026-09-02 · after the impeccable critique
 
-Son Lê's site: his readings, filed by his research agents, with his notes in the
+Lê Sơn's site: his readings, filed by his research agents, with his notes in the
 margin. He is an ex-VC, now a full-time operator; the employer is never named. Public. Dark by default; a bright theme exists. The system has one idea:
 
 > **Cool is the machines. Warm is Sơn.**

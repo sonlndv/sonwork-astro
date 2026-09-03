@@ -45,7 +45,7 @@ would need migrating.
 
 ## Users
 
-**Primary user: Son Lê, reading alone.** He is the sole reader for the foreseeable
+**Primary user: Lê Sơn, reading alone.** He is the sole reader for the foreseeable
 future, and the sole commenter. The daily job is reading what his agent fleet
 produced since he last looked, and finding a specific document again months later.
 
@@ -55,7 +55,7 @@ onboarding, or persuasion job exists on this site.
 
 ## Product Purpose
 
-sonwork.org is Son Lê's site and the durable home for the readings his agent
+sonwork.org is Lê Sơn's site and the durable home for the readings his agent
 fleet files. What he studies and reads about: business-model economics,
 companies and unit economics, human systems (behaviour, game theory, decisions),
 plus news and technical material. AI is his tool, never the subject.
@@ -135,7 +135,7 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 
 ## Brand Commitments
 
-- Name: **Son Lê** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
+- Name: **Lê Sơn** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
 - **The home thesis (Son, 2026-09-03, fourth pass, current):** "One person, a
   team of AI agents, building a business." The home is the business: the
   portfolio, with one product live (01 · Research and Content Engine, which is
