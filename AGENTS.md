@@ -47,8 +47,8 @@ Grok Bot agents. It says what the business is, who decides what, the cadence,
 the standards, and the review loop.
 
 **Home vs About:** the home is the business: one person and a team of AI agents,
-managed by Alfred (CEO). The portfolio: 01 Research Engine (live, this site),
-02 F1 YouTube (next); the endgame is a full YouTube engine. The readings are
+managed by Alfred (CEO). The portfolio: 01 Sonar, the research engine (live, this
+site, `/projects/sonar/`), 02 F1 YouTube (next); the endgame is a full YouTube engine. The readings are
 the product in use. The story is find, research, publish; do not write "argue"
 or "notes" into the product story (notes exist as a quiet feature). The person,
 his day job and contact live on `/about/`.

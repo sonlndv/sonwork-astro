@@ -2,23 +2,18 @@
 import Base from '../layouts/Base.astro';
 import Mark from '../components/Mark.astro';
 import Bot from '../components/Bot.astro';
-import { glyph, THEME_LABEL } from '../lib/glyphs';
-import { THEMES } from '../content.config';
+import Found from '../components/Found.astro';
+import { glyph } from '../lib/glyphs';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const shown = reports.slice(0, 7);
 const writing = (await getCollection('writing')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()).slice(0, 4);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
-const kinds = [...THEMES];
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-const count = (k: string) => reports.filter(r => r.data.type === k).length;
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' }).format(d);
 const ticker = reports.slice(0, 8);
 ---
-<Base title="Lê Sơn" description="One person building a business with a team of AI agents, managed by Alfred, the CEO. Product one: an autonomous research engine. This is it, in use.">
+<Base title="Lê Sơn" description="One person building a business with a team of AI agents, managed by Alfred, the CEO. Product one: Sonar, the research engine. This is what it found.">
 
   <div class="open">
     <div class="open-mark"><Mark size={96} label={false} /></div>
@@ -55,7 +50,7 @@ const ticker = reports.slice(0, 8);
       {projects.map(p => (
         <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live' }]} href={`/projects/${p.id}/`}>
           <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}</span><span class:list={['port-status', { dim: p.data.status !== 'live' }]}>{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
-          <h3>{p.data.title}</h3>
+          <h3>{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3>
           <p>{p.data.summary}</p>
           {p.data.status === 'live' && (
             <div class="steps">
@@ -71,38 +66,8 @@ const ticker = reports.slice(0, 8);
   </section>
 
   <section class="sec" id="readings">
-    <header class="sec-h"><h2>The product, <span>in use.</span></h2><div class="sec-m"><span>what the team found · {reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
-
-    <div class="pills" role="group" aria-label="Filter by kind">
-      <button type="button" data-k="" aria-pressed="true">All <span>{reports.length}</span></button>
-      {kinds.map(k => <button type="button" data-k={k} aria-pressed="false" disabled={count(k) === 0}><i set:html={glyph(k, 11)} />{THEME_LABEL[k]} <span>{count(k)}</span></button>)}
-    </div>
-
-    {shown.length === 0 ? (
-      <div class="empty-bot"><Bot size={30} title="Alfred, waiting" /><p class="empty">Nothing filed yet. Alfred has the team reading.</p></div>
-    ) : (
-      <div class="found">
-        {shown.map((r, i) => i === 0 ? (
-          <a class="feat tilt" data-k={r.data.type} href={`/readings/${r.id}/`} lang={r.data.lang}>
-            <div class="feat-body">
-              <div class="feat-kind kind" set:html={glyph(r.data.type, 13) + `<em>${THEME_LABEL[r.data.type]}</em>`} />
-              <h3>{r.data.title}</h3>
-              <p>{r.data.dek}</p>
-              <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span><span class="sep"></span><time datetime={iso(r.data.date)}>{when(r.data.date, r.data.lang)}</time>{r.data.revision > 1 && <><span class="sep"></span><span class="num">rev {r.data.revision}</span></>}<span class="feat-go">Read →</span></div>
-            </div>
-            <div class="feat-art" aria-hidden="true" set:html={glyph(r.data.type, 220)} />
-          </a>
-        ) : (
-          <a class="card tilt stagger" data-k={r.data.type} style={`--i:${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
-            <div class="card-top"><span class="kind" set:html={glyph(r.data.type, 12) + `<em>${THEME_LABEL[r.data.type]}</em>`} /><time datetime={iso(r.data.date)}>{iso(r.data.date).replace(/-/g, '.')}</time></div>
-            <h3>{r.data.title}</h3>
-            <p>{r.data.dek}</p>
-            <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span>{r.data.lang === 'vi' && <><span class="sep"></span><span>vi</span></>}</div>
-          </a>
-        ))}
-        <p class="empty none" hidden>Nothing of that kind yet.</p>
-      </div>
-    )}
+    <header class="sec-h"><h2>What Sonar <span>found.</span></h2><div class="sec-m"><span>the research engine · {reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
+    <Found reports={reports} id="found-home" />
   </section>
 
   {writing.length > 0 && (
@@ -117,19 +82,4 @@ const ticker = reports.slice(0, 8);
     </section>
   )}
 
-  <script>
-    function bootPills() {
-      const box = document.querySelector<HTMLElement>('.pills'); if (!box || box.dataset.booted) return; box.dataset.booted = '1';
-      const items = [...document.querySelectorAll<HTMLElement>('.found [data-k]')];
-      const none = document.querySelector<HTMLElement>('.found .none');
-      box.addEventListener('click', (e) => {
-        const b = (e.target as HTMLElement).closest('button'); if (!b || b.disabled) return;
-        box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-        const k = b.dataset.k || ''; let n = 0;
-        items.forEach(el => { const on = !k || el.dataset.k === k; el.hidden = !on; if (on) n++; });
-        if (none) none.hidden = n > 0;
-      });
-    }
-    document.addEventListener('astro:page-load', bootPills);
-  </script>
 </Base>

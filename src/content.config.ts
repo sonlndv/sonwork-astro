@@ -36,6 +36,7 @@ const projects = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
   schema: z.object({
     title: z.string().min(2),
+    tagline: z.string().optional(),
     order: z.number().int().positive(),
     status: z.enum(['live', 'building', 'next', 'paused']),
     summary: z.string().min(10).max(300),

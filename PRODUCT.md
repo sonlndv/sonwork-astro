@@ -139,8 +139,9 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 - Name: **Lê Sơn** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
 - **The home thesis (Son, 2026-09-03, current):** "One person, a team of AI
   agents, building a business." The home is the business: the portfolio (01
-  Research Engine, live, this site; 02 F1 YouTube, next; endgame a full YouTube
-  engine), then the product in use (the readings). The engine's story is
+  **Sonar**, the research engine, live, this site; 02 F1 YouTube, next; endgame
+  a full YouTube engine), then "What Sonar found" (the readings). Sonar's
+  profile page repeats that block. The engine's story is
   **find, research, publish**; "argue" and "notes" are not part of the product
   story (notes remain a quiet feature). Each project has a profile and a daily
   build diary. Alfred's operating brief: ALFRED.md.

@@ -1,0 +1,63 @@
+---
+// "What Sonar found": a theme filter row, one featured reading, a grid of the
+// rest. Used on the home and on Sonar's profile page.
+import type { CollectionEntry } from 'astro:content';
+import Bot from './Bot.astro';
+import { glyph, THEME_LABEL } from '../lib/glyphs';
+import { THEMES } from '../content.config';
+interface Props { reports: CollectionEntry<'reports'>[]; limit?: number; id?: string }
+const { reports, limit = 7, id = 'found' } = Astro.props;
+const shown = reports.slice(0, limit);
+const count = (k: string) => reports.filter(r => r.data.type === k).length;
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' }).format(d);
+---
+<div class="pills" role="group" aria-label="Filter by theme" data-for={id}>
+  <button type="button" data-k="" aria-pressed="true">All <span>{reports.length}</span></button>
+  {THEMES.map(k => <button type="button" data-k={k} aria-pressed="false" disabled={count(k) === 0}><i set:html={glyph(k, 11)} />{THEME_LABEL[k]} <span>{count(k)}</span></button>)}
+</div>
+
+{shown.length === 0 ? (
+  <div class="empty-bot"><Bot size={30} title="Alfred, waiting" /><p class="empty">Nothing filed yet. Alfred has the team reading.</p></div>
+) : (
+  <div class="found" id={id}>
+    {shown.map((r, i) => i === 0 ? (
+      <a class="feat tilt" data-k={r.data.type} href={`/readings/${r.id}/`} lang={r.data.lang}>
+        <div class="feat-body">
+          <div class="feat-kind kind" set:html={glyph(r.data.type, 13) + `<em>${THEME_LABEL[r.data.type]}</em>`} />
+          <h3>{r.data.title}</h3>
+          <p>{r.data.dek}</p>
+          <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span><span class="sep"></span><time datetime={iso(r.data.date)}>{when(r.data.date, r.data.lang)}</time>{r.data.revision > 1 && <><span class="sep"></span><span class="num">rev {r.data.revision}</span></>}<span class="feat-go">Read →</span></div>
+        </div>
+        <div class="feat-art" aria-hidden="true" set:html={glyph(r.data.type, 220)} />
+      </a>
+    ) : (
+      <a class="card tilt stagger" data-k={r.data.type} style={`--i:${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
+        <div class="card-top"><span class="kind" set:html={glyph(r.data.type, 12) + `<em>${THEME_LABEL[r.data.type]}</em>`} /><time datetime={iso(r.data.date)}>{iso(r.data.date).replace(/-/g, '.')}</time></div>
+        <h3>{r.data.title}</h3>
+        <p>{r.data.dek}</p>
+        <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span>{r.data.lang === 'vi' && <><span class="sep"></span><span>vi</span></>}</div>
+      </a>
+    ))}
+    <p class="empty none" hidden>Nothing of that theme yet.</p>
+  </div>
+)}
+
+<script>
+  function bootPills() {
+    document.querySelectorAll<HTMLElement>('.pills[data-for]').forEach((box) => {
+      if (box.dataset.booted) return; box.dataset.booted = '1';
+      const wrap = document.getElementById(box.dataset.for!); if (!wrap) return;
+      const items = [...wrap.querySelectorAll<HTMLElement>('[data-k]')];
+      const none = wrap.querySelector<HTMLElement>('.none');
+      box.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest('button'); if (!b || b.disabled) return;
+        box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        const k = b.dataset.k || ''; let n = 0;
+        items.forEach(el => { const on = !k || el.dataset.k === k; el.hidden = !on; if (on) n++; });
+        if (none) none.hidden = n > 0;
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', bootPills);
+</script>

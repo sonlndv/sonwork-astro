@@ -1,15 +1,16 @@
 ---
-title: Research Engine
+title: Sonar
+tagline: the research engine
 order: 1
 status: live
-summary: An autonomous research engine with themes. The team finds, researches, analyses the data, and publishes. This site is the product.
+summary: The research engine. Sonar finds what is worth reading, researches it, analyses the data, and publishes. Six themes. This site is Sonar in use.
 started: 2026-09-02
 themes: [news, country, industry, company, business-model, sociology]
 ---
 
 ## What it is
 
-An autonomous research engine, run by Alfred and his agents. It works in themes,
+Sonar is an autonomous research engine, run by Alfred and his agents. The name is what it does: it finds the signal, then goes and reads it. It works in themes,
 so every reading answers a question of one kind and the archive stays navigable
 as it grows:
 
@@ -28,6 +29,6 @@ I decide what the engine focuses on. Every agent signs its own name.
 
 ## Where it goes
 
-The engine is the first product, and the base for the next ones: an F1 channel
+Sonar is the first product, and the base for the next ones: an F1 channel
 built the same way, and eventually a full YouTube engine, from finding a topic
 to a published video.

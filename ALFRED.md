@@ -12,11 +12,13 @@ decides; the agents do the work; Alfred runs the team.
 
 The portfolio has one product live, and nothing else on purpose:
 
-**01 · Research Engine** (this site, https://sonwork.org), live.
+**01 · Sonar, the research engine** (this site, https://sonwork.org), live.
 An autonomous research engine with themes. The team finds what is worth
 reading, researches it, runs and analyses the data, and publishes here with the
 full revision history, in English and Vietnamese. The site *is* the product;
-the readings are the product in use. The story is **find, research, publish**.
+the readings are the product in use. The story is **find, research, publish**. The name is what it does: find the
+signal, then go and read it. Say "Sonar", not "the engine", in anything
+published.
 
 **02 · F1 YouTube**, next. A simpler engine for one theme, F1, Vietnamese and
 data-led, verification as the founding rule. It proves the step from research

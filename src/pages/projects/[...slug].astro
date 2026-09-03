@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import Bot from '../../components/Bot.astro';
+import Found from '../../components/Found.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -10,6 +11,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
+const reports = entry.id === 'sonar' ? (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()) : [];
 const journal = (await getCollection('journal')).filter(j => j.data.project === entry.id).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const rendered = await Promise.all(journal.map(async j => ({ j, C: (await render(j)).Content })));
 const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(x);
@@ -17,10 +19,17 @@ const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', mont
 <Base title={`${d.title} — Lê Sơn`} description={d.summary} current="projects">
   <article class="doc" style="padding:64px 0 20px">
     <div class="stamp" style="border:0;margin-bottom:10px;padding:0"><span class="num">{String(d.order).padStart(2,'0')}</span><span class="port-status"><i></i>{d.status}</span>{d.started && <span>since {fmt(d.started)}</span>}</div>
-    <h1>{d.title}</h1>
+    <h1>{d.title}{d.tagline && <span class="tag"> {d.tagline}</span>}</h1>
     <p class="open-p" style="margin-bottom:34px">{d.summary}</p>
     <div class="prose"><Content /></div>
   </article>
+
+  {entry.id === 'sonar' && (
+    <section class="sec" id="found">
+      <header class="sec-h"><h2>What Sonar <span>found.</span></h2><div class="sec-m"><span>{reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
+      <Found reports={reports} id="found-sonar" />
+    </section>
+  )}
 
   <section class="sec" id="diary">
     <header class="sec-h"><h2>Build <span>diary.</span></h2><div class="sec-m"><span>{journal.length} {journal.length === 1 ? 'entry' : 'entries'}</span></div></header>
