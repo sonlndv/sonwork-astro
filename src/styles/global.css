@@ -615,7 +615,7 @@ body::before{z-index:-2}
 .pills button:disabled{opacity:.38;cursor:default}
 
 /* hidden must win over display:grid/flex on the panels */
-.found [hidden]{display:none!important}
+[hidden]{display:none!important}
 
 /* the engine, in three steps */
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
@@ -734,10 +734,3 @@ body::before{z-index:-2}
   .open-stats{flex-direction:column;gap:10px}
 }
 
-/* the home scrolls section to section on a desktop: each section settles with
-   its rule just under the header, so every stop lands on the same line */
-@media (min-width:901px) and (prefers-reduced-motion:no-preference){
-  html[data-snap]{scroll-snap-type:y mandatory;scroll-padding-top:62px}
-  html[data-snap] .open,html[data-snap] .sec{scroll-snap-align:start}
-  html[data-snap] footer{scroll-snap-align:end}
-}
