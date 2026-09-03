@@ -73,7 +73,8 @@ Sơn's own writing on hover. Nowhere else.
 
 ## Typography
 
-- **Sora** for every word. Hero 500 at `clamp(44px, 7.2vw, 96px)`, tracking
+- **Instrument Serif italic** for exactly one word in the opening headline.
+- **Sora** for every other word. Hero 500 at `clamp(44px, 7.2vw, 96px)`, tracking
   −0.045em, line-height 1, second line muted. Chapter statements 300 at
   `clamp(28px, 3.6vw, 46px)`, −0.035em, one muted span. Titles 500, −0.025em.
   Body 300 at 15–17px / 1.6–1.7 (never below 15px). UI 400–500 at 13–14px.
@@ -96,9 +97,14 @@ The home is the **profile of the work**, not of the person (Son, 2026-09-03):
 a business being built with a team of AI agents, run by Alfred. Son's own story
 lives on `/about/`. The ledger lives at `/readings/`.
 
-1. The opening: LS15, "One person, a team of AI agents, building a business.",
-   one paragraph (agents do everything, Alfred manages, Son decides), two
-   actions (The portfolio, Meet Alfred), the tally, a cue.
+1. The opening is one composed frame, bottom-anchored: LS15, a small badge
+   ("Sonar is live · Alfred runs the team"), the statement in three masked
+   lines with one italic serif word (Instrument Serif, the only serif on the
+   site), one paragraph, two actions, and a stats row pinned at the bottom
+   (agents, readings, this week, each with its icon). Every element has its
+   own delay; a rest state of opacity 1 plus an animationend handler and a rAF
+   fallback mean nothing can stay hidden. Height-aware breakpoints keep the
+   frame inside short viewports.
 2. A ticker of what the fleet filed (title, kind glyph, byline), 48s loop,
    pauses on hover, static under reduced motion.
 3. Meet Alfred, my CEO (band): one paragraph, no more, and Alfred sliding in.

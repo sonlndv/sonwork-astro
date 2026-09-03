@@ -14,7 +14,7 @@ const nav = [
 ];
 ---
 <!doctype html>
-<html lang={lang}>
+<html lang={lang} style="background:#0b1524">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -33,14 +33,14 @@ const nav = [
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Saira+Condensed:wght@800;900&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Saira+Condensed:wght@800;900&family=Instrument+Serif:ital@1&display=swap" />
   <script is:inline>
     // Apply the stored theme before first paint. No flash.
     try { const t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch {}
   </script>
   <ClientRouter />
 </head>
-<body>
+<body style="background:#0b1524">
   <div class="sea" aria-hidden="true"><span class="lb lb1"></span></div>
   <header class="w">
     <div class="bar">
@@ -79,6 +79,14 @@ const nav = [
   <script>
     // Everything here re-binds on every client-side navigation.
     function boot() {
+      // entrance: each element marks itself in; if animations never run, force everything in
+      const appear = document.querySelectorAll<HTMLElement>('.appear');
+      appear.forEach((el) => el.addEventListener('animationend', () => el.classList.add('is-in'), { once: true }));
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        const running = [...appear].some((el) => (el.getAnimations?.() || []).some((a) => a.playState === 'running' || a.playState === 'finished'));
+        if (!running) appear.forEach((el) => el.classList.add('is-in'));
+      }));
+
       // the shortcut hint should name the key the visitor actually has
       if (!/Mac|iPhone|iPad/.test(navigator.platform)) document.querySelectorAll('kbd').forEach(k => { if (k.textContent === '⌘K') k.textContent = 'Ctrl K'; });
       // theme

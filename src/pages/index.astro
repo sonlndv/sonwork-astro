@@ -18,17 +18,24 @@ const ticker = reports.slice(0, 8);
 <Base title="Lê Sơn" description="One person building a business with a team of AI agents, managed by Alfred, the CEO. Product one: Sonar, the research engine. This is what it found.">
 
   <div class="open">
-    <div class="open-mark"><Mark size={96} label={false} /></div>
-    <h1 class="open-h">
-      <span class="ln">One person,</span>
-      <span class="ln">a team of <em>AI agents,</em></span>
-      <span class="ln dim">building a business.</span>
-    </h1>
-    <p class="open-p">The research, the publishing and the running of the accounts are done by agents, managed by Alfred, my CEO. I decide what gets built. Below is the portfolio, and the first product in use.</p>
-    <div class="open-row">
-      <a class="btn" href="#portfolio">The portfolio</a>
-      <a class="lnk" href="#fleet">Meet Alfred</a>
-      <span class="tally num"><b data-count={agents}>{agents}</b> agents · <b data-count={reports.length}>{reports.length}</b> readings · <b data-count={week}>{week}</b> this week</span>
+    <div class="open-body">
+      <div class="open-mark appear" style="--d:.06s"><Mark size={64} label={false} /></div>
+      <div class="badge appear appear--pop" style="--d:.22s"><Sonar size={13} />Sonar is live · Alfred runs the team</div>
+      <h1 class="open-h">
+        <span class="line"><span class="ln appear appear--mask" style="--d:.42s">One person,</span></span>
+        <span class="line"><span class="ln appear appear--mask" style="--d:.56s">a team of <em>AI agents,</em></span></span>
+        <span class="line"><span class="ln dim appear appear--mask" style="--d:.70s">building a business.</span></span>
+      </h1>
+      <p class="open-p appear appear--soft" style="--d:.86s;--dur:1.25s">The research, the publishing and the running of the accounts are done by agents, managed by Alfred, my CEO. I decide what gets built. Below is the portfolio, and the first product in use.</p>
+      <div class="open-row">
+        <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">The portfolio</a>
+        <a class="lnk appear appear--side" style="--d:1.12s" href="#fleet">Meet Alfred</a>
+      </div>
+    </div>
+    <div class="open-stats">
+      <span class="stat appear appear--stat" style="--d:1.2s"><Bot size={9} /><b class="num" data-count={agents}>{agents}</b> agents filing</span>
+      <span class="stat appear appear--stat" style="--d:1.34s"><Sonar size={16} /><b class="num" data-count={reports.length}>{reports.length}</b> readings kept</span>
+      <span class="stat appear appear--stat" style="--d:1.48s"><i class="stat-ico" set:html={glyph('news', 16)} /><b class="num" data-count={week}>{week}</b> this week</span>
     </div>
   </div>
 
