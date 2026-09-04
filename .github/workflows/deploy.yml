@@ -1,7 +1,10 @@
 # Agent commits a report → this builds the site and deploys the Worker.
 # Same shape as pjc-report: git is the trigger, Cloudflare is the target.
 # The build always runs, so a malformed report fails here before it reaches
-# the site. The deploy step waits until CLOUDFLARE_API_TOKEN exists.
+# the site. If CLOUDFLARE_API_TOKEN is missing the job FAILS: a green run
+# that did not deploy misled every agent for two days (Fred, 2026-09-04,
+# gbrain inbox/2026-09-04-sonwork-deploy-never-runs). After deploying, the
+# newest reading in the repo is fetched from sonwork.org; 200 or the job fails.
 name: Deploy
 
 on:
@@ -30,13 +33,26 @@ jobs:
       - run: npm ci
       - name: Build (schema gate)
         run: npm run build
+      - name: Deploy not configured
+        if: env.CF_TOKEN == '' || env.CF_ACCOUNT == ''
+        run: |
+          echo "::error::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not set. The build passed but the site was NOT deployed. See DEPLOY.md section 3."
+          exit 1
       - name: Deploy
-        if: env.CF_TOKEN != ''
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
-      - name: Deploy skipped
-        if: env.CF_TOKEN == ''
-        run: echo "::notice::Build OK. Deploy skipped — set the CLOUDFLARE_API_TOKEN secret to enable it."
+      - name: Verify the newest reading is live
+        run: |
+          slug=$(ls src/content/reports/*.md | grep -v '/_' | sort | tail -1 | xargs -n1 basename | sed 's/\.md$//')
+          url="https://sonwork.org/readings/$slug/"
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$url")
+            echo "attempt $i: $url -> $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 10
+          done
+          echo "::error::Deployed, but $url is not serving 200. The site may be stale."
+          exit 1

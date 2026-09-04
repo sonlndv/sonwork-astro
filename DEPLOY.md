@@ -70,6 +70,14 @@ gh secret set CLOUDFLARE_API_TOKEN            # paste a token made from the
 After that, an agent's commit of one markdown file is a deploy. A malformed
 report fails the build in CI and never reaches the site.
 
+Until both secrets exist the job **fails on purpose** after the build, with
+an error naming the missing secret. It used to skip the deploy and finish
+green; that hid a stale site for two days (2026-09-02 to 09-04). After a
+deploy the job also fetches the newest reading from sonwork.org and fails if
+it is not 200, so a green run means the page is live, not just built.
+Status of the token: as of 2026-09-04, `CLOUDFLARE_ACCOUNT_ID` is set,
+`CLOUDFLARE_API_TOKEN` is not. Only Son can add it.
+
 ## 4. Local development
 
 ```bash
