@@ -8,8 +8,11 @@ import { THEMES } from '../content.config';
 type Report = CollectionEntry<'reports'>;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 
-export function latestDay(reports: Report[]): { date: Date | null; day: string; items: Report[] } {
-  if (reports.length === 0) return { date: null, day: '', items: [] };
+export type Station = { theme: (typeof THEMES)[number]; item: Report | null };
+
+export function latestDay(reports: Report[]): { date: Date | null; day: string; items: Report[]; stations: Station[] } {
+  const empty = THEMES.map(theme => ({ theme, item: null as Report | null }));
+  if (reports.length === 0) return { date: null, day: '', items: [], stations: empty };
   const newest = reports.reduce((a, b) => (b.data.date > a.data.date ? b : a));
   const day = iso(newest.data.date);
   const ofDay = reports.filter(r => iso(r.data.date) === day);
@@ -20,5 +23,7 @@ export function latestDay(reports: Report[]): { date: Date | null; day: string; 
       .sort((a, b) => b.data.revision - a.data.revision)[0];
     if (hit) items.push(hit);
   }
-  return { date: newest.data.date, day, items };
+  // the six stations in theme order, null where the day has no reading
+  const stations: Station[] = THEMES.map(theme => ({ theme, item: items.find(r => r.data.type === theme) ?? null }));
+  return { date: newest.data.date, day, items, stations };
 }

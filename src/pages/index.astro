@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Mark from '../components/Mark.astro';
 import Bot from '../components/Bot.astro';
 import Stack from '../components/Stack.astro';
-import Found from '../components/Found.astro';
+import Run from '../components/Run.astro';
 import Sonar from '../components/Sonar.astro';
 import Subscribe from '../components/Subscribe.astro';
 import { glyph } from '../lib/glyphs';
@@ -22,6 +22,17 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const ticker = reports.slice(0, 8);
+// each project discloses its latest thing: its newest diary post, or for Sonar the newest reading if newer
+const journal = (await getCollection('journal')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const latestOf = (id: string) => {
+  const j = journal.find(x => x.data.project === id);
+  const c: { date: Date; title: string; href: string; kind: string }[] = [];
+  if (j) c.push({ date: j.data.date, title: j.data.title, href: `/diary/${j.id}/`, kind: 'diary' });
+  if (id === 'sonar' && reports[0]) c.push({ date: reports[0].data.date, title: reports[0].data.title, href: `/readings/${reports[0].id}/`, kind: 'reading' });
+  return c.sort((a, b) => b.date.getTime() - a.date.getTime())[0] ?? null;
+};
+const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
+const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date) === day.day) ?? null;
 ---
 <Base title="Lê Sơn" description="One person, a team of AI agents, building a business. Three runtimes: Claude is where Sơn builds, Alfred runs the teams on Grok Bot, Fred maintains the brain and the server on Hermes. Sonar, the engine, researches and writes for every project.">
 
@@ -63,9 +74,10 @@ const ticker = reports.slice(0, 8);
     <div class="port">
       {projects.map(p => (
         <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live' }]} href={`/projects/${p.id}/`}>
-          <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}</span><span class:list={['port-status', { dim: p.data.status !== 'live' }]}>{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
+          <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}{p.data.url && <> · {host(p.data.url)} ↗</>}</span><span class:list={['port-status', { dim: p.data.status !== 'live' }]}>{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
           <h3>{p.id === 'sonar' && <Sonar size={26} class="inl" />}{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3>
           <p>{p.data.summary}</p>
+          {(() => { const l = latestOf(p.id); return l && <div class="port-latest"><span>latest · {iso(l.date).replace(/-/g, '.')} · {l.kind}</span><b>{l.title}</b></div>; })()}
           {p.data.status === 'live' && (
             <div class="steps">
               <div class="step"><b>Find</b><p>What is worth reading, by theme.</p><span class="step-live">{THEMES.length} themes</span></div>
@@ -81,7 +93,7 @@ const ticker = reports.slice(0, 8);
 
   <section class="sec" id="readings">
     <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>{day.date ? `${day.day.replace(/-/g, '.')} · ${day.items.length} of ${THEMES.length} themes` : 'the research engine'}</span><a href="/readings/">All {reports.length} readings →</a></div></header>
-    <Found reports={day.items} id="found-home" />
+    <Run stations={day.stations} items={day.items} day={day.day.replace(/-/g, '.')} diary={dayDiary ? { id: dayDiary.id, title: dayDiary.data.title } : null} id="run-home" />
     <Subscribe />
   </section>
 

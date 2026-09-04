@@ -1,0 +1,49 @@
+---
+// The day's run, on the home: six stations in theme order, lit where the
+// newest day has a reading, dimmed where it does not (the theme name alone,
+// nothing written), then the day's readings: one featured, the rest a grid.
+// A lit station is a link to its reading; a dark one is not a control.
+// Entrance is a CSS scroll timeline; complete without JavaScript.
+// Brief: .impeccable/surfaces/src-pages-index-astro.md
+import type { CollectionEntry } from 'astro:content';
+import Bot from './Bot.astro';
+import { glyph, THEME_LABEL } from '../lib/glyphs';
+import { runtimeOf } from '../lib/byline';
+import type { Station } from '../lib/found';
+interface Props { stations: Station[]; items: CollectionEntry<'reports'>[]; day: string; diary?: { id: string; title: string } | null; id?: string }
+const { stations, items, day, diary = null, id = 'run' } = Astro.props;
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long' }).format(d);
+---
+{items.length > 0 && (
+  <div class="run" id={id}>
+    <ol class="run-st" aria-label={`The six themes on ${day}`}>
+      {stations.map((s, i) => s.item ? (
+        <li class="st lit" data-k={s.theme} style={`--i:${i}`}><a href={`/readings/${s.item.id}/`}><i set:html={glyph(s.theme, 12)} />{THEME_LABEL[s.theme]}</a></li>
+      ) : (
+        <li class="st" data-k={s.theme} style={`--i:${i}`}><span><i set:html={glyph(s.theme, 12)} />{THEME_LABEL[s.theme]}</span></li>
+      ))}
+    </ol>
+    <div class="found">
+      {items.map((r, i) => i === 0 ? (
+        <a class="feat tilt" data-k={r.data.type} href={`/readings/${r.id}/`} lang={r.data.lang}>
+          <div class="feat-body">
+            <div class="feat-kind kind" set:html={glyph(r.data.type, 13) + `<em>${THEME_LABEL[r.data.type]}</em>`} />
+            <h3>{r.data.title}</h3>
+            <p>{r.data.dek}</p>
+            <div class="meta"><span class="by"><Bot size={8} /> by <i>{r.data.author}</i> <em class="rt">on {runtimeOf(r.data.author)}</em></span><span class="sep"></span><time datetime={iso(r.data.date)}>{when(r.data.date, r.data.lang)}</time>{r.data.revision > 1 && <><span class="sep"></span><span class="num">rev {r.data.revision}</span></>}<span class="feat-go">Read →</span></div>
+          </div>
+          <div class="feat-art" aria-hidden="true" set:html={glyph(r.data.type, 220)} />
+        </a>
+      ) : (
+        <a class="card tilt stagger" data-k={r.data.type} style={`--i:${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
+          <div class="card-top"><span class="kind" set:html={glyph(r.data.type, 12) + `<em>${THEME_LABEL[r.data.type]}</em>`} /><time datetime={iso(r.data.date)}>{iso(r.data.date).replace(/-/g, '.')}</time></div>
+          <h3>{r.data.title}</h3>
+          <p>{r.data.dek}</p>
+          <div class="meta"><span class="by"><Bot size={8} /> by <i>{r.data.author}</i> <em class="rt">on {runtimeOf(r.data.author)}</em></span>{r.data.lang === 'vi' && <><span class="sep"></span><span>vi</span></>}</div>
+        </a>
+      ))}
+    </div>
+    {diary && <p class="run-diary">On the engine that day: <a href={`/diary/${diary.id}/`}>{diary.title} →</a></p>}
+  </div>
+)}

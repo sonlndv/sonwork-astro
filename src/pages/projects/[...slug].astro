@@ -30,7 +30,7 @@ const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', mont
 ---
 <Base title={`${d.title} — Lê Sơn`} description={d.summary} current="projects">
   <article class="doc" style="padding:64px 0 20px">
-    <div class="stamp" style="border:0;margin-bottom:10px;padding:0"><span class="num">{String(d.order).padStart(2,'0')}</span><span class="port-status"><i></i>{d.status}</span>{d.started && <span>since {fmt(d.started)}</span>}</div>
+    <div class="stamp" style="border:0;margin-bottom:10px;padding:0"><span class="num">{String(d.order).padStart(2,'0')}</span><span class="port-status"><i></i>{d.status}</span>{d.started && <span>since {fmt(d.started)}</span>}{d.url && <a class="hist" href={d.url} rel="noopener">{new URL(d.url).hostname.replace(/^www\./, '')} ↗</a>}</div>
     <h1>{entry.id === 'sonar' && <Sonar size={44} class="inl" title="Sonar" />}{d.title}{d.tagline && <span class="tag"> {d.tagline}</span>}</h1>
     <p class="open-p" style="margin-bottom:34px">{d.summary}</p>
     <div class="prose"><Content /></div>

@@ -694,6 +694,36 @@ body::before{z-index:-2}
   .sonar.sweep path:nth-of-type(3){animation-delay:.18s}
   @keyframes sweep{0%{opacity:.15;transform:scale(.55)}55%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
 }
+/* the day's run (home): six stations in theme order, lit where the day has a reading */
+.run-st{list-style:none;margin:-4px 0 18px;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.st{margin:0;position:relative;padding:0 0 10px}
+.st>a,.st>span{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--ink-3);text-decoration:none;transition:color .2s var(--out)}
+.st.lit>a{color:var(--lume)}
+.st.lit>a:is(:hover,:focus-visible){color:var(--ink)}
+.st::after{content:"";position:absolute;left:0;bottom:0;height:1.5px;width:100%;background:var(--line-2);transform-origin:left}
+.st.lit::after{background:var(--lume)}
+.run-diary{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin:16px 0 0}
+.run-diary a{color:var(--lume)}
+/* a lit station and its card share one hover state */
+.run:has(.st[data-k="news"]>a:is(:hover,:focus-visible)) [data-k="news"]:is(.feat,.card),
+.run:has(.st[data-k="country"]>a:is(:hover,:focus-visible)) [data-k="country"]:is(.feat,.card),
+.run:has(.st[data-k="industry"]>a:is(:hover,:focus-visible)) [data-k="industry"]:is(.feat,.card),
+.run:has(.st[data-k="company"]>a:is(:hover,:focus-visible)) [data-k="company"]:is(.feat,.card),
+.run:has(.st[data-k="business-model"]>a:is(:hover,:focus-visible)) [data-k="business-model"]:is(.feat,.card),
+.run:has(.st[data-k="sociology"]>a:is(:hover,:focus-visible)) [data-k="sociology"]:is(.feat,.card){border-color:var(--line);background:var(--raise)}
+.port-latest{display:flex;flex-direction:column;gap:3px;margin-top:2px}
+.port-latest span{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.port-latest b{font-weight:500;font-size:15px;letter-spacing:-0.01em;color:var(--ink)}
+@media (max-width:640px){.run-st{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px}}
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:view()){
+    /* entrance: the stations light in theme order, then the mark sweeps once */
+    .st>a,.st>span{animation:rise2 linear both;animation-timeline:view();animation-range-start:entry calc(10% + var(--i,0) * 5%);animation-range-end:entry calc(55% + var(--i,0) * 5%)}
+    .st.lit::after{animation:draw linear both;animation-timeline:view();animation-range-start:entry calc(25% + var(--i,0) * 6%);animation-range-end:entry calc(70% + var(--i,0) * 6%)}
+    #readings .sec-h .sonar{animation:sweep-once linear both;animation-timeline:view();animation-range:entry 30% entry 100%}
+    @keyframes sweep-once{0%{transform:scale(.7);opacity:.3}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
+  }
+}
 .pills{display:flex;flex-wrap:wrap;gap:6px;margin:-6px 0 18px}
 .pills button{display:inline-flex;align-items:center;gap:6px;font:inherit;font-family:var(--mono);font-size:12px;color:var(--ink-2);background:none;border:1px solid var(--line-2);border-radius:999px;padding:5px 11px;cursor:pointer;transition:color .18s var(--out),border-color .18s var(--out),background .18s var(--out)}
 .pills button i{display:inline-flex;color:var(--lume)}

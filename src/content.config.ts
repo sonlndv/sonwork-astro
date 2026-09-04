@@ -31,6 +31,7 @@ const projects = defineCollection({
     summary: z.string().min(10).max(300),
     started: z.coerce.date().optional(),
     themes: z.array(z.string()).optional(),
+    url: z.string().url().optional(),    // the project's own site, once it has one (PROJECTS.md)
   }),
 });
 

@@ -36,6 +36,7 @@ uses. Pick a short noun (`sonar`), never a date or a version.
 | `summary` | one or two plain sentences, 10 to 300 characters; the portfolio card and the meta description |
 | `started` | `YYYY-MM-DD`, the day the first commit for it lands; omit while `next` |
 | `themes` | the Sonar themes it draws on, from the six in `src/content.config.ts`; omit if all |
+| `url` | optional, the project's own site once it exists; the home card shows its hostname, the profile links it |
 
 ### Body (three headings, in this order, nothing else)
 

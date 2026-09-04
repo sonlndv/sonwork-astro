@@ -111,10 +111,19 @@ lives on `/about/`. The ledger lives at `/readings/`.
    Engine, live, with Find / Research / Publish; the only project for now), each
    linking to its profile and build diary. "What Sonar found." over the readings (the `Found` component: theme pills,
    featured, grid), repeated on `/projects/sonar/`. No scroll cue.
-4. What the team found: a compact filter row (All + six kinds with counts,
-   empty kinds disabled) at the top of the block that filters in place; one
-   **featured** reading (its kind drawn large, accent sweep on hover); a grid
-   of the rest that tilts toward the cursor.
+4. What Sonar found, as **the day's run** (Sơn, 2026-09-04, brief
+   `.impeccable/surfaces/src-pages-index-astro.md`): six stations in theme
+   order across the column, mono label with glyph, a 1.5px bar beneath. A
+   station with a reading that day is lit (lume, and a link to the reading);
+   a station without one is the dimmed theme name alone, nothing written.
+   Below: one **featured** reading (its kind drawn large, accent sweep on
+   hover) and a grid of the rest that tilts toward the cursor, in theme
+   order. A lit station and its card share one hover state. If a diary post
+   exists for that day, one mono line under the grid links to it. No filter
+   pills on the home (the stations say it); `Found.astro` with pills stays on
+   the Sonar profile. Each portfolio card carries a "latest" line: the
+   project's newest reading or diary post, with date; a project with its own
+   site shows the hostname (`url` in the schema).
 
 `/about/` is short: the day-job statement, one paragraph, contact. There is no
 writing section (removed 2026-09-03).
@@ -192,10 +201,14 @@ Added 2026-09-04, the interactive layer, all meaning and no decoration:
   other tiles' contents recede to 45%, the tile's runtime label and numbers
   turn lume. Tiles are focusable; keyboard gets the same. Phone: no wires, no
   dimming, numbers stay. Never name a segment class `w`; that is the column.
-- **Filtering moves the cards.** A theme pill starts a same-document view
-  transition; every card carries a `view-transition-name`, so the survivors
-  slide to their new places and the leavers fade. The Sonar mark in the
-  section header sweeps its three arcs once (700ms, staggered) to acknowledge.
+- **The run lights on entry** (home). The six stations rise in theme order
+  and the lit bars draw left to right, one after another, on a CSS scroll
+  timeline; the Sonar mark in the header scales once as the block enters.
+  Nothing on the home filters any more.
+- **Filtering moves the cards** (Sonar profile). A theme pill starts a
+  same-document view transition; every card carries a `view-transition-name`,
+  so the survivors slide to their new places and the leavers fade. The Sonar
+  mark in the section header sweeps its three arcs once (700ms, staggered).
 - **Reading progress.** A 2px lume hairline across the top of a reading or a
   diary post grows with the scroll (CSS scroll timeline, no script). The
   stamp shows the reading time.

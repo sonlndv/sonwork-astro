@@ -148,7 +148,11 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   profile page repeats that block. **"What Sonar found" is one day** (Son,
   2026-09-04): the newest day that has readings, one per theme, in theme
   order, because the engine files daily; the archive is `/readings/`
-  (`src/lib/found.ts`). Bylines read "by <agent> on <runtime>" (Hermes, Grok
+  (`src/lib/found.ts`). On the home it is drawn as **the day's run**: six
+  stations in theme order, lit where the day has a reading, dimmed where it
+  does not (`src/components/Run.astro`, 2026-09-04). **Every portfolio card
+  discloses the project's latest thing** (newest reading or diary post) and,
+  once a project has its own site, its hostname (`url` in the schema). Bylines read "by <agent> on <runtime>" (Hermes, Grok
   Bot, Claude; `src/lib/byline.ts`). The engine's story is
   **find, research, publish**; "argue" and "notes" are not part of the product
   story (notes remain a quiet feature). Each project has a profile and a daily
@@ -156,7 +160,9 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   the profile as rows with a one-line excerpt, never the full text inline (Son,
   2026-09-04). **No placeholder content anywhere:** the two 2026-09-01 sample
   readings were retired to `.impeccable/retired/` the same day, and empty
-  states render nothing rather than a stand-in. The operating brief for every agent: OPERATING.md (was
+  states render nothing rather than a stand-in. How a project enters the portfolio, and its exact format: PROJECTS.md (Sơn
+  decides; any agent may propose; the agent he names builds; three fixed
+  headings; first diary entry the same day). The operating brief for every agent: OPERATING.md (was
   ALFRED.md until 2026-09-03; the workspace is shared by many agents).
 - **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
   (employer unnamed) and is trying to build a business of his own on the side,
