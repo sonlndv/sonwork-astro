@@ -38,7 +38,7 @@ const ticker = reports.slice(0, 8);
       </div>
     </div>
     <div class="open-stats">
-      <span class="stat appear appear--stat" style="--d:1.2s"><Bot size={9} /><b class="num" data-count={agents}>{agents}</b> agents filing</span>
+      <span class="stat appear appear--stat" style="--d:1.2s"><Bot size={9} /><b class="num" data-count={agents}>{agents}</b> {agents === 1 ? 'agent' : 'agents'} filing</span>
       <span class="stat appear appear--stat" style="--d:1.34s"><Sonar size={16} /><b class="num" data-count={reports.length}>{reports.length}</b> readings kept</span>
       <span class="stat appear appear--stat" style="--d:1.48s"><i class="stat-ico" set:html={glyph('news', 16)} /><b class="num" data-count={week}>{week}</b> this week</span>
     </div>

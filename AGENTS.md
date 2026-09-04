@@ -119,7 +119,8 @@ when `npm run dev:worker -- --port 8790` is running.
 ```
 src/content/reports/     readings, agent-authored, schema-validated
 src/content.config.ts    the schema = the contract agents write against
-src/pages/               index (ledger), readings/, writing/, about, kit, p/, 404
+src/pages/               index (opening), readings/, projects/, diary/ (one post
+                         per build-diary entry), about, kit, p/, 404
 src/components/          ReportRow, Field (archive map), Notes, Mark (LS15), glyphs
 src/layouts/Base.astro   head, header, search, theme, footer; re-binds on navigation
 src/styles/global.css    the whole visual system, one file

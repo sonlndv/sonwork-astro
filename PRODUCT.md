@@ -152,7 +152,11 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   Bot, Claude; `src/lib/byline.ts`). The engine's story is
   **find, research, publish**; "argue" and "notes" are not part of the product
   story (notes remain a quiet feature). Each project has a profile and a daily
-  build diary. The operating brief for every agent: OPERATING.md (was
+  build diary; **each diary entry is its own post** at `/diary/<id>/`, listed on
+  the profile as rows with a one-line excerpt, never the full text inline (Son,
+  2026-09-04). **No placeholder content anywhere:** the two 2026-09-01 sample
+  readings were retired to `.impeccable/retired/` the same day, and empty
+  states render nothing rather than a stand-in. The operating brief for every agent: OPERATING.md (was
   ALFRED.md until 2026-09-03; the workspace is shared by many agents).
 - **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
   (employer unnamed) and is trying to build a business of his own on the side,

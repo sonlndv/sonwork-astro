@@ -18,9 +18,7 @@ const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 
   {THEMES.map(k => <button type="button" data-k={k} aria-pressed="false" disabled={count(k) === 0}><i set:html={glyph(k, 11)} />{THEME_LABEL[k]} <span>{count(k)}</span></button>)}
 </div>
 
-{shown.length === 0 ? (
-  <div class="empty-bot"><Bot size={30} title="Alfred, waiting" /><p class="empty">Nothing filed yet. Alfred has the team reading.</p></div>
-) : (
+{shown.length > 0 && (
   <div class="found" id={id}>
     {shown.map((r, i) => i === 0 ? (
       <a class="feat tilt" data-k={r.data.type} href={`/readings/${r.id}/`} lang={r.data.lang}>

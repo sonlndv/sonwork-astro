@@ -1,0 +1,46 @@
+---
+// One build-diary entry as its own post, in the same layout as a reading.
+// Son, 2026-09-04: the diary is a list of posts on the project page, never
+// the full text inline. Older/newer stay within the same project.
+import Base from '../../layouts/Base.astro';
+import Bot from '../../components/Bot.astro';
+import { getCollection, render } from 'astro:content';
+import { runtimeOf } from '../../lib/byline';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('journal')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  return all.map(entry => {
+    const same = all.filter(j => j.data.project === entry.data.project);
+    const i = same.indexOf(entry);
+    return { params: { slug: entry.id }, props: { entry, newer: same[i - 1] ?? null, older: same[i + 1] ?? null } };
+  });
+}
+const { entry, newer, older } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const project = (await getCollection('projects')).find(p => p.id === d.project);
+const projectTitle = project?.data.title ?? d.project;
+const iso = d.date.toISOString().slice(0, 10);
+const fmt = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+const when = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(x);
+const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/content/journal/${entry.id}.md`;
+---
+<Base title={`${d.title} — Lê Sơn`} description={`${projectTitle} build diary, ${fmt.format(d.date)}, by ${d.author}.`} current="projects">
+  <div class="docgrid one">
+    <article class="doc" data-pagefind-body data-pagefind-meta={`author:${d.author}, type:diary`}>
+      <h1>{d.title}</h1>
+      <div class="stamp">
+        <a class="kind" href={`/projects/${d.project}/#diary`}>{projectTitle} · build diary</a>
+        <span class="by"><Bot size={8} /> by <i>{d.author}</i> <em class="rt">on {runtimeOf(d.author)}</em></span>
+        <time datetime={iso}>{fmt.format(d.date)}</time>
+        <a class="hist num" href={history} title="Every earlier version, in git">history ↗</a>
+      </div>
+      <div class="prose"><Content /></div>
+      <nav class="turn" aria-label="More diary entries">
+        {older ? <a class="turn-a" href={`/diary/${older.id}/`}><span>← Older · {when(older.data.date)}</span><b>{older.data.title}</b></a> : <span class="turn-a end"><span>First entry</span></span>}
+        <a class="turn-all" href={`/projects/${d.project}/#diary`}>All entries</a>
+        {newer ? <a class="turn-a r" href={`/diary/${newer.id}/`}><span>Newer · {when(newer.data.date)} →</span><b>{newer.data.title}</b></a> : <span class="turn-a r end"><span>Latest</span></span>}
+      </nav>
+    </article>
+  </div>
+</Base>

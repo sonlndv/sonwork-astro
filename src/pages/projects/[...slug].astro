@@ -19,7 +19,13 @@ const { Content } = await render(entry);
 const reports = entry.id === 'sonar' ? (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()) : [];
 const day = latestDay(reports);
 const journal = (await getCollection('journal')).filter(j => j.data.project === entry.id).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-const rendered = await Promise.all(journal.map(async j => ({ j, C: (await render(j)).Content })));
+// The diary is a list of posts: date, title, the first paragraph. Each entry
+// opens at /diary/<id>/. The full text never renders inline here.
+const excerpt = (md: string) => {
+  const para = md.trim().split(/\n\s*\n/).find(p => p.trim() && !p.trim().startsWith('#')) ?? '';
+  const text = para.replace(/`([^`]*)`/g, '$1').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/[*_]/g, '').replace(/\s+/g, ' ').trim();
+  return text.length > 220 ? text.slice(0, 217).replace(/\s+\S*$/, '') + '…' : text;
+};
 const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(x);
 ---
 <Base title={`${d.title} — Lê Sơn`} description={d.summary} current="projects">
@@ -38,14 +44,21 @@ const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', mont
     </section>
   )}
 
-  <section class="sec" id="diary">
-    <header class="sec-h"><h2>Build <span>diary.</span></h2><div class="sec-m"><span>{journal.length} {journal.length === 1 ? 'entry' : 'entries'}</span></div></header>
-    {journal.length === 0 && <div class="empty-bot"><Bot size={30} /><p class="empty">Nothing written yet.</p></div>}
-    {rendered.map(({ j, C }) => (
-      <article class="diary">
-        <div class="idx"><time datetime={j.data.date.toISOString().slice(0,10)}>{j.data.date.toISOString().slice(0,10).replace(/-/g,'.')}</time><span class="by"><Bot size={8} /> <i>{j.data.author}</i> <em class="rt">on {runtimeOf(j.data.author)}</em></span></div>
-        <div><h3>{j.data.title}</h3><div class="prose small"><C /></div></div>
-      </article>
-    ))}
-  </section>
+  {journal.length > 0 && (
+    <section class="sec" id="diary">
+      <header class="sec-h"><h2>Build <span>diary.</span></h2><div class="sec-m"><span>{journal.length} {journal.length === 1 ? 'entry' : 'entries'} · one post a day</span></div></header>
+      <div class="ledger">
+        {journal.map(j => (
+          <a class="r" href={`/diary/${j.id}/`}>
+            <div class="idx"><time datetime={j.data.date.toISOString().slice(0,10)}>{j.data.date.toISOString().slice(0,10).replace(/-/g,'.')}</time><span class="kind"><em>diary</em></span></div>
+            <div>
+              <h3>{j.data.title}</h3>
+              <p>{excerpt(j.body ?? '')}</p>
+              <div class="meta"><span class="by"><Bot size={8} /> by <i>{j.data.author}</i> <em class="rt">on {runtimeOf(j.data.author)}</em></span><span class="sep"></span><span>Read →</span></div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
 </Base>

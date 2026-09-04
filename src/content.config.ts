@@ -41,7 +41,7 @@ const journal = defineCollection({
     project: z.string().min(2),        // the project's id (file name without .md)
     date: z.coerce.date(),
     title: z.string().min(4),
-    author: z.string().default('Alfred'),
+    author: z.string().min(1),          // the agent's own name; no default, every entry signs
   }),
 });
 
