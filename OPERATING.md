@@ -39,10 +39,16 @@ the readings are what it produces, and every later project uses it. The story is
 signal, then go and read it. Say "Sonar", not "the engine", in anything
 published.
 
-**Nothing else, on purpose (Son, 2026-09-03).** F1 YouTube was listed as the
-next project and removed the same day. Sonar is the sole project so Son can
-focus elsewhere. Sonar is not tied to Grok Bot: it is the research engine for
-every project that later enters the portfolio, and Fred researches for it from
+**02 · Lever, the operations practice** (Son, 2026-09-04), `building`. A
+process a business already runs by hand, learned from the people who run it,
+rebuilt to take less of their time; AI is the enabler, not the product. Sonar
+senses, Lever moves. Judged by whether the client's process got better, never
+by the model. Working name; the public name and the mark are not decided; the
+client is never named on the site. Full page: gbrain `projects/lever`.
+
+**Nothing else (Son, 2026-09-03).** F1 YouTube was listed as the next project
+and removed the same day. Sonar is not tied to Grok Bot: it is the research
+engine for every project in the portfolio, and Fred researches for it from
 Hermes. The next project is Son's call; do not propose one unasked.
 
 

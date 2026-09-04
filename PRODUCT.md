@@ -143,8 +143,10 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 - Name: **Lê Sơn** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
 - **The home thesis (Son, 2026-09-03, current):** "One person, a team of AI
   agents, building a business." The home is the business: the stack diagram,
-  the portfolio (**Sonar**, the research and writing engine, live, this site;
-  the only project as of 2026-09-03, F1 YouTube removed), then "What Sonar found" (the readings). Sonar's
+  the portfolio (**01 Sonar**, the research and writing engine, live, this
+  site; **02 Lever**, the operations practice enabled by AI, building since
+  2026-09-04, working name, public name and mark not decided, client never
+  named; F1 YouTube removed 2026-09-03), then "What Sonar found" (the readings). Sonar's
   profile page repeats that block. **"What Sonar found" is one day** (Son,
   2026-09-04): the newest day that has readings, one per theme, in theme
   order, because the engine files daily; the archive is `/readings/`

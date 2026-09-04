@@ -113,8 +113,10 @@ companies and unit economics, and human systems. Full identity page: gbrain `bra
 Sơn decides. **Sonar is the engine** the stack researches and writes with; the
 readings are its output. It is not an audience product, and it is not tied to
 one runtime: every project that enters the portfolio uses Sonar for research.
-**The portfolio is Sonar alone right now** (F1 YouTube removed 2026-09-03);
-the next project is Sơn's call. Say which runtime you run on and who you
+**The portfolio is Sonar and Lever** (Lever entered 2026-09-04 as `building`:
+the operations practice enabled by AI, working name, public name not decided,
+its client never named on the site; F1 YouTube removed 2026-09-03). The next
+project is Sơn's call. Say which runtime you run on and who you
 report to (Alfred for research, Fred for infrastructure, Claude for the
 codebase). One name, kept forever.
 
