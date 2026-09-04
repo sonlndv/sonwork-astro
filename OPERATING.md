@@ -84,6 +84,8 @@ something needs Son, ask once, with one recommendation.
 - Keep `AGENTS.md`, `PRODUCT.md`, `DESIGN.md` and this file true after every
   change Son decides. Mirror decisions to gbrain the same day.
 - Never redesign or re-copy the site unasked; Son decides.
+- Construct a new project only after Son decides one, in the format in
+  `PROJECTS.md`. Any runtime may propose; the one Son names builds.
 
 **Any new agent.** Say which runtime you run on and who you report to (Alfred
 for research, Fred for infrastructure, Claude for the codebase). One name,
@@ -161,7 +163,8 @@ Only if Sơn asks. It is not a "Writing" section; the site has none.
 ## Where things live
 
 - Site and code: https://github.com/sonlndv/sonwork-astro (`AGENTS.md`,
-  `FILING.md`, `DESIGN.md`, `PRODUCT.md`).
+  `FILING.md` for readings, `PROJECTS.md` for projects, `DESIGN.md`,
+  `PRODUCT.md`).
 - Son's identity, interests, and how to talk to him: gbrain `brain/user`
   (fetch by exact slug).
 - This brief: `OPERATING.md` at the repo root; summarised on gbrain
