@@ -5,8 +5,8 @@ interface Props { compact?: boolean }
 const { compact = false } = Astro.props;
 ---
 <form class="sub" data-sub method="post" action="/api/subscribe">
-  {!compact && <h4>Sonar, by email</h4>}
-  <p>What Sonar found, about once a week. No spam, leave any time.</p>
+  {!compact && <h4>The week's readings, by email</h4>}
+  <p>One email a week. Titles and links. Leave any time.</p>
   <input type="email" name="email" placeholder="you@example.com" required autocomplete="email" aria-label="Email address" />
   <button type="submit">Subscribe</button>
   <span class="msg" aria-live="polite"></span>

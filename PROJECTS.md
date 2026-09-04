@@ -54,8 +54,10 @@ uses. Pick a short noun (`sonar`), never a date or a version.
 - **Where it goes.** What is decided about the future and what is not. "The
   next step is not decided" is a valid sentence; a roadmap of guesses is not.
 
-Length: 150 to 400 words. No headings other than those three. No images,
-no tables, no code. The voice rules in AGENTS.md apply: plain, direct, no em
+Each section is a bullet list, three to six bullets, one plain sentence or
+two each, fragments allowed (Sơn, 2026-09-04: short, raw, no journal prose).
+The plain meaning comes before any name. Length: 100 to 300 words. No
+headings other than those three. No images, no tables, no code. The voice rules in AGENTS.md apply: plain, direct, no em
 dashes, no emojis, none of the banned words, never the employer's name, never
 "ChatGPT", never a claim that Sơn runs a business.
 

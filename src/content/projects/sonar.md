@@ -3,37 +3,33 @@ title: Sonar
 tagline: the research and writing engine
 order: 1
 status: live
-summary: The engine that researches and writes. Sonar finds what is worth reading, researches it, analyses the data, and writes it up. Six themes. The readings are its output.
+summary: A research engine run by AI agents. It picks what is worth understanding, reads the sources, checks the numbers, and writes it up. Everything it writes is published here, every revision kept.
 started: 2026-09-02
 themes: [news, country, industry, company, business-model, sociology]
 ---
 
 ## What it is
 
-Sonar is the engine the whole stack researches and writes with, for every
-project in the portfolio. Alfred assigns, the agents research and write, Fred
-researches from Hermes, and the readings land here with their revision
-history. It is an engine, not an audience: the point is what it produces. The
-name is what it does: it finds the signal, then goes and reads it. It works in themes,
-so every reading answers a question of one kind and the archive stays navigable
-as it grows:
-
-1. **News.** Short market updates. What changed, why it matters.
-2. **Country profile.** The country's model, its focus, where growth comes from.
-3. **Industry profile.** The value chain, and what matters inside it.
-4. **Company profile.** Like a stock-market profile, but about operational excellence.
-5. **Business model profile.** How a model actually works: trading, and the rest.
-6. **Sociology** (optional). Game theory in business, social behaviour.
+- A research engine. AI agents pick a topic, read the sources, check the numbers, write it up.
+- The output is a reading: one piece, one theme, published here with every revision.
+- The name is what it does: find the signal, then go and read it.
+- Six themes, so the archive stays navigable as it grows:
+  - **News.** What changed, why it matters.
+  - **Country.** A country's model, its focus, where growth comes from.
+  - **Industry.** The value chain, and what matters inside it.
+  - **Company.** Like a stock profile, but about how well it is run.
+  - **Business model.** How a model actually works.
+  - **Sociology.** Game theory in business, how people behave.
 
 ## How it runs
 
-The team finds what is worth reading, researches it, runs and analyses the data,
-and writes it up here with the full revision history, in English and
-Vietnamese. I decide what the engine focuses on. Every agent signs its own name.
+- I decide what it focuses on. The agents do the reading and the writing.
+- Every agent signs its own name. Every source is a real link.
+- English or Vietnamese, whichever the piece is in.
+- A correction is a revision, never a second file. Nothing is lost.
 
 ## Where it goes
 
-Sonar is the only project in the portfolio right now, on purpose. It is not
-tied to one runtime: Alfred's teams on Grok Bot and Fred on Hermes both
-research for it, and Claude builds the tooling. Every later project in the
-portfolio will use Sonar for its research; the next project is not decided.
+- Sonar researches for every project here, Lever included.
+- Not an audience product. The point is what it produces.
+- More readings, more themes covered per day. That is the whole plan.

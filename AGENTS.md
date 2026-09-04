@@ -254,6 +254,14 @@ on the site; keep it to one line each.
 
 ## Voice (writing as Sơn, on the site and in readings)
 
+**On the site itself (Sơn, 2026-09-04): short, raw, bullets.** A visitor has
+no context. Say the plain thing first; a name (Sonar, Lever, Alfred, Fred,
+a runtime) comes after the sentence that explains it, once. No paragraph
+over two sentences in the interface; anything with parts is a bullet list;
+fragments are fine. Prose belongs inside a reading, not around it. Never
+"the brain", "the engine", "runtime", "filing", "kept" on their own; say
+"the shared memory", "the research engine", "AI", "written", "published".
+
 Plain, direct, specific. Lead with the finding. Bullets when there is more than
 one part. Hedge opinions with "I think" or "I believe". **No em dashes.** No
 emojis. Never: dive into, game-changing, straightforward, leverage, synergize,

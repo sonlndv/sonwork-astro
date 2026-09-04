@@ -140,6 +140,15 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 
 ## Brand Commitments
 
+- **Register of the interface (Son, 2026-09-04): short, raw, bullets.** The
+  site is read by people with no context. Every surface says the plain thing
+  first and names it second (Sonar, Lever, Alfred, Fred, the runtimes); no
+  paragraph over two sentences outside a reading; anything with parts is a
+  bullet list; fragments are fine. The opening is three raw lines, not a
+  paragraph; the project profiles are bullet lists under the three headings;
+  the stack tiles lead with the role ("Builds", "Runs the research", "Keeps
+  it running") and carry the tool and the agent as the small line.
+
 - Name: **Lê Sơn** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
 - **The home thesis (Son, 2026-09-03, current):** "One person, a team of AI
   agents, building a business." The home is the business: the stack diagram,

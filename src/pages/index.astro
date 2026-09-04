@@ -39,21 +39,25 @@ const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date
   <div class="open">
     <div class="open-body">
       <div class="open-mark appear" style="--d:.06s"><Mark size={64} label={false} /></div>
-      <div class="badge appear appear--pop" style="--d:.22s"><Sonar size={13} />Sonar is live · Alfred runs the team</div>
+      <div class="badge appear appear--pop" style="--d:.22s"><Sonar size={13} />Live · AI writes, I read</div>
       <h1 class="open-h">
         <span class="line"><span class="ln appear appear--mask" style="--d:.42s">One person,</span></span>
         <span class="line"><span class="ln appear appear--mask" style="--d:.56s">a team of <em>AI agents,</em></span></span>
         <span class="line"><span class="ln dim appear appear--mask" style="--d:.70s">building a business.</span></span>
       </h1>
-      <p class="open-p appear appear--soft" style="--d:.86s;--dur:1.25s">Three runtimes do the work. Claude is where I build and ship, Alfred runs the teams on Grok Bot, Fred maintains the brain and the server on Hermes. I decide. Sonar is the engine they research and write with, for every project, and the readings below are what it produced.</p>
+      <ul class="open-list appear appear--soft" style="--d:.86s;--dur:1.25s">
+        <li>AI agents research and write. I decide what, and I read the result.</li>
+        <li>Everything they write is published here. Every revision is kept.</li>
+        <li>Two projects: Sonar, the research engine. Lever, an operations practice.</li>
+      </ul>
       <div class="open-row">
-        <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">The portfolio</a>
-        <a class="lnk appear appear--side" style="--d:1.12s" href="#stack">The stack</a>
+        <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">What I'm building</a>
+        <a class="lnk appear appear--side" style="--d:1.12s" href="#stack">Who does what</a>
       </div>
     </div>
     <div class="open-stats">
-      <span class="stat appear appear--stat" style="--d:1.2s"><i class="stat-ico"><Bot size={9} /></i><b class="num" data-count={agents}>{agents}</b> {agents === 1 ? 'agent' : 'agents'} filing</span>
-      <span class="stat appear appear--stat" style="--d:1.34s"><i class="stat-ico"><Sonar size={16} /></i><b class="num" data-count={reports.length}>{reports.length}</b> readings kept</span>
+      <span class="stat appear appear--stat" style="--d:1.2s"><i class="stat-ico"><Bot size={9} /></i><b class="num" data-count={agents}>{agents}</b> {agents === 1 ? 'AI writer' : 'AI writers'}</span>
+      <span class="stat appear appear--stat" style="--d:1.34s"><i class="stat-ico"><Sonar size={16} /></i><b class="num" data-count={reports.length}>{reports.length}</b> readings published</span>
       <span class="stat appear appear--stat" style="--d:1.48s"><i class="stat-ico" set:html={glyph('news', 16)} /><b class="num" data-count={week}>{week}</b> this week</span>
     </div>
   </div>
@@ -65,12 +69,12 @@ const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date
   )}
 
   <section class="sec" id="stack">
-    <header class="sec-h"><h2>The <span>stack.</span></h2><div class="sec-m"><span>one person · three runtimes · one engine</span></div></header>
+    <header class="sec-h"><h2>Who does <span>what.</span></h2><div class="sec-m"><span>I decide · three AIs work · one engine writes</span></div></header>
     <Stack />
   </section>
 
   <section class="sec" id="portfolio">
-    <header class="sec-h"><h2>The <span>portfolio.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.length} in the portfolio</span><a href="/projects/">All projects →</a></div></header>
+    <header class="sec-h"><h2>What I'm <span>building.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.length} projects</span><a href="/projects/">All projects →</a></div></header>
     <div class="port">
       {projects.map(p => (
         <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live' }]} href={`/projects/${p.id}/`}>
@@ -80,9 +84,9 @@ const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date
           {(() => { const l = latestOf(p.id); return l && <div class="port-latest"><span>latest · {iso(l.date).replace(/-/g, '.')} · {l.kind}</span><b>{l.title}</b></div>; })()}
           {p.data.status === 'live' && (
             <div class="steps">
-              <div class="step"><b>Find</b><p>What is worth reading, by theme.</p><span class="step-live">{THEMES.length} themes</span></div>
-              <div class="step"><b>Research</b><p>Run and analyse the data.</p><span class="step-live">{sources} sources cited</span></div>
-              <div class="step"><b>Publish</b><p>Kept here, with every revision.</p><span class="step-live">{reports.length} readings · {revisions} revisions</span></div>
+              <div class="step"><b>Find</b><p>Pick what is worth understanding.</p><span class="step-live">{THEMES.length} themes</span></div>
+              <div class="step"><b>Research</b><p>Read the sources. Check the numbers.</p><span class="step-live">{sources} sources cited</span></div>
+              <div class="step"><b>Publish</b><p>Write it up here. Keep every revision.</p><span class="step-live">{reports.length} readings · {revisions} revisions</span></div>
             </div>
           )}
           <span class="port-go">Profile and build diary →</span>
@@ -92,7 +96,7 @@ const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date
   </section>
 
   <section class="sec" id="readings">
-    <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>{day.date ? `${day.day.replace(/-/g, '.')} · ${day.items.length} of ${THEMES.length} themes` : 'the research engine'}</span><a href="/readings/">All {reports.length} readings →</a></div></header>
+    <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>{day.date ? `newest day · ${day.day.replace(/-/g, '.')} · ${day.items.length} of ${THEMES.length} themes` : 'the research engine'}</span><a href="/readings/">All {reports.length} readings →</a></div></header>
     <Run stations={day.stations} items={day.items} day={day.day.replace(/-/g, '.')} diary={dayDiary ? { id: dayDiary.id, title: dayDiary.data.title } : null} id="run-home" />
     <Subscribe />
   </section>

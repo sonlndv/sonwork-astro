@@ -23,10 +23,11 @@ const live = (rt: string) => {
   const last = t.length ? new Date(Math.max(...t)) : null;
   return { readings: rs.length, diary: js.length, last: last ? last.toISOString().slice(5, 10).replace('-', '.') : null };
 };
+// role first, in plain words; the tool and the agent's name are the small line
 const tiles = [
-  { rt: 'AI stack', key: 'Claude', name: 'Claude', mark: 'mono', text: 'Where I work: build, deliver and ship the site, the tools and the programs.' },
-  { rt: 'Grok Bot', key: 'Grok Bot', name: 'Alfred', mark: 'bot', text: 'Chief Everything Officer. Runs the teams, the research and the management.' },
-  { rt: 'Hermes', key: 'Hermes', name: 'Fred', mark: 'dim', text: 'Maintains the brain and the server, and researches for Sonar.' },
+  { rt: 'Claude', key: 'Claude', name: 'Builds', mark: 'mono', text: 'The site, the tools, the programs. Where I work.' },
+  { rt: 'Grok Bot · Alfred', key: 'Grok Bot', name: 'Runs the research', mark: 'bot', text: 'Picks what to study. Runs the team that writes.' },
+  { rt: 'Hermes · Fred', key: 'Hermes', name: 'Keeps it running', mark: 'dim', text: 'The shared memory, the server. Researches too.' },
 ].map(t => ({ ...t, ...live(t.key) }));
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 // The wires are CSS segments, not SVG: a vertical from the centre, a horizontal
@@ -34,7 +35,7 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 // and stay pixel-exact at any width. Lane 2 is the centre lane, one straight line.
 const lanes = [1, 2, 3];
 ---
-<div class="stack" role="img" aria-label="Sơn decides. Three runtimes: Claude, the AI stack, is where Sơn builds and ships. Alfred on Grok Bot runs the teams, the research and the management. Fred on Hermes maintains the brain and the server and researches for Sonar. Sonar researches and writes for every project in the portfolio.">
+<div class="stack" role="img" aria-label="Sơn decides. Three AIs work: Claude builds the site and the tools; Alfred on Grok Bot runs the research; Fred on Hermes keeps the shared memory and the server running. Sonar, the engine, researches, writes and publishes.">
   <div class="stack-src">
     <span>Sơn</span><em>decides</em>
     <span class="wire wire-top" aria-hidden="true">
@@ -58,6 +59,6 @@ const lanes = [1, 2, 3];
     <span class="wire wire-bot" aria-hidden="true">
       {lanes.map(l => <><i class="ws v2" data-l={l}></i><i class="ws h" data-l={l}></i><i class="ws v1" data-l={l}></i></>)}
     </span>
-    <Sonar size={16} /><span>Sonar</span><em>researches and writes · for every project in the portfolio</em>
+    <Sonar size={16} /><span>Sonar</span><em>the engine · researches, writes, publishes</em>
   </div>
 </div>
