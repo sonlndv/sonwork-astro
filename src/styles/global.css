@@ -882,7 +882,8 @@ body::before{z-index:-2}
 .open-stats{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;padding-top:22px;border-top:1px solid var(--line-2);font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
 .stat{display:inline-flex;align-items:center;gap:10px;white-space:nowrap}
 .stat b{color:var(--ink);font-weight:500}
-.stat .stat-ico{display:inline-flex;color:var(--lume)}
+.stat .stat-ico{display:inline-flex;justify-content:center;align-items:center;width:16px;flex:none;color:var(--lume)}   /* one slot for every icon, so the numbers align */
+.stat b{min-width:1ch;text-align:right;font-variant-numeric:tabular-nums}
 /* buttons with a material: an inset highlight and a shine that sweeps on hover */
 .btn{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(180deg,color-mix(in oklch,var(--lume) 100%,white 10%) 0%,var(--lume) 55%,color-mix(in oklch,var(--lume) 88%,black) 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
 .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.45) 48%,transparent 76%);transform:translateX(-130%);transition:transform .65s ease}
