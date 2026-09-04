@@ -38,7 +38,7 @@
   --ink-3:  oklch(0.500 0.024 252);
   --lume:   oklch(0.500 0.150 236);
   --lume-2: oklch(0.440 0.130 238);
-  --human:  oklch(0.540 0.130 48);
+  --human:  oklch(0.520 0.130 48);   /* was 0.540: 4.40 on --raise; now clears 4.5 */
   color-scheme:light;
 }
 @media (prefers-color-scheme:light){
@@ -56,7 +56,7 @@
     --ink-3:  oklch(0.500 0.024 252);
     --lume:   oklch(0.500 0.150 236);
     --lume-2: oklch(0.440 0.130 238);
-    --human:  oklch(0.540 0.130 48);
+    --human:  oklch(0.520 0.130 48);   /* was 0.540: 4.40 on --raise; now clears 4.5 */
     color-scheme:light;
   }
 }

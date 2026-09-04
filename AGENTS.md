@@ -39,7 +39,7 @@ job shares. Rewording a row means rereading the file it loads.*
 | Revise a reading | ...want a filed reading corrected, extended, retitled or re-sourced; bump `revision`, never a second file. | `FILING.md` › Revising |
 | Write the build diary | ...changed something on a project today, retired something, found a defect, or Sơn decided something about a project. One post per project per day. | `OPERATING.md` › The loop, step 4; format under Layout below |
 | Add a project | ...want a new product, engine, channel or venture in the portfolio, a project profile page, or to retire or pause one. | `PROJECTS.md` |
-| Change the site | ...want a page, section, component, copy, the home, the readings index, the profile pages, search, the Worker, the feed or the filing endpoint changed. | `PRODUCT.md`, then `DESIGN.md`, then Commands below |
+| Change the site | ...want a page, section, component, copy, the home, the readings index, the profile pages, the diary list or a diary page's layout, search, the Worker, the feed, the social images or the filing endpoint changed. | `PRODUCT.md`, then `DESIGN.md`, then Commands below |
 | Design work | ...touch layout, type, colour, spacing, motion, the marks, dark or light mode, phone or desktop rendering, or a screenshot review. | `DESIGN.md`; for Claude the impeccable craft floor (see `CLAUDE.md`) |
 | Deploy, secrets, CI | ...ask why a push did not publish, a workflow is red, a token or secret is missing, Cloudflare, Zero Trust, the subscriber list, or a domain. | `DEPLOY.md` |
 | Sonar by email | ...ask about the weekly digest, subscribers, unsubscribe links, or the sender. | `OPERATING.md` › The loop, step 6; `src/worker.js` |

@@ -15,7 +15,7 @@ import { THEMES } from '../content.config';
 type Report = CollectionEntry<'reports'>;
 interface Props { reports: Report[] }
 const { reports } = Astro.props;
-const kinds = [...THEMES];
+const kinds: string[] = [...THEMES];
 const W = 1000, H = 300, PAD = 48;
 const times = reports.map(r => r.data.date.getTime());
 const t0 = Math.min(...times, Date.now() - 30 * 864e5), t1 = Math.max(...times, Date.now());

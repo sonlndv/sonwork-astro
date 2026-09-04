@@ -37,7 +37,7 @@ const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/conte
 const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
 const mins = Math.max(1, Math.round(words / 220));
 ---
-<Base title={`${d.title} — Lê Sơn`} description={d.dek} current="readings" lang={d.lang}>
+<Base title={`${d.title} — Lê Sơn`} description={d.dek} current="readings" lang={d.lang} image={`https://sonwork.org/og/${entry.id}.png`}>
   <div class="doc-progress" aria-hidden="true"></div>
   <div class="docgrid rail-grid">
     <article class="doc" data-pagefind-body data-pagefind-meta={`author:${d.author}, type:${d.type}`}>

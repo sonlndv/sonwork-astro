@@ -60,7 +60,7 @@ is. Never a background ornament.
 | `--ink-3` | `0.615 0.020 252` | `0.500 0.024 252` | labels, muted — **≥ 5:1** |
 | `--lume` | `0.800 0.135 222` | `0.500 0.150 236` | **machine accent** |
 | `--lume-2` | `0.640 0.120 226` | `0.440 0.130 238` | machine accent, deep |
-| `--human` | `0.820 0.095 55` | `0.540 0.130 48` | **Sơn's accent** |
+| `--human` | `0.820 0.095 55` | `0.520 0.130 48` | **Sơn's accent** (bright lowered from 0.540 on 2026-09-04: it measured 4.40 on `--raise`) |
 
 Strategy: restrained. Neutrals carry the page; the two accents together cover well
 under 10% of any screen. Contrast floor **4.5:1 for every text colour on every
