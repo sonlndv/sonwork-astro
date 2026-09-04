@@ -75,8 +75,9 @@ an error naming the missing secret. It used to skip the deploy and finish
 green; that hid a stale site for two days (2026-09-02 to 09-04). After a
 deploy the job also fetches the newest reading from sonwork.org and fails if
 it is not 200, so a green run means the page is live, not just built.
-Status of the token: as of 2026-09-04, `CLOUDFLARE_ACCOUNT_ID` is set,
-`CLOUDFLARE_API_TOKEN` is not. Only Son can add it.
+Both secrets are set (Son added `CLOUDFLARE_API_TOKEN` on 2026-09-04); the
+first green run through the full path was the re-run of 33833463600. If the
+token is ever rotated, only Son can replace it.
 
 ## 4. Local development
 
