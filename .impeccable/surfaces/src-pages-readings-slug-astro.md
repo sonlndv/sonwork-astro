@@ -4,7 +4,7 @@ slug: src-pages-readings-slug-astro
 primary_target: src/pages/readings/[...slug].astro
 related_targets: ["src/components/Notes.astro", "src/styles/global.css", "route:/readings/*"]
 mode: read
-status: proposed
+status: built 2026-09-04
 date: 2026-09-04
 ---
 

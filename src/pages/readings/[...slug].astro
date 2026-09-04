@@ -1,8 +1,14 @@
 ---
+// A reading: text on the left in its measure; a quiet rail on the right with
+// the stamp, the headings (current one tracked), the sources by hostname, up
+// to three related readings, and Sơn's notes. Below 1100px the rail stacks
+// after the text and the stamp returns above the title.
+// Brief: .impeccable/surfaces/src-pages-readings-slug-astro.md
 import Base from '../../layouts/Base.astro';
 import Bot from '../../components/Bot.astro';
+import Notes from '../../components/Notes.astro';
 import { getCollection, render } from 'astro:content';
-import { THEME_LABEL } from '../../lib/glyphs';
+import { THEME_LABEL, glyph } from '../../lib/glyphs';
 import { runtimeOf } from '../../lib/byline';
 
 export async function getStaticPaths() {
@@ -13,7 +19,18 @@ const { entry, newer, older } = Astro.props;
 const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
 const when = (d: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(d);
 const d = entry.data;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
+const h2s = headings.filter(h => h.depth === 2);
+// related: same theme first, then the same agent, newest first, three at most
+const others = (await getCollection('reports')).filter(r => r.id !== entry.id).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const related = [...others.filter(r => r.data.type === d.type), ...others.filter(r => r.data.type !== d.type && r.data.author === d.author)].slice(0, 3);
+const byHost = new Map<string, string[]>();
+for (const s of d.sources ?? []) byHost.set(host(s), [...(byHost.get(host(s)) ?? []), s]);
+const vi = d.lang === 'vi';
+const L = vi
+  ? { inThis: 'Trong bài này', sources: 'Nguồn', next: 'Đọc tiếp', rail: 'Về bài đọc này' }
+  : { inThis: 'In this reading', sources: 'Sources', next: 'Next', rail: 'About this reading' };
+const isoOf = (x: Date) => x.toISOString().slice(0, 10);
 const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 // Every revision survives in git. Surface it instead of only claiming it.
 const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/content/reports/${entry.id}.md`;
@@ -22,29 +39,67 @@ const mins = Math.max(1, Math.round(words / 220));
 ---
 <Base title={`${d.title} — Lê Sơn`} description={d.dek} current="readings" lang={d.lang}>
   <div class="doc-progress" aria-hidden="true"></div>
-  <div class="docgrid one">
+  <div class="docgrid rail-grid">
     <article class="doc" data-pagefind-body data-pagefind-meta={`author:${d.author}, type:${d.type}`}>
       <h1>{d.title}</h1>
-      <div class="stamp">
+      <div class="prose"><Content /></div>
+    </article>
+    <nav class="turn" aria-label="More readings">
+      {older ? <a class="turn-a" href={`/readings/${older.id}/`}><span>← Older · {when(older.data.date)}</span><b>{older.data.title}</b></a> : <span class="turn-a end"><span>Oldest</span></span>}
+      <a class="turn-all" href="/readings/">All readings</a>
+      {newer ? <a class="turn-a r" href={`/readings/${newer.id}/`}><span>Newer · {when(newer.data.date)} →</span><b>{newer.data.title}</b></a> : <span class="turn-a r end"><span>Newest</span></span>}
+    </nav>
+    <aside class="rail" aria-label={L.rail}>
+      <div class="stamp rail-stamp">
         <span class="kind">{THEME_LABEL[d.type]}</span>
         <span class="by"><Bot size={8} /> by <i>{d.author}</i> <em class="rt">on {runtimeOf(d.author)}</em></span>
-        <time datetime={d.date.toISOString().slice(0,10)}>{fmt.format(d.date)}</time>
-        <span>{d.lang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
-        <span class="num">{d.lang === 'vi' ? `${mins} phút đọc` : `${mins} min read`}</span>
+        <time datetime={isoOf(d.date)}>{fmt.format(d.date)}</time>
+        <span>{vi ? 'Tiếng Việt' : 'English'} · <span class="num">{vi ? `${mins} phút đọc` : `${mins} min read`}</span></span>
         <a class="hist num" href={history} title="Every earlier version, in git">Revision {d.revision} · history ↗</a>
       </div>
-      <div class="prose"><Content /></div>
-      {d.sources?.length ? (
-        <section class="srcs">
-          <div class="sh"><h2>Sources</h2></div>
-          {d.sources.map(s => <a class="b src" href={s} rel="noopener"><span class="idx">{host(s)}</span><div><h3>{s}</h3></div></a>)}
+      {h2s.length > 0 && (
+        <nav class="rail-b rail-toc" aria-label={L.inThis}>
+          <h2>{L.inThis}</h2>
+          <ol>{h2s.map(h => <li><a href={`#${h.slug}`} data-h={h.slug}>{h.text}</a></li>)}</ol>
+        </nav>
+      )}
+      {byHost.size > 0 && (
+        <section class="rail-b rail-src">
+          <h2>{L.sources} <span>{d.sources!.length}</span></h2>
+          {[...byHost].map(([h, urls]) => (
+            <details>
+              <summary><span>{h}</span><span class="num">{urls.length}</span></summary>
+              <ul>{urls.map(u => <li><a href={u} rel="noopener">{u}</a></li>)}</ul>
+            </details>
+          ))}
         </section>
-      ) : null}
-      <nav class="turn" aria-label="More readings">
-        {older ? <a class="turn-a" href={`/readings/${older.id}/`}><span>← Older · {when(older.data.date)}</span><b>{older.data.title}</b></a> : <span class="turn-a end"><span>Oldest</span></span>}
-        <a class="turn-all" href="/readings/">All readings</a>
-        {newer ? <a class="turn-a r" href={`/readings/${newer.id}/`}><span>Newer · {when(newer.data.date)} →</span><b>{newer.data.title}</b></a> : <span class="turn-a r end"><span>Newest</span></span>}
-      </nav>
-    </article>
+      )}
+      {related.length > 0 && (
+        <section class="rail-b rail-next">
+          <h2>{L.next}</h2>
+          {related.map(r => <a class="rail-row" href={`/readings/${r.id}/`} lang={r.data.lang}><i set:html={glyph(r.data.type, 12)} /><span><b>{r.data.title}</b><time datetime={isoOf(r.data.date)}>{isoOf(r.data.date).replace(/-/g, '.')} · {THEME_LABEL[r.data.type]}</time></span></a>)}
+        </section>
+      )}
+      <Notes slug={entry.id} />
+    </aside>
   </div>
+  <script>
+    // the rail's heading list follows the scroll: the last heading above 30% of the viewport is current
+    function bootRail() {
+      const toc = document.querySelector<HTMLElement>('.rail-toc');
+      if (!toc || toc.dataset.booted) return; toc.dataset.booted = '1';
+      const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[data-h]'));
+      const hs = links.map(a => document.getElementById(a.dataset.h!)).filter((h): h is HTMLElement => !!h);
+      if (!hs.length) return;
+      const pick = () => {
+        const y = innerHeight * 0.3; let cur = hs[0];
+        for (const h of hs) if (h.getBoundingClientRect().top <= y) cur = h;
+        links.forEach(a => a.setAttribute('aria-current', a.dataset.h === cur.id ? 'true' : 'false'));
+      };
+      let t = 0;
+      addEventListener('scroll', () => { if (!t) t = requestAnimationFrame(() => { t = 0; pick(); }); }, { passive: true });
+      pick();
+    }
+    document.addEventListener('astro:page-load', bootRail);
+  </script>
 </Base>

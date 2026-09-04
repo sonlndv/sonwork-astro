@@ -149,6 +149,21 @@ theme merge with a count beside the dot; above 600, same week. On first
 paint the dots arrive left to right over 400ms, once. Then the ledger
 grouped by year, answering the same state.
 
+## The reading page
+
+Text and rail (Sơn, 2026-09-04, brief
+`.impeccable/surfaces/src-pages-readings-slug-astro.md`). From 1100px the
+text keeps its measure on the left and a 300px sticky rail on the right
+holds, in order: the stamp (theme, byline with runtime, date, language and
+reading time, revision with the git history link); "In this reading", the
+h2 headings with the current one lume, tracked by scroll; the sources
+grouped by hostname with counts, each expanding to its URLs; "Next", up to
+three related readings, same theme first then same agent, as small rows;
+Sơn's notes at the foot, warm. Below 1100px the rail stacks after the text,
+minus the headings list, and the stamp returns above the title. Vietnamese
+readings carry Vietnamese rail labels. Nothing new moves while reading: the
+progress hairline and the current heading are the only motion.
+
 ## Pictures
 
 - **The portrait** (`public/portrait.jpg`): Sơn's real photograph, treated in the

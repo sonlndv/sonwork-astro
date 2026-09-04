@@ -149,11 +149,11 @@ section{padding:0 0 72px}
 }
 .doc h1{font-weight:600;font-size:clamp(30px,4.2vw,46px);line-height:1.08;letter-spacing:-0.04em;margin:0 0 20px;text-wrap:balance}
 .stamp{font-family:var(--mono);font-size:12px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line-2);margin-bottom:34px}
-.doc .stamp i{font-style:normal;color:var(--ink-2)}
-.doc .stamp .kind{color:var(--lume)}
-.doc .stamp .pub{color:var(--lume);text-decoration:underline;text-underline-offset:3px}
-.doc .stamp .hist{color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
-.doc .stamp .hist:hover{color:var(--lume)}
+.stamp i{font-style:normal;color:var(--ink-2)}
+.stamp .kind{color:var(--lume)}
+.stamp .pub{color:var(--lume);text-decoration:underline;text-underline-offset:3px}
+.stamp .hist{color:var(--ink-3);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--line)}
+.stamp .hist:hover{color:var(--lume)}
 .prose{max-width:var(--measure);font-size:17px;line-height:1.7;font-weight:300}
 .prose p{margin:0 0 20px}
 .prose strong{font-weight:500;color:var(--ink)}
@@ -164,6 +164,48 @@ section{padding:0 0 72px}
 .prose code{font-family:var(--mono);font-size:.86em;background:var(--raise);padding:.12em .38em;border-radius:4px}
 .prose pre{background:var(--raise);border:1px solid var(--line-2);padding:16px 18px;border-radius:6px;overflow-x:auto}
 .prose pre code{background:none;padding:0}
+/* ---------- the reading's rail: stamp, headings, sources by host, next, notes ----------
+   Two panes from 1100px, the rail sticky; below that the rail stacks after the
+   text and the stamp returns above the title (display:contents + order). */
+.rail-b{padding:18px 0 0;margin-top:18px;border-top:1px solid var(--line-2)}   /* padding-bottom 0 beats the section{} rule */
+.rail-grid>.turn{grid-column:1;margin-top:0}
+.rail-b h2{font-size:13px;font-weight:600;margin:0 0 10px;color:var(--ink-2);letter-spacing:-0.01em}
+.rail-b h2 span{font-family:var(--mono);font-size:12px;font-weight:400;color:var(--ink-3);margin-left:6px}
+.rail-toc ol{list-style:none;margin:0;padding:0}
+.rail-toc li{margin:0 0 6px}
+.rail-toc a{display:block;font-size:13.5px;line-height:1.4;color:var(--ink-3);text-decoration:none;padding-left:10px;border-left:1px solid var(--line-2);transition:color .18s var(--out),border-color .18s var(--out)}
+.rail-toc a:hover{color:var(--ink)}
+.rail-toc a[aria-current="true"]{color:var(--lume);border-left-color:var(--lume)}
+.rail-src details{border-bottom:1px solid var(--line-2)}
+.rail-src details:last-of-type{border-bottom:0}
+.rail-src summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;padding:7px 0;font-family:var(--mono);font-size:12px;color:var(--ink-2);list-style:none;transition:color .18s var(--out)}
+.rail-src summary::-webkit-details-marker{display:none}
+.rail-src summary:hover{color:var(--ink)}
+.rail-src summary .num{color:var(--ink-3)}
+.rail-src ul{list-style:none;margin:0 0 8px;padding:0}
+.rail-src li a{display:block;font-family:var(--mono);font-size:12px;line-height:1.5;color:var(--ink-3);word-break:break-all;padding:3px 0;transition:color .18s var(--out)}
+.rail-src li a:hover{color:var(--lume)}
+.rail-row{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line-2);text-decoration:none}
+.rail-row:last-child{border-bottom:0}
+.rail-row i{display:inline-flex;color:var(--lume);margin-top:3px;flex:none}
+.rail-row b{display:block;font-weight:500;font-size:14px;line-height:1.35;color:var(--ink);transition:color .18s var(--out)}
+.rail-row time{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.rail-row:hover b{color:var(--lume)}
+.rail .notes{position:static;margin-top:18px;padding-top:18px;border-top:1px solid var(--line-2)}
+@media (min-width:1100px){
+  .docgrid.rail-grid{grid-template-columns:minmax(0,1fr) 300px;gap:56px;align-items:start}
+  .rail{position:sticky;top:76px;max-height:calc(100vh - 96px);overflow:auto;scrollbar-width:thin;padding-bottom:24px}
+  .rail-stamp{flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:0;padding-bottom:18px}
+}
+@media (max-width:1099px){
+  .docgrid.rail-grid{gap:0}
+  .rail{display:contents}
+  .rail-stamp{order:-1;margin-bottom:28px}
+  .rail-grid .doc{order:0}
+  .rail-b,.rail .notes{order:1}
+  .rail-grid>.turn{order:2;margin-top:56px}
+  .rail-toc{display:none}
+}
 .srcs{padding-top:36px}
 .srcs .b{grid-template-columns:minmax(0,1fr)}
 .srcs .b h3{font-size:14px;word-break:break-all;font-family:var(--mono);font-weight:400}
