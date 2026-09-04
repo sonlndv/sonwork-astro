@@ -15,28 +15,12 @@ for (const r of reports) {
   byYear.get(y)!.push(r);
 }
 const years = [...byYear.keys()].sort((a, b) => b - a);
-import { THEMES } from '../../content.config';
-import { THEME_LABEL } from '../../lib/glyphs';
-const types = THEMES;
-const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] === v).length;
 ---
 <Base title="Readings — Lê Sơn" current="readings">
   <div class="intro" style="padding:72px 0 36px">
     <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">The readings, all of them.</h1>
     <p class="last"><span id="shown">{reports.length}</span> of {reports.length}, newest first, filed by my research agents. <kbd class="kk">⌘K</kbd> searches the full text.</p>
     <p class="gloss"><b>news</b> short market updates · <b>country</b> a country's model, focus and growth · <b>industry</b> the value chain and what matters in it · <b>company</b> a profile built around operational excellence · <b>business model</b> how a model actually works · <b>sociology</b> game theory and social behaviour, applied to business</p>
-  </div>
-
-  <div class="filters" role="group" aria-label="Filter readings">
-    <div class="fgroup">
-      <button type="button" data-f="type" data-v="" aria-pressed="true">All types</button>
-      {types.filter(t => count('type', t) > 0).map(t => <button type="button" data-f="type" data-v={t} aria-pressed="false">{THEME_LABEL[t]} <span>{count('type', t)}</span></button>)}
-    </div>
-    <div class="fgroup">
-      <button type="button" data-f="lang" data-v="" aria-pressed="true">Both languages</button>
-      {count('lang','en') > 0 && <button type="button" data-f="lang" data-v="en" aria-pressed="false">English <span>{count('lang','en')}</span></button>}
-      {count('lang','vi') > 0 && <button type="button" data-f="lang" data-v="vi" aria-pressed="false">Tiếng Việt <span>{count('lang','vi')}</span></button>}
-    </div>
   </div>
 
   {reports.length > 0 && <Field reports={reports} />}
@@ -51,49 +35,60 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
   <div id="none" hidden class="empty-bot"><Bot size={30} title="Alfred" /><p class="empty">Alfred has nothing that matches those filters.</p></div>
 
   <script>
-  function bootFilters() {
-    if (!document.querySelector('.filters') || (document.querySelector('.filters') as HTMLElement).dataset.booted) return;
-    (document.querySelector('.filters') as HTMLElement).dataset.booted = '1';
+  // The map is the instrument: row labels filter by theme (press again to clear),
+  // the language buttons toggle, the preview line follows hover and focus, the
+  // list below answers the same state. Everything works without this script:
+  // nodes are links and the list is complete.
+  function bootField() {
+    const field = document.querySelector<HTMLElement>('.field');
+    if (!field || field.dataset.booted) return; field.dataset.booted = '1';
     const state: Record<string, string> = { type: '', lang: '' };
-    const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-type][data-lang]'));
+    const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-id][data-type][data-lang]'));
     const sections = Array.from(document.querySelectorAll<HTMLElement>('section[data-year]'));
     const shown = document.getElementById('shown')!;
     const none = document.getElementById('none')!;
-    // the map: nodes outside the filters dim rather than vanish, so the whole archive stays as a ghost
-    const nodes = Array.from(document.querySelectorAll<SVGElement>('.field .node'));
-    const links = Array.from(document.querySelectorAll<SVGElement>('.field .link'));
-    const fits = (el: { dataset: DOMStringMap }) => (!state.type || el.dataset.type === state.type) && (!state.lang || el.dataset.lang === state.lang);
-    // linked hover: a row lights its node on the map, a node lights its row
-    const nodeOf = (id: string) => document.querySelector<SVGElement>(`.field .node[data-id="${CSS.escape(id)}"]`);
-    const rowOf = (id: string) => document.querySelector<HTMLElement>(`[data-id="${CSS.escape(id)}"][data-type]`);
-    rows.forEach(r => { r.addEventListener('pointerenter', () => nodeOf(r.dataset.id!)?.classList.add('hot')); r.addEventListener('pointerleave', () => nodeOf(r.dataset.id!)?.classList.remove('hot')); });
-    nodes.forEach(n => { n.addEventListener('pointerenter', () => rowOf(n.dataset.id!)?.classList.add('hot')); n.addEventListener('pointerleave', () => rowOf(n.dataset.id!)?.classList.remove('hot')); });
+    const nodes = Array.from(field.querySelectorAll<HTMLElement>('.node'));
+    const links = Array.from(field.querySelectorAll<SVGElement>('.link'));
+    const buttons = Array.from(field.querySelectorAll<HTMLButtonElement>('button[data-f]'));
+    const pv = document.getElementById('field-pv')!;
+    const nodeFits = (n: HTMLElement) => (!state.type || n.dataset.type === state.type) && (!state.lang || (n.dataset.langs || '').split(' ').includes(state.lang));
+    const rowFits = (r: HTMLElement) => (!state.type || r.dataset.type === state.type) && (!state.lang || r.dataset.lang === state.lang);
+    const nodeOf = (id: string) => nodes.find(n => (n.dataset.ids || '').split(' ').includes(id));
+    const rowsOf = (n: HTMLElement) => (n.dataset.ids || '').split(' ').map(id => rows.find(r => r.dataset.id === id)).filter(Boolean) as HTMLElement[];
+    // preview: the line under the map shows the hovered or focused node
+    const preview = (n: HTMLElement) => { const t = field.querySelector<HTMLElement>(`.field-pvs [data-for="${CSS.escape(n.dataset.key!)}"]`); if (t) pv.innerHTML = t.innerHTML; };
+    nodes.forEach(n => {
+      const on = () => { preview(n); rowsOf(n).forEach(r => r.classList.add('hot')); };
+      const off = () => rowsOf(n).forEach(r => r.classList.remove('hot'));
+      n.addEventListener('pointerenter', on); n.addEventListener('focus', on);
+      n.addEventListener('pointerleave', off); n.addEventListener('blur', off);
+    });
+    rows.forEach(r => {
+      r.addEventListener('pointerenter', () => { const n = nodeOf(r.dataset.id!); if (n) { n.classList.add('hot'); preview(n); } });
+      r.addEventListener('pointerleave', () => nodeOf(r.dataset.id!)?.classList.remove('hot'));
+    });
     function apply() {
-      let n = 0;
-      nodes.forEach(el => el.classList.toggle('off', !fits(el)));
-      const lit = new Set(nodes.filter(fits).map(el => el.dataset.i));
+      nodes.forEach(n => n.classList.toggle('off', !nodeFits(n)));
+      const lit = new Set(nodes.filter(nodeFits).map(n => n.dataset.i));
       links.forEach(l => l.classList.toggle('off', !(lit.has(l.dataset.a) && lit.has(l.dataset.b))));
-      for (const r of rows) {
-        const ok = (!state.type || r.dataset.type === state.type) && (!state.lang || r.dataset.lang === state.lang);
-        r.hidden = !ok; if (ok) n++;
-      }
+      let count = 0;
+      for (const r of rows) { const ok = rowFits(r); r.hidden = !ok; if (ok) count++; }
       for (const s of sections) {
         const k = s.querySelectorAll<HTMLElement>('[data-type]:not([hidden])').length;
         s.hidden = k === 0;
         s.querySelector('[data-year-count]')!.textContent = `${k} filed`;
       }
-      shown.textContent = String(n); none.hidden = n > 0;
+      shown.textContent = String(count); none.hidden = count > 0;
+      buttons.forEach(b => b.setAttribute('aria-pressed', String(state[b.dataset.f!] === b.dataset.v)));
       const q = new URLSearchParams(); if (state.type) q.set('type', state.type); if (state.lang) q.set('lang', state.lang);
       history.replaceState(null, '', q.toString() ? '?' + q : location.pathname);
     }
-    document.querySelectorAll<HTMLButtonElement>('.filters button').forEach(b => b.addEventListener('click', () => {
-      const f = b.dataset.f!; state[f] = b.dataset.v!;
-      document.querySelectorAll<HTMLButtonElement>(`.filters button[data-f="${f}"]`).forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-      apply();
-    }));
+    buttons.forEach(b => b.addEventListener('click', () => { const f = b.dataset.f!, v = b.dataset.v!; state[f] = state[f] === v ? '' : v; apply(); }));
     const init = new URLSearchParams(location.search);
-    for (const f of ['type', 'lang']) { const v = init.get(f) || ''; const b = document.querySelector<HTMLButtonElement>(`.filters button[data-f="${f}"][data-v="${v}"]`); if (b && v) b.click(); }
+    let fromUrl = false;
+    for (const f of ['type', 'lang']) { const v = init.get(f) || ''; if (v && buttons.some(b => b.dataset.f === f && b.dataset.v === v)) { state[f] = v; fromUrl = true; } }
+    if (fromUrl) apply();
   }
-  document.addEventListener('astro:page-load', bootFilters);
+  document.addEventListener('astro:page-load', bootField);
   </script>
 </Base>

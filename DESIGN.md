@@ -133,10 +133,21 @@ viewport; rows and contact lines stagger by index. CSS scroll timelines only.
 
 ## The readings index
 
-`/readings/` opens on **the field** (once there are four or more readings): the
-archive drawn as a map, x by date, rows by kind. Filters below it hide nodes on
-the map and rows in the list together. Then the glossed kinds, the filters, and
-the ledger grouped by year.
+`/readings/` opens on **the field**, the archive drawn as the instrument
+(Sơn, 2026-09-04, brief `.impeccable/surfaces/src-pages-readings-index-astro.md`):
+x by date with a dated axis and month ticks, rows by theme, a node per
+reading sized by revisions, a hairline to the previous reading by the same
+agent. The row labels are the theme filter (press to keep, press again to
+clear); the language buttons sit top-right of the map; there is no separate
+filter bar. A filter dims what it excludes to 14% rather than removing it.
+Hover or focus a node and the preview line under the map shows glyph, title,
+one line of dek, byline and date; at rest it shows the newest reading. A
+hovered row lights its node and the reverse. Nodes are positioned HTML, so
+they stay round and on their rows at every width; only the row lines and the
+links are SVG. Density: up to 120 nodes one each; above that same day and
+theme merge with a count beside the dot; above 600, same week. On first
+paint the dots arrive left to right over 400ms, once. Then the ledger
+grouped by year, answering the same state.
 
 ## Pictures
 

@@ -1,49 +1,97 @@
 ---
-// The archive, drawn. One node per reading: x by date, y by theme, size by
-// revision, a hairline from each reading to the previous one by the same
-// agent. Server-rendered SVG; hover and motion are CSS, so it is complete
-// without JavaScript. The readings index dims nodes that fall outside the
-// active filters and lights a node when its row is hovered, and the reverse.
+// The archive as the instrument (brief: .impeccable/surfaces/src-pages-readings-index-astro.md).
+// x is time, rows are the six themes, a node is a reading (size: revisions),
+// a hairline joins each reading to the previous by the same agent. The row
+// labels are the theme filter; the language buttons sit top-right. Hover or
+// focus a node and its preview appears on the line under the map; click opens.
+// Nodes are positioned HTML, not SVG, so they stay round and on their rows at
+// any width. Server-rendered; the list below is the no-script fallback.
+// Density: up to 120 nodes one each; above that, same day and theme merge;
+// above 600, same week and theme merge. The preview then lists the titles.
 import type { CollectionEntry } from 'astro:content';
 import { glyph, THEME_LABEL } from '../lib/glyphs';
+import { runtimeOf } from '../lib/byline';
 import { THEMES } from '../content.config';
-interface Props { reports: CollectionEntry<'reports'>[] }
+type Report = CollectionEntry<'reports'>;
+interface Props { reports: Report[] }
 const { reports } = Astro.props;
 const kinds = [...THEMES];
-const W = 1000, H = 300, PAD = 60;
+const W = 1000, H = 300, PAD = 48;
 const times = reports.map(r => r.data.date.getTime());
 const t0 = Math.min(...times, Date.now() - 30 * 864e5), t1 = Math.max(...times, Date.now());
 const x = (t: number) => PAD + ((t - t0) / Math.max(1, t1 - t0)) * (W - PAD * 2);
 const y = (k: string) => 34 + kinds.indexOf(k) * ((H - 68) / (kinds.length - 1));
+const iso = (t: number | Date) => new Date(t).toISOString().slice(0, 10);
+const dot = (t: number | Date) => iso(t).replace(/-/g, '.');
+const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'short' }).format(d);
+
+// density plan
+const mode = reports.length > 600 ? 'week' : reports.length > 120 ? 'day' : 'one';
+const week = (d: Date) => { const c = new Date(d); c.setUTCDate(c.getUTCDate() - ((c.getUTCDay() + 6) % 7)); return iso(c); };
+const bucket = (r: Report) => mode === 'one' ? r.id : `${mode === 'week' ? week(r.data.date) : iso(r.data.date)}|${r.data.type}`;
 const sorted = [...reports].sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
-const nodes = sorted.map((r, i) => ({
-  id: r.id, title: r.data.title, author: r.data.author, kind: r.data.type, lang: r.data.lang,
-  cx: x(r.data.date.getTime()), cy: y(r.data.type), r: 4 + Math.min(4, r.data.revision), i,
-}));
-// one link per node, back to the previous reading by the same agent: n lines, not n²
-const lastBy = new Map<string, typeof nodes[0]>();
+const groups = new Map<string, Report[]>();
+for (const r of sorted) { const k = bucket(r); groups.set(k, [...(groups.get(k) ?? []), r]); }
+const nodes = [...groups.entries()].map(([key, items], i) => {
+  const t = items.reduce((s, r) => s + r.data.date.getTime(), 0) / items.length;
+  const rev = Math.max(...items.map(r => r.data.revision));
+  return {
+    key, items, i, kind: items[0].data.type, t,
+    ids: items.map(r => r.id).join(' '),
+    langs: [...new Set(items.map(r => r.data.lang))].join(' '),
+    cx: x(t) / W * 100, cy: y(items[0].data.type) / H * 100,
+    r: 5 + Math.min(4, rev) + Math.min(6, items.length - 1),
+    href: items.length === 1 ? `/readings/${items[0].id}/` : `/readings/?type=${items[0].data.type}`,
+  };
+});
+// links: each reading to the previous by the same agent, drawn between their nodes
+const nodeOf = new Map<string, typeof nodes[0]>();
+for (const n of nodes) for (const r of n.items) nodeOf.set(r.id, n);
+const lastBy = new Map<string, Report>();
 const links: [typeof nodes[0], typeof nodes[0]][] = [];
-for (const n of nodes) { const p = lastBy.get(n.author); if (p) links.push([p, n]); lastBy.set(n.author, n); }
-const iso = (t: number) => new Date(t).toISOString().slice(0, 10).replace(/-/g, '.');
+for (const r of sorted) { const p = lastBy.get(r.data.author); if (p) { const a = nodeOf.get(p.id)!, b = nodeOf.get(r.id)!; if (a !== b) links.push([a, b]); } lastBy.set(r.data.author, r); }
+// month ticks, skipping any within 7% of an end
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const ticks: { x: number; label: string }[] = [];
+for (const d = new Date(new Date(t0).getUTCFullYear(), new Date(t0).getUTCMonth() + 1, 1); d.getTime() < t1; d.setMonth(d.getMonth() + 1)) {
+  const px = x(d.getTime()) / W * 100; if (px > 7 && px < 93) ticks.push({ x: px, label: `${MON[d.getMonth()]}${d.getMonth() === 0 ? ' ' + d.getFullYear() : ''}` });
+}
+const count = (v: string) => reports.filter(r => r.data.lang === v).length;
+const newest = [...reports].sort((a, b) => b.data.date.getTime() - a.data.date.getTime())[0];
 ---
-<figure class="field" aria-label="The archive as a map: readings by date and theme">
-  <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" class="field-bg" aria-hidden="true">
-    {kinds.map(k => <line x1={PAD - 20} x2={W - PAD + 20} y1={y(k)} y2={y(k)} />)}
-  </svg>
-  <div class="field-labels" aria-hidden="true">
-    {kinds.map(k => <span style={`top:${(y(k) / H) * 100}%`} set:html={glyph(k, 12) + `<i>${THEME_LABEL[k]}</i>`} />)}
+<figure class="field" aria-label="The archive as a map: readings by date and theme. Row labels filter by theme.">
+  <div class="field-lang" role="group" aria-label="Language">
+    {count('en') > 0 && <button type="button" data-f="lang" data-v="en" aria-pressed="false">English <span>{count('en')}</span></button>}
+    {count('vi') > 0 && <button type="button" data-f="lang" data-v="vi" aria-pressed="false">Tiếng Việt <span>{count('vi')}</span></button>}
   </div>
-  <svg viewBox={`0 0 ${W} ${H}`} class="field-fg">
-    {links.map(([a, b]) => <line class="link" data-a={a.i} data-b={b.i} x1={a.cx} y1={a.cy} x2={b.cx} y2={b.cy} />)}
+  <div class="field-plot">
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" class="field-bg" aria-hidden="true">
+      {kinds.map(k => <line class="row" x1={PAD - 16} x2={W - PAD + 16} y1={y(k)} y2={y(k)} />)}
+      {links.map(([a, b]) => <line class="link" data-a={a.i} data-b={b.i} x1={a.cx / 100 * W} y1={a.cy / 100 * H} x2={b.cx / 100 * W} y2={b.cy / 100 * H} />)}
+    </svg>
+    <div class="field-labels" role="group" aria-label="Filter by theme">
+      {kinds.map(k => <button type="button" data-f="type" data-v={k} aria-pressed="false" style={`top:${(y(k) / H) * 100}%`}><i set:html={glyph(k, 12)} />{THEME_LABEL[k]}</button>)}
+    </div>
     {nodes.map(n => (
-      <a href={`/readings/${n.id}/`} class="node" data-id={n.id} data-i={n.i} data-type={n.kind} data-lang={n.lang} style={`--d:${(n.i * 137) % 900}ms`}>
-        <circle cx={n.cx} cy={n.cy} r={n.r + 10} class="halo" />
-        <circle cx={n.cx} cy={n.cy} r={n.r} class="dot" />
-        <text x={n.cx} y={n.cy - n.r - 10} text-anchor={n.cx > W * 0.7 ? 'end' : n.cx < W * 0.3 ? 'start' : 'middle'}>{n.title}</text>
-        <title>{n.title} — {n.author}</title>
+      <a class="node" href={n.href} data-key={n.key} data-i={n.i} data-ids={n.ids} data-type={n.kind} data-langs={n.langs} style={`left:${n.cx}%;top:${n.cy}%;--r:${n.r}px;--x:${(n.cx / 100).toFixed(3)};--d:${(n.i * 137) % 900}ms`} aria-label={n.items.length === 1 ? n.items[0].data.title : `${n.items.length} readings, ${THEME_LABEL[n.kind]}`}>
+        <i class="halo"></i><i class="dot"></i>{n.items.length > 1 && <b>{n.items.length}</b>}
       </a>
     ))}
-  </svg>
-  <div class="field-axis" aria-hidden="true"><span>{iso(t0)}</span><span>{iso(t1)} · today</span></div>
-  <figcaption>The archive, drawn. Left to right is time; rows are themes; size is how often a reading was revised; a line joins a reading to the previous one by the same agent. Filters dim what they exclude.</figcaption>
+  </div>
+  <div class="field-axis" aria-hidden="true">
+    <span class="end-l">{dot(t0)}</span>
+    {ticks.map(t => <span class="tick" style={`left:${t.x}%`}>{t.label}</span>)}
+    <span class="end-r">{dot(t1)} · today</span>
+  </div>
+  <div class="field-pv" id="field-pv" aria-live="polite">
+    {newest && <><i set:html={glyph(newest.data.type, 12)} /><b>{newest.data.title}</b><span class="dek">{newest.data.dek}</span><span class="who">by {newest.data.author} on {runtimeOf(newest.data.author)} · {when(newest.data.date, newest.data.lang)}</span></>}
+  </div>
+  <div class="field-pvs" hidden>
+    {nodes.map(n => n.items.length === 1 ? (
+      <div data-for={n.key}><i set:html={glyph(n.kind, 12)} /><b>{n.items[0].data.title}</b><span class="dek">{n.items[0].data.dek}</span><span class="who">by {n.items[0].data.author} on {runtimeOf(n.items[0].data.author)} · {when(n.items[0].data.date, n.items[0].data.lang)}</span></div>
+    ) : (
+      <div data-for={n.key}><i set:html={glyph(n.kind, 12)} /><b>{n.items.length} readings · {THEME_LABEL[n.kind]} · {mode === 'week' ? 'week of ' : ''}{dot(n.items[0].data.date)}</b><span class="dek">{n.items.slice(0, 3).map(r => r.data.title).join(' · ')}{n.items.length > 3 ? ` · and ${n.items.length - 3} more` : ''}</span></div>
+    ))}
+  </div>
+  <figcaption>The archive, drawn. Left to right is time; rows are themes, and a row label filters that theme; size is how often a reading was revised; a line joins a reading to the previous one by the same agent.</figcaption>
 </figure>

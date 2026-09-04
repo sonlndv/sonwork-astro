@@ -4,7 +4,7 @@ slug: src-pages-readings-index-astro
 primary_target: src/pages/readings/index.astro
 related_targets: ["src/components/Field.astro", "src/components/ReportRow.astro", "route:/readings"]
 mode: operate
-status: proposed
+status: built 2026-09-04
 date: 2026-09-04
 ---
 
