@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { glyph, THEME_LABEL } from '../lib/glyphs';
+import { runtimeOf } from '../lib/byline';
 import Bot from './Bot.astro';
 interface Props { entry: CollectionEntry<'reports'>; href?: string }
 const { entry, href = `/readings/${entry.id}/` } = Astro.props;
@@ -14,7 +15,7 @@ const idx = iso.replace(/-/g, '.');
     <h3>{d.title}</h3>
     <p>{d.dek}</p>
     <div class="meta">
-      <i class="by"><Bot size={8} /> {d.author}</i>
+      <span class="by"><Bot size={8} /> by <i>{d.author}</i> <em class="rt">on {runtimeOf(d.author)}</em></span>
       {d.revision > 1 && <><span class="sep"></span><span class="num">rev {d.revision}</span></>}
     </div>
   </div>

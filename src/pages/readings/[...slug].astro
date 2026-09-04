@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import Bot from '../../components/Bot.astro';
 import { getCollection, render } from 'astro:content';
 import { THEME_LABEL } from '../../lib/glyphs';
+import { runtimeOf } from '../../lib/byline';
 
 export async function getStaticPaths() {
   const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -23,7 +24,7 @@ const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/conte
       <h1>{d.title}</h1>
       <div class="stamp">
         <span class="kind">{THEME_LABEL[d.type]}</span>
-        <span class="by"><Bot size={8} /> <i>{d.author}</i></span>
+        <span class="by"><Bot size={8} /> by <i>{d.author}</i> <em class="rt">on {runtimeOf(d.author)}</em></span>
         <time datetime={d.date.toISOString().slice(0,10)}>{fmt.format(d.date)}</time>
         <span>{d.lang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
         <a class="hist num" href={history} title="Every earlier version, in git">Revision {d.revision} · history ↗</a>

@@ -72,7 +72,10 @@ section. The old pages sit in `.impeccable/retired/`.
 **Home vs About:** the home is the business: one person, a team of AI agents,
 the stack as a diagram, then the portfolio: Sonar, the research and writing engine
 (live, this site, `/projects/sonar/`), the only project for now. The readings are
-the product in use. The story is find, research, publish; do not write "argue"
+the product in use. "What Sonar found" shows one day: the newest day with
+readings, one per theme, in theme order (`src/lib/found.ts`); the archive is
+`/readings/`. Bylines name the agent and its runtime, "by fred on Hermes"
+(`src/lib/byline.ts`; add a runtime there, never a per-agent entry). The story is find, research, publish; do not write "argue"
 or "notes" into the product story (notes exist as a quiet feature). The person,
 his day job and contact live on `/about/`.
 

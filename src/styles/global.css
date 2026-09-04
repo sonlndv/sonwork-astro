@@ -481,6 +481,8 @@ body::before{z-index:-2}
 /* ---------- the bot: the fleet's face ---------- */
 .bot{display:inline-block;vertical-align:-0.15em;flex:none}
 .by{display:inline-flex;align-items:center;gap:5px}
+.by i{font-style:normal;color:var(--ink-2)}          /* the agent's name */
+.by .rt{font-style:normal;color:var(--ink-3)}        /* its runtime: Hermes, Grok Bot, Claude */
 .by .bot{vertical-align:0}
 .eyes{transform-origin:12px 9.6px}
 .by .bot{vertical-align:-0.2em}

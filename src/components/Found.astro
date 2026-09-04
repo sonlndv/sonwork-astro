@@ -4,6 +4,7 @@
 import type { CollectionEntry } from 'astro:content';
 import Bot from './Bot.astro';
 import { glyph, THEME_LABEL } from '../lib/glyphs';
+import { runtimeOf } from '../lib/byline';
 import { THEMES } from '../content.config';
 interface Props { reports: CollectionEntry<'reports'>[]; limit?: number; id?: string }
 const { reports, limit = 7, id = 'found' } = Astro.props;
@@ -27,7 +28,7 @@ const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 
           <div class="feat-kind kind" set:html={glyph(r.data.type, 13) + `<em>${THEME_LABEL[r.data.type]}</em>`} />
           <h3>{r.data.title}</h3>
           <p>{r.data.dek}</p>
-          <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span><span class="sep"></span><time datetime={iso(r.data.date)}>{when(r.data.date, r.data.lang)}</time>{r.data.revision > 1 && <><span class="sep"></span><span class="num">rev {r.data.revision}</span></>}<span class="feat-go">Read →</span></div>
+          <div class="meta"><span class="by"><Bot size={8} /> by <i>{r.data.author}</i> <em class="rt">on {runtimeOf(r.data.author)}</em></span><span class="sep"></span><time datetime={iso(r.data.date)}>{when(r.data.date, r.data.lang)}</time>{r.data.revision > 1 && <><span class="sep"></span><span class="num">rev {r.data.revision}</span></>}<span class="feat-go">Read →</span></div>
         </div>
         <div class="feat-art" aria-hidden="true" set:html={glyph(r.data.type, 220)} />
       </a>
@@ -36,7 +37,7 @@ const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 
         <div class="card-top"><span class="kind" set:html={glyph(r.data.type, 12) + `<em>${THEME_LABEL[r.data.type]}</em>`} /><time datetime={iso(r.data.date)}>{iso(r.data.date).replace(/-/g, '.')}</time></div>
         <h3>{r.data.title}</h3>
         <p>{r.data.dek}</p>
-        <div class="meta"><span class="by"><Bot size={8} /> {r.data.author}</span>{r.data.lang === 'vi' && <><span class="sep"></span><span>vi</span></>}</div>
+        <div class="meta"><span class="by"><Bot size={8} /> by <i>{r.data.author}</i> <em class="rt">on {runtimeOf(r.data.author)}</em></span>{r.data.lang === 'vi' && <><span class="sep"></span><span>vi</span></>}</div>
       </a>
     ))}
     <p class="empty none" hidden>Nothing of that theme yet.</p>

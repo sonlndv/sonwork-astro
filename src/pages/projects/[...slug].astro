@@ -5,6 +5,9 @@ import Found from '../../components/Found.astro';
 import Sonar from '../../components/Sonar.astro';
 import Subscribe from '../../components/Subscribe.astro';
 import { getCollection, render } from 'astro:content';
+import { latestDay } from '../../lib/found';
+import { runtimeOf } from '../../lib/byline';
+import { THEMES } from '../../content.config';
 
 export async function getStaticPaths() {
   const projects = await getCollection('projects');
@@ -14,6 +17,7 @@ const { entry } = Astro.props;
 const d = entry.data;
 const { Content } = await render(entry);
 const reports = entry.id === 'sonar' ? (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime()) : [];
+const day = latestDay(reports);
 const journal = (await getCollection('journal')).filter(j => j.data.project === entry.id).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 const rendered = await Promise.all(journal.map(async j => ({ j, C: (await render(j)).Content })));
 const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(x);
@@ -28,8 +32,8 @@ const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', mont
 
   {entry.id === 'sonar' && (
     <section class="sec" id="found">
-      <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>{reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
-      <Found reports={reports} id="found-sonar" />
+      <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>{day.date ? `${day.day.replace(/-/g, '.')} · ${day.items.length} of ${THEMES.length} themes` : 'nothing filed yet'}</span><a href="/readings/">All {reports.length} readings →</a></div></header>
+      <Found reports={day.items} id="found-sonar" />
       <Subscribe />
     </section>
   )}
@@ -39,7 +43,7 @@ const fmt = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', mont
     {journal.length === 0 && <div class="empty-bot"><Bot size={30} /><p class="empty">Nothing written yet.</p></div>}
     {rendered.map(({ j, C }) => (
       <article class="diary">
-        <div class="idx"><time datetime={j.data.date.toISOString().slice(0,10)}>{j.data.date.toISOString().slice(0,10).replace(/-/g,'.')}</time><span class="by"><Bot size={8} /> {j.data.author}</span></div>
+        <div class="idx"><time datetime={j.data.date.toISOString().slice(0,10)}>{j.data.date.toISOString().slice(0,10).replace(/-/g,'.')}</time><span class="by"><Bot size={8} /> <i>{j.data.author}</i> <em class="rt">on {runtimeOf(j.data.author)}</em></span></div>
         <div><h3>{j.data.title}</h3><div class="prose small"><C /></div></div>
       </article>
     ))}

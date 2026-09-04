@@ -7,9 +7,13 @@ import Found from '../components/Found.astro';
 import Sonar from '../components/Sonar.astro';
 import Subscribe from '../components/Subscribe.astro';
 import { glyph } from '../lib/glyphs';
+import { latestDay } from '../lib/found';
+import { THEMES } from '../content.config';
 import { getCollection } from 'astro:content';
 
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+// The home shows one day of research: the newest day, one reading per theme.
+const day = latestDay(reports);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
@@ -73,8 +77,8 @@ const ticker = reports.slice(0, 8);
   </section>
 
   <section class="sec" id="readings">
-    <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>the research engine · {reports.length} readings</span><a href="/readings/">All readings →</a></div></header>
-    <Found reports={reports} id="found-home" />
+    <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>{day.date ? `${day.day.replace(/-/g, '.')} · ${day.items.length} of ${THEMES.length} themes` : 'the research engine'}</span><a href="/readings/">All {reports.length} readings →</a></div></header>
+    <Found reports={day.items} id="found-home" />
     <Subscribe />
   </section>
 

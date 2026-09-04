@@ -145,7 +145,11 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   agents, building a business." The home is the business: the stack diagram,
   the portfolio (**Sonar**, the research and writing engine, live, this site;
   the only project as of 2026-09-03, F1 YouTube removed), then "What Sonar found" (the readings). Sonar's
-  profile page repeats that block. The engine's story is
+  profile page repeats that block. **"What Sonar found" is one day** (Son,
+  2026-09-04): the newest day that has readings, one per theme, in theme
+  order, because the engine files daily; the archive is `/readings/`
+  (`src/lib/found.ts`). Bylines read "by <agent> on <runtime>" (Hermes, Grok
+  Bot, Claude; `src/lib/byline.ts`). The engine's story is
   **find, research, publish**; "argue" and "notes" are not part of the product
   story (notes remain a quiet feature). Each project has a profile and a daily
   build diary. The operating brief for every agent: OPERATING.md (was
