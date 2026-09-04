@@ -3,30 +3,61 @@
 // One person decides; three runtimes do the work; one engine, Sonar,
 // researches and writes for every project. Names here are the decision of 2026-09-03
 // (PRODUCT.md, AGENTS.md); change them there first.
+//
+// It is a live circuit. Each tile carries that runtime's real numbers from
+// the collections (readings filed, diary posts, last active day). Hovering or
+// focusing a tile draws the signal from Sơn into it and out to Sonar; the
+// wires are two thin SVGs over the existing stubs, drawn with CSS only, so
+// the diagram is complete without JavaScript and still under reduced motion.
+import { getCollection } from 'astro:content';
 import Bot from './Bot.astro';
 import Sonar from './Sonar.astro';
+import { runtimeOf } from '../lib/byline';
+
+const reports = await getCollection('reports');
+const journal = await getCollection('journal');
+const live = (rt: string) => {
+  const rs = reports.filter(r => runtimeOf(r.data.author) === rt);
+  const js = journal.filter(j => runtimeOf(j.data.author) === rt);
+  const t = [...rs, ...js].map(x => x.data.date.getTime());
+  const last = t.length ? new Date(Math.max(...t)) : null;
+  return { readings: rs.length, diary: js.length, last: last ? last.toISOString().slice(5, 10).replace('-', '.') : null };
+};
+const tiles = [
+  { rt: 'AI stack', key: 'Claude', name: 'Claude', mark: 'mono', text: 'Where I work: build, deliver and ship the site, the tools and the programs.' },
+  { rt: 'Grok Bot', key: 'Grok Bot', name: 'Alfred', mark: 'bot', text: 'Chief Everything Officer. Runs the teams, the research and the management.' },
+  { rt: 'Hermes', key: 'Hermes', name: 'Fred', mark: 'dim', text: 'Maintains the brain and the server, and researches for Sonar.' },
+].map(t => ({ ...t, ...live(t.key) }));
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+// The wires are CSS segments, not SVG: a vertical from the centre, a horizontal
+// to the lane, a vertical into the tile; they draw in sequence with transforms
+// and stay pixel-exact at any width. Lane 2 is the centre lane, one straight line.
+const lanes = [1, 2, 3];
 ---
 <div class="stack" role="img" aria-label="Sơn decides. Three runtimes: Claude, the AI stack, is where Sơn builds and ships. Alfred on Grok Bot runs the teams, the research and the management. Fred on Hermes maintains the brain and the server and researches for Sonar. Sonar researches and writes for every project in the portfolio.">
-  <div class="stack-src"><span>Sơn</span><em>decides</em></div>
+  <div class="stack-src">
+    <span>Sơn</span><em>decides</em>
+    <span class="wire wire-top" aria-hidden="true">
+      {lanes.map(l => <><i class="ws v1" data-l={l}></i><i class="ws h" data-l={l}></i><i class="ws v2" data-l={l}></i></>)}
+    </span>
+  </div>
   <ol class="stack-row">
-    <li class="tile">
-      <span class="rt">AI stack</span>
-      <span class="mk mk-mono" aria-hidden="true">&gt;_</span>
-      <b>Claude</b>
-      <p>Where I work: build, deliver and ship the site, the tools and the programs.</p>
-    </li>
-    <li class="tile">
-      <span class="rt">Grok Bot</span>
-      <span class="mk"><Bot size={22} /></span>
-      <b>Alfred</b>
-      <p>Chief Everything Officer. Runs the teams, the research and the management.</p>
-    </li>
-    <li class="tile">
-      <span class="rt">Hermes</span>
-      <span class="mk"><Bot size={22} class="dim" /></span>
-      <b>Fred</b>
-      <p>Maintains the brain and the server, and researches for Sonar.</p>
-    </li>
+    {tiles.map(t => (
+      <li class="tile" tabindex="0">
+        <span class="rt">{t.rt}</span>
+        {t.mark === 'mono' && <span class="mk mk-mono" aria-hidden="true">&gt;_</span>}
+        {t.mark === 'bot' && <span class="mk"><Bot size={22} /></span>}
+        {t.mark === 'dim' && <span class="mk"><Bot size={22} class="dim" /></span>}
+        <b>{t.name}</b>
+        <p>{t.text}</p>
+        <span class="tile-live">{plural(t.readings, 'reading', 'readings')} · {plural(t.diary, 'diary post', 'diary posts')}{t.last && <> · last {t.last}</>}</span>
+      </li>
+    ))}
   </ol>
-  <div class="stack-out"><Sonar size={16} /><span>Sonar</span><em>researches and writes · for every project in the portfolio</em></div>
+  <div class="stack-out">
+    <span class="wire wire-bot" aria-hidden="true">
+      {lanes.map(l => <><i class="ws v2" data-l={l}></i><i class="ws h" data-l={l}></i><i class="ws v1" data-l={l}></i></>)}
+    </span>
+    <Sonar size={16} /><span>Sonar</span><em>researches and writes · for every project in the portfolio</em>
+  </div>
 </div>

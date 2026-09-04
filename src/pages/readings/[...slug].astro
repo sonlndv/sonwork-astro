@@ -17,8 +17,11 @@ const { Content } = await render(entry);
 const fmt = new Intl.DateTimeFormat(d.lang === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 // Every revision survives in git. Surface it instead of only claiming it.
 const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/content/reports/${entry.id}.md`;
+const words = (entry.body ?? '').split(/\s+/).filter(Boolean).length;
+const mins = Math.max(1, Math.round(words / 220));
 ---
 <Base title={`${d.title} — Lê Sơn`} description={d.dek} current="readings" lang={d.lang}>
+  <div class="doc-progress" aria-hidden="true"></div>
   <div class="docgrid one">
     <article class="doc" data-pagefind-body data-pagefind-meta={`author:${d.author}, type:${d.type}`}>
       <h1>{d.title}</h1>
@@ -27,6 +30,7 @@ const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/conte
         <span class="by"><Bot size={8} /> by <i>{d.author}</i> <em class="rt">on {runtimeOf(d.author)}</em></span>
         <time datetime={d.date.toISOString().slice(0,10)}>{fmt.format(d.date)}</time>
         <span>{d.lang === 'vi' ? 'Tiếng Việt' : 'English'}</span>
+        <span class="num">{d.lang === 'vi' ? `${mins} phút đọc` : `${mins} min read`}</span>
         <a class="hist num" href={history} title="Every earlier version, in git">Revision {d.revision} · history ↗</a>
       </div>
       <div class="prose"><Content /></div>

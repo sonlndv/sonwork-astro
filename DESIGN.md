@@ -179,7 +179,28 @@ Exponential ease-out, transform and opacity first, one authored moment per
 surface, everything visible without it, all off under `prefers-reduced-motion`.
 Hero lines land in sequence; counters ease to their value; rows arrive on entry
 (opacity floor 50%); page changes crossfade in 180ms; the search panel pops; the
-field's nodes breathe. Nothing else moves.
+field's nodes breathe.
+
+Added 2026-09-04, the interactive layer, all meaning and no decoration:
+
+- **The stack is a live circuit** (the home's authored moment). Each tile
+  carries its runtime's real numbers from the collections: readings filed,
+  diary posts, last active day. Hover or focus a tile and a lume wire draws
+  from "Sơn decides" into it, then out to Sonar: six CSS segments per lane in
+  two 22px bands over the resting stubs, each a 1.5px bar scaling from its
+  origin, 160ms apiece, staggered 0 to 680ms, pixel-exact at any width. The
+  other tiles' contents recede to 45%, the tile's runtime label and numbers
+  turn lume. Tiles are focusable; keyboard gets the same. Phone: no wires, no
+  dimming, numbers stay. Never name a segment class `w`; that is the column.
+- **Filtering moves the cards.** A theme pill starts a same-document view
+  transition; every card carries a `view-transition-name`, so the survivors
+  slide to their new places and the leavers fade. The Sonar mark in the
+  section header sweeps its three arcs once (700ms, staggered) to acknowledge.
+- **Reading progress.** A 2px lume hairline across the top of a reading or a
+  diary post grows with the scroll (CSS scroll timeline, no script). The
+  stamp shows the reading time.
+
+Nothing else moves.
 
 ## Delight (one thesis)
 

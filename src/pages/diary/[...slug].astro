@@ -26,6 +26,7 @@ const when = (x: Date) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', mon
 const history = `https://github.com/sonlndv/sonwork-astro/commits/main/src/content/journal/${entry.id}.md`;
 ---
 <Base title={`${d.title} — Lê Sơn`} description={`${projectTitle} build diary, ${fmt.format(d.date)}, by ${d.author}.`} current="projects">
+  <div class="doc-progress" aria-hidden="true"></div>
   <div class="docgrid one">
     <article class="doc" data-pagefind-body data-pagefind-meta={`author:${d.author}, type:diary`}>
       <h1>{d.title}</h1>

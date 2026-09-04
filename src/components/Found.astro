@@ -21,7 +21,7 @@ const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 
 {shown.length > 0 && (
   <div class="found" id={id}>
     {shown.map((r, i) => i === 0 ? (
-      <a class="feat tilt" data-k={r.data.type} href={`/readings/${r.id}/`} lang={r.data.lang}>
+      <a class="feat tilt" data-k={r.data.type} style={`view-transition-name:${id}-${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
         <div class="feat-body">
           <div class="feat-kind kind" set:html={glyph(r.data.type, 13) + `<em>${THEME_LABEL[r.data.type]}</em>`} />
           <h3>{r.data.title}</h3>
@@ -31,7 +31,7 @@ const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 
         <div class="feat-art" aria-hidden="true" set:html={glyph(r.data.type, 220)} />
       </a>
     ) : (
-      <a class="card tilt stagger" data-k={r.data.type} style={`--i:${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
+      <a class="card tilt stagger" data-k={r.data.type} style={`--i:${i};view-transition-name:${id}-${i}`} href={`/readings/${r.id}/`} lang={r.data.lang}>
         <div class="card-top"><span class="kind" set:html={glyph(r.data.type, 12) + `<em>${THEME_LABEL[r.data.type]}</em>`} /><time datetime={iso(r.data.date)}>{iso(r.data.date).replace(/-/g, '.')}</time></div>
         <h3>{r.data.title}</h3>
         <p>{r.data.dek}</p>
@@ -49,12 +49,18 @@ const when = (d: Date, lang: string) => new Intl.DateTimeFormat(lang === 'vi' ? 
       const wrap = document.getElementById(box.dataset.for!); if (!wrap) return;
       const items = [...wrap.querySelectorAll<HTMLElement>('[data-k]')];
       const none = wrap.querySelector<HTMLElement>('.none');
+      const mark = box.closest('section')?.querySelector<SVGElement>('.sec-h .sonar');
+      const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
       box.addEventListener('click', (e) => {
         const b = (e.target as HTMLElement).closest('button'); if (!b || b.disabled) return;
         box.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-        const k = b.dataset.k || ''; let n = 0;
-        items.forEach(el => { const on = !k || el.dataset.k === k; el.hidden = !on; if (on) n++; });
-        if (none) none.hidden = n > 0;
+        const k = b.dataset.k || '';
+        // the cards move to their new places; hidden ones leave, shown ones arrive
+        const apply = () => { let n = 0; items.forEach(el => { const on = !k || el.dataset.k === k; el.hidden = !on; if (on) n++; }); if (none) none.hidden = n > 0; };
+        const d = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+        if (!still() && d.startViewTransition) d.startViewTransition(apply); else apply();
+        // Sonar sweeps once to acknowledge the filter
+        if (mark && !still()) { mark.classList.remove('sweep'); void (mark as unknown as HTMLElement).getBoundingClientRect(); mark.classList.add('sweep'); }
       });
     });
   }

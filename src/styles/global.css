@@ -139,6 +139,14 @@ section{padding:0 0 72px}
 
 .docgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:48px;padding:56px 0 40px}
 @media (min-width:1000px){.docgrid{grid-template-columns:minmax(0,1fr) 260px;gap:64px}}
+/* reading progress: a lume hairline across the top that grows with the scroll; CSS scroll timeline only */
+.doc-progress{position:fixed;top:0;left:0;width:100%;height:2px;background:var(--lume);transform-origin:0 50%;transform:scaleX(0);z-index:60;pointer-events:none}
+@media (prefers-reduced-motion:no-preference){
+  @supports (animation-timeline:scroll()){
+    .doc-progress{animation:grow linear both;animation-timeline:scroll(root)}
+    @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  }
+}
 .doc h1{font-weight:600;font-size:clamp(30px,4.2vw,46px);line-height:1.08;letter-spacing:-0.04em;margin:0 0 20px;text-wrap:balance}
 .stamp{font-family:var(--mono);font-size:12px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line-2);margin-bottom:34px}
 .doc .stamp i{font-style:normal;color:var(--ink-2)}
@@ -514,6 +522,51 @@ body::before{z-index:-2}
 .tile .mk-mono{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--lume);letter-spacing:-0.02em}
 .tile b{font-size:18px;font-weight:500;letter-spacing:-0.02em}
 .tile p{margin:0;font-size:14px;font-weight:300;color:var(--ink-2);line-height:1.55;max-width:30ch}
+.tile .tile-live{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-top:auto;padding-top:10px;font-variant-numeric:tabular-nums}
+/* the circuit: hover or focus a runtime and the signal draws from Sơn into it and out to Sonar */
+.tile{transition:opacity .3s var(--out);outline:none;border-radius:6px}
+.tile:focus-visible{outline:1px solid var(--lume);outline-offset:-8px}
+.tile .mk svg,.tile .mk-mono{transition:transform .35s var(--out)}
+.tile:is(:hover,:focus-within) .mk svg,.tile:is(:hover,:focus-within) .mk-mono{transform:translateY(-2px)}
+.tile:is(:hover,:focus-within) .rt,.tile:is(:hover,:focus-within) .tile-live{color:var(--lume)}
+/* the entry animation pins the tile's own opacity, so the receding is on its children */
+.tile>*{transition:opacity .3s var(--out)}
+.stack:has(.tile:is(:hover,:focus-within)) .tile:not(:hover,:focus-within)>*{opacity:.45}
+.stack:has(.tile:is(:hover,:focus-within)) .stack-src span,.stack:has(.tile:is(:hover,:focus-within)) .stack-out span{color:var(--lume)}
+.stack-src span,.stack-out span{transition:color .25s var(--out)}
+/* wires: 22px tall bands over the resting stubs; three segments per lane draw in sequence */
+.wire{position:absolute;left:0;width:100%;height:22px;pointer-events:none;display:block}
+.wire-top{bottom:0}
+.wire-bot{top:0}
+.ws{position:absolute;background:var(--lume);opacity:0;transform:scaleY(0);transition:transform .16s var(--out),opacity .08s linear}
+.ws.v1,.ws.v2{width:1.5px;margin-left:-.75px}
+.ws.h{height:1.5px;transform:scaleX(0)}
+/* lane centres: 1/6, 1/2, 5/6 of the row */
+.ws[data-l="1"].v2{left:16.667%} .ws[data-l="2"].v2{left:50%} .ws[data-l="3"].v2{left:83.333%}
+.ws.v1{left:50%}
+.ws[data-l="1"].h{left:16.667%;width:33.333%} .ws[data-l="3"].h{left:50%;width:33.333%} .ws[data-l="2"].h{display:none}
+/* top band: down from Sơn, across, down into the tile */
+.wire-top .v1{top:0;height:10px;transform-origin:top}
+.wire-top .h{top:10px}
+.wire-top [data-l="1"].h{transform-origin:right} .wire-top [data-l="3"].h{transform-origin:left}
+.wire-top .v2{top:10px;height:12px;transform-origin:top}
+.wire-top [data-l="2"].v1{height:22px}
+.wire-top [data-l="2"].v2{display:none}
+/* bottom band: down out of the tile, across, down into Sonar */
+.wire-bot .v2{top:0;height:12px;transform-origin:top}
+.wire-bot .h{top:12px}
+.wire-bot [data-l="1"].h{transform-origin:left} .wire-bot [data-l="3"].h{transform-origin:right}
+.wire-bot .v1{top:12px;height:10px;transform-origin:top}
+.wire-bot [data-l="2"].v2{height:22px}
+.wire-bot [data-l="2"].v1{display:none}
+/* the sequence: 0 / .12 / .26 on the way in, .42 / .54 / .68 on the way out */
+.wire-top .h{transition-delay:.12s} .wire-top .v2{transition-delay:.26s}
+.wire-bot .v2{transition-delay:.42s} .wire-bot .h{transition-delay:.54s} .wire-bot .v1{transition-delay:.68s}
+.stack:has(.tile:nth-child(1):is(:hover,:focus-within)) .ws[data-l="1"],
+.stack:has(.tile:nth-child(2):is(:hover,:focus-within)) .ws[data-l="2"],
+.stack:has(.tile:nth-child(3):is(:hover,:focus-within)) .ws[data-l="3"]{transform:none;opacity:1}
+.stack:not(:has(.tile:is(:hover,:focus-within))) .ws{transition-delay:0s;transition-duration:.12s}
+@media (max-width:640px){.wire{display:none}.stack:has(.tile:is(:hover,:focus-within)) .tile:not(:hover,:focus-within)>*{opacity:1}.tile{padding-bottom:20px}}
 .bot.dim path{fill:var(--ink-3)}
 @media (max-width:640px){
   .stack-row{grid-template-columns:1fr}
@@ -622,6 +675,16 @@ body::before{z-index:-2}
 @media (max-width:640px){.feat{padding:24px 22px}}
 
 /* compact kind filter, at the top of the block */
+/* filtering moves the cards to their new places (view transition, named per card);
+   the Sonar mark in the section header sweeps once to acknowledge the filter */
+::view-transition-group(*){animation-duration:.38s;animation-timing-function:var(--out)}
+@media (prefers-reduced-motion:no-preference){
+  .sonar path{transform-origin:12px 12px;transform-box:view-box}
+  .sonar.sweep path{animation:sweep .7s var(--out) both}
+  .sonar.sweep path:nth-of-type(2){animation-delay:.09s}
+  .sonar.sweep path:nth-of-type(3){animation-delay:.18s}
+  @keyframes sweep{0%{opacity:.15;transform:scale(.55)}55%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
+}
 .pills{display:flex;flex-wrap:wrap;gap:6px;margin:-6px 0 18px}
 .pills button{display:inline-flex;align-items:center;gap:6px;font:inherit;font-family:var(--mono);font-size:12px;color:var(--ink-2);background:none;border:1px solid var(--line-2);border-radius:999px;padding:5px 11px;cursor:pointer;transition:color .18s var(--out),border-color .18s var(--out),background .18s var(--out)}
 .pills button i{display:inline-flex;color:var(--lume)}
