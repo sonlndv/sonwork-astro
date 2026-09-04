@@ -238,7 +238,7 @@ section{padding:0 0 72px}
 .sbtn{display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:13.5px;color:var(--ink-3);background:none;border:0;padding:0;cursor:pointer;transition:color .18s var(--out)}
 .sbtn:hover{color:var(--ink)}
 .sbtn kbd{font-family:var(--mono);font-size:12px;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
-@media (max-width:640px){.sbtn kbd,.sbtn span{display:none}}
+@media (max-width:640px){.sbtn kbd{display:none}}   /* the word "Search" stays on a phone; only the shortcut goes */
 dialog#search{border:0;padding:0;background:transparent;width:min(700px,92vw);margin:9vh auto 0}
 dialog#search::backdrop{background:color-mix(in oklch,var(--void) 82%,transparent);backdrop-filter:blur(6px)}
 .sbox{background:var(--ground);border:1px solid var(--line);border-radius:10px;padding:16px 16px 8px;box-shadow:0 30px 70px -30px #000}
@@ -263,7 +263,8 @@ footer a:hover{color:var(--lume)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto}}
 @media (max-width:640px){
   .w{padding:0 20px}
-  .bar{gap:14px}
+  .bar{gap:12px}
+  .bar nav{gap:13px;font-size:13px}   /* fits "Search" beside the three links at 390px */
   .intro{padding:60px 0 54px}
   .intro h1{font-size:34px}
   .r,.b,.p{grid-template-columns:minmax(0,1fr);gap:6px}
@@ -678,16 +679,27 @@ body::before{z-index:-2}
 }
 .sec-h{position:relative}
 .sec-h::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--lume);transform-origin:left;transform:scaleX(0)}
+/* Entrances play once, in time, when a block enters the viewport (Base.astro adds
+   .is-in). Nothing is scrubbed by the scroll: a scrubbed reveal moves in lockstep
+   with the thumb and reads as lag (Sơn, 2026-09-04). Blocks start hidden only
+   under html.js, so a page without the script shows everything at once. */
 @media (prefers-reduced-motion:no-preference){
-  @supports (animation-timeline:view()){
-    .sec-h::after{animation:draw linear both;animation-timeline:view();animation-range:entry 10% entry 60%}
-    @keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-    .sec-h h2{animation:rise2 linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
-    @keyframes rise2{from{transform:translateY(18px);opacity:.3}to{transform:none;opacity:1}}
-    .stagger{animation:rise2 linear both;animation-timeline:view();animation-range-start:entry calc(0% + var(--i,0) * 8%);animation-range-end:entry calc(45% + var(--i,0) * 8%)}
-    .stack-row .tile{animation:rise2 linear both;animation-timeline:view();animation-range:entry 0% entry 45%}
-    @keyframes slidein{from{transform:translateX(40px);opacity:.2}to{transform:none;opacity:1}}
-  }
+  @keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @keyframes rise2{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+  html.js .sec-h:not(.is-in) h2{opacity:0}
+  .sec-h.is-in h2{animation:rise2 .6s var(--out) both}
+  .sec-h.is-in::after{animation:draw .7s var(--out) both;animation-delay:.1s}
+  html.js :is(.found,.run):not(.is-in) .stagger{opacity:0}
+  :is(.found,.run).is-in .stagger{animation:rise2 .55s var(--out) both;animation-delay:calc(.2s + var(--i,0) * .07s)}
+  /* the stack powers up once: Sơn, the wires down, the tiles in order, the wires out, Sonar; then the wires rest */
+  html.js .stack:not(.is-in) :is(.stack-src>span,.stack-src>em,.tile,.stack-out>span,.stack-out>em,.stack-out>.sonar){opacity:0}
+  .stack.is-in .stack-src>span,.stack.is-in .stack-src>em{animation:rise2 .45s var(--out) both}
+  .stack.is-in .tile{animation:rise2 .55s var(--out) both;animation-delay:calc(.4s + var(--i,0) * .09s)}
+  .stack.is-in .stack-out>span,.stack.is-in .stack-out>em,.stack.is-in .stack-out>.sonar{animation:rise2 .45s var(--out) both;animation-delay:1.05s}
+  .stack.is-in .ws{animation:wire-up 1.6s var(--out) none}
+  .stack.is-in .wire-top .v1{animation-delay:.12s} .stack.is-in .wire-top .h{animation-delay:.22s} .stack.is-in .wire-top .v2{animation-delay:.32s}
+  .stack.is-in .wire-bot .v2{animation-delay:.78s} .stack.is-in .wire-bot .h{animation-delay:.88s} .stack.is-in .wire-bot .v1{animation-delay:.98s}
+  @keyframes wire-up{0%{opacity:0;transform:scale(0)}10%{opacity:1;transform:none}72%{opacity:1;transform:none}100%{opacity:0;transform:none}}
 }
 @media (max-width:640px){
   .open{min-height:auto;padding:36px 0 44px}
@@ -740,11 +752,9 @@ body::before{z-index:-2}
 /* cursor tilt: the panel leans toward the pointer; JS sets --rx/--ry */
 .tilt{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(0);transition:transform .35s var(--out),border-color .25s var(--out),background .25s var(--out);will-change:transform}
 @media (prefers-reduced-motion:no-preference){
-  @supports (animation-timeline:view()){
-    .feat{animation:featin linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
-    @keyframes featin{from{opacity:.3;transform:translateY(24px) scale(.985)}to{opacity:1;transform:none}}
-    .card.stagger{animation-name:rise2}
-  }
+  html.js :is(.found,.run):not(.is-in) .feat{opacity:0}
+  :is(.found,.run).is-in .feat{animation:featin .6s var(--out) both;animation-delay:.1s}
+  @keyframes featin{from{opacity:0;transform:translateY(24px) scale(.985)}to{opacity:1;transform:none}}
 }
 @media (max-width:900px){.feat{grid-template-columns:1fr}.feat-art{display:none}.found{grid-template-columns:1fr}.ticker{margin:0 -20px}}
 @media (max-width:640px){.feat{padding:24px 22px}}
@@ -782,13 +792,13 @@ body::before{z-index:-2}
 .port-latest b{font-weight:500;font-size:15px;letter-spacing:-0.01em;color:var(--ink)}
 @media (max-width:640px){.run-st{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 12px}}
 @media (prefers-reduced-motion:no-preference){
-  @supports (animation-timeline:view()){
-    /* entrance: the stations light in theme order, then the mark sweeps once */
-    .st>a,.st>span{animation:rise2 linear both;animation-timeline:view();animation-range-start:entry calc(10% + var(--i,0) * 5%);animation-range-end:entry calc(55% + var(--i,0) * 5%)}
-    .st.lit::after{animation:draw linear both;animation-timeline:view();animation-range-start:entry calc(25% + var(--i,0) * 6%);animation-range-end:entry calc(70% + var(--i,0) * 6%)}
-    #readings .sec-h .sonar{animation:sweep-once linear both;animation-timeline:view();animation-range:entry 30% entry 100%}
-    @keyframes sweep-once{0%{transform:scale(.7);opacity:.3}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
-  }
+  /* entrance, once: the stations light in theme order, then the mark sweeps */
+  html.js .run:not(.is-in) .st>*{opacity:0}
+  html.js .run:not(.is-in) .st.lit::after{transform:scaleX(0)}
+  .run.is-in .st>a,.run.is-in .st>span{animation:rise2 .5s var(--out) both;animation-delay:calc(var(--i,0) * .08s)}
+  .run.is-in .st.lit::after{animation:draw .5s var(--out) both;animation-delay:calc(.25s + var(--i,0) * .09s)}
+  #readings .sec-h.is-in .sonar{animation:sweep-once .8s var(--out) both;animation-delay:.5s}
+  @keyframes sweep-once{0%{transform:scale(.7);opacity:.3}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
 }
 .pills{display:flex;flex-wrap:wrap;gap:6px;margin:-6px 0 18px}
 .pills button{display:inline-flex;align-items:center;gap:6px;font:inherit;font-family:var(--mono);font-size:12px;color:var(--ink-2);background:none;border:1px solid var(--line-2);border-radius:999px;padding:5px 11px;cursor:pointer;transition:color .18s var(--out),border-color .18s var(--out),background .18s var(--out)}

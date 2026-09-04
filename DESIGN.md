@@ -129,7 +129,13 @@ lives on `/about/`. The ledger lives at `/readings/`.
 writing section (removed 2026-09-03).
 
 Every section header draws its rule in the accent and rises as it enters the
-viewport; rows and contact lines stagger by index. CSS scroll timelines only.
+viewport, once, in time (600ms and 700ms); the day's run and the cards
+stagger by index the same way. **Nothing authored is scrubbed by the scroll**
+(Sơn, 2026-09-04: a reveal that moves in lockstep with the thumb reads as lag).
+Base.astro's observer adds `is-in` when a block enters; blocks start hidden
+only under `html.js`, so a page without the script shows everything. The only
+scroll-driven motion left is the quiet arrive on rows and the reading
+progress hairline, where the scroll relationship is the meaning.
 
 ## The readings index
 
@@ -227,10 +233,15 @@ Added 2026-09-04, the interactive layer, all meaning and no decoration:
   other tiles' contents recede to 45%, the tile's runtime label and numbers
   turn lume. Tiles are focusable; keyboard gets the same. Phone: no wires, no
   dimming, numbers stay. Never name a segment class `w`; that is the column.
+- **The stack powers up once** (home). When the block enters: "Sơn decides"
+  rises (450ms), all three top wires draw down (from 120ms), the tiles rise
+  in order (from 400ms, 90ms apart), the bottom wires draw out (from 780ms),
+  Sonar lights (1050ms), and the wires fade back to rest by 1.6s so the hover
+  circuit still means something. Replaces the scrubbed tile rise.
 - **The run lights on entry** (home). The six stations rise in theme order
-  and the lit bars draw left to right, one after another, on a CSS scroll
-  timeline; the Sonar mark in the header scales once as the block enters.
-  Nothing on the home filters any more.
+  (80ms apart) and the lit bars draw one after another (from 250ms), once;
+  the Sonar mark in the header sweeps at 500ms. Nothing on the home filters
+  any more.
 - **Filtering moves the cards** (Sonar profile). A theme pill starts a
   same-document view transition; every card carries a `view-transition-name`,
   so the survivors slide to their new places and the leavers fade. The Sonar

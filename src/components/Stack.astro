@@ -42,8 +42,8 @@ const lanes = [1, 2, 3];
     </span>
   </div>
   <ol class="stack-row">
-    {tiles.map(t => (
-      <li class="tile" tabindex="0">
+    {tiles.map((t, i) => (
+      <li class="tile" tabindex="0" style={`--i:${i}`}>
         <span class="rt">{t.rt}</span>
         {t.mark === 'mono' && <span class="mk mk-mono" aria-hidden="true">&gt;_</span>}
         {t.mark === 'bot' && <span class="mk"><Bot size={22} /></span>}

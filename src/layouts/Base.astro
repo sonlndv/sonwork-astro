@@ -37,6 +37,8 @@ const nav = [
   <script is:inline>
     // Apply the stored theme before first paint. No flash.
     try { const t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch {}
+    // entrances start hidden only when a script will reveal them; with no script everything is visible
+    document.documentElement.classList.add('js');
   </script>
   <ClientRouter />
 </head>
@@ -86,6 +88,10 @@ const nav = [
         const running = [...appear].some((el) => (el.getAnimations?.() || []).some((a) => a.playState === 'running' || a.playState === 'finished'));
         if (!running) appear.forEach((el) => el.classList.add('is-in'));
       }));
+
+      // entrances play once, when a block enters the viewport; nothing is scrubbed by the scroll
+      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
+      document.querySelectorAll('.sec-h, .stack, .found, .run').forEach((el) => { if (!el.classList.contains('is-in')) io.observe(el); });
 
       // the shortcut hint should name the key the visitor actually has
       if (!/Mac|iPhone|iPad/.test(navigator.platform)) document.querySelectorAll('kbd').forEach(k => { if (k.textContent === '⌘K') k.textContent = 'Ctrl K'; });
