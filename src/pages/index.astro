@@ -14,6 +14,9 @@ import { getCollection } from 'astro:content';
 const reports = (await getCollection('reports')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 // The home shows one day of research: the newest day, one reading per theme.
 const day = latestDay(reports);
+// the pipeline's real numbers on the portfolio card
+const sources = reports.reduce((n, r) => n + (r.data.sources?.length ?? 0), 0);
+const revisions = reports.reduce((n, r) => n + (r.data.revision ?? 1), 0);
 const agents = new Set(reports.map(r => r.data.author)).size;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
@@ -65,9 +68,9 @@ const ticker = reports.slice(0, 8);
           <p>{p.data.summary}</p>
           {p.data.status === 'live' && (
             <div class="steps">
-              <div class="step"><b>Find</b><p>What is worth reading, by theme.</p></div>
-              <div class="step"><b>Research</b><p>Run and analyse the data.</p></div>
-              <div class="step"><b>Publish</b><p>Kept here, with every revision.</p></div>
+              <div class="step"><b>Find</b><p>What is worth reading, by theme.</p><span class="step-live">{THEMES.length} themes</span></div>
+              <div class="step"><b>Research</b><p>Run and analyse the data.</p><span class="step-live">{sources} sources cited</span></div>
+              <div class="step"><b>Publish</b><p>Kept here, with every revision.</p><span class="step-live">{reports.length} readings · {revisions} revisions</span></div>
             </div>
           )}
           <span class="port-go">Profile and build diary →</span>

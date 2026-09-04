@@ -39,12 +39,12 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
     </div>
   </div>
 
-  {years.length === 0 && <div class="empty-bot"><Bot size={30} title="Alfred" /><p class="empty">Nothing filed yet. Alfred has the fleet reading.</p></div>}
+  {reports.length > 0 && <Field reports={reports} />}
   {years.map(y => (
     <section data-year={y} class="sec">
       <header class="sec-h"><h2>{y}</h2><div class="sec-m"><span data-year-count>{byYear.get(y)!.length} filed</span></div></header>
       {byYear.get(y)!.map(entry => (
-        <div data-type={entry.data.type} data-lang={entry.data.lang}><ReportRow entry={entry} /></div>
+        <div data-id={entry.id} data-type={entry.data.type} data-lang={entry.data.lang}><ReportRow entry={entry} /></div>
       ))}
     </section>
   ))}
@@ -59,9 +59,20 @@ const count = (k: string, v: string) => reports.filter(r => (r.data as any)[k] =
     const sections = Array.from(document.querySelectorAll<HTMLElement>('section[data-year]'));
     const shown = document.getElementById('shown')!;
     const none = document.getElementById('none')!;
+    // the map: nodes outside the filters dim rather than vanish, so the whole archive stays as a ghost
+    const nodes = Array.from(document.querySelectorAll<SVGElement>('.field .node'));
+    const links = Array.from(document.querySelectorAll<SVGElement>('.field .link'));
+    const fits = (el: { dataset: DOMStringMap }) => (!state.type || el.dataset.type === state.type) && (!state.lang || el.dataset.lang === state.lang);
+    // linked hover: a row lights its node on the map, a node lights its row
+    const nodeOf = (id: string) => document.querySelector<SVGElement>(`.field .node[data-id="${CSS.escape(id)}"]`);
+    const rowOf = (id: string) => document.querySelector<HTMLElement>(`[data-id="${CSS.escape(id)}"][data-type]`);
+    rows.forEach(r => { r.addEventListener('pointerenter', () => nodeOf(r.dataset.id!)?.classList.add('hot')); r.addEventListener('pointerleave', () => nodeOf(r.dataset.id!)?.classList.remove('hot')); });
+    nodes.forEach(n => { n.addEventListener('pointerenter', () => rowOf(n.dataset.id!)?.classList.add('hot')); n.addEventListener('pointerleave', () => rowOf(n.dataset.id!)?.classList.remove('hot')); });
     function apply() {
       let n = 0;
-      document.querySelectorAll<HTMLElement>('.field .node').forEach(n => { n.hidden = !((!state.type || n.dataset.type === state.type) && (!state.lang || n.dataset.lang === state.lang)); });
+      nodes.forEach(el => el.classList.toggle('off', !fits(el)));
+      const lit = new Set(nodes.filter(fits).map(el => el.dataset.i));
+      links.forEach(l => l.classList.toggle('off', !(lit.has(l.dataset.a) && lit.has(l.dataset.b))));
       for (const r of rows) {
         const ok = (!state.type || r.dataset.type === state.type) && (!state.lang || r.dataset.lang === state.lang);
         r.hidden = !ok; if (ok) n++;

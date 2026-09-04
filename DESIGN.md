@@ -199,6 +199,17 @@ Added 2026-09-04, the interactive layer, all meaning and no decoration:
 - **Reading progress.** A 2px lume hairline across the top of a reading or a
   diary post grows with the scroll (CSS scroll timeline, no script). The
   stamp shows the reading time.
+- **The archive map answers the filters** (`/readings/`, `Field.astro`).
+  Rows are the six themes; x is time with a dated axis; a line joins each
+  reading to the previous one by the same agent (one per node, never all
+  pairs). A filter dims what it excludes to 14% instead of removing it, so
+  the whole archive stays as a ghost. Hovering a row lights its node and
+  title on the map; hovering a node lights its row. Nodes were on the old
+  six kinds until 2026-09-04 and the map was not rendered at all.
+- **The portfolio card is a pipeline.** Hover or focus it and a 1.5px lume
+  bar draws across Find, then Research, then Publish, 280ms apart, and each
+  step's number turns lume: themes, sources cited across all readings,
+  readings and revisions. The numbers are computed from the collections.
 
 Nothing else moves.
 
