@@ -184,8 +184,10 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   readings, or in any published text. The credential is "operator".
 - Stopped and not to be shown as current: Perfeat (D2C eyewear), Paddock,
   Fitnest, the AI content engine, trading, F1 YouTube (removed 2026-09-03). The site must not mention them.
-- Contact: tuanson.le03@gmail.com (personal), LinkedIn in/sonle2003, X @sonldv
-  (both confirmed by Son 2026-09-03). The work address is not published.
+- Contact: son@sonwork.org (Son's work address on the site's own domain,
+  set 2026-09-05; it replaced the personal Gmail on the site), LinkedIn
+  in/sonle2003, X @sonldv (both confirmed by Son 2026-09-03). The employer's
+  address is never published.
 - **The stack (Son, decision 2026-09-03; mirrored to gbrain
   `projects/sonwork/stack`):** one person, three runtimes, one engine. The
   runtimes are the **AI stack** (Claude: Code and Cowork; where Son works,
