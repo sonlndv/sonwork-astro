@@ -36,7 +36,10 @@ serve it. Sonwork, this site, is the shopfront, not a project.** Find (Sonar)
 → Move (Lever) → Be found (Beacon) → Show (Sonwork). When Sonar or Beacon
 competes with Lever for the same weekend, Lever wins.
 
-**01 · Sonar, the engine that researches and writes** (this site,
+All three are `live` (Son, 2026-09-05). Lever is 01 and the centre of the
+home's portfolio; Sonar is 02; Beacon is 03.
+
+**02 · Sonar, the engine that researches and writes** (this site,
 https://sonwork.org), live. An autonomous engine with themes. The team finds what is worth
 reading, researches it, runs and analyses the data, and publishes here with the
 full revision history, in English and Vietnamese. The site *is* the product;
@@ -44,19 +47,20 @@ the readings are what it produces, and every later project uses it. The story is
 signal, then go and read it. Say "Sonar", not "the engine", in anything
 published.
 
-**02 · Lever, the operations practice** (Son, 2026-09-04), `building`. A
+**01 · Lever, the operations practice** (Son, 2026-09-04), `live` since
+2026-09-05, the core. A
 process a business already runs by hand, learned from the people who run it,
 rebuilt to take less of their time; AI is the enabler, not the product. Sonar
 senses, Lever moves. Judged by whether the client's process got better, never
 by the model. Working name; the public name and the mark are not decided; the
 client is never named on the site. Full page: gbrain `projects/lever`.
 
-**03 · Beacon, the content engine** (Son, 2026-09-05), `next`. Exists so a
+**03 · Beacon, the content engine** (Son, 2026-09-05), `live`. Exists so a
 stranger finds Lever and understands it: social media and published pieces,
 marketing not sales. Not Sonar with a wider audience: a reading is deep study
 judged on truth, a Beacon piece is reach judged on whether a stranger reached
-out. Nothing built, no channel, no cadence; the first test is three published
-pieces by 2026-09-26. Claim nothing until then. Full page: gbrain
+out. No channel or cadence yet; the first test is three published pieces by
+2026-09-26. Claim no result until then. Full page: gbrain
 `projects/beacon`.
 
 **Nothing else.** F1 YouTube was listed as the next project on 2026-09-03 and

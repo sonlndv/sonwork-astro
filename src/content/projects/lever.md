@@ -1,8 +1,8 @@
 ---
 title: Lever
 tagline: the operations practice
-order: 2
-status: building
+order: 1
+status: live
 summary: Operations, made cheaper to run. A process a business does by hand every week, rebuilt with AI so it takes less time and makes fewer mistakes. First client under way.
 started: 2026-09-04
 ---

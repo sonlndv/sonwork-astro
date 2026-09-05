@@ -152,17 +152,20 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 - Name: **Lê Sơn** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
 - **The home thesis (Son, 2026-09-03, current):** "One person, a team of AI
   agents, building a business." The home is the business: the stack diagram,
-  the portfolio (**01 Sonar**, the research and writing engine, live, this
-  site; **02 Lever**, the operations practice enabled by AI, building since
-  2026-09-04, working name, public name and mark not decided, client never
-  named; **03 Beacon**, the content engine, `next` since 2026-09-05, nothing
-  published, no channel or cadence yet, judged by whether a stranger reached
-  out; F1 YouTube removed 2026-09-03), then "What Sonar found" (the readings). Sonar's
-  profile page repeats that block. **Lever is the core; Sonar and Beacon
-  serve it. Sonwork, the site, is the shopfront, not a project** (Son's
-  canonical page, gbrain `notes/canonical-son-and-projects`, 2026-09-05,
-  which outranks every other page on definitions). The opening's third line
-  and the portfolio meta ("Lever is the core") say so. **"What Sonar found" is one day** (Son,
+  the portfolio (**01 Lever**, the operations practice enabled by AI, the
+  core, live since 2026-09-05, started 2026-09-04, working name, public name
+  and mark not decided, client never named; **02 Sonar**, the research and
+  writing engine, live, this site; **03 Beacon**, the content engine, live
+  since 2026-09-05, nothing published yet, no channel or cadence yet, judged
+  by whether a stranger reached out; F1 YouTube removed 2026-09-03), then
+  "What Sonar found" (the readings). Sonar's profile page repeats that block.
+  **Lever is the core; Sonar and Beacon serve it. Sonwork, the site, is the
+  shopfront, not a project** (Son's canonical page, gbrain
+  `notes/canonical-son-and-projects`, 2026-09-05, which outranks every other
+  page on definitions). On the home the core's card spans the whole portfolio
+  row with "the core" in its label; the opening's third line and the
+  portfolio meta say so. Sonar was 01 until 2026-09-05, when Son moved Lever
+  to the centre. The Find, Research, Publish block is Sonar's alone. **"What Sonar found" is one day** (Son,
   2026-09-04): the newest day that has readings, one per theme, in theme
   order, because the engine files daily; the archive is `/readings/`
   (`src/lib/found.ts`). On the home it is drawn as **the day's run**: six

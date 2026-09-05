@@ -107,9 +107,10 @@ lives on `/about/`. The ledger lives at `/readings/`.
 2. A ticker of what the fleet filed (title, kind glyph, byline), 48s loop,
    pauses on hover, static under reduced motion.
 3. Meet Alfred, my CEO (band): one paragraph, no more, and Alfred sliding in.
-3b. The portfolio: project cards from the `projects` collection (01 Sonar,
-   live, with Find / Research / Publish; 02 Lever, building, the core; 03
-   Beacon, next; the section meta says "Lever is the core"), each
+3b. The portfolio: project cards from the `projects` collection (01 Lever,
+   the core, its card spanning the full row with "the core" in its label; 02
+   Sonar, with Find / Research / Publish; 03 Beacon; all live; the section
+   meta says "Lever is the core"), the rest in two equal columns, each
    linking to its profile and build diary. "What Sonar found." over the readings (the `Found` component: theme pills,
    featured, grid), repeated on `/projects/sonar/`. No scroll cue.
 4. What Sonar found, as **the day's run** (Sơn, 2026-09-04, brief

@@ -2,8 +2,9 @@
 title: Beacon
 tagline: the content engine
 order: 3
-status: next
-summary: A content engine, so strangers find Lever and understand it. Social media and published pieces, made from what Sonar found and what Lever did. Decided 2026-09-05; nothing published yet.
+status: live
+summary: A content engine, so strangers find Lever and understand it. Social media and published pieces, made from what Sonar found and what Lever did. Started 2026-09-05; nothing published yet.
+started: 2026-09-05
 ---
 
 ## What it is
@@ -24,6 +25,6 @@ summary: A content engine, so strangers find Lever and understand it. Social med
 ## Where it goes
 
 - Judged by one thing: did a stranger reach out? Not followers, not impressions.
-- Nothing built, no channel picked, no cadence set.
+- Live since 2026-09-05. No channel picked yet, no cadence set yet.
 - The first test: three published pieces by 2026-09-26.
 - Beyond that, not decided. My call.

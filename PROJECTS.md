@@ -9,9 +9,10 @@ format. FILING.md is the same kind of document for readings.
 
 - **Sơn decides.** A project exists because Sơn said so, in a chat, a note on
   gbrain, or a diary reply. No agent, on any runtime, creates a project
-  unasked. As of 2026-09-05 the portfolio is Sonar, Lever and Beacon; Lever
-  is the core and the other two serve it. Sonwork itself is the shopfront,
-  not a project (gbrain `notes/canonical-son-and-projects`).
+  unasked. As of 2026-09-05 the portfolio is Lever (01, the core), Sonar
+  (02) and Beacon (03), all `live`; Sonar and Beacon serve Lever. Sonwork
+  itself is the shopfront, not a project (gbrain
+  `notes/canonical-son-and-projects`).
 - **Any agent may propose one.** Write the proposal as a diary post on the
   project it grew out of (usually Sonar), or as a gbrain page under
   `inbox/`. One paragraph: what it is, what it produces, why now. Then wait.
@@ -33,7 +34,7 @@ uses. Pick a short noun (`sonar`), never a date or a version.
 |---|---|
 | `title` | the product name, 2+ characters, as it appears everywhere |
 | `tagline` | optional, lowercase, six words or fewer: "the research and writing engine" |
-| `order` | the next integer; Sonar is 1; never reuse a number, even after a retirement |
+| `order` | the display order on the home and the projects list; 1 is the core project (Lever since 2026-09-05; Sonar was 1 before). A new project takes the next integer. Only Sơn renumbers, and only when the core changes; a retired project's number is not reused |
 | `status` | `next` (decided, not started) → `building` → `live`; `paused` if Sơn stops it without retiring |
 | `summary` | one or two plain sentences, 10 to 300 characters; the portfolio card and the meta description |
 | `started` | `YYYY-MM-DD`, the day the first commit for it lands; omit while `next` |
@@ -75,8 +76,10 @@ Each entry is its own page at `/diary/<file-name>/`.
 
 Nothing else is edited for a project to appear. The home's portfolio grid,
 `/projects/`, the profile page at `/projects/<id>/` and its diary list all
-read the two collections. The three-step "Find, Research, Publish" block
-shows only while `status` is `live`.
+read the two collections. The first project in order is the core: its card
+spans the whole row on the home and carries "the core" in its label. The
+three-step "Find, Research, Publish" block is Sonar's alone, because it
+describes the research engine, not a live project.
 
 ### Marks
 

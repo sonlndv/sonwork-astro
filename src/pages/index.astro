@@ -48,7 +48,7 @@ const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date
       <ul class="open-list appear appear--soft" style="--d:.86s;--dur:1.25s">
         <li>AI agents research and write. I decide what, and I read the result.</li>
         <li>Everything they write is published here. Every revision is kept.</li>
-        <li>An operations practice, Lever, is the core. A research engine, Sonar, feeds it. A content engine, Beacon, will make it found.</li>
+        <li>An operations practice, Lever, is the core. A research engine, Sonar, feeds it. A content engine, Beacon, makes it found.</li>
       </ul>
       <div class="open-row">
         <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">What I'm building</a>
@@ -76,13 +76,13 @@ const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date
   <section class="sec" id="portfolio">
     <header class="sec-h"><h2>What I'm <span>building.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.length} projects<span class="x"> · Lever is the core</span></span><a href="/projects/">All projects →</a></div></header>
     <div class="port">
-      {projects.map(p => (
-        <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live' }]} href={`/projects/${p.id}/`}>
-          <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}{p.data.url && <> · {host(p.data.url)} ↗</>}</span><span class:list={['port-status', { dim: p.data.status !== 'live' }]}>{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
+      {projects.map((p, i) => (
+        <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live', 'port-core': i === 0 }]} href={`/projects/${p.id}/`}>
+          <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}{i === 0 && <> · the core</>}{p.data.url && <> · {host(p.data.url)} ↗</>}</span><span class:list={['port-status', { dim: p.data.status !== 'live' }]}>{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
           <h3>{p.id === 'sonar' && <Sonar size={26} class="inl" />}{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3>
           <p>{p.data.summary}</p>
           {(() => { const l = latestOf(p.id); return l && <div class="port-latest"><span>latest · {iso(l.date).replace(/-/g, '.')} · {l.kind}</span><b>{l.title}</b></div>; })()}
-          {p.data.status === 'live' && (
+          {p.id === 'sonar' && p.data.status === 'live' && (
             <div class="steps">
               <div class="step"><b>Find</b><p>Pick what is worth understanding.</p><span class="step-live">{THEMES.length} themes</span></div>
               <div class="step"><b>Research</b><p>Read the sources. Check the numbers.</p><span class="step-live">{sources} sources cited</span></div>

@@ -828,7 +828,9 @@ body::before{z-index:-2}
 @media (max-width:760px){.steps{grid-template-columns:1fr}}
 
 /* the portfolio */
-.port{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px}
+.port{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.port .port-core{grid-column:1/-1}   /* the core project (first in order) takes the whole row; the rest sit beneath it */
+@media (max-width:640px){.port{grid-template-columns:minmax(0,1fr)}}
 .port .port-item:only-child{grid-column:1/-1}
 .port-item{display:flex;flex-direction:column;gap:12px;padding:26px 28px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(135deg,color-mix(in oklch,var(--lume) 6%,var(--ground)) 0%,var(--ground) 55%)}
 .port-next{border-style:dashed;border-color:var(--line-2);background:none}

@@ -1,7 +1,7 @@
 ---
 title: Sonar
 tagline: the research and writing engine
-order: 1
+order: 2
 status: live
 summary: A research engine run by AI agents. It picks what is worth understanding, reads the sources, checks the numbers, and writes it up. Everything it writes is published here, every revision kept.
 started: 2026-09-02
