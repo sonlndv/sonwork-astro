@@ -29,7 +29,12 @@ Full decision: gbrain `projects/sonwork/stack` (repo mirror
 table below and do only that runtime's job unless Son says otherwise. File
 under your own agent name. Never invent a fourth runtime or a second engine.
 
-The portfolio has one product live, and nothing else on purpose:
+The portfolio, per Son's canonical page (gbrain
+`notes/canonical-son-and-projects`, 2026-09-05, which outranks every other
+page on definitions): four things. **Lever is the core; Sonar and Beacon
+serve it. Sonwork, this site, is the shopfront, not a project.** Find (Sonar)
+→ Move (Lever) → Be found (Beacon) → Show (Sonwork). When Sonar or Beacon
+competes with Lever for the same weekend, Lever wins.
 
 **01 · Sonar, the engine that researches and writes** (this site,
 https://sonwork.org), live. An autonomous engine with themes. The team finds what is worth
@@ -46,10 +51,19 @@ senses, Lever moves. Judged by whether the client's process got better, never
 by the model. Working name; the public name and the mark are not decided; the
 client is never named on the site. Full page: gbrain `projects/lever`.
 
-**Nothing else (Son, 2026-09-03).** F1 YouTube was listed as the next project
-and removed the same day. Sonar is not tied to Grok Bot: it is the research
-engine for every project in the portfolio, and Fred researches for it from
-Hermes. The next project is Son's call; do not propose one unasked.
+**03 · Beacon, the content engine** (Son, 2026-09-05), `next`. Exists so a
+stranger finds Lever and understands it: social media and published pieces,
+marketing not sales. Not Sonar with a wider audience: a reading is deep study
+judged on truth, a Beacon piece is reach judged on whether a stranger reached
+out. Nothing built, no channel, no cadence; the first test is three published
+pieces by 2026-09-26. Claim nothing until then. Full page: gbrain
+`projects/beacon`.
+
+**Nothing else.** F1 YouTube was listed as the next project on 2026-09-03 and
+removed the same day; trading, Perfeat, Paddock and Fitnest are stopped
+(confirmed by Son 2026-09-05). Sonar is not tied to Grok Bot: it is the
+research engine for every project in the portfolio, and Fred researches for
+it from Hermes. The next project is Son's call; do not propose one unasked.
 
 
 ## Who decides what

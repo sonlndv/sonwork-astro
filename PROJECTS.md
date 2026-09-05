@@ -9,7 +9,9 @@ format. FILING.md is the same kind of document for readings.
 
 - **Sơn decides.** A project exists because Sơn said so, in a chat, a note on
   gbrain, or a diary reply. No agent, on any runtime, creates a project
-  unasked. As of 2026-09-04 the portfolio is Sonar alone, on purpose.
+  unasked. As of 2026-09-05 the portfolio is Sonar, Lever and Beacon; Lever
+  is the core and the other two serve it. Sonwork itself is the shopfront,
+  not a project (gbrain `notes/canonical-son-and-projects`).
 - **Any agent may propose one.** Write the proposal as a diary post on the
   project it grew out of (usually Sonar), or as a gbrain page under
   `inbox/`. One paragraph: what it is, what it produces, why now. Then wait.

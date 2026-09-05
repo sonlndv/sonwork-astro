@@ -155,8 +155,14 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
   the portfolio (**01 Sonar**, the research and writing engine, live, this
   site; **02 Lever**, the operations practice enabled by AI, building since
   2026-09-04, working name, public name and mark not decided, client never
-  named; F1 YouTube removed 2026-09-03), then "What Sonar found" (the readings). Sonar's
-  profile page repeats that block. **"What Sonar found" is one day** (Son,
+  named; **03 Beacon**, the content engine, `next` since 2026-09-05, nothing
+  published, no channel or cadence yet, judged by whether a stranger reached
+  out; F1 YouTube removed 2026-09-03), then "What Sonar found" (the readings). Sonar's
+  profile page repeats that block. **Lever is the core; Sonar and Beacon
+  serve it. Sonwork, the site, is the shopfront, not a project** (Son's
+  canonical page, gbrain `notes/canonical-son-and-projects`, 2026-09-05,
+  which outranks every other page on definitions). The opening's third line
+  and the portfolio meta ("Lever is the core") say so. **"What Sonar found" is one day** (Son,
   2026-09-04): the newest day that has readings, one per theme, in theme
   order, because the engine files daily; the archive is `/readings/`
   (`src/lib/found.ts`). On the home it is drawn as **the day's run**: six
@@ -178,7 +184,10 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 - **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
   (employer unnamed) and is trying to build a business of his own on the side,
   using AI on real problems. He came from venture capital; that is a passing
-  clause, never the headline. **Never say he runs a business or used to invest.**
+  clause, never the headline. His own one line (canonical page, 2026-09-05):
+  "ex-venture capitalist, now a full-time operator, building a business with
+  AI applied to real business problems"; on the site it is one bullet,
+  "Before that: venture capital." **Never say he runs a business or used to invest.**
   Humble, "still learning", "trying to build" is the posture.
 - **Never name his employer or the business he operates**, on the site, in
   readings, or in any published text. The credential is "operator".

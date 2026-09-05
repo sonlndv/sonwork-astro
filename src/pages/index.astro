@@ -34,7 +34,7 @@ const latestOf = (id: string) => {
 const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
 const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date) === day.day) ?? null;
 ---
-<Base title="Lê Sơn" description="One person, a team of AI agents, building a business. Three runtimes: Claude is where Sơn builds, Alfred runs the teams on Grok Bot, Fred maintains the brain and the server on Hermes. Sonar, the engine, researches and writes for every project.">
+<Base title="Lê Sơn" description="One person, a team of AI agents, building a business. Three runtimes: Claude is where Sơn builds, Alfred runs the teams on Grok Bot, Fred maintains the brain and the server on Hermes. Lever, an operations practice, is the core; Sonar researches for it and Beacon will make it found. This site shows the work.">
 
   <div class="open">
     <div class="open-body">
@@ -48,7 +48,7 @@ const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date
       <ul class="open-list appear appear--soft" style="--d:.86s;--dur:1.25s">
         <li>AI agents research and write. I decide what, and I read the result.</li>
         <li>Everything they write is published here. Every revision is kept.</li>
-        <li>Two projects: Sonar, the research engine. Lever, an operations practice.</li>
+        <li>An operations practice, Lever, is the core. A research engine, Sonar, feeds it. A content engine, Beacon, will make it found.</li>
       </ul>
       <div class="open-row">
         <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">What I'm building</a>
@@ -74,7 +74,7 @@ const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date
   </section>
 
   <section class="sec" id="portfolio">
-    <header class="sec-h"><h2>What I'm <span>building.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.length} projects</span><a href="/projects/">All projects →</a></div></header>
+    <header class="sec-h"><h2>What I'm <span>building.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.length} projects<span class="x"> · Lever is the core</span></span><a href="/projects/">All projects →</a></div></header>
     <div class="port">
       {projects.map(p => (
         <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live' }]} href={`/projects/${p.id}/`}>

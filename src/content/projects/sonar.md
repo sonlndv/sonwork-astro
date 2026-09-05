@@ -30,6 +30,6 @@ themes: [news, country, industry, company, business-model, sociology]
 
 ## Where it goes
 
-- Sonar researches for every project here, Lever included.
+- Sonar finds; Lever moves; Beacon broadcasts. Sonar researches for both, Lever first.
 - Not an audience product. The point is what it produces.
 - More readings, more themes covered per day. That is the whole plan.

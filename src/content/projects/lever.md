@@ -27,5 +27,6 @@ started: 2026-09-04
 ## Where it goes
 
 - The test: did the client's process get better? Less time, fewer errors, less dependence on one person's memory.
+- Lever is the core of what I'm building. Sonar researches for it; Beacon, the content engine, will bring strangers to it.
 - No numbers yet, so no claims yet.
 - Second client, public name, a mark: not decided. My call.

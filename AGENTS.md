@@ -22,9 +22,11 @@ one agent, and every agent signs its own name.
 1. Read this file in full.
 2. Read `OPERATING.md`: who decides what, your runtime's mandate, cadence,
    standards, the loop.
-3. Fetch gbrain `projects/sonwork` and `projects/sonwork/stack` by exact
-   slug with `get_page`, never by search. If the brain is not reachable,
-   say so in your diary entry and continue with the repo.
+3. Fetch gbrain `notes/canonical-son-and-projects` (Sơn's own page on what
+   Lever, Sonar, Beacon and Sonwork are; it outranks every other page on
+   definitions), then `projects/sonwork` and `projects/sonwork/stack`, by
+   exact slug with `get_page`, never by search. If the brain is not
+   reachable, say so in your diary entry and continue with the repo.
 4. Match the task against the Routing Map below and open only what the row
    loads. Say in one line what you loaded, then work. Pull more as needed.
 
@@ -60,6 +62,7 @@ file no session will open.*
 | Project protocol | `PROJECTS.md` | Before adding, pausing or retiring a project. |
 | Deploy and secrets | `DEPLOY.md` | Before touching CI, the Worker, Cloudflare or a secret. |
 | Schema | `src/content.config.ts` | When a reading, project or diary entry fails the build; it is the contract. |
+| Sơn and the projects, canonical | gbrain `notes/canonical-son-and-projects` | Every session; it outranks every other page on what Lever, Sonar, Beacon and Sonwork are. |
 | Stack decision | gbrain `projects/sonwork/stack` (mirror `gbrain/projects-sonwork-stack.md`) | Every session; before naming a runtime or a bot. |
 | Sơn's identity and interests | gbrain `brain/user` | Before writing as Sơn on `/about/` or choosing what is worth reading. Fetch by slug. |
 
@@ -113,10 +116,14 @@ companies and unit economics, and human systems. Full identity page: gbrain `bra
 Sơn decides. **Sonar is the engine** the stack researches and writes with; the
 readings are its output. It is not an audience product, and it is not tied to
 one runtime: every project that enters the portfolio uses Sonar for research.
-**The portfolio is Sonar and Lever** (Lever entered 2026-09-04 as `building`:
-the operations practice enabled by AI, working name, public name not decided,
-its client never named on the site; F1 YouTube removed 2026-09-03). The next
-project is Sơn's call. Say which runtime you run on and who you
+**The portfolio is Sonar, Lever and Beacon, and Lever is the core** (Sơn,
+2026-09-05, gbrain `notes/canonical-son-and-projects`). Sonar finds what is
+true, for Lever. Lever, the operations practice enabled by AI (entered
+2026-09-04 as `building`; working name, public name not decided, its client
+never named on the site), moves a client's process. Beacon, the content
+engine (decided 2026-09-05, `next`, nothing published), makes strangers find
+Lever. **Sonwork, this site, is the shopfront that shows the work, not a
+project.** F1 YouTube was removed 2026-09-03. The next project is Sơn's call. Say which runtime you run on and who you
 report to (Alfred for research, Fred for infrastructure, Claude for the
 codebase). One name, kept forever.
 
@@ -126,9 +133,9 @@ that would be a Sonar theme or a new project, decided by Sơn, not a "Writing"
 section. The old pages sit in `.impeccable/retired/`.
 
 **Home vs About:** the home is the business: one person, a team of AI agents,
-the stack as a diagram, then the portfolio: Sonar, the research and writing engine
-(live, this site, `/projects/sonar/`), the only project for now. The readings are
-the product in use. "What Sonar found" shows one day: the newest day with
+the stack as a diagram, then the portfolio: 01 Sonar, the research and writing
+engine (live, this site, `/projects/sonar/`); 02 Lever, the core; 03 Beacon,
+next. The readings are the product in use. "What Sonar found" shows one day: the newest day with
 readings, one per theme, in theme order (`src/lib/found.ts`); the archive is
 `/readings/`. Bylines name the agent and its runtime, "by fred on Hermes"
 (`src/lib/byline.ts`; add a runtime there, never a per-agent entry). The story is find, research, publish;

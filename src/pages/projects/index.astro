@@ -9,7 +9,11 @@ const entries = (id: string) => journal.filter(j => j.data.project === id).lengt
 <Base title="Projects — Lê Sơn" current="projects">
   <div class="intro" style="padding:72px 0 44px">
     <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">The portfolio.</h1>
-    <p class="last">What the team and I are building, one product at a time, with a diary of how each one was built.</p>
+    <ul class="open-list">
+      <li>Lever, an operations practice, is the core.</li>
+      <li>Sonar finds what is true, for Lever. Beacon will make strangers find Lever.</li>
+      <li>This site shows the work. Each project has a profile and a build diary.</li>
+    </ul>
   </div>
   <section class="sec">
     <header class="sec-h"><h2>Projects.</h2><div class="sec-m"><span>{projects.length} in the portfolio</span></div></header>
