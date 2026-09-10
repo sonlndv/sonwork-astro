@@ -1,0 +1,125 @@
+---
+// Depth: the ambient layer behind the page.
+// A mesh of nodes that link when near, a slow drifting glow, and one scan
+// sweep. It carries no information and is aria-hidden: it is the ground the
+// content sits on, not content. Off entirely under prefers-reduced-motion,
+// paused when the tab is hidden, and it never blocks a pointer.
+---
+
+<div class="depth" aria-hidden="true">
+  <canvas class="depth-mesh"></canvas>
+  <span class="depth-glow depth-glow-a"></span>
+  <span class="depth-glow depth-glow-b"></span>
+  <span class="depth-scan"></span>
+</div>
+
+<script>
+  const start = () => {
+    const host = document.querySelector('.depth');
+    const cv = document.querySelector('.depth-mesh') as HTMLCanvasElement | null;
+    if (!host || !cv) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (cv.dataset.on === '1') return;
+    cv.dataset.on = '1';
+
+    const ctx = cv.getContext('2d');
+    if (!ctx) return;
+
+    // the accent, read from the live token so light and dark both work
+    const readAccent = () => {
+      const v = getComputedStyle(document.documentElement).getPropertyValue('--lume').trim();
+      return v || 'oklch(.8 .135 222)';
+    };
+    let accent = readAccent();
+
+    let w = 0, h = 0, dpr = 1;
+    let nodes: { x: number; y: number; vx: number; vy: number }[] = [];
+
+    const build = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = host.clientWidth;
+      h = host.clientHeight;
+      cv.width = Math.floor(w * dpr);
+      cv.height = Math.floor(h * dpr);
+      cv.style.width = w + 'px';
+      cv.style.height = h + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // density scales with area, capped so a 4K display does not melt
+      const n = Math.max(18, Math.min(64, Math.round((w * h) / 34000)));
+      nodes = Array.from({ length: n }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.16,
+        vy: (Math.random() - 0.5) * 0.16,
+      }));
+    };
+
+    const LINK = 132;
+    let raf = 0;
+    let running = false;
+
+    const frame = () => {
+      if (!running) return;
+      ctx.clearRect(0, 0, w, h);
+
+      for (const p of nodes) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+      }
+
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d = Math.hypot(dx, dy);
+          if (d > LINK) continue;
+          ctx.globalAlpha = (1 - d / LINK) * 0.2;
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = accent;
+      for (const p of nodes) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 1.1, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      raf = requestAnimationFrame(frame);
+    };
+
+    const run = () => { if (!running) { running = true; raf = requestAnimationFrame(frame); } };
+    const stop = () => { running = false; cancelAnimationFrame(raf); };
+
+    build();
+    run();
+
+    let t = 0;
+    window.addEventListener('resize', () => {
+      clearTimeout(t);
+      t = window.setTimeout(build, 160);
+    });
+
+    // do not burn a core in a background tab
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop(); else run();
+    });
+
+    // the theme toggle swaps --lume; pick the new value up
+    new MutationObserver(() => { accent = readAccent(); }).observe(
+      document.documentElement, { attributes: true, attributeFilter: ['data-theme'] }
+    );
+  };
+
+  start();
+  // Base.astro re-binds on navigation; Astro fires this on every view transition
+  document.addEventListener('astro:page-load', start);
+</script>

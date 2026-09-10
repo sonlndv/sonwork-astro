@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
 import Mark from '../components/Mark.astro';
+import Depth from '../components/Depth.astro';
 interface Props {
   title: string; description?: string; current?: string;
   lang?: 'en' | 'vi'; indexable?: boolean;
@@ -46,6 +47,7 @@ const nav = [
 </head>
 <body style="background:#0b1524">
   <div class="sea" aria-hidden="true"><span class="lb lb1"></span></div>
+  <Depth />
   <header class="w">
     <div class="bar">
       <a class="me" href="/" aria-label="Home"><Mark size={24} label={false} /></a>

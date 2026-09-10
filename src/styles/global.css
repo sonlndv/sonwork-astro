@@ -939,3 +939,27 @@ body::before{z-index:-2}
   .open-stats{flex-direction:column;gap:10px}
 }
 
+
+/* ── Depth: ambient layer behind the page (2026-09-10) ───────────────────
+   Mesh, glow and one scan sweep. Uses --lume only; adds no new colour.
+   aria-hidden, pointer-events:none, fully off under reduced motion.       */
+.depth{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;contain:strict}
+/* content rides above the ambient layer */
+main.w,footer.w{position:relative;z-index:1}
+.depth-mesh{position:absolute;inset:0;display:block;opacity:.5}
+.depth-glow{position:absolute;display:block;border-radius:50%;filter:blur(90px);opacity:.16;mix-blend-mode:screen}
+.depth-glow-a{width:52vw;height:52vw;left:-12vw;top:-16vw;background:radial-gradient(circle,var(--lume) 0%,transparent 68%)}
+.depth-glow-b{width:44vw;height:44vw;right:-14vw;top:22vh;background:radial-gradient(circle,var(--lume-2) 0%,transparent 68%)}
+.depth-scan{position:absolute;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--lume),transparent);opacity:0}
+:root[data-theme=light] .depth-mesh{opacity:.32}
+:root[data-theme=light] .depth-glow{opacity:.1;mix-blend-mode:multiply}
+@media(prefers-reduced-motion:no-preference){
+  .depth-glow-a{animation:depth-drift-a 26s ease-in-out infinite}
+  .depth-glow-b{animation:depth-drift-b 34s ease-in-out infinite}
+  .depth-scan{animation:depth-sweep 14s linear infinite}
+  @keyframes depth-drift-a{50%{transform:translate3d(6vw,4vh,0) scale(1.08)}}
+  @keyframes depth-drift-b{50%{transform:translate3d(-5vw,-3vh,0) scale(1.06)}}
+  @keyframes depth-sweep{0%{top:-2%;opacity:0}6%{opacity:.5}94%{opacity:.5}100%{top:102%;opacity:0}}
+}
+@media(prefers-reduced-motion:reduce){.depth-mesh,.depth-scan{display:none}}
+@media(max-width:640px){.depth-glow{filter:blur(60px)}.depth-mesh{opacity:.34}}
