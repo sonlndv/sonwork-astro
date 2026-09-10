@@ -34,13 +34,19 @@ const latestOf = (id: string) => {
 };
 const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
 const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date) === day.day) ?? null;
-// the hero figure: what each agent has actually filed, newest first
-const byAuthor = new Map<string, number>();
-for (const r of reports) byAuthor.set(r.data.author, (byAuthor.get(r.data.author) ?? 0) + 1);
-const pulseLanes = [...byAuthor.entries()]
+// the hero figure: what each runtime has actually filed, busiest first.
+// Group by project, not author — every report is filed by the same agent,
+// so grouping by author collapses to a single meaningless lane.
+const byProject = new Map<string, number>();
+for (const r of [...reports, ...journal]) {
+  const p = r.data.project;
+  if (p) byProject.set(p, (byProject.get(p) ?? 0) + 1);
+}
+const pulseLanes = [...byProject.entries()]
   .sort((a, b) => b[1] - a[1])
   .slice(0, 3)
-  .map(([who, n]) => ({ who, name: 'readings', n }));
+  .map(([who, n]) => ({ who, name: 'filed', n }));
+const pulseTotal = pulseLanes.reduce((s, l) => s + l.n, 0);
 ---
 <Base title="Lê Sơn" description="One person, a team of AI agents, building a business. Three runtimes: Claude is where Sơn builds, Alfred runs the teams on Grok Bot, Fred maintains the brain and the server on Hermes. Lever, an operations practice, is the core; Sonar researches for it and Beacon will make it found. This site shows the work.">
 
@@ -63,7 +69,7 @@ const pulseLanes = [...byAuthor.entries()]
         <a class="lnk appear appear--side" style="--d:1.12s" href="#stack">Who does what</a>
       </div>
     </div>
-    {pulseLanes.length > 0 && <Pulse lanes={pulseLanes} total={reports.length} />}
+    {pulseLanes.length > 0 && <Pulse lanes={pulseLanes} total={pulseTotal} />}
     <div class="open-stats">
       <span class="stat appear appear--stat" style="--d:1.2s"><i class="stat-ico"><Bot size={9} /></i><b class="num" data-count={agents}>{agents}</b> {agents === 1 ? 'AI writer' : 'AI writers'}</span>
       <span class="stat appear appear--stat" style="--d:1.34s"><i class="stat-ico"><Sonar size={16} /></i><b class="num" data-count={reports.length}>{reports.length}</b> readings published</span>
