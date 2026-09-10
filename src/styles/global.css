@@ -963,3 +963,42 @@ main.w,footer.w{position:relative;z-index:1}
 }
 @media(prefers-reduced-motion:reduce){.depth-mesh,.depth-scan{display:none}}
 @media(max-width:640px){.depth-glow{filter:blur(60px)}.depth-mesh{opacity:.34}}
+
+/* ── Pulse: the hero's live figure (2026-09-10) ──────────────────────────
+   One lane per runtime. Bar width is that runtime's share of everything
+   filed, so the geometry is the datum. A packet crosses each lane; a
+   busier runtime moves more. Readable with motion off.                    */
+.pulse{margin:26px 0 0;padding:16px 0 0;border-top:1px solid var(--line-2)}
+.pulse-cap{display:flex;justify-content:space-between;align-items:baseline;gap:16px;font-family:var(--mono);font-size:12px;color:var(--ink-3);margin-bottom:12px}
+.pulse-total{color:var(--ink-2)}
+.pulse-lanes{display:grid;gap:9px}
+.pulse-lane{display:grid;grid-template-columns:132px minmax(0,1fr) 74px;align-items:center;gap:14px}
+.pulse-who{font-family:var(--mono);font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pulse-who em{font-style:normal;color:var(--ink-3);margin-left:6px}
+.pulse-track{position:relative;height:3px;background:var(--line-2);border-radius:2px;overflow:hidden}
+.pulse-fill{position:absolute;inset:0 auto 0 0;width:var(--share,0%);background:var(--lume);border-radius:2px;opacity:.55}
+.pulse-packet{position:absolute;top:50%;left:0;width:16px;height:3px;margin-top:-1.5px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--lume));opacity:0}
+.pulse-n{font-family:var(--mono);font-size:12px;color:var(--ink);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.pulse-n i{font-style:normal;color:var(--ink-3);margin-left:7px}
+@media(prefers-reduced-motion:no-preference){
+  .pulse-fill{transform-origin:left;animation:pulse-grow .85s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(1.28s + var(--i,0) * .1s)}
+  .pulse-packet{animation:pulse-run 3.4s linear infinite;animation-delay:calc(2s + var(--i,0) * .55s)}
+  @keyframes pulse-grow{0%{transform:scaleX(0)}to{transform:scaleX(1)}}
+  @keyframes pulse-run{0%{left:0;opacity:0}12%{opacity:.9}88%{opacity:.9}100%{left:100%;opacity:0}}
+}
+@media(max-width:640px){
+  .pulse-lane{grid-template-columns:106px minmax(0,1fr) 62px;gap:10px}
+  .pulse-who em{display:none}
+}
+
+/* ── Section-level arrival (2026-09-10) ──────────────────────────────────
+   The portfolio cards and reading rows rise as their section enters. The
+   old rule used animation-timeline:view(), which Safari does not support,
+   so those rows had no authored moment there. Class is applied by the
+   observer in Base.astro; without script nothing is hidden.              */
+@media(prefers-reduced-motion:no-preference){
+  html.js .port:not(.is-in) .port-item,
+  html.js .found:not(.is-in) .card{opacity:0}
+  .port.is-in .port-item{animation:rise2 .6s var(--out) both;animation-delay:calc(var(--i,0) * .09s)}
+  .found.is-in .card{animation:rise2 .55s var(--out) both;animation-delay:calc(var(--i,0) * .07s)}
+}

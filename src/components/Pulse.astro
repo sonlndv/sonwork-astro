@@ -1,0 +1,32 @@
+---
+// Pulse: the hero's live figure.
+// Three lanes, one per runtime, carrying real counts from the collections.
+// A packet travels each lane at a rate set by that runtime's output, so a
+// busier runtime visibly moves more. Geometry is data: lane bar width is the
+// runtime's share of everything filed. Static and fully readable with no
+// script and under prefers-reduced-motion.
+interface Lane { name: string; who: string; n: number; }
+interface Props { lanes: Lane[]; total: number; }
+const { lanes, total } = Astro.props;
+const share = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
+---
+
+<figure class="pulse">
+  <figcaption class="pulse-cap">
+    <span>Signal · what each runtime has filed</span>
+    <span class="pulse-total num">{total} total</span>
+  </figcaption>
+
+  <div class="pulse-lanes">
+    {lanes.map((l, i) => (
+      <div class="pulse-lane" style={`--i:${i}; --share:${share(l.n)}%`}>
+        <span class="pulse-who">{l.who}<em>{l.name}</em></span>
+        <div class="pulse-track">
+          <span class="pulse-fill"></span>
+          {l.n > 0 && <span class="pulse-packet"></span>}
+        </div>
+        <span class="pulse-n num">{l.n}<i>{share(l.n)}%</i></span>
+      </div>
+    ))}
+  </div>
+</figure>
