@@ -665,6 +665,8 @@ body::before{z-index:-2}
    opacity from a visible base); every section after it draws its rule and
    rises as it enters. Reduced motion shows everything at rest. */
 .open{min-height:calc(100vh - 62px);display:flex;flex-direction:column;justify-content:center;padding:48px 0 56px;position:relative}
+.sec-lede{max-width:var(--measure,58ch);margin:-6px 0 30px;font-size:16.5px;line-height:1.62;color:var(--ink-2)}
+@media (max-width:640px){.sec-lede{font-size:15.5px;margin-bottom:24px}}
 .open-mark{margin-bottom:34px}
 .open-h{font-size:clamp(48px,8.4vw,112px);font-weight:500;letter-spacing:-0.05em;line-height:.96;margin:0 0 30px;max-width:none}
 .open-h .ln{display:block}

@@ -51,7 +51,11 @@ const lanes = [1, 2, 3];
         {t.mark === 'dim' && <span class="mk"><Bot size={22} class="dim" /></span>}
         <b>{t.name}</b>
         <p>{t.text}</p>
-        <span class="tile-live">{plural(t.readings, 'reading', 'readings')} · {plural(t.diary, 'diary post', 'diary posts')}{t.last && <> · last {t.last}</>}</span>
+        <span class="tile-live">{[
+          t.readings > 0 && plural(t.readings, 'reading', 'readings'),
+          t.diary > 0 && plural(t.diary, 'diary post', 'diary posts'),
+          t.last && `last ${t.last}`,
+        ].filter(Boolean).join(' · ')}</span>
       </li>
     ))}
   </ol>
