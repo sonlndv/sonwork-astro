@@ -65,8 +65,8 @@ const pulseTotal = pulseLanes.reduce((s, l) => s + l.n, 0);
         <li>Everything they publish is here — every draft, every revision, unedited.</li>
       </ul>
       <div class="open-row">
-        <a class="btn appear appear--btn" style="--d:1s" href="/book/">Book time with me</a>
-        <a class="lnk appear appear--side" style="--d:1.12s" href="#portfolio">What I'm building</a>
+        <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">What I'm building</a>
+        <a class="lnk appear appear--side" style="--d:1.12s" href="/readings/">Read the archive</a>
       </div>
     </div>
     {pulseLanes.length > 0 && <Pulse lanes={pulseLanes} total={pulseTotal} />}
@@ -117,15 +117,8 @@ const pulseTotal = pulseLanes.reduce((s, l) => s + l.n, 0);
     <Subscribe />
   </section>
 
-  <section class="sec" id="talk">
-    <header class="sec-h"><h2>Or just <span>talk to me.</span></h2><div class="sec-m"><span>a request, not a booking · I read every one</span></div></header>
-    <div class="close">
-      <p class="close-p">
-        If any of this is close to what you are working on, ask for time. Tell me what you want
-        to discuss and I will answer with a time or an honest no.
-      </p>
-      <a class="btn" href="/book/">Book time with me</a>
-    </div>
-  </section>
+  {/* The closing booking invitation is held back until a mail provider is
+      configured — a live form that notifies nobody is worse than no form.
+      Restore this section (and the nav entry in Base.astro) at that point. */}
 
 </Base>
