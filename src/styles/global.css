@@ -509,7 +509,10 @@ body::before{z-index:-2}
 
 /* gloss and empty */
 .gloss{font-family:var(--bv, var(--sans));font-size:13px;color:var(--ink-3);font-weight:300;max-width:80ch;margin:-18px 0 30px;line-height:1.7}
-.gloss b{color:var(--lume);font-weight:500}
+/* Six theme names listed in one sentence, every one of them in --lume, made
+   the intro line read as a cyan list rather than prose. Emphasis inside a
+   sentence is weight and brightness, not the action colour. */
+.gloss b{color:var(--ink-2);font-weight:500}
 .empty{color:var(--ink-3);font-weight:300}
 .kk{font-family:var(--mono);font-size:12px;border:1px solid var(--line);border-radius:var(--r-ctl);padding:1px 5px;color:var(--ink-2)}
 /* sources as links with a domain */
@@ -711,11 +714,13 @@ body::before{z-index:-2}
   @keyframes markin{from{transform:skewX(-11deg) translateX(-24px)}to{transform:skewX(-11deg)}}
 }
 .sec-h{position:relative}
-/* The draw-in rule under a section heading. It was left at full --lume, so
-   after the animation finished every section sat under a permanent cyan bar
-   competing with the actual links — the page's loudest colour spent on a
-   divider. It draws in with a hint of accent and settles as structure. */
-.sec-h::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,var(--lume),var(--line) 22%,var(--line));opacity:.85;transform-origin:left;transform:scaleX(0)}
+/* The draw-in rule under a section heading. First it was solid --lume, so
+   every section sat under a permanent cyan bar. Keeping an accent TIP was
+   still wrong: the tip repeats at every heading, so scrolling the page walks
+   past a column of identical cyan marks and the accent still means nothing.
+   A divider is structure. It gets --line and no accent at any point. The
+   motion carries the entrance; colour is not the reveal. */
+.sec-h::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--line);transform-origin:left;transform:scaleX(0)}
 /* Entrances play once, in time, when a block enters the viewport (Base.astro adds
    .is-in). Nothing is scrubbed by the scroll: a scrubbed reveal moves in lockstep
    with the thumb and reads as lag (Sơn, 2026-09-04). Blocks start hidden only
@@ -811,8 +816,13 @@ body::before{z-index:-2}
 .run-st{list-style:none;margin:-4px 0 18px;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
 .st{margin:0;position:relative;padding:0 0 10px}
 .st>a,.st>span{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--ink-3);text-decoration:none;transition:color .2s var(--out)}
-.st.lit>a{color:var(--lume)}
-.st.lit>a:is(:hover,:focus-visible){color:var(--ink)}
+/* A lit station shows progress two ways at once: the label went --lume AND
+   the bar under it went --lume, so four completed stations painted a solid
+   cyan band across the page. The BAR is the meter — it is the thing that
+   fills. The label just names the step, so it reads as ordinary bright text
+   and lets the bars carry the signal on their own. */
+.st.lit>a{color:var(--ink)}
+.st.lit>a:is(:hover,:focus-visible){color:var(--lume)}
 .st::after{content:"";position:absolute;left:0;bottom:0;height:1.5px;width:100%;background:var(--line-2);transform-origin:left}
 .st.lit::after{background:var(--lume)}
 .run-diary{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin:16px 0 0}
