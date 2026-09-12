@@ -93,31 +93,21 @@ are no cards, no glass, no gradient text. A row lifts to `--raise` on hover.
 
 ## Structure of the home
 
-The home is the **profile of the work**, not of the person (Son, 2026-09-03):
-a business being built with a team of AI agents, run by Alfred. Son's own story
-lives on `/about/`. The ledger lives at `/readings/`.
+The home is the **shopfront of the work** (Son, 2026-09-12): who Sơn is,
+what he is building, who does the work, then what Sonar found. Son's own
+story lives on `/about/`. The ledger lives at `/readings/`. Same visual
+system as the rest of the shopfront; URLs do not change.
 
-1. The opening is one composed frame, bottom-anchored: LS15, a small badge
-   ("Sonar is live · Alfred runs the team"), the statement in three masked
-   lines with "AI agents," in the cool colour, one paragraph, two actions, and a stats row pinned at the bottom
-   (agents, readings, this week, each with its icon). Every element has its
-   own delay; a rest state of opacity 1 plus an animationend handler and a rAF
-   fallback mean nothing can stay hidden. Height-aware breakpoints keep the
-   frame inside short viewports.
-2. A ticker of what the fleet filed (title, kind glyph, byline), 48s loop,
-   pauses on hover, static under reduced motion.
-3. Meet Alfred, my CEO (band): one paragraph, no more, and Alfred sliding in.
-3b. The portfolio: project cards from the `projects` collection (01 Lever,
-   the core, its card spanning the full row with "the core" in its label; 02
-   Sonar, with Find / Research / Publish; 03 Beacon; all live; the section
-   meta says "Lever is the core"), the rest in two equal columns, each
-   linking to its profile and build diary. "What Sonar found." over the readings (the `Found` component: theme pills,
-   featured, grid), repeated on `/projects/sonar/`. No scroll cue.
-4. What Sonar found, as **the day's run** (Sơn, 2026-09-04, brief
-   `.impeccable/surfaces/src-pages-index-astro.md`): six stations in theme
-   order across the column, mono label with glyph, a 1.5px bar beneath. A
-   station with a reading that day is lit (lume, and a link to the reading);
-   a station without one is the dimmed theme name alone, nothing written.
+1. The opening is a short identity frame, not a full-viewport billboard:
+   LS15, the three-line thesis with "AI agents," in `--lume`, a bullet list
+   (operator, Vietnam, trying to build, Lever is the core), two actions,
+   one quiet mono line of live counts. No badge above the heading. No hero
+   figure. No monument stats row.
+2. The window: Lever is the glass, full width. Sonar and Beacon are two
+   panes under a transom. One frame, hairline rules, no card fill.
+3. Who does what: the stack diagram, one line each.
+4. A ticker of what the fleet filed, then **What Sonar found** as the day's
+   run (six stations in theme order). The archive itself is `/readings/`.
    Below: one **featured** reading (its kind drawn large, accent sweep on
    hover) and a grid of the rest that tilts toward the cursor, in theme
    order. A lit station and its card share one hover state. If a diary post
@@ -127,10 +117,10 @@ lives on `/about/`. The ledger lives at `/readings/`.
    project's newest reading or diary post, with date; a project with its own
    site shows the hostname (`url` in the schema).
 
-`/about/` is short: the day-job statement, one paragraph, contact. There is no
+`/about/` is short: the day-job statement, how the work splits, contact. There is no
 writing section (removed 2026-09-03).
 
-Every section header draws its rule in the accent and rises as it enters the
+Every section header draws its rule in `--line` and rises as it enters the
 viewport, once, in time (600ms and 700ms); the day's run and the cards
 stagger by index the same way. **Nothing authored is scrubbed by the scroll**
 (Sơn, 2026-09-04: a reveal that moves in lockstep with the thumb reads as lag).

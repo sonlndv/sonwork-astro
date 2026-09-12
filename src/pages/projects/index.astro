@@ -7,8 +7,8 @@ const journal = await getCollection('journal');
 const entries = (id: string) => journal.filter(j => j.data.project === id).length;
 ---
 <Base title="Projects — Lê Sơn" current="projects">
-  <div class="intro" style="padding:72px 0 44px">
-    <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">The portfolio.</h1>
+  <div class="intro">
+    <h1>What I'm building.</h1>
     <ul class="open-list">
       <li>Lever, an operations practice, is the core.</li>
       <li>Sonar finds what is true, for Lever. Beacon makes strangers find Lever.</li>

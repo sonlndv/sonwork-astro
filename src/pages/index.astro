@@ -1,11 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
 import Mark from '../components/Mark.astro';
-import Bot from '../components/Bot.astro';
 import Stack from '../components/Stack.astro';
 import Run from '../components/Run.astro';
 import Sonar from '../components/Sonar.astro';
-import Pulse from '../components/Pulse.astro';
 import Subscribe from '../components/Subscribe.astro';
 import { glyph } from '../lib/glyphs';
 import { latestDay } from '../lib/found';
@@ -18,7 +16,6 @@ const day = latestDay(reports);
 // the pipeline's real numbers on the portfolio card
 const sources = reports.reduce((n, r) => n + (r.data.sources?.length ?? 0), 0);
 const revisions = reports.reduce((n, r) => n + (r.data.revision ?? 1), 0);
-const agents = new Set(reports.map(r => r.data.author)).size;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const week = reports.filter(r => Date.now() - r.data.date.getTime() < 7 * 864e5).length;
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
@@ -32,84 +29,80 @@ const latestOf = (id: string) => {
   if (id === 'sonar' && reports[0]) c.push({ date: reports[0].data.date, title: reports[0].data.title, href: `/readings/${reports[0].id}/`, kind: 'reading' });
   return c.sort((a, b) => b.date.getTime() - a.date.getTime())[0] ?? null;
 };
-const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
 const dayDiary = journal.find(j => j.data.project === 'sonar' && iso(j.data.date) === day.day) ?? null;
-// the hero figure: what each runtime has actually filed, busiest first.
-// Group by project, not author — every report is filed by the same agent,
-// so grouping by author collapses to a single meaningless lane.
-const byProject = new Map<string, number>();
-for (const r of [...reports, ...journal]) {
-  const p = r.data.project;
-  if (p) byProject.set(p, (byProject.get(p) ?? 0) + 1);
-}
-const pulseLanes = [...byProject.entries()]
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 3)
-  .map(([who, n]) => ({ who, name: 'filed', n }));
-const pulseTotal = pulseLanes.reduce((s, l) => s + l.n, 0);
 ---
 <Base title="Lê Sơn" description="One person, a team of AI agents, building a business. Three runtimes: Claude is where Sơn builds, Alfred runs the teams on Grok Bot, Fred maintains the brain and the server on Hermes. Lever, an operations practice, is the core; Sonar researches for it and Beacon will make it found. This site shows the work.">
 
   <div class="open">
     <div class="open-body">
       <div class="open-mark appear" style="--d:.06s"><Mark size={64} label={false} /></div>
-      <div class="badge appear appear--pop" style="--d:.22s"><Sonar size={13} />Live · AI writes, I read</div>
       <h1 class="open-h">
-        <span class="line"><span class="ln appear appear--mask" style="--d:.42s">One person,</span></span>
-        <span class="line"><span class="ln appear appear--mask" style="--d:.56s">a team of <em>AI agents,</em></span></span>
-        <span class="line"><span class="ln dim appear appear--mask" style="--d:.70s">building a business.</span></span>
+        <span class="line"><span class="ln appear appear--mask" style="--d:.22s">One person,</span></span>
+        <span class="line"><span class="ln appear appear--mask" style="--d:.36s">a team of <em>AI agents,</em></span></span>
+        <span class="line"><span class="ln dim appear appear--mask" style="--d:.50s">building a business.</span></span>
       </h1>
-      <ul class="open-list appear appear--soft" style="--d:.86s;--dur:1.25s">
-        <li>I am Lê Sơn. I was a VC; now I build the businesses instead.</li>
-        <li>AI agents research and write. I decide what, and I read the result.</li>
-        <li>Everything they publish is here — every draft, every revision, unedited.</li>
+      <ul class="open-list appear appear--soft" style="--d:.66s;--dur:1.25s">
+        <li>I am Lê Sơn. Full-time operator. Vietnam.</li>
+        <li>Before that: venture capital.</li>
+        <li>On the side I am trying to build an operations practice. Lever is the core.</li>
+        <li>Agents research and write. I decide what, and I read the result.</li>
       </ul>
       <div class="open-row">
-        <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">What I'm building</a>
-        <a class="lnk appear appear--side" style="--d:1.12s" href="/readings/">Read the archive</a>
+        <a class="btn appear appear--btn" style="--d:.82s" href="#portfolio">What I'm building</a>
+        <a class="lnk appear appear--side" style="--d:.94s" href="/readings/">Read the archive</a>
       </div>
-    </div>
-    {pulseLanes.length > 0 && <Pulse lanes={pulseLanes} total={pulseTotal} />}
-    <div class="open-stats">
-      <span class="stat appear appear--stat" style="--d:1.2s"><i class="stat-ico"><Bot size={9} /></i><b class="num" data-count={agents}>{agents}</b> {agents === 1 ? 'AI writer' : 'AI writers'}</span>
-      <span class="stat appear appear--stat" style="--d:1.34s"><i class="stat-ico"><Sonar size={16} /></i><b class="num" data-count={reports.length}>{reports.length}</b> readings published</span>
-      {week > 0 && <span class="stat appear appear--stat" style="--d:1.48s"><i class="stat-ico" set:html={glyph('news', 16)} /><b class="num" data-count={week}>{week}</b> this week</span>}
+      <p class="open-meta appear appear--soft" style="--d:1.06s">
+        {reports.length} {reports.length === 1 ? 'reading' : 'readings'}
+        {week > 0 && <> · {week} this week</>}
+        {ticker[0] && <> · latest {iso(ticker[0].data.date).replace(/-/g, '.')}</>}
+      </p>
     </div>
   </div>
 
-  {ticker.length > 0 && (
-    <div class="ticker" aria-hidden="true"><div class="ticker-track">
-      {[...ticker, ...ticker].map(r => <span><i set:html={glyph(r.data.type, 11)} />{r.data.title}<em>{r.data.author}</em></span>)}
-    </div></div>
-  )}
+  <section class="sec" id="portfolio">
+    <header class="sec-h"><h2>What I'm <span>building.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · Lever is the glass</span><a href="/projects/">All projects →</a></div></header>
+    <p class="sec-lede">Lever is an operations practice, the business. Sonar researches for it. Beacon will make it found.</p>
+    <div class="shop">
+      {projects[0] && (
+        <a class="shop-glass" href={`/projects/${projects[0].id}/`}>
+          <div class="port-top"><span class="mono">{String(projects[0].data.order).padStart(2,'0')} · the core</span><span class="port-status">{projects[0].data.status === 'live' && <i></i>}{projects[0].data.status}</span></div>
+          <h3>{projects[0].data.title}{projects[0].data.tagline && <small> · {projects[0].data.tagline}</small>}</h3>
+          <p>{projects[0].data.summary}</p>
+          {(() => { const l = latestOf(projects[0].id); return l && <div class="port-latest"><span>latest · {iso(l.date).replace(/-/g, '.')} · {l.kind}</span><b>{l.title}</b></div>; })()}
+          <span class="port-go">Profile and build diary →</span>
+        </a>
+      )}
+      <div class="shop-panes">
+        {projects.slice(1).map((p) => (
+          <a class="shop-pane" href={`/projects/${p.id}/`}>
+            <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}</span><span class="port-status">{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
+            <h3>{p.id === 'sonar' && <Sonar size={22} class="inl" />}{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3>
+            <p>{p.data.summary}</p>
+            {(() => { const l = latestOf(p.id); return l && <div class="port-latest"><span>latest · {iso(l.date).replace(/-/g, '.')} · {l.kind}</span><b>{l.title}</b></div>; })()}
+            {p.id === 'sonar' && p.data.status === 'live' && (
+              <div class="steps">
+                <div class="step"><b>Find</b><p>Pick what is worth understanding.</p><span class="step-live">{THEMES.length} themes</span></div>
+                <div class="step"><b>Research</b><p>Read the sources. Check the numbers.</p><span class="step-live">{sources} sources cited</span></div>
+                <div class="step"><b>Publish</b><p>Write it up here. Keep every revision.</p><span class="step-live">{reports.length} readings · {revisions} revisions</span></div>
+              </div>
+            )}
+            <span class="port-go">Profile and build diary →</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
 
   <section class="sec" id="stack">
     <header class="sec-h"><h2>Who does <span>what.</span></h2><div class="sec-m"><span>I decide · three AIs work · one engine writes</span></div></header>
     <Stack />
   </section>
 
-  <section class="sec" id="portfolio">
-    <header class="sec-h"><h2>What I'm <span>building.</span></h2><div class="sec-m"><span>{projects.filter(p => p.data.status === 'live').length} live · {projects.length} projects<span class="x"> · Lever is the core</span></span><a href="/projects/">All projects →</a></div></header>
-    <p class="sec-lede">Lever is an operations practice — the business. Sonar researches for it. Beacon will make it found.</p>
-    <div class="port">
-      {projects.map((p, i) => (
-        <a class:list={['port-item', { tilt: p.data.status === 'live', 'port-next': p.data.status !== 'live', 'port-core': i === 0 }]} href={`/projects/${p.id}/`}>
-          <div class="port-top"><span class="mono">{String(p.data.order).padStart(2,'0')}{i === 0 && <> · the core</>}{p.data.url && <> · {host(p.data.url)} ↗</>}</span><span class:list={['port-status', { dim: p.data.status !== 'live' }]}>{p.data.status === 'live' && <i></i>}{p.data.status}</span></div>
-          <h3>{p.id === 'sonar' && <Sonar size={26} class="inl" />}{p.data.title}{p.data.tagline && <small> · {p.data.tagline}</small>}</h3>
-          <p>{p.data.summary}</p>
-          {(() => { const l = latestOf(p.id); return l && <div class="port-latest"><span>latest · {iso(l.date).replace(/-/g, '.')} · {l.kind}</span><b>{l.title}</b></div>; })()}
-          {p.id === 'sonar' && p.data.status === 'live' && (
-            <div class="steps">
-              <div class="step"><b>Find</b><p>Pick what is worth understanding.</p><span class="step-live">{THEMES.length} themes</span></div>
-              <div class="step"><b>Research</b><p>Read the sources. Check the numbers.</p><span class="step-live">{sources} sources cited</span></div>
-              <div class="step"><b>Publish</b><p>Write it up here. Keep every revision.</p><span class="step-live">{reports.length} readings · {revisions} revisions</span></div>
-            </div>
-          )}
-          <span class="port-go">Profile and build diary →</span>
-        </a>
-      ))}
-    </div>
-  </section>
+  {ticker.length > 0 && (
+    <div class="ticker" aria-hidden="true"><div class="ticker-track">
+      {[...ticker, ...ticker].map(r => <span><i set:html={glyph(r.data.type, 11)} />{r.data.title}<em>{r.data.author}</em></span>)}
+    </div></div>
+  )}
 
   <section class="sec" id="readings">
     <header class="sec-h"><h2><Sonar size={30} class="inl" />What Sonar <span>found.</span></h2><div class="sec-m"><span>{day.date ? `newest day · ${day.day.replace(/-/g, '.')} · ${day.items.length} of ${THEMES.length} themes` : 'the research engine'}</span><a href="/readings/">All {reports.length} readings →</a></div></header>

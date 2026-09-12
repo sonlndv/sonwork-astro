@@ -220,10 +220,8 @@ taxonomy (`life-book`, `experiences`, `human`) is retired.
 
 ## Evidence on Hand
 
-**No real reports exist yet.** The site is being built before its content. The first
-deliverable is a working site plus a skill that lets agents author reports into it.
-Any sample report shown during development is a placeholder and must be labeled as
-such. Do not fabricate report content, counts, sources, or dates.
+Readings exist in `src/content/reports/` and render on `/readings/`. The
+archive is live. Do not invent extra counts, sources, or dates.
 
 Real assets that do exist:
 

@@ -10,8 +10,8 @@ interface Props {
 }
 const { title, description, current, lang = 'en', indexable = true, image = 'https://sonwork.org/og.png' } = Astro.props;
 const nav = [
-  { href: '/readings/', label: 'Readings', key: 'readings' },
   { href: '/projects/', label: 'Projects', key: 'projects' },
+  { href: '/readings/', label: 'Readings', key: 'readings' },
   { href: '/about/',   label: 'About',    key: 'about' },
 ];
 ---
@@ -56,7 +56,7 @@ const nav = [
         {(
           <button class="sbtn" type="button" id="open-search" aria-label="Search (⌘K)">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg>
-            <span>Search</span><kbd>⌘K</kbd>
+            <span class="sbtn-lab">Search</span><kbd>⌘K</kbd>
           </button>
         )}
         <button class="tbtn" type="button" id="theme" aria-label="Switch light or dark theme" title="Theme">
@@ -71,10 +71,10 @@ const nav = [
 
   <footer class="w">
     <span>Lê Sơn · Vietnam</span>
-    <a href="/about/" style="margin-left:auto">About</a>
+    <a href="/projects/" style="margin-left:auto">Projects</a>
+    <a href="/readings/">Readings</a>
+    <a href="/about/">About</a>
     <a href="mailto:son@sonwork.org">son@sonwork.org</a>
-    <a href="https://www.linkedin.com/in/sonle2003">LinkedIn</a>
-    <a href="https://x.com/sonldv">X</a>
   </footer>
 
   {(
@@ -98,8 +98,8 @@ const nav = [
       const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
       document.querySelectorAll('.sec-h, .stack, .found, .run, .port').forEach((el) => { if (!el.classList.contains('is-in')) io.observe(el); });
       // stagger index for the portfolio cards and reading cards
-      document.querySelectorAll('.port').forEach((p) => p.querySelectorAll(':scope > .port-item').forEach((c, i) => c.style.setProperty('--i', String(i))));
-      document.querySelectorAll('.found').forEach((f) => f.querySelectorAll(':scope > .card').forEach((c, i) => c.style.setProperty('--i', String(i))));
+      document.querySelectorAll('.port').forEach((p) => p.querySelectorAll<HTMLElement>(':scope > .port-item').forEach((c, i) => c.style.setProperty('--i', String(i))));
+      document.querySelectorAll('.found').forEach((f) => f.querySelectorAll<HTMLElement>(':scope > .card').forEach((c, i) => c.style.setProperty('--i', String(i))));
 
       // the shortcut hint should name the key the visitor actually has
       if (!/Mac|iPhone|iPad/.test(navigator.platform)) document.querySelectorAll('kbd').forEach(k => { if (k.textContent === '⌘K') k.textContent = 'Ctrl K'; });

@@ -42,6 +42,7 @@ const mins = Math.max(1, Math.round(words / 220));
   <div class="docgrid rail-grid">
     <article class="doc" data-pagefind-body data-pagefind-meta={`author:${d.author}, type:${d.type}`}>
       <h1>{d.title}</h1>
+      <p class="dek">{d.dek}</p>
       <div class="prose"><Content /></div>
     </article>
     <nav class="turn" aria-label="More readings">

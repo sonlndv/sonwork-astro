@@ -17,10 +17,13 @@ for (const r of reports) {
 const years = [...byYear.keys()].sort((a, b) => b - a);
 ---
 <Base title="Readings — Lê Sơn" current="readings">
-  <div class="intro" style="padding:72px 0 36px">
-    <h1 style="font-size:clamp(28px,3.6vw,38px);max-width:24ch">Everything written.</h1>
-    <p class="last"><span id="shown">{reports.length}</span> of {reports.length} · newest first · written by AI, read by me. <kbd class="kk">⌘K</kbd> searches the full text.</p>
-    <p class="gloss"><b>news</b> short market updates · <b>country</b> a country's model, focus and growth · <b>industry</b> the value chain and what matters in it · <b>company</b> a profile built around operational excellence · <b>business model</b> how a model actually works · <b>sociology</b> game theory and social behaviour, applied to business</p>
+  <div class="intro">
+    <h1>Everything written.</h1>
+    <ul class="open-list">
+      <li>Agents write. I read. Newest first.</li>
+      <li><span id="shown">{reports.length}</span> of {reports.length} readings. Search with <kbd class="kk">⌘K</kbd>.</li>
+    </ul>
+    <p class="last">news · country · industry · company · business model · sociology</p>
   </div>
 
   {reports.length > 0 && <Field reports={reports} />}

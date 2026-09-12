@@ -99,8 +99,9 @@ header{position:sticky;top:0;z-index:20;background:color-mix(in oklch,var(--void
 .bar{display:flex;align-items:center;gap:30px;padding:15px 0}
 .bar .me{font-weight:600;font-size:14.5px;letter-spacing:-0.015em;display:inline-flex;align-items:center;gap:9px}
 .bar nav{display:flex;gap:22px;margin-left:auto;font-size:13.5px;align-items:center}
-.bar nav a{color:var(--ink-3);transition:color .18s var(--out)}
-.bar nav a:hover,.bar nav a[aria-current]{color:var(--ink)}
+.bar nav a{color:var(--ink-3);transition:color .18s var(--out);padding:2px 0}
+.bar nav a:hover{color:var(--ink)}
+.bar nav a[aria-current]{color:var(--ink);box-shadow:inset 0 -1px 0 var(--ink)}
 
 .status{display:flex;gap:22px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line-2);font-family:var(--mono);font-size:12px;color:var(--ink-3);letter-spacing:.01em}
 .status b{color:var(--ink-2);font-weight:500}
@@ -109,10 +110,11 @@ header{position:sticky;top:0;z-index:20;background:color-mix(in oklch,var(--void
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 
 .intro{padding:104px 0 84px;position:relative}
-.intro h1{font-weight:600;font-size:clamp(36px,5.6vw,66px);line-height:1.02;letter-spacing:-0.045em;margin:0 0 26px;max-width:16ch;text-wrap:balance}
+.intro h1{font-weight:500;font-size:clamp(28px,3.8vw,42px);line-height:1.12;letter-spacing:-0.035em;margin:0 0 22px;max-width:22ch;text-wrap:balance}
 .intro h1 em{font-style:normal;color:var(--lume)}
 .intro p{color:var(--ink-2);font-size:18px;line-height:1.66;margin:0 0 16px;max-width:58ch;font-weight:300}
 .intro .last{color:var(--ink-3);font-size:16px}
+.intro .last a{color:var(--lume)}
 .intro::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:linear-gradient(90deg,var(--lume),var(--line) 60%,transparent);transform-origin:left;transform:scaleX(1)}
 @media (prefers-reduced-motion:no-preference){
   .intro::after{animation:draw 1.4s var(--out) both}
@@ -164,7 +166,8 @@ section{padding:0 0 72px}
     @keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
   }
 }
-.doc h1{font-weight:600;font-size:clamp(30px,4.2vw,46px);line-height:1.08;letter-spacing:-0.04em;margin:0 0 20px;text-wrap:balance}
+.doc h1{font-weight:600;font-size:clamp(30px,4.2vw,46px);line-height:1.08;letter-spacing:-0.04em;margin:0 0 12px;text-wrap:balance}
+.doc .dek{color:var(--ink-2);font-size:clamp(16px,1.4vw,19px);font-weight:300;line-height:1.55;max-width:var(--measure);margin:0 0 28px}
 .stamp{font-family:var(--mono);font-size:12px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line-2);margin-bottom:34px}
 .stamp i{font-style:normal;color:var(--ink-2)}
 .stamp .kind{color:var(--ink-3)}
@@ -255,8 +258,7 @@ section{padding:0 0 72px}
 .sbtn{display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:13.5px;color:var(--ink-3);background:none;border:0;padding:0;cursor:pointer;transition:color .18s var(--out)}
 .sbtn:hover{color:var(--ink)}
 .sbtn kbd{font-family:var(--mono);font-size:12px;color:var(--ink-3);border:1px solid var(--line);border-radius:var(--r-ctl);padding:1px 5px}
-@media (max-width:640px){.sbtn kbd{display:none}}   /* the word "Search" stays on a phone; only the shortcut goes */
-@media (max-width:430px){.sbtn span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}}
+@media (max-width:640px){.sbtn-lab,.sbtn kbd{display:none}.sbtn{min-width:44px;min-height:44px;justify-content:center}}
 dialog#search{border:0;padding:0;background:transparent;width:min(700px,92vw);margin:9vh auto 0}
 dialog#search::backdrop{background:color-mix(in oklch,var(--void) 82%,transparent);backdrop-filter:blur(6px)}
 .sbox{background:var(--ground);border:1px solid var(--line);border-radius:var(--r-panel);padding:16px 16px 8px;box-shadow:0 30px 70px -30px #000}
@@ -284,8 +286,9 @@ footer a:hover{color:var(--lume)}
   .bar{gap:12px}
   .bar nav{gap:13px;font-size:13px}
   @media (max-width:430px){.bar{gap:8px}.bar nav{gap:11px;font-size:12.5px}}
-  .intro{padding:60px 0 54px}
-  .intro h1{font-size:34px}
+  .intro{padding:56px 0 40px}
+  .intro h1{font-size:28px;max-width:none;margin-bottom:18px}
+  .open-mark{display:none}
   .r,.b,.p{grid-template-columns:minmax(0,1fr);gap:6px}
   .r .idx{display:flex;gap:12px;line-height:1.5;padding:0}
   .r .idx .kind{display:inline}
@@ -693,16 +696,17 @@ body::before{z-index:-2}
    paragraph, the numbers, a cue. On load it choreographs once (transform and
    opacity from a visible base); every section after it draws its rule and
    rises as it enters. Reduced motion shows everything at rest. */
-.open{min-height:calc(100vh - 62px);display:flex;flex-direction:column;justify-content:center;padding:48px 0 56px;position:relative}
+.open{min-height:0;display:flex;flex-direction:column;justify-content:flex-start;padding:72px 0 36px;position:relative}
 .sec-lede{max-width:var(--measure,58ch);margin:-6px 0 30px;font-size:16.5px;line-height:1.62;color:var(--ink-2)}
 @media (max-width:640px){.sec-lede{font-size:15.5px;margin-bottom:24px}}
-.open-mark{margin-bottom:34px}
-.open-h{font-size:clamp(48px,8.4vw,112px);font-weight:500;letter-spacing:-0.05em;line-height:.96;margin:0 0 30px;max-width:none}
+.open-mark{margin-bottom:22px}
+.open-h{font-size:clamp(36px,6.2vw,72px);font-weight:500;letter-spacing:-0.04em;line-height:1.02;margin:0 0 22px;max-width:none}
 .open-h .ln{display:block}
 .open-h em{font-style:normal;font-weight:inherit;color:var(--lume)}
 .open-h .dim{color:var(--ink-3)}
 .open-p{font-size:clamp(17px,1.5vw,20px);font-weight:300;color:var(--ink-2);max-width:56ch;margin:0 0 30px;line-height:1.6}
 .open-row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.open-meta{margin:22px 0 0;font-family:var(--mono);font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums;letter-spacing:.01em}
 .open-row .tally{margin-left:auto}
 @media (prefers-reduced-motion:no-preference){
   .open-mark,.open-h .ln,.open-p,.open-row{animation:rise .9s var(--out) both}
@@ -866,19 +870,30 @@ body::before{z-index:-2}
 /* the pipeline: hover the portfolio card and the signal passes Find → Research → Publish; each step carries a real number */
 .step::before{content:"";position:absolute;left:0;top:0;width:100%;height:1.5px;background:var(--lume);transform:scaleX(0);transform-origin:left;transition:transform .32s var(--out)}
 .step-live{display:block;margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;transition:color .3s var(--out)}
-.port-item:is(:hover,:focus-within) .step:nth-child(1)::before,.port-item:is(:hover,:focus-within) .step:nth-child(1) .step-live{transform:none;color:var(--lume);transition-delay:0s}
-.port-item:is(:hover,:focus-within) .step:nth-child(2)::before,.port-item:is(:hover,:focus-within) .step:nth-child(2) .step-live{transform:none;color:var(--lume);transition-delay:.28s}
-.port-item:is(:hover,:focus-within) .step:nth-child(3)::before,.port-item:is(:hover,:focus-within) .step:nth-child(3) .step-live{transform:none;color:var(--lume);transition-delay:.56s}
+.port-item:is(:hover,:focus-within) .step:nth-child(1)::before,.port-item:is(:hover,:focus-within) .step:nth-child(1) .step-live,.shop-pane:is(:hover,:focus-within) .step:nth-child(1)::before,.shop-pane:is(:hover,:focus-within) .step:nth-child(1) .step-live{transform:none;color:var(--lume);transition-delay:0s}
+.port-item:is(:hover,:focus-within) .step:nth-child(2)::before,.port-item:is(:hover,:focus-within) .step:nth-child(2) .step-live,.shop-pane:is(:hover,:focus-within) .step:nth-child(2)::before,.shop-pane:is(:hover,:focus-within) .step:nth-child(2) .step-live{transform:none;color:var(--lume);transition-delay:.28s}
+.port-item:is(:hover,:focus-within) .step:nth-child(3)::before,.port-item:is(:hover,:focus-within) .step:nth-child(3) .step-live,.shop-pane:is(:hover,:focus-within) .step:nth-child(3)::before,.shop-pane:is(:hover,:focus-within) .step:nth-child(3) .step-live{transform:none;color:var(--lume);transition-delay:.56s}
 .step b{display:block;font-weight:600;font-size:15px;letter-spacing:-0.01em;margin-bottom:6px;color:var(--lume)}
 .step p{margin:0;font-size:14.5px;font-weight:300;color:var(--ink-2);line-height:1.55}
 @media (max-width:760px){.steps{grid-template-columns:1fr}}
 
-/* the portfolio */
+/* shop window: one frame. Lever is the glass. Sonar and Beacon are panes. */
+.shop{border:1px solid var(--line);background:transparent}
+.shop-glass,.shop-pane{display:flex;flex-direction:column;gap:12px;padding:28px 30px;background:none}
+.shop-glass{border-bottom:1px solid var(--line)}
+.shop-glass h3{font-size:clamp(28px,3.4vw,44px);font-weight:500;letter-spacing:-0.035em;line-height:1.08;margin:0}
+.shop-panes{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.shop-pane + .shop-pane{border-left:1px solid var(--line)}
+.shop-glass p,.shop-pane p{font-size:15px;font-weight:300;color:var(--ink-2);margin:0;line-height:1.6}
+.shop-pane h3{font-size:clamp(20px,2.2vw,26px);font-weight:500;letter-spacing:-0.03em;line-height:1.15;margin:0}
+.shop-glass:hover,.shop-pane:hover{background:var(--raise)}
+.shop-glass:focus-visible,.shop-pane:focus-visible{outline:1.5px solid var(--lume);outline-offset:-1px}
+@media (max-width:640px){.shop-panes{grid-template-columns:minmax(0,1fr)}.shop-pane + .shop-pane{border-left:0;border-top:1px solid var(--line)}}
 .port{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
-.port .port-core{grid-column:1/-1}   /* the core project (first in order) takes the whole row; the rest sit beneath it */
+.port .port-core{grid-column:1/-1}
 @media (max-width:640px){.port{grid-template-columns:minmax(0,1fr)}}
 .port .port-item:only-child{grid-column:1/-1}
-.port-item{display:flex;flex-direction:column;gap:12px;padding:26px 28px;border:1px solid var(--line);border-radius:var(--r-panel);background:linear-gradient(135deg,color-mix(in oklch,var(--lume) 6%,var(--ground)) 0%,var(--ground) 55%)}
+.port-item{display:flex;flex-direction:column;gap:12px;padding:26px 28px;border:1px solid var(--line);background:none}
 .port-next{border-style:dashed;border-color:var(--line-2);background:none}
 .port-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
 .port-status{display:inline-flex;align-items:center;gap:7px;color:var(--ink-3)}
@@ -943,7 +958,7 @@ body::before{z-index:-2}
 .stat b{color:var(--ink);font-weight:500}
 .stat .stat-ico{display:inline-flex;justify-content:center;align-items:center;width:16px;flex:none;color:var(--lume)}   /* one slot for every icon, so the numbers align */
 /* the opening says it in raw lines, not a paragraph (Sơn, 2026-09-04); also the about page */
-.open-list{list-style:none;margin:0 0 28px;padding:0;display:grid;gap:9px;max-width:50ch;font-size:17px;font-weight:300;line-height:1.5;color:var(--ink-2)}
+.open-list{list-style:none;margin:0 0 32px;padding:0;display:grid;gap:12px;max-width:50ch;font-size:17px;font-weight:300;line-height:1.5;color:var(--ink-2)}
 .open-list li{position:relative;padding-left:20px}
 .open-list li::before{content:"";position:absolute;left:0;top:.75em;width:9px;height:1.5px;background:var(--lume)}
 @media (max-width:640px){.open-list{font-size:16px;gap:8px}}

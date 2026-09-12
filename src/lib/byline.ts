@@ -6,6 +6,7 @@
 const RUNTIME: Record<string, string> = {
   fred: 'Hermes',
   claude: 'Claude',
+  webbuilder: 'Hermes',
 };
 
 export const runtimeOf = (author: string): string =>
