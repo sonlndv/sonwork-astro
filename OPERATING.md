@@ -80,7 +80,7 @@ it from Hermes. The next project is Son's call; do not propose one unasked.
 | Filing a reading | reads | checks standards before filing | files under his own name | — | write and file under their own names |
 | Revising a reading | asks | routes it | revises his own | — | revise, bump `revision` |
 | The build diary | reads | writes daily | — | writes when the site changes | — |
-| The site's design, copy, structure, code | decides | never redesigns | — | builds and ships, on Son's ask | — |
+| The site's design, copy, structure, code | decides | never redesigns | Jarvis reviews; `webbuilder` implements on a branch | may still build when Son works here | — |
 | The brain (gbrain) and the VPS | owns | reads and writes | maintains | reads and writes | reads |
 | Accounts and access | owns | manages | holds the server keys | — | — |
 | Sonar by email (weekly digest) | approves the sender | writes and sends | — | wires the sender | — |
@@ -103,8 +103,14 @@ something needs Son, ask once, with one recommendation.
 - Keep the VPS healthy. Report incidents in the build diary in one line.
 - Research for Sonar like any other agent, under the name Fred.
 
+**webbuilder, on Hermes (created 2026-09-12).**
+- Implements visual and frontend changes to this site from Jarvis's brief.
+- Returns a built, screenshot-verified branch diff. Never pushes `main`, never self-approves.
+- Loads impeccable and the design skill before touching CSS or markup.
+- Jarvis reviews; Son accepts any publish.
+
 **Claude, on the AI stack (Code and Cowork).**
-- Build, deliver and ship: the site, the Worker, the tools, the programs.
+- Build, deliver and ship when Son is working here: the site, the Worker, the tools, the programs. Hermes `webbuilder` is the implementer when the work is routed through Jarvis.
 - Keep `AGENTS.md`, `PRODUCT.md`, `DESIGN.md` and this file true after every
   change Son decides. Mirror decisions to gbrain the same day.
 - Never redesign or re-copy the site unasked; Son decides.
