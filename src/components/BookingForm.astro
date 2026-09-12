@@ -1,0 +1,143 @@
+---
+// The ask. One form, plain language, no accounts. It sends to the Worker at
+// /api/meeting-requests, which records the request and notifies Sơn. Nothing
+// here books a slot — the form says so, because the backend behaves that way.
+//
+// `company` is the honeypot: hidden from people, irresistible to bots.
+import { DURATIONS, TOPICS } from '../booking.js';
+const topicLabels: Record<string, string> = {
+  agents: 'AI agents and automation',
+  operations: 'Operations and back office',
+  research: 'Research and analysis',
+  intro: 'Introduction or referral',
+  other: 'Something else',
+};
+---
+<form class="ask" id="ask-form" novalidate>
+  <div class="ask-grid">
+    <label class="fld">
+      <span>Your name</span>
+      <input type="text" name="name" required maxlength="80" autocomplete="name" placeholder="What should I call you?" />
+    </label>
+    <label class="fld">
+      <span>Email</span>
+      <input type="email" name="email" required maxlength="200" autocomplete="email" placeholder="Where I reply" />
+    </label>
+  </div>
+
+  <label class="fld">
+    <span>What do you want to talk about?</span>
+    <textarea name="purpose" required rows="4" maxlength="1200" placeholder="A sentence or two. The more concrete, the faster I can tell you whether I am the right person."></textarea>
+    <i class="hint"><b data-count-for="purpose">0</b>/1200 · at least a sentence</i>
+  </label>
+
+  <div class="ask-grid">
+    <label class="fld">
+      <span>Subject</span>
+      <select name="topic">
+        {TOPICS.map((t: string) => <option value={t}>{topicLabels[t] ?? t}</option>)}
+      </select>
+    </label>
+    <label class="fld">
+      <span>How long</span>
+      <select name="duration">
+        {DURATIONS.map((d: number) => <option value={d} selected={d === 30}>{d} minutes</option>)}
+      </select>
+    </label>
+  </div>
+
+  <div class="ask-grid">
+    <label class="fld">
+      <span>Your timezone</span>
+      <input type="text" name="timezone" maxlength="64" placeholder="Detected automatically" />
+    </label>
+    <label class="fld">
+      <span>When suits you <i>optional</i></span>
+      <input type="text" name="windows" maxlength="400" placeholder="e.g. weekday mornings" />
+    </label>
+  </div>
+
+  <label class="fld">
+    <span>Anything else <i>optional</i></span>
+    <textarea name="context" rows="2" maxlength="1500" placeholder="Links, background, what you have tried already."></textarea>
+  </label>
+
+  <label class="fld ask-consent">
+    <input type="checkbox" name="consent" required />
+    <span>You may email me about this request. Kept for 90 days, then deleted. Nothing else, ever.</span>
+  </label>
+
+  <div class="ask-hp" aria-hidden="true">
+    <label>Company<input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
+  <div class="ask-send">
+    <button class="btn" type="submit">Send the request</button>
+    <span class="ask-note">Sơn reads it himself. Nothing is booked until he replies.</span>
+  </div>
+
+  <output class="ask-msg" aria-live="polite"></output>
+</form>
+
+<script>
+  function bootAsk() {
+    const f = document.getElementById('ask-form') as HTMLFormElement | null;
+    if (!f || f.dataset.booted) return;
+    f.dataset.booted = '1';
+
+    // Opened-at timestamp: the server rejects anything filled impossibly fast.
+    const startedAt = Date.now();
+
+    const tz = f.querySelector('[name=timezone]') as HTMLInputElement;
+    try { if (!tz.value) tz.value = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+
+    const purpose = f.querySelector('[name=purpose]') as HTMLTextAreaElement;
+    const counter = f.querySelector('[data-count-for=purpose]') as HTMLElement | null;
+    const count = () => { if (counter) counter.textContent = String(purpose.value.length); };
+    purpose.addEventListener('input', count); count();
+
+    const msg = f.querySelector('.ask-msg') as HTMLElement;
+    const btn = f.querySelector('button[type=submit]') as HTMLButtonElement;
+
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.className = 'ask-msg'; msg.textContent = 'Sending…'; btn.disabled = true;
+
+      const d = new FormData(f);
+      const payload = {
+        name: d.get('name'), email: d.get('email'), purpose: d.get('purpose'),
+        context: d.get('context'), topic: d.get('topic'),
+        duration: Number(d.get('duration')), timezone: d.get('timezone'),
+        windows: d.get('windows'), consent: d.get('consent') === 'on',
+        company: d.get('company'), startedAt,
+      };
+
+      try {
+        const r = await fetch('/api/meeting-requests', {
+          method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
+        });
+        const j = await r.json().catch(() => ({} as any));
+        if (r.ok) {
+          f.querySelectorAll('.fld, .ask-send').forEach((el) => el.setAttribute('hidden', ''));
+          msg.className = 'ask-msg ok';
+          msg.innerHTML = j.duplicate
+            ? 'That request is already with me — no need to send it twice.'
+            : 'Received. Check your email for a copy' + (j.statusUrl ? ` and a <a href="${j.statusUrl}">status link</a>.` : '.');
+        } else if (j.problems) {
+          msg.className = 'ask-msg err';
+          msg.innerHTML = 'Not sent:<br>' + j.problems.map((p: string) => '· ' + p).join('<br>');
+        } else {
+          msg.className = 'ask-msg err';
+          msg.textContent = j.error || 'Could not send that.';
+        }
+      } catch {
+        msg.className = 'ask-msg err';
+        msg.textContent = 'Could not reach the server. Email son@sonwork.org instead.';
+      }
+      btn.disabled = false;
+    });
+  }
+  document.addEventListener('astro:page-load', bootAsk);
+  if (document.readyState !== 'loading') bootAsk();
+  else document.addEventListener('DOMContentLoaded', bootAsk);
+</script>

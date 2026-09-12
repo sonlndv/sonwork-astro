@@ -65,8 +65,9 @@ const pulseTotal = pulseLanes.reduce((s, l) => s + l.n, 0);
         <li>An operations practice, Lever, is the core. A research engine, Sonar, feeds it. A content engine, Beacon, makes it found.</li>
       </ul>
       <div class="open-row">
-        <a class="btn appear appear--btn" style="--d:1s" href="#portfolio">What I'm building</a>
-        <a class="lnk appear appear--side" style="--d:1.12s" href="#stack">Who does what</a>
+        <a class="btn appear appear--btn" style="--d:1s" href="/book/">Book time with me</a>
+        <a class="lnk appear appear--side" style="--d:1.12s" href="#portfolio">What I'm building</a>
+        <a class="lnk appear appear--side" style="--d:1.2s" href="#stack">Who does what</a>
       </div>
     </div>
     {pulseLanes.length > 0 && <Pulse lanes={pulseLanes} total={pulseTotal} />}
@@ -116,5 +117,15 @@ const pulseTotal = pulseLanes.reduce((s, l) => s + l.n, 0);
     <Subscribe />
   </section>
 
+  <section class="sec" id="talk">
+    <header class="sec-h"><h2>Or just <span>talk to me.</span></h2><div class="sec-m"><span>a request, not a booking · I read every one</span></div></header>
+    <div class="close">
+      <p class="close-p">
+        If any of this is close to what you are working on, ask for time. Tell me what you want
+        to discuss and I will answer with a time or an honest no.
+      </p>
+      <a class="btn" href="/book/">Book time with me</a>
+    </div>
+  </section>
 
 </Base>

@@ -8,6 +8,11 @@
 //
 // Notes live in KV, one key per document, plus an index for counts and export.
 
+import {
+  STATUSES, LIMITS, validateRequest, newRecord, publicView,
+  sendMail, ownerNotice, visitorAck, rateCheck, sha, token, clean,
+} from './booking.js';
+
 const DOC = 'doc:';
 const INDEX = 'index';
 const MAX_TEXT = 4000;
@@ -35,6 +40,11 @@ export default {
       try { return await fileReading(request, env); }
       catch (e) { return json({ error: 'internal', detail: String(e?.message || e) }, 500); }
     }
+    if (p === '/api/meeting-requests' && request.method === 'POST') { try { return await createMeetingRequest(request, env); } catch (e) { return json({ error: 'internal' }, 500); } }
+    if (p === '/api/meeting-requests' && request.method === 'GET') { try { return await listMeetingRequests(request, env); } catch (e) { return json({ error: 'internal' }, 500); } }
+    if (p === '/api/meeting-requests/status' && request.method === 'GET') { try { return await meetingRequestStatus(url, env); } catch (e) { return json({ error: 'internal' }, 500); } }
+    if (p.startsWith('/api/meeting-requests/') && request.method === 'PATCH') { try { return await updateMeetingRequest(request, env, p); } catch (e) { return json({ error: 'internal' }, 500); } }
+
     if (p.startsWith('/api/')) {
       try { return await api(request, env, url); }
       catch (e) { return json({ error: 'internal', detail: String(e?.message || e) }, 500); }
@@ -287,6 +297,117 @@ async function api(request, env, url) {
     return json(m === 'DELETE' ? { ok: true } : { comment: c });
   }
   return json({ error: 'not found' }, 404);
+}
+
+// -------------------- meeting requests --------------------
+// A visitor asks; Sơn decides. Creating a request books nothing and holds no
+// slot. Only the filing token can read or move a request; the visitor sees a
+// narrow status view through an unguessable token and cannot change anything.
+
+const MR = 'mr:req:';
+
+async function createMeetingRequest(request, env) {
+  if (!env.COMMENTS) return json({ error: 'storage not configured' }, 503);
+
+  const body = await request.json().catch(() => null);
+  const v = validateRequest(body);
+  if (!v.ok) {
+    // The honeypot answer is a plain 200: a bot learns nothing from it.
+    if (v.problems.length === 1 && v.problems[0] === 'rejected') return json({ ok: true, id: null }, 200);
+    return json({ error: 'invalid', problems: v.problems }, 422);
+  }
+
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  const byEmail = await rateCheck(env.COMMENTS, 'email:' + v.value.email, LIMITS.perEmailPerHour);
+  if (!byEmail.ok) return json({ error: 'You have sent several requests already. Give me time to read them.' }, 429);
+  const byIp = await rateCheck(env.COMMENTS, 'ip:' + ip, LIMITS.perIpPerHour);
+  if (!byIp.ok) return json({ error: 'Too many requests from this connection.' }, 429);
+
+  // Same person, same ask, same day: return the first record instead of a second one.
+  const fingerprint = await sha(v.value.email + '|' + v.value.purpose.slice(0, 200).toLowerCase());
+  const dupeKey = 'mr:dupe:' + fingerprint;
+  const existing = await env.COMMENTS.get(dupeKey);
+  if (existing) return json({ ok: true, id: existing, duplicate: true }, 200);
+
+  const id = token(16);
+  const statusToken = token(24);
+  const tokenHash = await sha(statusToken);
+  const rec = newRecord(v.value, { id, tokenHash, source: 'web' });
+  const ttl = LIMITS.retentionDays * 86400;
+
+  await env.COMMENTS.put(MR + id, JSON.stringify(rec), { expirationTtl: ttl });
+  await env.COMMENTS.put('mr:tok:' + tokenHash, id, { expirationTtl: ttl });
+  await env.COMMENTS.put(dupeKey, id, { expirationTtl: LIMITS.dedupeHours * 3600 });
+
+  const toOwner = await sendMail(env, env.COMMENTS, ownerNotice(rec, env), id);
+  const toVisitor = await sendMail(env, env.COMMENTS, visitorAck(rec, statusToken, env), id);
+
+  return json({
+    ok: true,
+    id,
+    statusUrl: `/book/status/?t=${statusToken}`,
+    notified: { owner: toOwner.sent, visitor: toVisitor.sent, mode: toOwner.mode || 'sent' },
+  }, 201);
+}
+
+async function meetingRequestStatus(url, env) {
+  const t = String(url.searchParams.get('t') || '');
+  if (!/^[a-f0-9]{48}$/.test(t)) return json({ error: 'not found' }, 404);
+  const id = await env.COMMENTS.get('mr:tok:' + (await sha(t)));
+  if (!id) return json({ error: 'not found' }, 404);
+  const raw = await env.COMMENTS.get(MR + id);
+  if (!raw) return json({ error: 'not found' }, 404);
+  return json(publicView(JSON.parse(raw)), 200, { 'cache-control': 'no-store' });
+}
+
+async function listMeetingRequests(request, env) {
+  if (!(await filingAuth(request, env))) return json({ error: 'unauthenticated' }, 401);
+  const out = []; let cursor;
+  do {
+    const l = await env.COMMENTS.list({ prefix: MR, cursor });
+    for (const k of l.keys) {
+      const raw = await env.COMMENTS.get(k.name);
+      if (!raw) continue;
+      const r = JSON.parse(raw);
+      delete r.tokenHash;
+      out.push(r);
+    }
+    cursor = l.list_complete ? undefined : l.cursor;
+  } while (cursor);
+  out.sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  return json({ count: out.length, requests: out }, 200, { 'cache-control': 'no-store' });
+}
+
+async function updateMeetingRequest(request, env, pathname) {
+  if (!(await filingAuth(request, env))) return json({ error: 'unauthenticated' }, 401);
+  const id = pathname.slice('/api/meeting-requests/'.length);
+  if (!/^[a-f0-9]{32}$/.test(id)) return json({ error: 'bad id' }, 400);
+  const raw = await env.COMMENTS.get(MR + id);
+  if (!raw) return json({ error: 'not found' }, 404);
+  const rec = JSON.parse(raw);
+
+  const b = await request.json().catch(() => null);
+  if (!b) return json({ error: 'body must be JSON' }, 400);
+
+  const next = b.status ? String(b.status) : rec.status;
+  if (!STATUSES.includes(next)) return json({ error: 'status: one of ' + STATUSES.join('|') }, 422);
+
+  // Idempotent: replaying the same transition is a no-op, not a second event.
+  const changed = next !== rec.status;
+  if (changed) {
+    rec.history.push({ at: new Date().toISOString(), from: rec.status, to: next, by: 'owner' });
+    rec.status = next;
+  }
+  if (b.proposedSlot !== undefined) rec.proposedSlot = clean(b.proposedSlot, 120) || null;
+  if (b.confirmedSlot !== undefined) rec.confirmedSlot = clean(b.confirmedSlot, 120) || null;
+  if (b.adminNotes !== undefined) rec.adminNotes = clean(b.adminNotes, 2000);
+  rec.updatedAt = new Date().toISOString();
+
+  const ttl = LIMITS.retentionDays * 86400;
+  await env.COMMENTS.put(MR + id, JSON.stringify(rec), { expirationTtl: ttl });
+
+  const view = { ...rec }; delete view.tokenHash;
+  return json({ ok: true, changed, request: view });
 }
 
 function json(data, status = 200, extra = {}) {

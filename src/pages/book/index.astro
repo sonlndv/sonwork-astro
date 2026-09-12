@@ -1,0 +1,86 @@
+---
+// Book time. The page states the exchange plainly — what happens, in what
+// order, and what Sơn will not do — then asks. The steps here are the same
+// states the Worker stores, so the page cannot drift from the system.
+import Base from '../../layouts/Base.astro';
+import BookingForm from '../../components/BookingForm.astro';
+
+const steps = [
+  { n: '01', t: 'You write', p: 'What you want to discuss, and roughly when suits you. Two minutes.' },
+  { n: '02', t: 'I read it', p: 'Every request, myself. No assistant screens them and no bot answers for me.' },
+  { n: '03', t: 'I reply', p: 'Either a time I can make, or an honest no with a reason. Both are useful.' },
+  { n: '04', t: 'We talk', p: 'A call, on the agreed time. You get my attention and a straight answer.' },
+];
+
+const fits = [
+  'You are trying to automate real operational work and want to know what actually holds up.',
+  'You are building with AI agents and want a second opinion from someone running them daily.',
+  'You are weighing a decision where an outside read would save you weeks.',
+];
+
+const notFits = [
+  'Recruiting pitches and generic outreach — I will not reply to these.',
+  'Free implementation work dressed up as a quick chat about ideas.',
+  'Anything needing an NDA before you can say what it is you are building.',
+];
+---
+<Base
+  title="Book time — Lê Sơn"
+  description="Ask for a conversation with Sơn: what you want to discuss and when suits you. He reads every request himself and replies either with a time or an honest no."
+  current="book"
+>
+  <section class="bk-open">
+    <span class="bk-kicker mono">Time · by request</span>
+    <h1>Ask for<br /><em>time.</em></h1>
+    <p class="bk-lede">
+      No calendar to fight, no form that books a slot behind my back. You tell me what you
+      want to discuss; I read it and answer. <strong>Nothing is confirmed until I reply.</strong>
+    </p>
+  </section>
+
+  <section class="sec" id="how">
+    <header class="sec-h"><h2>How it <span>goes.</span></h2><div class="sec-m"><span>four steps · usually a few days</span></div></header>
+    <ol class="bk-steps">
+      {steps.map((s) => (
+        <li class="bk-step">
+          <span class="mono">{s.n}</span>
+          <b>{s.t}</b>
+          <p>{s.p}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="sec" id="fit">
+    <header class="sec-h"><h2>Whether it's a <span>fit.</span></h2><div class="sec-m"><span>said plainly, to save us both time</span></div></header>
+    <div class="bk-fit">
+      <div class="bk-col bk-yes">
+        <h3>Worth booking</h3>
+        <ul>{fits.map((x) => <li>{x}</li>)}</ul>
+      </div>
+      <div class="bk-col bk-no">
+        <h3>Not worth either of our time</h3>
+        <ul>{notFits.map((x) => <li>{x}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="ask">
+    <header class="sec-h"><h2>The <span>request.</span></h2><div class="sec-m"><span>no account · no password · deleted after 90 days</span></div></header>
+    <div class="ask-wrap">
+      <BookingForm />
+      <aside class="ask-rail">
+        <h3>After you send</h3>
+        <ol>
+          <li>You get a copy by email, and a private link to check where it stands.</li>
+          <li>I read it myself and decide.</li>
+          <li>You get a time, a question, or an honest no.</li>
+        </ol>
+        <p class="rail-note">
+          <b>Nothing is booked by this form.</b> No account is created, no password exists,
+          and the request is deleted after 90 days.
+        </p>
+      </aside>
+    </div>
+  </section>
+</Base>

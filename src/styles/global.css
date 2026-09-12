@@ -78,6 +78,8 @@ a{color:inherit;text-decoration:none}
 time,.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:0}
 .w{max-width:1080px;margin:0 auto;padding:0 32px}
 
+html{overflow-x:clip}
+body{overflow-x:clip}
 header{position:sticky;top:0;z-index:20;background:color-mix(in oklch,var(--void) 74%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-2)}
 .bar{display:flex;align-items:center;gap:30px;padding:15px 0}
 .bar .me{font-weight:600;font-size:14.5px;letter-spacing:-0.015em;display:inline-flex;align-items:center;gap:9px}
@@ -239,6 +241,7 @@ section{padding:0 0 72px}
 .sbtn:hover{color:var(--ink)}
 .sbtn kbd{font-family:var(--mono);font-size:12px;color:var(--ink-3);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
 @media (max-width:640px){.sbtn kbd{display:none}}   /* the word "Search" stays on a phone; only the shortcut goes */
+@media (max-width:430px){.sbtn span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}}
 dialog#search{border:0;padding:0;background:transparent;width:min(700px,92vw);margin:9vh auto 0}
 dialog#search::backdrop{background:color-mix(in oklch,var(--void) 82%,transparent);backdrop-filter:blur(6px)}
 .sbox{background:var(--ground);border:1px solid var(--line);border-radius:10px;padding:16px 16px 8px;box-shadow:0 30px 70px -30px #000}
@@ -264,7 +267,8 @@ footer a:hover{color:var(--lume)}
 @media (max-width:640px){
   .w{padding:0 20px}
   .bar{gap:12px}
-  .bar nav{gap:13px;font-size:13px}   /* fits "Search" beside the three links at 390px */
+  .bar nav{gap:13px;font-size:13px}
+  @media (max-width:430px){.bar{gap:8px}.bar nav{gap:11px;font-size:12.5px}}
   .intro{padding:60px 0 54px}
   .intro h1{font-size:34px}
   .r,.b,.p{grid-template-columns:minmax(0,1fr);gap:6px}
@@ -1002,3 +1006,99 @@ main.w,footer.w{position:relative;z-index:1}
   .port.is-in .port-item{animation:rise2 .6s var(--out) both;animation-delay:calc(var(--i,0) * .09s)}
   .found.is-in .card{animation:rise2 .55s var(--out) both;animation-delay:calc(var(--i,0) * .07s)}
 }
+
+/* ---------- book: asking for time ----------
+   The page is a quiet instrument: hairline rules, mono for data, one accent.
+   Warm (--human) marks Sơn's side of the exchange; cool marks the machine's. */
+.bk-open{padding:72px 0 8px;max-width:var(--measure)}
+.bk-kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.bk-kicker::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--human);box-shadow:0 0 10px color-mix(in oklch,var(--human) 70%,transparent)}
+.bk-open h1{margin:18px 0 0;font-size:clamp(40px,7vw,78px);font-weight:300;letter-spacing:-.045em;line-height:.98;text-wrap:balance}
+.bk-open h1 em{font-style:normal;color:var(--human)}
+.bk-lede{margin:22px 0 0;max-width:52ch;font-size:clamp(16px,1.6vw,18.5px);font-weight:300;color:var(--ink-2);line-height:1.62;text-wrap:pretty}
+.bk-lede strong{font-weight:500;color:var(--ink)}
+
+.bk-steps{list-style:none;margin:10px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.bk-step{padding:22px 30px 4px 0;position:relative}
+.bk-step span{font-size:12px;color:var(--ink-3)}
+.bk-step b{display:block;margin:12px 0 7px;font-size:17px;font-weight:500;letter-spacing:-.02em}
+.bk-step p{margin:0;font-size:14.5px;font-weight:300;color:var(--ink-3);line-height:1.55}
+.bk-step::after{content:"";position:absolute;top:0;left:0;width:22px;height:2px;border-radius:1px;background:var(--lume)}
+@media (max-width:860px){.bk-steps{grid-template-columns:1fr 1fr}.bk-step{padding-right:24px}}
+@media (max-width:520px){.bk-steps{grid-template-columns:1fr}.bk-step{padding-bottom:8px}}
+
+.bk-fit{display:grid;grid-template-columns:1fr 1fr;gap:0 40px}
+.bk-col h3{margin:0 0 16px;font-size:15px;font-weight:500;letter-spacing:-.01em}
+.bk-col ul{list-style:none;margin:0;padding:0;display:grid;gap:13px}
+.bk-col li{display:grid;grid-template-columns:20px 1fr;gap:10px;font-size:14.5px;font-weight:300;color:var(--ink-2);line-height:1.55}
+.bk-col li::before{font-family:var(--mono);font-size:13px;line-height:1.55}
+.bk-yes li::before{content:"+";color:var(--lume)}
+.bk-no li::before{content:"−";color:var(--ink-3)}
+.bk-no h3,.bk-no li{color:var(--ink-3)}
+@media (max-width:760px){.bk-fit{grid-template-columns:1fr;gap:34px}}
+
+/* the form */
+.ask-wrap{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:56px;align-items:start}
+@media (max-width:900px){.ask-wrap{grid-template-columns:1fr;gap:36px}}
+.ask{display:grid;gap:18px;min-width:0}
+.ask-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:620px){.ask-grid{grid-template-columns:1fr}}
+.fld{display:grid;gap:7px}
+.fld > span{font-size:13px;font-weight:500;color:var(--ink-2);letter-spacing:-.005em}
+.fld > span i{font-style:normal;font-weight:400;color:var(--ink-3)}
+.fld input[type=text],.fld input[type=email],.fld textarea,.fld select{
+  font:inherit;font-size:15px;color:var(--ink);background:var(--ground);
+  border:1px solid var(--line);border-radius:9px;padding:12px 13px;width:100%;
+  transition:border-color .18s var(--out),background .18s var(--out)}
+.fld textarea{resize:vertical;line-height:1.55;font-weight:300}
+.fld input:focus,.fld textarea:focus,.fld select:focus{outline:none;border-color:var(--lume);background:var(--void)}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--ink-3);opacity:.8}
+.fld .hint{font-family:var(--mono);font-size:11.5px;font-style:normal;color:var(--ink-2);opacity:.75}
+.ask-consent{grid-template-columns:18px 1fr;align-items:start;gap:11px;font-size:13.5px;font-weight:300;color:var(--ink-3);line-height:1.5}
+.ask-consent input{margin-top:1px;accent-color:var(--lume);width:17px;height:17px;border:1px solid var(--ink-3);border-radius:4px;cursor:pointer}
+.ask-consent:hover input{border-color:var(--lume)}
+.ask-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.ask-send{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:4px}
+.ask-send .btn{border:0;cursor:pointer;font-family:var(--sans)}
+.ask-send .btn:disabled{opacity:.5;cursor:progress}
+.ask-note{font-size:13px;font-weight:300;color:var(--ink-3)}
+.ask-msg{display:block;font-family:var(--mono);font-size:12.5px;line-height:1.6;color:var(--ink-3);min-height:1em}
+.ask-msg.ok{color:var(--lume)}
+.ask-msg.err{color:var(--human)}
+.ask-msg a{color:var(--lume);border-bottom:1px solid var(--line)}
+
+/* status */
+.st{max-width:640px}
+.st-loading{font-family:var(--mono);font-size:13px;color:var(--ink-3)}
+.st-badge{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:var(--ground)}
+.st-badge i{width:8px;height:8px;border-radius:50%;background:var(--ink-3)}
+.st-badge b{font-size:14px;font-weight:500}
+.st[data-state=pending] .st-badge i{background:var(--human);box-shadow:0 0 10px color-mix(in oklch,var(--human) 70%,transparent)}
+.st[data-state=proposed] .st-badge i,.st[data-state=needs_info] .st-badge i{background:var(--lume);box-shadow:0 0 10px color-mix(in oklch,var(--lume) 70%,transparent)}
+.st[data-state=confirmed] .st-badge i{background:var(--lume);box-shadow:0 0 14px var(--lume)}
+.st-say{margin:18px 0 26px;font-size:16.5px;font-weight:300;color:var(--ink-2);line-height:1.6}
+.st-meta{display:grid;gap:0;margin:0;border-top:1px solid var(--line-2)}
+.st-meta > div{display:grid;grid-template-columns:150px 1fr;gap:20px;padding:13px 0;border-bottom:1px solid var(--line-2)}
+.st-meta dt{font-family:var(--mono);font-size:12px;color:var(--ink-3);margin:0}
+.st-meta dd{margin:0;font-size:14.5px;color:var(--ink-2)}
+.st-missing{font-size:15px;font-weight:300;color:var(--ink-3);line-height:1.6}
+.st-missing a{color:var(--lume);border-bottom:1px solid var(--line)}
+@media (max-width:520px){.st-meta > div{grid-template-columns:1fr;gap:4px}}
+
+/* closing invitation on the home page */
+.close{display:flex;align-items:center;gap:34px;flex-wrap:wrap;padding:26px 0 6px}
+.close-p{margin:0;flex:1 1 380px;max-width:56ch;font-size:clamp(16px,1.7vw,19px);font-weight:300;color:var(--ink-2);line-height:1.6;text-wrap:pretty}
+
+/* the rail beside the form: what happens after you press send */
+.ask-rail{display:grid;gap:22px;padding-top:4px}
+.ask-rail h3{margin:0;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:400}
+.ask-rail ol{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:r}
+.ask-rail li{counter-increment:r;display:grid;grid-template-columns:22px 1fr;gap:10px;font-size:13.5px;font-weight:300;color:var(--ink-2);line-height:1.5}
+.ask-rail li::before{content:counter(r,decimal-leading-zero);font-family:var(--mono);font-size:11px;color:var(--ink-3);padding-top:2px}
+.ask-rail .rail-note{font-size:13px;font-weight:300;color:var(--ink-3);line-height:1.55;padding-top:18px;border-top:1px solid var(--line-2)}
+.ask-rail .rail-note b{color:var(--ink-2);font-weight:500}
+
+/* balance the two fit columns and make the markers legible */
+.bk-col{padding-top:20px;border-top:1px solid var(--line-2)}
+.bk-yes li::before{content:"+";color:var(--lume);font-weight:600}
+.bk-no li::before{content:"\2013";color:var(--human);opacity:.85;font-weight:600}

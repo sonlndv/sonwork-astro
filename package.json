@@ -14,7 +14,9 @@
     "deploy": "npm run build && wrangler deploy",
     "sync": "node scripts/sync-gbrain.mjs",
     "route": "node scripts/route.mjs",
-    "route:test": "node scripts/route.mjs --test"
+    "route:test": "node scripts/route.mjs --test",
+    "test": "node --test test/",
+    "test:e2e": "bash test/e2e-booking.sh"
   },
   "dependencies": {
     "astro": "^6.3.3"

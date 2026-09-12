@@ -1,0 +1,101 @@
+---
+// Where a request stands. The token in ?t= is the only key; the page asks the
+// Worker and shows the narrow public view. Not indexable — there is nothing
+// here for a search engine, and the URL is a secret.
+import Base from '../../../layouts/Base.astro';
+---
+<Base
+  title="Your request — Lê Sơn"
+  description="The status of a meeting request."
+  indexable={false}
+  current="book"
+>
+  <section class="bk-open">
+    <span class="bk-kicker mono">Request · status</span>
+    <h1>Where it<br /><em>stands.</em></h1>
+  </section>
+
+  <section class="sec">
+    <div class="st" id="st" data-state="loading">
+      <p class="st-loading">Looking it up…</p>
+
+      <div class="st-body" hidden>
+        <div class="st-badge"><i></i><b id="st-label">—</b></div>
+        <p class="st-say" id="st-say"></p>
+        <dl class="st-meta">
+          <div><dt>Asked for</dt><dd id="st-duration">—</dd></div>
+          <div><dt>Subject</dt><dd id="st-topic">—</dd></div>
+          <div><dt>Sent</dt><dd id="st-created">—</dd></div>
+          <div><dt>Last change</dt><dd id="st-updated">—</dd></div>
+          <div class="st-slot" hidden><dt id="st-slot-label">Proposed time</dt><dd id="st-slot">—</dd></div>
+        </dl>
+      </div>
+
+      <p class="st-missing" hidden>
+        That link is not valid, or the request has expired. Requests are kept 90 days.
+        <a href="/book/">Send a new one →</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Each status is a sentence, not a label. The visitor should never have to
+  // guess what "proposed" means or whether they owe a reply.
+  const SAY: Record<string, { label: string; say: string }> = {
+    pending:    { label: 'With Sơn',      say: 'Your request is in the queue. He reads these himself, so give it a few days.' },
+    needs_info: { label: 'Question sent', say: 'Sơn replied asking for something more. Check your email.' },
+    proposed:   { label: 'Time proposed', say: 'A time has been offered. Check your email and confirm if it works.' },
+    confirmed:  { label: 'Confirmed',     say: 'It is in the diary. You will have the details by email.' },
+    declined:   { label: 'Declined',      say: 'Sơn passed on this one. His email explains why.' },
+    cancelled:  { label: 'Cancelled',     say: 'This request was cancelled.' },
+    completed:  { label: 'Done',          say: 'You two have spoken. Thanks for the time.' },
+  };
+
+  function fmt(iso: string | null) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); }
+    catch { return iso; }
+  }
+
+  async function bootStatus() {
+    const root = document.getElementById('st');
+    if (!root || root.dataset.booted) return;
+    root.dataset.booted = '1';
+
+    const loading = root.querySelector('.st-loading') as HTMLElement;
+    const body = root.querySelector('.st-body') as HTMLElement;
+    const missing = root.querySelector('.st-missing') as HTMLElement;
+    const show = (el: HTMLElement) => { loading.hidden = true; el.hidden = false; };
+
+    const t = new URLSearchParams(location.search).get('t') || '';
+    if (!/^[a-f0-9]{48}$/.test(t)) { show(missing); return; }
+
+    try {
+      const r = await fetch('/api/meeting-requests/status?t=' + encodeURIComponent(t));
+      if (!r.ok) { show(missing); return; }
+      const j = await r.json();
+      const s = SAY[j.status] || { label: j.status, say: '' };
+
+      root.dataset.state = j.status;
+      (document.getElementById('st-label') as HTMLElement).textContent = s.label;
+      (document.getElementById('st-say') as HTMLElement).textContent = s.say;
+      (document.getElementById('st-duration') as HTMLElement).textContent = j.duration ? j.duration + ' minutes' : '—';
+      (document.getElementById('st-topic') as HTMLElement).textContent = j.topic || '—';
+      (document.getElementById('st-created') as HTMLElement).textContent = fmt(j.createdAt);
+      (document.getElementById('st-updated') as HTMLElement).textContent = fmt(j.updatedAt);
+
+      const slot = j.confirmedSlot || j.proposedSlot;
+      if (slot) {
+        const wrap = root.querySelector('.st-slot') as HTMLElement;
+        (document.getElementById('st-slot-label') as HTMLElement).textContent = j.confirmedSlot ? 'Confirmed time' : 'Proposed time';
+        (document.getElementById('st-slot') as HTMLElement).textContent = slot;
+        wrap.hidden = false;
+      }
+      show(body);
+    } catch {
+      show(missing);
+    }
+  }
+  document.addEventListener('astro:page-load', bootStatus);
+</script>
