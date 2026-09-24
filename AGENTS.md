@@ -11,9 +11,8 @@ and a memory protocol.
 
 Sơn Lê's site and the product surface of Sonar, the engine his AI stack
 researches and writes with. Astro static site served by a Cloudflare Worker
-at https://sonwork.org. Sơn decides; agents on three runtimes do the work
-(Claude builds, Alfred on Grok Bot runs the research teams, Fred on Hermes
-keeps the brain and the server). Agents are the authors of the readings;
+at https://sonwork.org. Sơn decides; agents do the work, mainly on Hermes
+Agent (Jarvis orchestrates, builder builds, chief-researcher researches). Agents are the authors of the readings;
 Sơn is the reader. The repo is a shared workspace: no file is named after
 one agent, and every agent signs its own name.
 
@@ -45,7 +44,7 @@ job shares. Rewording a row means rereading the file it loads.*
 | Design work | ...touch layout, type, colour, spacing, motion, the marks, dark or light mode, phone or desktop rendering, or a screenshot review. | `DESIGN.md`; for Claude the impeccable craft floor (see `CLAUDE.md`) |
 | Deploy, secrets, CI | ...ask why a push did not publish, a workflow is red, a token or secret is missing, Cloudflare, Zero Trust, the subscriber list, or a domain. | `DEPLOY.md` |
 | Sonar by email | ...ask about the weekly digest, subscribers, unsubscribe links, or the sender. | `OPERATING.md` › The loop, step 6; `src/worker.js` |
-| The stack, who decides, the team | ...ask who does what, which runtime owns a job, what Alfred, Fred or Claude may do, cadence, the weekly summary, or how to onboard a new agent. | `OPERATING.md`; gbrain `projects/sonwork/stack` |
+| The stack, who decides, the team | ...ask who does what, which runtime owns a job, what each agent may do, cadence, the weekly summary, or how to onboard a new agent. | `OPERATING.md`; gbrain `projects/sonwork/stack` |
 | The brain | ...ask how to reach gbrain, which slug holds what, or want a decision recorded for every agent. | Memory protocol below; gbrain `projects/sonwork` |
 
 ## References
@@ -105,13 +104,11 @@ companies and unit economics, and human systems. Full identity page: gbrain `bra
 - AI is a tool he uses, not a subject he writes about. Do not make the site or
   the readings about AI for its own sake.
 
-**The stack (decision 2026-09-03).** One person, three runtimes, one engine:
+**The stack (updated 2026-09-24).** One person, one main runtime, one engine:
 
 | Runtime | Who | Does |
 |---|---|---|
-| AI stack | Claude (Code and Cowork) | where Sơn works: builds, delivers, ships the site, the tools, the programs |
-| Grok Bot | Alfred, Chief Everything Officer | runs the teams, the research, the management |
-| Hermes | Fred | maintains the gbrain setup and the VPS; researches for Sonar |
+| Hermes Agent | Jarvis, builder, chief-researcher | the main runtime: orchestration, building, research, gbrain and the server |
 
 Sơn decides. **Sonar is the engine** the stack researches and writes with; the
 readings are its output. It is not an audience product, and it is not tied to
@@ -125,8 +122,8 @@ Beacon, the content engine (decided 2026-09-05, `live`, nothing published
 yet), makes strangers find Lever. All three are `live`; Lever's card spans
 the home's portfolio row. **Sonwork, this site, is the shopfront that shows the work, not a
 project.** F1 YouTube was removed 2026-09-03. The next project is Sơn's call. Say which runtime you run on and who you
-report to (Alfred for research, Fred for infrastructure, Claude for the
-codebase). One name, kept forever.
+report to (Jarvis on Hermes Agent orchestrates; builder owns the codebase;
+chief-researcher owns research). One name, kept forever.
 
 **No personal writing section.** Removed 2026-09-03: the site is AI-focused.
 A future flow may have an agent interview Sơn and write from the interview;
@@ -164,7 +161,7 @@ first; another agent may have written it since you read it.
 **The brain.** https://gbrain-mcp.sonwork.org/mcp (Cloudflare Tunnel, OAuth).
 Tailscale is not required. The Claude desktop connector is authorized as
 `cowork-claude`; a headless agent needs a client token issued by the gbrain
-CLI on the VPS, which is Fred's job. Fetch identity and decisions by exact
+CLI on the VPS, which Jarvis on Hermes Agent owns. Fetch identity and decisions by exact
 slug; `query` and `recall` return a chunk, and a fragment of a decision is
 worse than none.
 
@@ -253,12 +250,14 @@ complete with JavaScript off, all motion off under `prefers-reduced-motion`.
 
 ## Alfred and Fred
 
-The bookmark-ribbon character on the site is **Alfred**, who runs the team from
-Grok Bot; the same ribbon in the dim tone is **Fred**, on Hermes. You file under
+The bookmark-ribbon character on the site is **Alfred**; the same ribbon in the
+dim tone is **Fred**. They are site characters, not runtime roles: since
+2026-09-24 the work runs mainly on Hermes Agent. You file under
 your own agent name; they are faces, not bylines. Never rename them, redraw
 them, or use them as the site's mark (that is LS15). The stack diagram on the
 home (`src/components/Stack.astro`) is the only place the runtimes are named
-on the site; keep it to one line each.
+on the site; keep it to one line each. It still shows the old three-runtime
+stack and needs Sơn's call on new copy before it changes.
 
 ## Voice (writing as Sơn, on the site and in readings)
 
