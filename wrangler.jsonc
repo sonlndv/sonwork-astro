@@ -1,30 +1,43 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sonwork",
-  "main": "src/worker.js",
+  "main": "src/worker/index.mjs",
   "compatibility_date": "2026-05-20",
   "workers_dev": true,
-  "observability": { "enabled": true },
-  // A route, not a custom domain: DNS already proxies through Cloudflare, so the
-  // Worker intercepts at the edge and the old origin is never reached. Reversible.
-  "routes": [{ "pattern": "sonwork.org/*", "zone_name": "sonwork.org" }],
+  "keep_vars": true,
+  "observability": {
+    "enabled": true
+  },
+  "routes": [
+    {
+      "pattern": "sonwork.org/*",
+      "zone_name": "sonwork.org"
+    }
+  ],
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "not_found_handling": "404-page",
-    // Static files are served without waking the Worker.
-    "run_worker_first": ["/api/*", "/login", "/logout", "/reports/*", "/writing/*", "/writing"]
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "none",
+    "run_worker_first": [
+      "/api",
+      "/api/*",
+      "/book",
+      "/book/",
+      "/book/status",
+      "/book/status/",
+      "/404",
+      "/404/",
+      "/404.html"
+    ]
   },
   "kv_namespaces": [
-    // Create with: npx wrangler kv namespace create COMMENTS
-    // then paste the id it prints here. Local dev works with the placeholder.
-    { "binding": "COMMENTS", "id": "b6fc8a4385bf42e9a559f12a795b34d6" }
+    {
+      "binding": "COMMENTS",
+      "id": "b6fc8a4385bf42e9a559f12a795b34d6"
+    }
   ],
-  "vars": {
-    // Only these identities may write notes. Cloudflare Access supplies the
-    // email; anyone else gets 403. Comma-separated.
-    "ALLOWED_EMAILS": "tuanson.le03@gmail.com,tuanson1200@gmail.com",
-    // Identity a passphrase session resolves to (single-owner mode).
-    "OWNER_EMAIL": "tuanson.le03@gmail.com"
+  "build": {
+    "command": "npm run build"
   }
 }

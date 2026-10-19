@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import SideProjectItem from '../../components/SideProjectItem.astro';
+import { getSideProjects, getWork } from '../../lib/content';
+
+const work = await getWork();
+const sideProjects = await getSideProjects();
+const description = 'Live products Son built, with case studies, and the side projects around them.';
+---
+<BaseLayout title="Work" description={description}>
+  <div class="index-page">
+    <header class="page-head">
+      <h1>Work</h1>
+      <p>{description}</p>
+    </header>
+
+    <section class="page-section" aria-labelledby="work-live">
+      <div class="section-head">
+        <h2 id="work-live">Live products</h2>
+        <p>{work.length}</p>
+      </div>
+      {work.length === 0 ? (
+        <p class="empty">No work listed yet.</p>
+      ) : (
+        <ol class="rows">
+          {work.map((entry, i) => <li><WorkCard entry={entry} index={i + 1} /></li>)}
+        </ol>
+      )}
+    </section>
+
+    <section class="page-section" aria-labelledby="work-side">
+      <div class="section-head">
+        <h2 id="work-side">Side projects</h2>
+        <p>{sideProjects.length}</p>
+      </div>
+      {sideProjects.length === 0 ? (
+        <p class="empty">No side projects listed yet.</p>
+      ) : (
+        <ul class="side-rows">
+          {sideProjects.map((entry) => <li><SideProjectItem entry={entry} /></li>)}
+        </ul>
+      )}
+    </section>
+  </div>
+</BaseLayout>

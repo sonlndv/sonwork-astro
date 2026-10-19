@@ -1,0 +1,58 @@
+---
+// Switches between dark and light. The first visit follows the system
+// setting; a click stores the choice. The head script in BaseLayout applies
+// the stored choice before first paint. Without JS the button stays hidden.
+---
+<button class="theme-toggle" type="button" aria-label="Switch to light theme">
+  <svg class="icon-sun" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+    <rect x="6.5" y="6.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+    <path d="M10 1.5v2.5M10 16v2.5M1.5 10H4M16 10h2.5M4 4l1.8 1.8M14.2 14.2L16 16M4 16l1.8-1.8M14.2 5.8L16 4" stroke="currentColor" stroke-width="1.5" />
+  </svg>
+  <svg class="icon-moon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+    <path d="M14.5 13.5A6.5 6.5 0 0 1 6.5 3.2a6.5 6.5 0 1 0 10.3 8.1 6.5 6.5 0 0 1-2.3 2.2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" />
+  </svg>
+</button>
+
+<script>
+  const root = document.documentElement;
+  const button = document.querySelector<HTMLButtonElement>('.theme-toggle');
+  const light = window.matchMedia('(prefers-color-scheme: light)');
+
+  function current(): 'light' | 'dark' {
+    const set = root.dataset.theme;
+    if (set === 'light' || set === 'dark') return set;
+    return light.matches ? 'light' : 'dark';
+  }
+
+  function label() {
+    if (!button) return;
+    const next = current() === 'dark' ? 'light' : 'dark';
+    button.setAttribute('aria-label', `Switch to ${next} theme`);
+  }
+
+  const motion = matchMedia('(prefers-reduced-motion: no-preference)');
+  let transition: ViewTransition | undefined;
+  let desired = current();
+  motion.addEventListener('change', () => transition?.skipTransition());
+  button?.addEventListener('click', () => {
+    desired = (transition ? desired : current()) === 'dark' ? 'light' : 'dark';
+    transition?.skipTransition();
+    const apply = () => {
+      root.dataset.theme = desired;
+      try { localStorage.setItem('theme', desired); } catch {}
+      label();
+    };
+    if (motion.matches && document.startViewTransition) {
+      try {
+        const next = document.startViewTransition(apply);
+        transition = next;
+        void next.finished.catch(() => {}).finally(() => {
+          if (transition === next) transition = undefined;
+        });
+        void next.ready.catch(() => {});
+      } catch { apply(); }
+    } else apply();
+  });
+  light.addEventListener('change', label);
+  label();
+</script>

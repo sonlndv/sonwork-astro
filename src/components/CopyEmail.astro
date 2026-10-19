@@ -1,0 +1,24 @@
+<button class="copy-email" type="button" hidden data-copy-email="son@sonwork.org" aria-describedby="copy-email-status">Copy email</button>
+<span id="copy-email-status" class="copy-status" role="status" aria-live="polite"></span>
+<script>
+  const button = document.querySelector<HTMLButtonElement>('[data-copy-email]');
+  const status = document.querySelector<HTMLElement>('#copy-email-status');
+  if (button && status) {
+    button.hidden = false;
+    button.addEventListener('click', async () => {
+      if (button.getAttribute('aria-busy') === 'true') return;
+      button.setAttribute('aria-disabled', 'true');
+      button.setAttribute('aria-busy', 'true');
+      status.textContent = '';
+      try {
+        await navigator.clipboard.writeText(button.dataset.copyEmail!);
+        status.textContent = 'Email copied.';
+      } catch {
+        status.textContent = 'Could not copy. Select the address or open your email app.';
+      } finally {
+        button.removeAttribute('aria-disabled');
+        button.removeAttribute('aria-busy');
+      }
+    });
+  }
+</script>

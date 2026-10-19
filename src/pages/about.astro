@@ -1,30 +1,20 @@
 ---
-import Base from '../layouts/Base.astro';
----
-<Base title="About — Lê Sơn" current="about">
-  <div class="intro hero">
-    <div>
-    <h1>
-      <span class="ln wd">I have a day job,</span>
-      <span class="ln dim wd">and I'm trying to build something of my own,</span>
-      <span class="ln wd">with <em>research agents</em> reading for me.</span>
-    </h1>
-    <ul class="open-list wd">
-      <li>I'm Son. Full-time operator. Vietnam.</li>
-      <li>Before that: venture capital.</li>
-      <li>On the side: a business, built with AI on real problems. An operations practice, Lever, is the core.</li>
-      <li>Still learning how business models and unit economics work.</li>
-      <li>Still learning how people behave, decide and break.</li>
-    </ul>
-    </div>
-  </div>
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProseLayout from '../layouts/ProseLayout.astro';
+import { isVisible } from '../lib/content';
 
-  <section id="contact" class="sec">
-    <header class="sec-h"><h2>I read everything, <span>slowly.</span></h2><div class="sec-m"><span>contact</span></div></header>
-    <div class="contact">
-      <a class="stagger" style="--i:0" href="mailto:son@sonwork.org"><span class="idx">email</span><b>son@sonwork.org</b><i>→</i></a>
-      <a class="stagger" style="--i:1" href="https://www.linkedin.com/in/sonle2003" rel="me"><span class="idx">linkedin</span><b>in/sonle2003</b><i>↗</i></a>
-      <a class="stagger" style="--i:2" href="https://x.com/sonldv" rel="me"><span class="idx">x</span><b>@sonldv</b><i>↗</i></a>
-    </div>
-  </section>
-</Base>
+const about = await getEntry('pages', 'about');
+const shown = about && isVisible(about) ? about : undefined;
+const Content = shown ? (await render(shown)).Content : undefined;
+---
+{shown && Content ? (
+  <ProseLayout title={shown.data.title} description={shown.data.description} draft={shown.data.draft} type="website">
+    <Content />
+  </ProseLayout>
+) : (
+  <BaseLayout title="About" description="About Son, with contact links.">
+    <h1>About</h1>
+    <p class="empty">This page is not published yet.</p>
+  </BaseLayout>
+)}

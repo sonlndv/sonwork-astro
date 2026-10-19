@@ -1,0 +1,422 @@
+[
+  {
+    "path": "/about/",
+    "target": "/about",
+    "status": 301
+  },
+  {
+    "path": "/projects/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/projects/beacon/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/projects/lever/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/projects/sonar/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/projects/research-engine/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/projects/f1-youtube/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/readings/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/readings/2026-09-03-agent-identity-infrastructure/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/readings/2026-09-03-clear-reusable-identity/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/readings/2026-09-03-india-identity-stack/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/readings/2026-09-03-trust-layer-profit-pools/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/readings/2026-09-01-financial-escalation/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/readings/2026-09-01-kiem-chung-thuc-te/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-02-sonar/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-03-sonar-trust-layer-split/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-03-sonar/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-04-lever/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-04-old-research-engine/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-04-sonar/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-05-beacon/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-05-lever/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-05-sonar/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-02-research-engine/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/diary/2026-09-03-research-engine/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/book/",
+    "target": "/about",
+    "status": 301
+  },
+  {
+    "path": "/book/status/",
+    "target": "/about",
+    "status": 301
+  },
+  {
+    "path": "/kit/",
+    "target": "/about",
+    "status": 301
+  },
+  {
+    "path": "/og/2026-09-03-agent-identity-infrastructure.png",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/og/2026-09-03-clear-reusable-identity.png",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/og/2026-09-03-india-identity-stack.png",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/og/2026-09-03-trust-layer-profit-pools.png",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/og/*",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/p/*",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/reports/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/reports/*",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/writing/2026-08-one-person-holdco/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/contact",
+    "target": "/about",
+    "status": 301
+  },
+  {
+    "path": "/series/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/series/building-perfeat/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/series/solo-by-design/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/series/from-the-desk/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/series/life-book/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/series/experiences/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/series/human/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/2026-04-checks-to-code/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/2026-05-portfolio-of-one/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/2026-06-company-os/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/2026-06-four-bets/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/2026-06-shipping-solo/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/2026-year-one/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/first-post/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/on-building-things/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/why-people-do-things/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/posts/*",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/interviews/2026-06-building-solo/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/interviews/2026-06-why-a-food-diary/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/interviews/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/journal/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/reading/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/portfolio/",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/dispatches/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/notes/",
+    "target": "/writing",
+    "status": 301
+  },
+  {
+    "path": "/gbrain/",
+    "target": "/",
+    "status": 301
+  },
+  {
+    "path": "/gbrain/*",
+    "target": "/",
+    "status": 301
+  },
+  {
+    "path": "/gbrain.html",
+    "target": "/",
+    "status": 301
+  },
+  {
+    "path": "/lesson-01-operator.html",
+    "target": "/",
+    "status": 301
+  },
+  {
+    "path": "/aie.html",
+    "target": "/",
+    "status": 301
+  },
+  {
+    "path": "/os-v1",
+    "target": "/",
+    "status": 301
+  },
+  {
+    "path": "/os-v1.html",
+    "target": "/",
+    "status": 301
+  },
+  {
+    "path": "/son.jpg",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/favicon.ico",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/icon-192.png",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/api/unsubscribe",
+    "target": "/subscribe",
+    "status": 301
+  },
+  {
+    "path": "/api/*",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/login",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/logout",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/_astro/*",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/pagefind/*",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/diary/*",
+    "target": "/work",
+    "status": 301
+  },
+  {
+    "path": "/portrait.jpg",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/styles/global.css",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/404.html",
+    "target": "",
+    "status": 410
+  },
+  {
+    "path": "/404/",
+    "target": "",
+    "status": 410
+  }
+]

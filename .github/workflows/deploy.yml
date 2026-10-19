@@ -1,29 +1,22 @@
-# Agent commits a report → this builds the site and deploys the Worker.
-# Same shape as pjc-report: git is the trigger, Cloudflare is the target.
-# The build always runs, so a malformed report fails here before it reaches
-# the site. If CLOUDFLARE_API_TOKEN is missing the job FAILS: a green run
-# that did not deploy misled every agent for two days (Fred, 2026-09-04,
-# gbrain inbox/2026-09-04-sonwork-deploy-never-runs). After deploying, the
-# newest reading in the repo is fetched from sonwork.org; 200 or the job fails.
 name: Deploy
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 concurrency:
   group: deploy
-  cancel-in-progress: true
-
+  cancel-in-progress: false
 jobs:
   build-and-deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
-      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      ASTRO_TELEMETRY_DISABLED: '1'
+      WRANGLER_SEND_METRICS: 'false'
+      CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,28 +24,37 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
-      - name: Build (schema gate)
-        run: npm run build
-      - name: Deploy not configured
-        if: env.CF_TOKEN == '' || env.CF_ACCOUNT == ''
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check
+      - run: npm test
+      - name: Rebuild production and verify the actual Worker runtime
         run: |
-          echo "::error::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not set. The build passed but the site was NOT deployed. See DEPLOY.md section 3."
-          exit 1
+          npm run build
+          npm run test:production
+          npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/sonwork-dry-run"
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
-      - name: Verify the newest reading is live
+      - name: Verify exact live release and approved content
         run: |
-          slug=$(ls src/content/reports/*.md | grep -v '/_' | sort | tail -1 | xargs -n1 basename | sed 's/\.md$//')
-          url="https://sonwork.org/readings/$slug/"
-          for i in 1 2 3 4 5 6; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$url")
-            echo "attempt $i: $url -> $code"
-            [ "$code" = "200" ] && exit 0
+          for attempt in 1 2 3 4 5 6; do
+            if node scripts/verify-release.mjs https://sonwork.org "$GITHUB_SHA" "$RUNNER_TEMP/live-release-inventory.json"; then
+              exit 0
+            fi
             sleep 10
           done
-          echo "::error::Deployed, but $url is not serving 200. The site may be stale."
+          echo '::error::The exact approved production release did not pass live verification.'
           exit 1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: deploy-verification
+          path: |
+            ${{ runner.temp }}/live-release-inventory.json
+            playwright-report/
+            test-results/
+            .lighthouseci/
+          retention-days: 7

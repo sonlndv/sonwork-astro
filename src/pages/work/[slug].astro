@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import Arrow from '../../components/Arrow.astro';
+import { formatDate, getWork, isoDate } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const work = await getWork();
+  return work.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { title, summary, url, started, stack, draft } = entry.data;
+const { Content } = await render(entry);
+---
+<ProseLayout title={title} description={summary} draft={draft}>
+  <Fragment slot="meta">
+    <p class="lede">{summary}</p>
+    <dl class="facts">
+      <div>
+        <dt>Live</dt>
+        <dd><a href={url}>{new URL(url).host}<Arrow /></a></dd>
+      </div>
+      <div>
+        <dt>Started</dt>
+        <dd><time datetime={isoDate(started)}>{formatDate(started)}</time></dd>
+      </div>
+      <div>
+        <dt>Stack</dt>
+        <dd>{stack.join(', ')}</dd>
+      </div>
+    </dl>
+  </Fragment>
+  <Content />
+  <p class="back" slot="end"><a href="/work">All work</a></p>
+</ProseLayout>

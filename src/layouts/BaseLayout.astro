@@ -1,0 +1,126 @@
+---
+import '../styles/fonts.css';
+import '../styles/global.css';
+import ThemeToggle from '../components/ThemeToggle.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  type?: 'website' | 'article';
+  noIndex?: boolean;
+}
+
+const { title, description, type = 'website', noIndex = false } = Astro.props;
+const siteName = 'Sonwork';
+const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
+const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1');
+const canonical = new URL(path, Astro.site);
+
+// Home is the wordmark; the strip holds the four sections.
+const nav = [
+  { href: '/work', label: 'Work' },
+  { href: '/writing', label: 'Writing' },
+  { href: '/about', label: 'About' },
+  { href: '/subscribe', label: 'Subscribe' },
+];
+
+const contact = [
+  { href: 'mailto:son@sonwork.org', label: 'Email' },
+  { href: 'https://x.com/sonldv', label: 'X' },
+  { href: 'https://github.com/sonlndv', label: 'GitHub' },
+  { href: 'https://www.linkedin.com/in/sonle2003', label: 'LinkedIn' },
+  { href: '/rss.xml', label: 'RSS' },
+];
+
+function isCurrent(href: string): boolean {
+  return path === href || path.startsWith(`${href}/`);
+}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noIndex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+    <link rel="alternate" type="application/rss+xml" title={`${siteName} writing`} href="/rss.xml" />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!noIndex && <meta property="og:url" content={canonical} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#04070e" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f8fafd" media="(prefers-color-scheme: light)" />
+    <!-- Apply the stored theme before first paint, so there is no flash. -->
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch {}
+      document.documentElement.classList.add('js');
+    </script>
+    <!-- Two faces above the fold: display/label mono and prose sans. -->
+    <!-- Regular mono also sets visible nav geometry; fetch before first paint. -->
+    <link rel="preload" href="/fonts/space-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/space-mono-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/geist-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    {type === 'article' && <link rel="preload" href="/fonts/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="bar">
+        <nav class="site-nav" aria-label="Main">
+          <a class="wordmark" href="/" aria-current={path === '/' ? 'page' : undefined}>
+            Son<b aria-hidden="true">/</b>work
+          </a>
+          <ul>
+            {nav.map((item) => (
+              <li>
+                <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <ThemeToggle />
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="frame">
+        <p class="footer-name"><span>Sonwork</span><span>sonwork.org</span></p>
+        <ul class="contact-links">
+          {contact.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+        </ul>
+      </div>
+    </footer>
+    <script>
+      // Rows remain visible until an intersecting row earns a one-shot arrival.
+      const preference = matchMedia('(prefers-reduced-motion: no-preference)');
+      const rows = document.querySelectorAll<HTMLElement>('.row, .side-project');
+      let observer: IntersectionObserver | undefined;
+      if (preference.matches && 'IntersectionObserver' in window) {
+        observer = new IntersectionObserver(entries => {
+          let order = 0;
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const row = entry.target as HTMLElement;
+            row.style.setProperty('--arrival-delay', `${Math.min(order++ * 40, 120)}ms`);
+            row.dataset.motionArrive = '';
+            observer!.unobserve(row);
+          }
+        }, { threshold: 0.08 });
+        rows.forEach(row => observer!.observe(row));
+      }
+      preference.addEventListener('change', () => {
+        observer?.disconnect();
+        rows.forEach(row => delete row.dataset.motionArrive);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+---
+title: No answer leaves the server before it is due
+description: A daily game is only fair if the browser never holds the answer. How the five games on Trivia Hub keep that rule.
+date: 2026-10-17
+draft: true
+tags: [trivia-hub, games, testing]
+---
+
+If the answer is in the browser, the game is already solved. Anyone who opens the developer tools can read it, and a daily game where everyone plays the same puzzle is only fair if nobody can.
+
+So [Trivia Hub](https://games.sonwork.org) has one rule for all five games: no answer leaves the server before it is due. Not in the page, not in an API response, not in the share text.
+
+It sounds obvious. It is easy to break, because the easy way to build a daily puzzle is to send today's answer down with the page and check guesses in the browser. It is fast, it works offline, and it leaks.
+
+## What the rule looks like per game
+
+**Lock** has two secret codes a day. The codes come from a server-only seed and the date, and the server sends a code only once you have solved that lock or used all ten tries. Until then the browser gets a count per guess and nothing else.
+
+**Word** has one five-letter word a day. The word lists never reach the browser. You send a guess, and the server sends back the marks for each letter.
+
+**Scale** shows you a silhouette next to something you know and asks how big it is. Even the drawings could give it away, so the browser only gets outlines resized to a fixed 1,000 units, never the original drawings in metres, and the names on screen never state a size. The real size arrives after you lock in.
+
+**Fermi** asks one number question a day. The true value comes back with your score, after your one guess.
+
+**Answers** asks seven prompts with a 25-second clock each. The server keeps the accepted answers and does the scoring. It will not score a round whose clock never started, and a round only completes once its question has closed.
+
+## Tests, not intentions
+
+A rule like this decays the first time someone adds a feature in a hurry. The fix is to make it a test.
+
+The Lock API has a test block named "no leak". The Fermi tests check that the catalogue is served while nothing leaks before the guess, including on stale or invalid guesses. There is a shared helper that checks the share text for the answer, because a share card that says "I guessed 45 million, off by 2x" has just told your friends the answer. The keyboard tests for Scale check that the share text contains none of the true values.
+
+Before I accept a redesign, I run the repo's browser check by hand. At phone and desktop size, it checks that the Word and Lock answers are not in the page. A redesign that puts them there fails.
+
+## What it costs
+
+Every guess is a round trip to the server, so the games need a connection. Practice rounds and the archive need the same care as the daily. Resuming after a reload has to come from the server too, or the clock could be reset by refreshing the page.
+
+I take that trade. A daily game is a small promise to everyone who plays it: same puzzle, same chance. The browser is the one place I cannot keep that promise, so the answer does not go there.

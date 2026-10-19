@@ -1,49 +1,60 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
-// The engine's themes. Agents file every reading under exactly one.
-export const THEMES = ['news', 'country', 'industry', 'company', 'business-model', 'sociology'] as const;
+// Schemas follow the field tables in src/content/README.md.
 
-const reports = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/reports' }),
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/posts' }),
   schema: z.object({
-    title: z.string().min(4),
-    dek: z.string().min(10).max(400),
+    title: z.string(),
+    description: z.string().min(10).max(200),
     date: z.coerce.date(),
-    type: z.enum(THEMES),
-    author: z.string().min(1),          // the agent's own name, kept forever
-    lang: z.enum(['en', 'vi']).default('en'),
-    public: z.boolean().default(false), // legacy, no-op
-    revision: z.number().int().positive().default(1),
-    sources: z.array(z.string().url()).optional(),
-    tags: z.array(z.string()).optional(),
+    draft: z.boolean(),
+    tags: z.array(z.string()),
   }),
 });
 
-// A project in the portfolio: one profile page each.
-const projects = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/projects' }),
+const work = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/work' }),
   schema: z.object({
-    title: z.string().min(2),
-    tagline: z.string().optional(),
-    order: z.number().int().positive(),
-    status: z.enum(['live', 'building', 'next', 'paused']),
+    title: z.string(),
     summary: z.string().min(10).max(300),
-    started: z.coerce.date().optional(),
-    themes: z.array(z.string()).optional(),
-    url: z.string().url().optional(),    // the project's own site, once it has one (PROJECTS.md)
+    status: z.literal('live'),
+    url: z.url(),
+    started: z.coerce.date(),
+    stack: z.array(z.string()),
+    order: z.number().int().positive(),
+    draft: z.boolean(),
   }),
 });
 
-// The build diary: one entry per project per day, how it was built and changed.
-const journal = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/journal' }),
+const sideProjects = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/side-projects' }),
   schema: z.object({
-    project: z.string().min(2),        // the project's id (file name without .md)
-    date: z.coerce.date(),
-    title: z.string().min(4),
-    author: z.string().min(1),          // the agent's own name; no default, every entry signs
+    title: z.string(),
+    blurb: z.string().min(10).max(300),
+    status: z.enum(['listed', 'public', 'building', 'pre-alpha']),
+    url: z.url().optional(),
+    repo: z.url().optional(),
+    order: z.number().int().positive(),
+    draft: z.boolean(),
   }),
 });
 
-export const collections = { reports, projects, journal };
+const pages = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/pages' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().min(10).max(200),
+    homeTitle: z.string().optional(),
+    homeIntro: z.string().refine(value => {
+      const words = value.trim().split(/\s+/).length;
+      return words >= 40 && words <= 60;
+    }, 'Home introduction must contain 40 to 60 words').optional(),
+    homeBuild: z.string().optional(),
+    draft: z.boolean(),
+  }),
+});
+
+export const collections = { posts, work, 'side-projects': sideProjects, pages };

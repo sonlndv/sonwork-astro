@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SubscribeForm from '../components/SubscribeForm.astro';
+---
+<BaseLayout title="Subscribe" description="Get new posts from Sonwork by email.">
+  <div class="subscribe-page">
+    <header class="page-head">
+      <h1>Subscribe</h1>
+      <p>Get new posts from Sonwork by email.</p>
+    </header>
+    <p>Legacy newsletter links are retired. No subscription has been changed here. To request removal from the old list, email <a href="mailto:son@sonwork.org">son@sonwork.org</a>.</p>
+    <SubscribeForm />
+    <p class="back"><a href="/writing">All writing</a></p>
+  </div>
+</BaseLayout>

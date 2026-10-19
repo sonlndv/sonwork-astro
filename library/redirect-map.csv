@@ -1,0 +1,94 @@
+old_path,new_path,status,sources,old_live_status,old_title,confidence,note
+/,/,none,repo;live,200,Lê Sơn,high,Same path on new site; no redirect needed.
+/about/,/about,301,repo;live,200,About,high,Trailing-slash form; host must also match /about (old site 307s it to /about/).
+/projects/,/work,301,repo;live,200,Projects,high,Projects index becomes Work.
+/projects/beacon/,/work,301,repo;live,200,Beacon,needs-son,Safe fallback /work for now. Change to /work/beacon once phase 0 keeps Beacon as a work entry.
+/projects/lever/,/work,301,repo;live,200,Lever,needs-son,Safe fallback /work for now. Change to /work/lever once phase 0 keeps Lever as a work entry.
+/projects/sonar/,/work,301,repo;live,200,Sonar,needs-son,Safe fallback /work for now. Change to /work/sonar once phase 0 keeps Sonar as a work entry.
+/projects/research-engine/,/work,301,repo-history,404,,medium,Removed before this crawl (already 404). Superseded by Sonar per the 2026-09-04 diary entry; change to /work/sonar once phase 0 keeps Sonar.
+/projects/f1-youtube/,/work,301,repo-history,404,,medium,"Status 'next' project, removed before this crawl (already 404)."
+/readings/,/writing,301,repo;live,200,Readings,medium,Agent-filed research index; nearest new section is Writing.
+/readings/2026-09-03-agent-identity-infrastructure/,/writing,301,repo;live,200,Agent identity became infrastructure while courts undercut its legal basis,needs-son,"Agent-filed reading (public: false, but served and linked). /writing/<slug> only if phase 2 carries it over."
+/readings/2026-09-03-clear-reusable-identity/,/writing,301,repo;live,200,"CLEAR sells reusable identity, but airports still own distribution",needs-son,"Agent-filed reading (public: false, but served and linked). /writing/<slug> only if phase 2 carries it over."
+/readings/2026-09-03-india-identity-stack/,/writing,301,repo;live,200,"India's identity stack cut welfare leakage, pushed fraud upstream",needs-son,"Agent-filed reading (public: false, but served and linked). /writing/<slug> only if phase 2 carries it over."
+/readings/2026-09-03-trust-layer-profit-pools/,/writing,301,repo;live,200,"Trust profits accrue to data registries, not verification vendors",needs-son,"Agent-filed reading (public: false, but served and linked). /writing/<slug> only if phase 2 carries it over."
+/readings/2026-09-01-financial-escalation/,/writing,301,repo-history,404,,medium,Reading removed before this crawl (already 404); old /reports/ URL also points here.
+/readings/2026-09-01-kiem-chung-thuc-te/,/writing,301,repo-history,404,,medium,Reading removed before this crawl (already 404); old /reports/ URL also points here.
+/diary/2026-09-02-sonar/,/work,301,repo;live,200,The engine gets a home,needs-son,Build diary entry for sonar. Safe fallback /work for now; change to /work/sonar once phase 0 keeps it.
+/diary/2026-09-03-sonar-trust-layer-split/,/work,301,repo;live,200,"The trust-layer review, split into four filed readings",needs-son,Build diary entry for sonar. Safe fallback /work for now; change to /work/sonar once phase 0 keeps it.
+/diary/2026-09-03-sonar/,/work,301,repo;live,200,"Themes, and the portfolio",needs-son,Build diary entry for sonar. Safe fallback /work for now; change to /work/sonar once phase 0 keeps it.
+/diary/2026-09-04-lever/,/work,301,repo;live,200,Lever enters the portfolio,needs-son,Build diary entry for lever. Safe fallback /work for now; change to /work/lever once phase 0 keeps it.
+/diary/2026-09-04-old-research-engine/,/work,301,repo;live,200,"How the old research engine was built, and why it is being replaced",needs-son,Build diary entry for sonar. Safe fallback /work for now; change to /work/sonar once phase 0 keeps it.
+/diary/2026-09-04-sonar/,/work,301,repo;live,200,"The deploy that never ran, and a workflow that now says so",needs-son,Build diary entry for sonar. Safe fallback /work for now; change to /work/sonar once phase 0 keeps it.
+/diary/2026-09-05-beacon/,/work,301,repo;live,200,Beacon enters the portfolio,needs-son,Build diary entry for beacon. Safe fallback /work for now; change to /work/beacon once phase 0 keeps it.
+/diary/2026-09-05-lever/,/work,301,repo;live,200,Lever goes live and takes the centre,needs-son,Build diary entry for lever. Safe fallback /work for now; change to /work/lever once phase 0 keeps it.
+/diary/2026-09-05-sonar/,/work,301,repo;live,200,The portfolio becomes a pipeline,needs-son,Build diary entry for sonar. Safe fallback /work for now; change to /work/sonar once phase 0 keeps it.
+/diary/2026-09-02-research-engine/,/work,301,repo-history,404,,needs-son,Diary entry renamed to *-sonar in September (already 404). Safe fallback /work; change to /work/sonar once phase 0 keeps Sonar.
+/diary/2026-09-03-research-engine/,/work,301,repo-history,404,,needs-son,Diary entry renamed to *-sonar in September (already 404). Safe fallback /work; change to /work/sonar once phase 0 keeps Sonar.
+/book/,/about,301,repo;live,200,Book time,needs-son,Meeting booking page (robots-disallowed). No booking on the new site; /about if contact lives there.
+/book/status/,/about,301,repo;live,200,Your request,needs-son,Booking status page reached from emailed links (?t=token). Booking requests in flight lose their status page.
+/kit/,/about,301,repo;live,200,Kit,needs-son,"'Kit' page, not linked from home. Pick /about or drop."
+/rss.xml,/rss.xml,none,repo;live,200,,medium,Keep the feed at the same path so feed readers follow; old feed lists readings only.
+/robots.txt,/robots.txt,none,repo;live,200,,high,New build ships its own.
+/favicon.png,/favicon.png,none,repo;live,200,,medium,Icon; new build should ship the same filename or browsers keep requesting it (404 noise only).
+/apple-touch-icon.png,/apple-touch-icon.png,none,repo;live,200,,medium,Icon; new build should ship the same filename or browsers keep requesting it (404 noise only).
+/icon-512.png,/icon-512.png,none,repo;live,200,,medium,Icon; new build should ship the same filename or browsers keep requesting it (404 noise only).
+/og.png,/og.png,none,repo;live,200,,medium,"Default social card; regenerate in new design at the same path, since old shares cache it."
+/og/2026-09-03-agent-identity-infrastructure.png,,410,repo;live,200,,medium,Per-reading social image (generated). Not a page; 410 Gone. Redirecting images to HTML breaks previews.
+/og/2026-09-03-clear-reusable-identity.png,,410,repo;live,200,,medium,Per-reading social image (generated). Not a page; 410 Gone. Redirecting images to HTML breaks previews.
+/og/2026-09-03-india-identity-stack.png,,410,repo;live,200,,medium,Per-reading social image (generated). Not a page; 410 Gone. Redirecting images to HTML breaks previews.
+/og/2026-09-03-trust-layer-profit-pools.png,,410,repo;live,200,,medium,Per-reading social image (generated). Not a page; 410 Gone. Redirecting images to HTML breaks previews.
+/og/*,,410,repo,200,,medium,Pattern for any other generated OG image. old_live_status measured on sample /og/2026-09-03-india-identity-stack.png.
+/p/*,/writing,301,repo,404,,medium,"Route for public: true readings; no reading was ever public, so no URL was built. Pattern kept for safety. old_live_status measured on sample /p/."
+/reports/,/writing,301,repo;live;repo-history,301->/readings/,,high,Old worker 301s to /readings/; collapse the chain to one hop.
+/reports/*,/writing,301,repo;live;repo-history,301->/readings/2026-09-03-india-identity-stack/,,medium,Pattern: old worker 301s /reports/<slug> to /readings/<slug>. Target follows the /readings/<slug> rows. old_live_status measured on sample /reports/2026-09-03-india-identity-stack/.
+/writing/2026-08-one-person-holdco/,/writing,301,live;repo-history,301->/,,needs-son,"Old worker 301s it to /. If phase 2 republishes this post, use /writing/<new-slug>. Browsers that cached the old 301 /writing -> / keep it (see report)."
+/writing/,/writing,none,live;repo-history,301->/,,high,"New page lives here. Old worker answered 301 -> /, which browsers cache; see report."
+/contact,/about,301,repo-history;live,404,,high,"Old _redirects already sent /contact to /about (lost in the 2026-09-02 wipe, now 404)."
+/series/,/writing,301,repo-history;live,404,,medium,Series index; old _redirects had /series* -> /writing.
+/series/building-perfeat/,/writing,301,repo-history;live,404,,medium,Series page (2026-06-15..2026-09-02); old _redirects had /series* -> /writing.
+/series/solo-by-design/,/writing,301,repo-history;live,404,,medium,Series page (2026-06-15..2026-09-02); old _redirects had /series* -> /writing.
+/series/from-the-desk/,/writing,301,repo-history;live,404,,medium,Series page (2026-06-15..2026-09-02); old _redirects had /series* -> /writing.
+/series/life-book/,/writing,301,repo-history;live,404,,medium,Series page (2026-06-15..2026-09-02); old _redirects had /series* -> /writing.
+/series/experiences/,/writing,301,repo-history;live,404,,medium,Series page (2026-06-15..2026-09-02); old _redirects had /series* -> /writing.
+/series/human/,/writing,301,repo-history;live,404,,medium,Series page (2026-06-15..2026-09-02); old _redirects had /series* -> /writing.
+/posts/2026-04-checks-to-code/,/writing,301,repo-history;live,404,,needs-son,Post live until 2026-09-02 (now 404). /writing/<slug> if phase 2 reuses this piece.
+/posts/2026-05-portfolio-of-one/,/writing,301,repo-history;live,404,,needs-son,Post live until 2026-09-02 (now 404). /writing/<slug> if phase 2 reuses this piece.
+/posts/2026-06-company-os/,/writing,301,repo-history;live,404,,needs-son,Post live until 2026-09-02 (now 404). /writing/<slug> if phase 2 reuses this piece.
+/posts/2026-06-four-bets/,/writing,301,repo-history;live,404,,needs-son,Post live until 2026-09-02 (now 404). /writing/<slug> if phase 2 reuses this piece.
+/posts/2026-06-shipping-solo/,/writing,301,repo-history;live,404,,needs-son,Post live until 2026-09-02 (now 404). /writing/<slug> if phase 2 reuses this piece.
+/posts/2026-year-one/,/writing,301,repo-history;live,404,,medium,Sample/placeholder post removed before 2026-09-02 (now 404).
+/posts/first-post/,/writing,301,repo-history;live,404,,medium,Sample/placeholder post removed before 2026-09-02 (now 404).
+/posts/on-building-things/,/writing,301,repo-history;live,404,,medium,Sample/placeholder post removed before 2026-09-02 (now 404).
+/posts/why-people-do-things/,/writing,301,repo-history;live,404,,medium,Sample/placeholder post removed before 2026-09-02 (now 404).
+/posts/*,/writing,301,repo-history,404,,medium,Pattern for any other old post slug. old_live_status measured on sample /posts/.
+/interviews/2026-06-building-solo/,/writing,301,repo-history;live,404,,needs-son,Interview live until 2026-09-02 (now 404). /writing/<slug> if reused.
+/interviews/2026-06-why-a-food-diary/,/writing,301,repo-history;live,404,,needs-son,Interview live until 2026-09-02 (now 404). /writing/<slug> if reused.
+/interviews/,/writing,301,repo-history;live,404,,medium,Interviews index (2026-06-15..2026-09-02).
+/journal/,/writing,301,repo-history;live,404,,medium,Journal index (2026-06-15..2026-09-02).
+/reading/,/writing,301,repo-history;live,404,,medium,Reading list (2026-06-15..2026-09-02).
+/portfolio/,/work,301,repo-history;live,404,,high,Portfolio index (2026-06-15..2026-09-02).
+/dispatches/,/writing,301,repo-history;live,404,,medium,Existed one day (2026-06-15).
+/notes/,/writing,301,repo-history;live,404,,medium,Existed one day (2026-06-15).
+/gbrain/,/,301,repo-history;live,404,,needs-son,"gbrain course pages (static HTML, 2026-06-10..2026-09-02). Old _redirects meant /gbrain to 404; pick / or 410."
+/gbrain/*,/,301,repo-history;live,404,,needs-son,"Pattern: how-it-works.html, us.html, lessons/00-07.html, assets/site.css. old_live_status measured on sample /gbrain/lessons/00.html."
+/gbrain.html,/,301,repo-history;live,404,,needs-son,Lived 2026-06-09..2026-06-10.
+/lesson-01-operator.html,/,301,repo-history;live,404,,needs-son,Static lesson page (2026-06-09..2026-09-02).
+/aie.html,/,301,repo-history;live,404,,needs-son,Static page (2026-05-24..2026-09-02); content not reviewed.
+/os-v1,/,301,repo-history;live,404,,needs-son,Old _redirects sent it to 404 on purpose (2026-05-31). Pick / or 410.
+/os-v1.html,/,301,repo-history;live,404,,needs-son,Static twin of /os-v1 (2026-05-23..2026-05-31).
+/son.jpg,,410,repo-history;live,404,,medium,"Old asset (until 2026-09-02, now 404). Ship /favicon.ico in the new build if browsers keep asking."
+/favicon.ico,,410,repo-history;live,404,,medium,"Old asset (until 2026-09-02, now 404). Ship /favicon.ico in the new build if browsers keep asking."
+/favicon.svg,/favicon.svg,none,repo-history;live,404,,medium,Current approved favicon; serve the new asset.
+/icon-192.png,,410,repo-history;live,404,,medium,"Old asset (until 2026-09-02, now 404). Ship /favicon.ico in the new build if browsers keep asking."
+/api/unsubscribe,/subscribe,301,repo;live,200,Already gone.,needs-son,"Live: answers 200 with an 'Already gone.' page (GET without query, 2026-10-17 recheck). Unsubscribe links in any Sonar email already sent (?e=&t=) land here. Point at the new newsletter's unsubscribe, or keep a page that says how to leave."
+/api/*,,410,repo;live,404,,high,"Old Worker API (notes, subscribe, booking, filing). Not content; drop with the old Worker. old_live_status measured on sample /api/."
+/login,,410,repo;live,200,sonwork,high,Owner passphrase login of the old Worker.
+/logout,,410,repo;live,302->/login,,high,Old Worker logout.
+/_astro/*,,410,live,200,,high,Retired when no current asset exists; explicit 410 rather than accidental 404.
+/pagefind/*,,410,live,200,,high,Retired when no current asset exists; explicit 410 rather than accidental 404.
+/diary/*,/work,301,repo,404,,medium,Pattern for any other diary slug (no /diary/ index ever existed; 2026-09-12-sonar exists only on a side branch). old_live_status measured on sample /diary/.
+/portrait.jpg,,410,repo-history;live,404,,medium,Old asset (2026-09-02 only).
+/styles/global.css,,410,repo-history;live,404,,medium,Old stylesheet (until 2026-05-30).
+/404.html,,410,live,307->/404,,high,Retired when no current asset exists; explicit 410 rather than accidental 404.
+/404/,,410,repo;live,200,,high,Retired when no current asset exists; explicit 410 rather than accidental 404.

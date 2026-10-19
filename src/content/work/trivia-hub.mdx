@@ -1,0 +1,55 @@
+---
+title: Trivia Hub
+summary: Five daily games in one place. Lock, Word, Scale, Fermi and Answers share one day number, one reset and one place to keep your streaks.
+status: live
+url: https://games.sonwork.org
+started: 2026-10-13
+stack: [TypeScript, React, Vite, Node, Vitest]
+order: 1
+draft: false
+---
+
+I like daily trivia games. The trouble is that each one lives on its own site, and every game has its own tab, its own reset time and its own streak to remember. So I built one hub for the games I want to play every day.
+
+Trivia Hub is live at [games.sonwork.org](https://games.sonwork.org). Five games, one day number, one reset at 04:00 UTC.
+
+## It started as a study
+
+The first step was to understand how a good daily game works. I studied Krillion's public behaviour: seven open prompts a day, the same for everyone, about 25 seconds each, and answers scored by how rare they are. I wrote down the loop, the scoring, the daily seeding and the share card.
+
+The rule for that study was in the README from day one: study public behaviour only, nothing behind a login, no copied assets or prompt sets. What came out the other side is my own design, with its own name, theme, prompts and art.
+
+One difference shows how far it moved. In Krillion, rarity comes from what other players say. In my Answers game, the tiers are editorial: I wrote the answer lists and decided which answers are obvious and which are a find. That way the game works on the first day, with no crowd yet.
+
+## The five games
+
+- **Lock.** Two codes a day, four and five digits, no repeated digit. Ten tries each. The feedback is only a count, never which digit.
+- **Word.** One five-letter word a day, six tries, optional hard mode.
+- **Scale.** Five rounds. A silhouette stands next to something you know, and you judge how much taller or longer it is. One dimension per round.
+- **Fermi.** One question a day, one guess, no clock. The score depends on how many times off you are: exact is 100, twice off is 70.
+- **Answers.** Seven prompts, a 25-second clock each. Name an accepted answer. Less obvious answers earn more, up to 700 points a day.
+
+The four puzzles have no clock. Answers keeps its clock because the pressure is the game.
+
+## How it was built
+
+The first commit is from 2026-10-13. By 2026-10-17 the main branch had 265 commits, 62 of them merges. Most work landed through branches and pull requests, and the larger pieces were reviewed before they merged.
+
+The content got the same treatment as the code. Word has 1,266 curated answers and 8,572 accepted guesses, checked by a validator. Scale has 63 CC0 silhouettes, 18 of them Vietnamese, making 209 pairs. Fermi's questions have their own validator. The validators are scripts run by hand when the content changes. They are not part of the automated tests.
+
+Scoring lives on the server. The browser gets an answer only after you have finished with it. I wrote more about that rule in a separate post.
+
+## How it is checked
+
+For a visual change, the repo's instructions are two runs that go through every game. They are run by hand, not in CI:
+
+- **Flows.** Keyboard and real pointer input on a phone size (390 by 844) and a desktop size (1440 by 900). It checks tries, results, share text, hidden answers, the Escape key, focus rings on every control, and reduced motion.
+- **Screenshots.** The same journeys, captured as 92 images: the hub empty, partly done and complete, and every game at start, mid-game, reveal and result, at both sizes, in light and dark. I compare two runs side by side before I accept a redesign.
+
+Each run starts its own temporary server and browser with a fixed date and fixed test data, so no real player state is touched.
+
+## What is next
+
+The next part is social. A friend groups API with private daily boards and invites you can revoke is merged, and so is a daily percentile and distribution API. Next comes the screen that shows them.
+
+The point stays the same: one place to play the games I like, every day.

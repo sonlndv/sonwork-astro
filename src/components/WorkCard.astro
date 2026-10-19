@@ -1,0 +1,39 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import DraftLabel from './DraftLabel.astro';
+import Arrow from './Arrow.astro';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+  headingLevel?: 2 | 3;
+  index?: number;
+  compact?: boolean;
+}
+
+const { entry, headingLevel = 2, index = 1, compact = false } = Astro.props;
+const { title, summary, url, stack, draft } = entry.data;
+const Heading = `h${headingLevel}` as 'h2' | 'h3';
+const host = new URL(url).host;
+---
+<article class="row work-card">
+  <span class="row-index" aria-hidden="true">{String(index).padStart(2, '0')}</span>
+  <div class="row-body">
+    <Heading><a href={`/work/${entry.id}`}>{title}</a></Heading>
+    <p class="meta">
+      <span class="kind">Case study</span>
+      {compact ? <a class="meta-link" href={url}>{host}<Arrow /></a> : <span>Live</span>}
+      {draft && <DraftLabel />}
+    </p>
+    <p>{summary}</p>
+    {!compact && <dl class="facts">
+      <div>
+        <dt>Live</dt>
+        <dd><a href={url}>{host}<Arrow /></a></dd>
+      </div>
+      <div>
+        <dt>Stack</dt>
+        <dd>{stack.join(', ')}</dd>
+      </div>
+    </dl>}
+  </div>
+</article>

@@ -1,0 +1,35 @@
+---
+title: A keyboard plugin is done when it types
+description: Checking the config proves nothing for an input method. The test for Keymarchy presses real keys in every language and reads what comes out.
+date: 2026-10-17
+draft: true
+tags: [keymarchy, omarchy, testing]
+---
+
+For an input method, the only test that counts is one that presses keys and reads the text that comes out. Everything else checks that a file looks right.
+
+[Keymarchy](https://github.com/sonlndv/omarchy-vietkey) is a plugin I wrote so I can type Vietnamese and English on Omarchy and switch with Ctrl+Shift. It started on 2026-10-03 as a Vietnamese keyboard and grew into "type in any language": Japanese, Korean, Chinese, Thai, Arabic, Russian and more. Under the hood it is a front end for fcitx5, the input framework Omarchy already runs.
+
+The obvious way to test a plugin like this is to check the config it writes. Is the engine in the group? Is the shortcut set? Those checks pass while the keyboard is broken. In Vietnamese Telex, typing `tieengs` should give you "tiếng". Whether it does depends on the engine, its mode and its state, and none of that is in the config file.
+
+## A test that types
+
+So on 2026-10-04 I added a test that types. It starts its own private fcitx5 in a throwaway D-Bus session, with its own config folder, so it never touches the desktop I am working on. Then it sends real key sequences through fcitx5's D-Bus interface and checks the text fcitx5 commits.
+
+The first run covered 14 cases: English passthrough, Vietnamese Telex and VNI, switching back to English, Arabic, Hebrew, Russian and Greek layouts, Japanese, Korean, Chinese pinyin and chewing, Thai, and a switch through three or more languages. All 14 passed.
+
+## The test found its own bug first
+
+That night, the test started leaving crashes behind. The Japanese engine runs a helper process, and that helper ignores the private config folder. It falls back to a folder in the home directory, so the private test copy fought a stale or live copy over the same lock and socket, and crashed.
+
+The fix was a throwaway home directory for every run, and a cleanup that kills any process carrying this run's private folder, not just fcitx5 by name. I also made the harness check the system's crash log for its own time window and fail if anything crashed. A test that passes while it leaves crashes behind is lying.
+
+That bug would never have shown up in a config check. It only showed up because the test ran the real engines the way a user does.
+
+## Where it stands
+
+The typing test lives in the repo and runs with one command, `npm run test:e2e`. Since then the plugin has kept moving: version 2.1.0 made fcitx5-bamboo the default Vietnamese engine. The plugin went through maintainer review and is listed in the [Omarchy plugin marketplace](https://plugins.omarchy.org/plugin.html?id=sonlndv.vietkey). An outside contributor's pull request is merged too.
+
+When I claim a language works, a machine has typed in it.
+
+That is the bar: if your software turns keys into text, test it by turning keys into text.

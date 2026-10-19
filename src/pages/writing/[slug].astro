@@ -1,0 +1,35 @@
+---
+import { render } from 'astro:content';
+import ProseLayout from '../../layouts/ProseLayout.astro';
+import SubscribeForm from '../../components/SubscribeForm.astro';
+import { formatDate, getPosts, isoDate } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { title, description, date, tags, draft } = post.data;
+const { Content } = await render(post);
+---
+<ProseLayout title={title} description={description} draft={draft}>
+  <Fragment slot="meta">
+    <p class="meta"><time datetime={isoDate(date)}>{formatDate(date)}</time></p>
+    {tags.length > 0 && (
+      <ul class="tags" aria-label="Tags">
+        {tags.map((tag) => <li>{tag}</li>)}
+      </ul>
+    )}
+  </Fragment>
+  <Content />
+  <Fragment slot="end">
+    <aside class="prose-end" aria-labelledby="post-subscribe-title">
+      <div class="section-head">
+        <h2 id="post-subscribe-title">Subscribe</h2>
+      </div>
+      <SubscribeForm id="post-subscribe" />
+    </aside>
+    <p class="back"><a href="/writing">All writing</a></p>
+  </Fragment>
+</ProseLayout>

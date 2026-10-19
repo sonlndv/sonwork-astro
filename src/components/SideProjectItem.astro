@@ -1,0 +1,38 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import DraftLabel from './DraftLabel.astro';
+import Arrow from './Arrow.astro';
+
+interface Props {
+  entry: CollectionEntry<'side-projects'>;
+  compact?: boolean;
+}
+
+const { entry, compact = false } = Astro.props;
+const { title, blurb, status, url, repo, draft } = entry.data;
+const { Content } = await render(entry);
+
+const statusLabels = {
+  listed: 'Listed',
+  public: 'Public repo',
+  building: 'Building',
+  'pre-alpha': 'Pre-alpha',
+} as const;
+---
+<article class="side-project">
+  <header>
+    <h3>{title}</h3>
+    <p class="meta">
+      <span class="status-label">{statusLabels[status]}</span>
+      {draft && <DraftLabel />}
+    </p>
+  </header>
+  <p>{blurb}</p>
+  {!compact && <div class="side-body"><Content /></div>}
+  {(url || repo) && (
+    <ul class="links">
+      {url && <li><a href={url}>Live page<Arrow /><span class="visually-hidden">: {title}</span></a></li>}
+      {repo && <li><a href={repo}>Source<Arrow /><span class="visually-hidden">: {title}</span></a></li>}
+    </ul>
+  )}
+</article>

@@ -6,248 +6,54 @@
 
 web
 
-## Stack
-
-Astro, static output. Confirmed by the user.
-
-Astro is chosen for one decisive reason: content collections validate frontmatter
-against a schema at build time. Because reports are written by agents rather than by
-a human, a malformed commit must fail the build instead of silently publishing a
-broken document. Markdown rendering and routing are secondary conveniences.
-
-Stack decided after researching alternatives, 2026-09-02. Total cost $0/month, with
-projected load roughly four orders of magnitude below every free-tier limit.
-
-- Search: Pagefind. Static index built at build time, queried in the browser. Chunks
-  the index so a query loads only what it needs; 10,000 pages stay under 300kB total
-  payload. Detects language from the `lang` attribute and indexes each language
-  independently, with Vietnamese supported. Fits the bilingual archive directly.
-- Hosting: a Cloudflare Worker serving the static build as assets (same shape as
-  the org's pjc-report). `npm run deploy`. See DEPLOY.md.
-- Access control: Cloudflare Access. Free to 50 users, which covers the invited
-  group without a plan change.
-- Comments API: Cloudflare Workers. Free tier 100K requests/day.
-- Comment storage: Cloudflare KV, one key per document plus an index key for
-  counts and export. Chosen after studying the org's own pjc-report, which runs
-  the same pattern in production. Simpler than D1 (no SQL, no schema), and the
-  cross-document view is served by the index key. Free tier: 100K reads/day,
-  1K writes/day; each note costs two writes, capped in the Worker.
-
-Build-versus-buy was evaluated. Wiki.js, Docmost, Outline, and BookStack would all
-supply git-backed markdown, search, permissions, and in some cases comments for
-free. They were rejected because they impose their own interface, and a designed
-reading surface is the point of this project. If design ever stops mattering,
-Wiki.js is the fastest path.
-
-Concentration risk accepted: hosting, auth, compute, and database all sit with
-Cloudflare. The exit stays cheap because content is markdown in git; only comments
-would need migrating.
-
 ## Users
 
-**Primary user: Lê Sơn, reading alone.** He is the sole reader for the foreseeable
-future, and the sole commenter. The daily job is reading what his agent fleet
-produced since he last looked, and finding a specific document again months later.
-
-**Secondary: a small invited group, later.** Explicitly "others willing to join."
-Not public, not anonymous, added by allowlist. No acquisition, conversion,
-onboarding, or persuasion job exists on this site.
+People who come across Son's work: developers, people in the Omarchy and coding-agent tooling world, and possible collaborators. They arrive from a post, a repo or a link, and decide in a few seconds whether the work is real and worth following.
 
 ## Product Purpose
 
-sonwork.org is Lê Sơn's site and the durable home for the readings his agent
-fleet files. There is no personal writing section (removed 2026-09-03; the site
-is AI-focused). A possible later flow: an agent interviews Sơn and writes. What he studies and reads about: business-model economics,
-companies and unit economics, human systems (behaviour, game theory, decisions),
-plus news and technical material. AI is his tool, never the subject.
-
-Roughly five reports per week, in English and Vietnamese, spanning news, research
-papers, market and geopolitical analysis, and technical writeups.
-
-The problem it solves: the fleet currently distills insight into gbrain as atoms and
-concepts, but the full report documents have no permanent readable home and are
-effectively lost after they are written. **gbrain remembers the insight; sonwork
-stores the document.**
-
-Success means Sơn can read the day's output comfortably, and can still find and
-re-read any specific report years later.
+Sonwork (sonwork.org) is Son's portfolio and writing site, with a disabled newsletter signup. The entrance is an About page: visitors first understand who Son is and how he builds, then explore real projects or contact him. The newsletter is secondary near the bottom.
 
 ## Positioning
 
-Nearly all content is written by agents. Sơn is the reader and the annotator, not
-the author. His comments are the only human voice on the site.
-
-This inverts the normal publishing relationship and is the fact a neighboring
-product could not truthfully copy: it is not a blog with AI assistance, it is a
-machine-authored corpus with a single human reader annotating it in place.
+Son builds software with coding agents. He decides what gets built and how it should behave, the agents write most of the code, and the tests decide when it is done. Every claim on the site traces to a repo, a commit or a live link, and the writing includes what did not work.
 
 ## Operating Context
 
-- Read daily, often at night, on a personal machine.
-- Reports arrive as markdown with frontmatter, committed to git by agents, and
-  render as styled HTML on build.
-- The same markdown is synced to gbrain under a stable slug so the fleet retains the
-  document alongside its existing atoms and concepts.
-- Git is the source of truth. gbrain is the memory index. The site is the reading
-  surface. One artifact, three destinations.
-- Sơn comments on reports. Comments persist and sync back to gbrain so agents absorb
-  his reactions.
-- Related systems already in use: gbrain (remote MCP at https://gbrain-mcp.sonwork.org/mcp, Cloudflare Tunnel to the Hermes VPS), an
-  agent fleet with named personas, Perfeat, Paddock.
+- Static Astro 7 site, MDX content collections in `src/content/` (posts, work, side-projects, pages). Pages: home, work (with case studies), writing (with posts), about, subscribe, plus RSS and 404.
+- Content is written first and flipped from `draft: true` by Son once he approves it. Preview builds use `SHOW_DRAFTS=true`.
+- The launch keeps signup disabled with no PUBLIC_SIGNUP configuration. Retired newsletter links lead to truthful contact information and never claim an unsubscribe succeeded.
+- About, Trivia Hub, Keymarchy and Perfeat are approved for publication. All three posts remain drafts and production RSS is empty.
+- Static file output uses canonical URLs without trailing slashes. The existing Cloudflare Worker serves current assets, redirects mapped old pages, returns 410 for retired APIs/assets, and keeps ordinary unknown paths at 404. Legacy readings remain preserved in the public Git parent history.
 
 ## Capabilities and Constraints
 
-**Retrieval, in priority order.** Confirmed by the user: search and date are top,
-type is secondary.
-
-1. Full-text search across every report.
-2. Reverse-chronological date browsing.
-3. Filter by theme (news, country, industry, company, business-model, sociology).
-
-Retrieval must keep working past 1000 documents. At five per week, the archive
-reaches roughly 260 documents per year.
-
-**Hard constraints.**
-
-- **Public site (decided 2026-09-02, reversing the earlier private-by-default).**
-  Pages and notes are readable by anyone. Only writing notes requires identity.
-  The `public` frontmatter flag and `/p/` route remain as a no-op that can be
-  re-purposed if privacy returns.
-- **No WeCare material on this site at all.** Stated explicitly by the user.
-- **Nothing is lost when a report is revised.** Agents revise reports often. Every
-  version must survive and remain reachable. Git provides the history; the site must
-  surface it rather than only showing the latest.
-- **No notes on the site (removed 2026-09-03).** The comments API remains in the
-  Worker but no page renders it.
-- **Sonar by email:** readers subscribe on the site (addresses in KV via the
-  Worker); Alfred sends a weekly digest once a sender is wired. RSS at /rss.xml.
-- Cost must stay at or near zero.
-
-**Terminology.** A **reading** is an agent-authored document (the content
-collection is still named `reports` in code), filed under one **theme**: news,
-country, industry, company, business-model, sociology. A **project** has a
-profile page and a **build diary** (journal entries, one per project per day). The old
-taxonomy (`life-book`, `experiences`, `human`) is retired.
-
-**Decided since the first draft.**
-
-- **Agent bylines: yes, self-declared.** Each agent writes its own `author` in
-  frontmatter and keeps it across reports. No registry. The retired names (Robin,
-  Karpathy, Lando) may not be reused. Confirmed by the user 2026-09-02.
-- **Comments live in Cloudflare KV**, not D1 or Supabase (see Stack).
-- **Frontmatter schema** is `src/content.config.ts`. It is the contract agents
-  write against and the build enforces.
+- Mobile-first. Visitors often arrive on a phone.
+- Lighthouse mobile at or above 95 for performance, accessibility and SEO; fonts self-hosted, no render-blocking third-party CSS.
+- Routes and content collections are fixed by the site structure phase; design work changes layouts, components, styles and markup only.
 
 ## Brand Commitments
 
-- **Register of the interface (Son, 2026-09-04): short, raw, bullets.** The
-  site is read by people with no context. Every surface says the plain thing
-  first and names it second (Sonar, Lever, Alfred, Fred, the runtimes); no
-  paragraph over two sentences outside a reading; anything with parts is a
-  bullet list; fragments are fine. The opening is three raw lines, not a
-  paragraph; the project profiles are bullet lists under the three headings;
-  the stack tiles lead with the role ("Builds", "Runs the research", "Keeps
-  it running") and carry the tool and the agent as the small line.
-
-- Name: **Lê Sơn** (Lê Tuấn Sơn; goes by Son). Domain: sonwork.org. Vietnam, UTC+7.
-- **The home thesis (Son, 2026-09-03, current):** "One person, a team of AI
-  agents, building a business." The home is the business: the stack diagram,
-  the portfolio (**01 Lever**, the operations practice enabled by AI, the
-  core, live since 2026-09-05, started 2026-09-04, working name, public name
-  and mark not decided, client never named; **02 Sonar**, the research and
-  writing engine, live, this site; **03 Beacon**, the content engine, live
-  since 2026-09-05, nothing published yet, no channel or cadence yet, judged
-  by whether a stranger reached out; F1 YouTube removed 2026-09-03), then
-  "What Sonar found" (the readings). Sonar's profile page repeats that block.
-  **Lever is the core; Sonar and Beacon serve it. Sonwork, the site, is the
-  shopfront, not a project** (Son's canonical page, gbrain
-  `notes/canonical-son-and-projects`, 2026-09-05, which outranks every other
-  page on definitions). On the home the core's card spans the whole portfolio
-  row with "the core" in its label; the opening's third line and the
-  portfolio meta say so. Sonar was 01 until 2026-09-05, when Son moved Lever
-  to the centre. The Find, Research, Publish block is Sonar's alone. **"What Sonar found" is one day** (Son,
-  2026-09-04): the newest day that has readings, one per theme, in theme
-  order, because the engine files daily; the archive is `/readings/`
-  (`src/lib/found.ts`). On the home it is drawn as **the day's run**: six
-  stations in theme order, lit where the day has a reading, dimmed where it
-  does not (`src/components/Run.astro`, 2026-09-04). **Every portfolio card
-  discloses the project's latest thing** (newest reading or diary post) and,
-  once a project has its own site, its hostname (`url` in the schema). Bylines read "by <agent> on <runtime>" (Hermes, Grok
-  Bot, Claude; `src/lib/byline.ts`). The engine's story is
-  **find, research, publish**; "argue" and "notes" are not part of the product
-  story (notes remain a quiet feature). Each project has a profile and a daily
-  build diary; **each diary entry is its own post** at `/diary/<id>/`, listed on
-  the profile as rows with a one-line excerpt, never the full text inline (Son,
-  2026-09-04). **No placeholder content anywhere:** the two 2026-09-01 sample
-  readings were retired to `.impeccable/retired/` the same day, and empty
-  states render nothing rather than a stand-in. How a project enters the portfolio, and its exact format: PROJECTS.md (Sơn
-  decides; any agent may propose; the agent he names builds; three fixed
-  headings; first diary entry the same day). The operating brief for every agent: OPERATING.md (was
-  ALFRED.md until 2026-09-03; the workspace is shared by many agents).
-- **Public framing (Son, 2026-09-03):** he has a full-time job as an operator
-  (employer unnamed) and is trying to build a business of his own on the side,
-  using AI on real problems. He came from venture capital; that is a passing
-  clause, never the headline. His own one line (canonical page, 2026-09-05):
-  "ex-venture capitalist, now a full-time operator, building a business with
-  AI applied to real business problems"; on the site it is one bullet,
-  "Before that: venture capital." **Never say he runs a business or used to invest.**
-  Humble, "still learning", "trying to build" is the posture.
-- **Never name his employer or the business he operates**, on the site, in
-  readings, or in any published text. The credential is "operator".
-- Stopped and not to be shown as current: Perfeat (D2C eyewear), Paddock,
-  Fitnest, the AI content engine, trading, F1 YouTube (removed 2026-09-03). The site must not mention them.
-- Contact: son@sonwork.org (Son's work address on the site's own domain,
-  set 2026-09-05; it replaced the personal Gmail on the site), LinkedIn
-  in/sonle2003, X @sonldv (both confirmed by Son 2026-09-03). The employer's
-  address is never published.
-- **The stack (Son, decision 2026-09-03; mirrored to gbrain
-  `projects/sonwork/stack`):** one person, three runtimes, one engine. The
-  runtimes are the **AI stack** (Claude: Code and Cowork; where Son works,
-  builds, delivers and ships), **Grok Bot** (Alfred, Chief Everything Officer;
-  runs the teams, the research and the management) and **Hermes** (Fred;
-  maintains the gbrain setup and the VPS, and researches for Sonar). Son
-  decides. **Sonar is the engine the stack researches and writes with**, not an
-  audience product: the readings are its output, and the email list is a quiet
-  channel, never the pitch. The home shows the stack as one diagram; no runtime
-  or agent gets its own introduction. Say "Claude", not "ChatGPT"; Son does not
-  use ChatGPT co-work. Every agent, on any runtime, reads this repo (AGENTS.md)
-  and gbrain `projects/sonwork` before operating on the site. Sonar is not tied to one runtime; every later project in the portfolio uses
-  it for research.
-- Source of truth for identity: gbrain `brain/user` (fetch by exact slug).
-- No binding visual constraint has been stated. The previous visual direction
-  ("Racing Line": dark canvas, electric blue, F1 telemetry) was deliberately wiped
-  and is an explicit anti-reference, not a starting point.
+- Name: Sonwork. Owner: Son (Lê Sơn).
+- Voice: plain, direct, concrete numbers, no hedging, no em dashes, no emojis.
+- Never name a client, an employer or a school anywhere public.
+- Colour tokens carry over from the previous sonwork.org on Son's explicit word (2026-10-17): dark navy oklch ground, cyan "lume" accent, dark default with a light theme. Layouts and copy structure are new.
+- Style direction from Son (2026-10-18, overrides the old site's fonts): tech-futuristic, straightforward, minimal. Type voice is a square typewriter: one squared, slab-leaning monospace for display and headings. No pixel or bitmap fonts. Hairline rules, square corners (0 to 2px), tabular alignment, a terminal or spec-sheet feel, restrained motion. No glow, no decorative gradients, no shadowed cards, no growth green.
+- Faces (chosen 2026-10-18 from Son's shortlist, compared on real content at 390px): **Space Mono** for display, headings and meta, because it is the squarest and most slab-leaning of the five and ships a Vietnamese subset. **Geist** for long prose, because mono body text at 390px gives about 35 characters a line and slows reading. Martian Mono and Sometype Mono were dropped: no Vietnamese subset. IBM Plex Mono and Geist Mono have Vietnamese but read rounder and softer, less square. Both chosen faces are self-hosted OFL woff2 with latin and vietnamese subsets; "Lê Sơn" must render from the face, not a fallback.
 
 ## Evidence on Hand
 
-**No real reports exist yet.** The site is being built before its content. The first
-deliverable is a working site plus a skill that lets agents author reports into it.
-Any sample report shown during development is a placeholder and must be labeled as
-such. Do not fabricate report content, counts, sources, or dates.
-
-Real assets that do exist:
-
-- gbrain, 710 pages, reachable over MCP. Holds atoms, concepts, people, notes, and
-  session recaps, but no report documents.
-- Prior site content in tag `pre-wipe-2026-09-02`: 5 posts, 2 interviews, project and
-  book data, 19 brand renders. Available for recovery, not yet claimed.
+- Trivia Hub, live at games.sonwork.org: five daily games, first commit 2026-10-13, 265 commits by 2026-10-17 (`src/content/work/trivia-hub.mdx`).
+- Three posts (`src/content/posts/`), two side projects, Keymarchy and Perfeat (`src/content/side-projects/`), and two small upstream contribution examples on About (`src/content/pages/about.mdx`).
+- Absent and not to be fabricated: testimonials, subscriber counts, client logos, metrics beyond what the content states.
 
 ## Product Principles
 
-1. **The reader is one person who already trusts the source.** No persuasion, no
-   conversion, no social proof. Every element earns its place by helping him read or
-   find something.
-2. **Only Sơn writes.** The site is public to read; notes are written by one
-   identity. No moderation surface exists because no one else can write.
-3. **The archive outranks the feed.** What is new matters today; what is findable
-   matters for years. Retrieval is a first-class feature, not navigation chrome.
-4. **Machine-authored means provenance is content.** Who wrote it, from what, when,
-   and how many times it changed are part of the document, not metadata to hide.
-5. **Nothing the fleet produced is discarded.** Revisions accumulate rather than
-   overwrite.
+1. Prove, don't claim: show the shipped thing and its numbers before any adjective.
+2. About-first entrance: identity and a short first-person summary lead the home page. Projects support that introduction; Contact is reachable and the newsletter stays secondary.
+3. Son's words only: copy comes from the content collections, never invented.
+4. Honest status: drafts, pre-alpha and disabled states are labelled as what they are.
 
 ## Accessibility & Inclusion
 
-No user-specific requirement established. Content is bilingual English and
-Vietnamese, so type and layout must handle Vietnamese diacritics correctly, including
-stacked marks, without clipping or substituted glyphs.
+Touch targets at least 44px, axe with 0 serious or critical violations, `prefers-reduced-motion` respected, both themes meet contrast.

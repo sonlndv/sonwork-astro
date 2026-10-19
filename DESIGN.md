@@ -1,280 +1,213 @@
-# DESIGN.md — sonwork.org
+---
+name: Sonwork
+description: Son's portfolio and writing site, set like a ruled spec sheet in a square typewriter voice.
+colors:
+  void: "oklch(0.115 0.022 256)"
+  ground: "oklch(0.15 0.026 255)"
+  line: "oklch(0.3 0.008 254)"
+  line-2: "oklch(0.245 0.007 254)"
+  ink: "oklch(0.965 0.006 250)"
+  ink-2: "oklch(0.76 0.014 250)"
+  ink-3: "oklch(0.66 0.02 252)"
+  lume: "oklch(0.8 0.135 222)"
+  human: "oklch(0.82 0.095 55)"
+  light-void: "oklch(0.985 0.004 250)"
+  light-ground: "oklch(0.962 0.008 250)"
+  light-line: "oklch(0.8 0.016 250)"
+  light-line-2: "oklch(0.885 0.012 250)"
+  light-ink: "oklch(0.19 0.03 256)"
+  light-ink-2: "oklch(0.36 0.028 254)"
+  light-ink-3: "oklch(0.47 0.024 252)"
+  light-lume: "oklch(0.5 0.15 236)"
+  light-human: "oklch(0.5 0.13 48)"
+typography:
+  display:
+    fontFamily: "Space Mono, ui-monospace, monospace"
+    fontSize: "clamp(2.75rem, 12.5vw, 7.25rem)"
+    fontWeight: 700
+    lineHeight: 0.95
+    letterSpacing: "-0.045em"
+  headline:
+    fontFamily: "Space Mono, ui-monospace, monospace"
+    fontSize: "clamp(1.875rem, 7vw, 3.25rem)"
+    fontWeight: 700
+    lineHeight: 1.08
+    letterSpacing: "-0.035em"
+  title:
+    fontFamily: "Geist, system-ui, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 600
+    lineHeight: 1.35
+    letterSpacing: "-0.01em"
+  body:
+    fontFamily: "Geist, system-ui, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    lineHeight: 1.7
+  label:
+    fontFamily: "Space Mono, ui-monospace, monospace"
+    fontSize: "0.6875rem"
+    fontWeight: 400
+    lineHeight: 1.5
+    letterSpacing: "0.08em"
+rounded:
+  none: "0"
+spacing:
+  s1: "4px"
+  s2: "8px"
+  s3: "12px"
+  s4: "16px"
+  s5: "24px"
+  s6: "32px"
+  s7: "48px"
+  s8: "64px"
+components:
+  button-primary:
+    backgroundColor: "{colors.lume}"
+    textColor: "{colors.void}"
+    typography: "{typography.label}"
+    rounded: "{rounded.none}"
+    height: "48px"
+    padding: "0 16px"
+  button-primary-hover:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.void}"
+  input-email:
+    backgroundColor: "{colors.void}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+    height: "48px"
+    padding: "0 12px"
+  nav-cell:
+    textColor: "{colors.ink-2}"
+    typography: "{typography.label}"
+    height: "44px"
+  status-label:
+    textColor: "{colors.lume}"
+    typography: "{typography.label}"
+    rounded: "{rounded.none}"
+    padding: "0 8px"
+---
 
-version: 2.0 · 2026-09-02 · after the impeccable critique
+# Design System: Sonwork
 
-Lê Sơn's site: his readings, filed by his research agents, with his notes in the
-margin. He is an ex-VC, now a full-time operator; the employer is never named. Public. Dark by default; a bright theme exists. The system has one idea:
+## Overview
 
-> **Cool is the machines. Warm is Sơn.**
-> `--lume` marks anything an agent produced. `--human` marks his voice only.
+**Creative North Star: "The Square Typewriter"**
 
-A living version renders from the real tokens at `/kit/`.
+Sonwork is set like a ruled spec sheet typed on a square typewriter: one slab-leaning monospace for every heading and label, a quiet sans for reading, hairline rules for structure, and a dark navy ground with a single cyan accent. The style comes from Son's direction on 2026-10-18: tech-futuristic, straightforward, minimal. The colour tokens come from the previous sonwork.org; the layouts are new.
 
-## Vocabulary
+Density is moderate. Content sits in ruled rows with tabular numbering and two-column fact tables, not in cards. Nothing floats: there are no shadows, no glows, no gradients and no rounded corners. Depth comes from rules and from a slightly raised field (`ground`) behind the one form.
 
-One thing has one name. **Readings** (nav, headings, URL `/readings/`). Six
-**themes**: news, country, industry, company, business model, sociology, each
-glossed on `/readings/` and drawn as a glyph. **Projects** (`/projects/`) each
-have a profile and a **build diary**. **Notes** are Sơn's. An **agent** files; Sơn **keeps** a note.
+**Key Characteristics:**
+- One monospace voice (Space Mono) for display, headings, nav and meta; Geist only for reading text.
+- Hairline rules in two weights of tone (`line`, `line-2`) carry all structure.
+- Square corners everywhere (0).
+- Cyan lume is the only colour that means "act" or "go".
+- Dark by default, with a light theme that mirrors every role; no flash on load.
 
-## Mark — LS15
+## Colors
 
-Sơn's mark, from his own earlier brand work: **LS** in ink, **15** in `--lume`,
-Saira Condensed 900, skewed −11°, the register of a driver number. Saira Condensed
-is loaded for the mark and used nowhere else. Alone in the header; favicon is the
-LS pair on a `--lume` tile; the OG image is the mark and the name. Never a
-background ornament.
+A restrained palette: navy neutrals plus one cyan accent, with one warm signal colour kept for status.
 
-## Alfred — he runs the fleet
+### Primary
+- **Lume Cyan** (`lume`, light theme `light-lume`): links, the Subscribe button, the active nav underline, focus rings, status labels. Nothing decorative uses it.
 
-A bookmark ribbon with two eyes, named Alfred (`Bot.astro`). He is the character
-who runs Sơn's fleet of reading agents; the agents byline their own readings and
-work for him. Grok's locked
-mark, redrawn as SVG in the tokens: body `--lume`, eyes `--void`, so it holds
-on both themes. It is the counterpart to LS15: **LS15 is Sơn, Alfred is the
-machines.** It stands at 11–12px beside every agent byline (rows and stamps),
-waits at 44px in empty states, sits at 104px beside "Meet Alfred" on /about/, and
-appears on `/kit/`. It blinks about once every eight seconds (off under reduced
-motion). No pupils, no mouth, no hair; never stretched; never the site's mark.
-Source kit: Google Drive folder "sonwork logo"; gbrain `projects/sonwork`.
+### Secondary
+- **Human Amber** (`human`, light theme `light-human`): honest status only. That means the Draft label and the "Signup opens soon." note. Never used for decoration or emphasis.
 
-## Mark — Sonar
+### Neutral
+- **Void Navy** (`void`): the page ground, header and footer.
+- **Ground Navy** (`ground`): the one raised field, behind the subscribe form, inline code and code blocks.
+- **Rule** (`line`): primary hairlines: header borders, section-head rules, form border, fact table tops.
+- **Faint Rule** (`line-2`): secondary hairlines between rows and inside tables and nav cells.
+- **Ink** (`ink`): headings, row titles, fact values.
+- **Ink Soft** (`ink-2`): prose and summaries.
+- **Ink Quiet** (`ink-3`): labels, dates, row indices, placeholders.
 
-The research engine's own mark: a centre dot and three thin arcs opening to the
-right, a ping mid-sweep (`Sonar.astro`, from Grok's locked reference,
-2026-09-03). Drawn in `--lume`. Used only for Sonar: its portfolio card, its
-profile, the "What Sonar found" header, `/kit/`. Never the site's mark; LS15
-is. Never a background ornament.
+### Named Rules
+**The One Signal Rule.** Lume marks what can be acted on, nothing else. If an element is cyan, it is a link, a button, a focus ring or a status the visitor can rely on.
 
-## Colour (OKLCH)
-
-| Token | Dark | Bright | Role |
-|---|---|---|---|
-| `--void` | `0.115 0.022 256` | `0.985 0.004 250` | page ground |
-| `--ground` | `0.150 0.026 255` | `0.962 0.008 250` | header, section ground |
-| `--raise` | `0.195 0.028 254` | `0.935 0.012 250` | hover, raised |
-| `--line` | `0.290 0.030 254` | `0.820 0.016 250` | rules, strong |
-| `--line-2` | `0.235 0.028 254` | `0.885 0.012 250` | rules, quiet |
-| `--ink` | `0.965 0.006 250` | `0.190 0.030 256` | text |
-| `--ink-2` | `0.760 0.014 250` | `0.380 0.028 254` | secondary text |
-| `--ink-3` | `0.615 0.020 252` | `0.500 0.024 252` | labels, muted — **≥ 5:1** |
-| `--lume` | `0.800 0.135 222` | `0.500 0.150 236` | **machine accent** |
-| `--lume-2` | `0.640 0.120 226` | `0.440 0.130 238` | machine accent, deep |
-| `--human` | `0.820 0.095 55` | `0.520 0.130 48` | **Sơn's accent** (bright lowered from 0.540 on 2026-09-04: it measured 4.40 on `--raise`) |
-
-Strategy: restrained. Neutrals carry the page; the two accents together cover well
-under 10% of any screen. Contrast floor **4.5:1 for every text colour on every
-ground, both themes**; `--ink-3` was raised in v2.0 because it measured 4.41.
-
-`--lume` may appear on: kinds and their glyphs, bylines, links, search, filters
-(pressed), the "15" in the mark, hero emphasis, the one light in the ground.
-`--human` may appear on: note cards, note markers, note counts, "read by Sơn", and
-Sơn's own writing on hover. Nowhere else.
+**The Honest Amber Rule.** Amber appears only where the site says something is not finished yet (draft, signup not open).
 
 ## Typography
 
-- No serif. The emphasised words in the opening headline stay in Sora and take the cool colour.
-- **Sora** for every other word. Hero 500 at `clamp(44px, 7.2vw, 96px)`, tracking
-  −0.045em, line-height 1, second line muted. Chapter statements 300 at
-  `clamp(28px, 3.6vw, 46px)`, −0.035em, one muted span. Titles 500, −0.025em.
-  Body 300 at 15–17px / 1.6–1.7 (never below 15px). UI 400–500 at 13–14px.
-- **JetBrains Mono** for data only: dates, revisions, counts, kinds, labels, the
-  tally, the footer. **12px floor.** Never prose, never as a costume.
-- Measure 66ch. `text-wrap: balance` on headings. Tabular numerals on numbers.
-  Dates: `2026.09.01` in indexes, `1 September 2026` in stamps, locale-aware.
+**Display Font:** Space Mono (with ui-monospace, monospace)
+**Body Font:** Geist (with system-ui, sans-serif)
+**Label/Mono Font:** Space Mono
 
-## Ground and surface
+**Character:** Space Mono is squared and slab-leaning, the typewriter in the North Star. Geist stays quiet so long posts read easily at 390px. Both are self-hosted woff2 in latin and vietnamese subsets (`public/fonts/`, SIL OFL), so "Lê Sơn" renders from the face itself.
 
-Near-black with **one static body of light**, high and left. Nothing in the
-background moves. No grid, no caustics, no aurora, no cursor spotlight, no
-ornament (all tried on 2026-09-02, all removed: they read as điệu). Two 1px
-vertical rules frame the column above 640px. Rules are 1px, corners 4–6px, there
-are no cards, no glass, no gradient text. A row lifts to `--raise` on hover.
+### Hierarchy
+- **Display** (700, clamp(2.75rem, 12.5vw, 7.25rem), 0.95, uppercase): reserved for prominent identity headings; home uses a restrained 2.75rem to 4.5rem name. Index pages use a smaller step (clamp(2.25rem, 9vw, 4.5rem), uppercase).
+- **Headline** (700, clamp(1.875rem, 7vw, 3.25rem), 1.08): titles of posts, case studies and About, set as written, not uppercased.
+- **Title** (Geist 600, 1.0625rem, 1.19rem from 900px): row titles in contents and lists.
+- **Body** (Geist 400, 1.0625rem, 1.7): prose, max 68ch. Summaries step down to 0.9375rem.
+- **Label** (Space Mono 400, 0.6875rem, 0.08em, uppercase): nav, meta rows, fact labels, form labels, status labels. Numbers use tabular figures.
 
-## Structure of the home
+### Named Rules
+**The Two Faces Rule.** Space Mono and Geist, nothing else. Space Mono never sets running prose; Geist never sets a heading above row level.
 
-The home is the **profile of the work**, not of the person (Son, 2026-09-03):
-a business being built with a team of AI agents, run by Alfred. Son's own story
-lives on `/about/`. The ledger lives at `/readings/`.
+**The Preload Pair Rule.** Space Mono 700 latin and Geist 400 latin are the default preload pair. Son explicitly approved two existing self-hosted font exceptions for the motion pass on 2026-10-18, conditional on the final performance gates: Space Mono 400 latin on every page and Geist 600 latin on article pages. Every other file loads on use with `font-display: swap`.
 
-1. The opening is one composed frame, bottom-anchored: LS15, a small badge
-   ("Sonar is live · Alfred runs the team"), the statement in three masked
-   lines with "AI agents," in the cool colour, one paragraph, two actions, and a stats row pinned at the bottom
-   (agents, readings, this week, each with its icon). Every element has its
-   own delay; a rest state of opacity 1 plus an animationend handler and a rAF
-   fallback mean nothing can stay hidden. Height-aware breakpoints keep the
-   frame inside short viewports.
-2. A ticker of what the fleet filed (title, kind glyph, byline), 48s loop,
-   pauses on hover, static under reduced motion.
-3. Meet Alfred, my CEO (band): one paragraph, no more, and Alfred sliding in.
-3b. The portfolio: project cards from the `projects` collection (01 Lever,
-   the core, its card spanning the full row with "the core" in its label; 02
-   Sonar, with Find / Research / Publish; 03 Beacon; all live; the section
-   meta says "Lever is the core"), the rest in two equal columns, each
-   linking to its profile and build diary. "What Sonar found." over the readings (the `Found` component: theme pills,
-   featured, grid), repeated on `/projects/sonar/`. No scroll cue.
-4. What Sonar found, as **the day's run** (Sơn, 2026-09-04, brief
-   `.impeccable/surfaces/src-pages-index-astro.md`): six stations in theme
-   order across the column, mono label with glyph, a 1.5px bar beneath. A
-   station with a reading that day is lit (lume, and a link to the reading);
-   a station without one is the dimmed theme name alone, nothing written.
-   Below: one **featured** reading (its kind drawn large, accent sweep on
-   hover) and a grid of the rest that tilts toward the cursor, in theme
-   order. A lit station and its card share one hover state. If a diary post
-   exists for that day, one mono line under the grid links to it. No filter
-   pills on the home (the stations say it); `Found.astro` with pills stays on
-   the Sonar profile. Each portfolio card carries a "latest" line: the
-   project's newest reading or diary post, with date; a project with its own
-   site shows the hostname (`url` in the schema).
+## Layout
 
-`/about/` is short: the day-job statement, one paragraph, contact. There is no
-writing section (removed 2026-09-03).
+One frame: max 1180px, gutter 16px on phones and 32px from 900px. Spacing follows a 4px base (4, 8, 12, 16, 24, 32, 48, 64), with more space above a heading than below it.
 
-Every section header draws its rule in the accent and rises as it enters the
-viewport, once, in time (600ms and 700ms); the day's run and the cards
-stagger by index the same way. **Nothing authored is scrubbed by the scroll**
-(Sơn, 2026-09-04: a reveal that moves in lockstep with the thumb reads as lag).
-Base.astro's observer adds `is-in` when a block enters; blocks start hidden
-only under `html.js`, so a page without the script shows everything. The only
-scroll-driven motion left is the quiet arrive on rows and the reading
-progress hairline, where the scroll relationship is the meaning.
+- **Header:** sticky. On phones it is a 52px bar (wordmark plus theme toggle) over a 4-cell nav strip with 44px cells. From 720px it becomes one row: wordmark, nav cells and toggle.
+- **Front page (About-first):** on phones, Son's name and collection-sourced 40 to 60 word first-person introduction lead. A native What I'm exploring disclosure adds existing About facts without hiding the summary. Selected projects follow, with Trivia Hub primary, then Keymarchy and unlinked building Perfeat. Contact includes visible mailto and a copy-email action with truthful status. One slim newsletter form comes last. From 900px a full-width opening profile band keeps the introduction at a readable 65ch. Selected work supports it below, with Trivia Hub beside compact side-project rows. Contact and newsletter follow below at a restrained 48rem maximum. Nothing is sticky. The name stays at 2.75rem to 4.5rem; summary is Geist 1.1875rem. No giant newsletter masthead.
+- **Rows:** a 2.25rem index column (3rem from 900px) and a body column. Each row is separated by a faint rule.
+- **Prose pages:** a single left-aligned column at 68ch. The header ends on a rule, or on its fact table.
+- **Side projects:** stacked on phones. From 900px they become a 14rem title column beside the text.
 
-## The readings index
+## Elevation & Depth
 
-`/readings/` opens on **the field**, the archive drawn as the instrument
-(Sơn, 2026-09-04, brief `.impeccable/surfaces/src-pages-readings-index-astro.md`):
-x by date with a dated axis and month ticks, rows by theme, a node per
-reading sized by revisions, a hairline to the previous reading by the same
-agent. The row labels are the theme filter (press to keep, press again to
-clear); the language buttons sit top-right of the map; there is no separate
-filter bar. A filter dims what it excludes to 14% rather than removing it.
-Hover or focus a node and the preview line under the map shows glyph, title,
-one line of dek, byline and date; at rest it shows the newest reading. A
-hovered row lights its node and the reverse. Nodes are positioned HTML, so
-they stay round and on their rows at every width; only the row lines and the
-links are SVG. Density: up to 120 nodes one each; above that same day and
-theme merge with a count beside the dot; above 600, same week. On first
-paint the dots arrive left to right over 400ms, once. Then the ledger
-grouped by year, answering the same state.
+Flat. There are no shadows. Depth is conveyed by rules and by one tonal step: `ground` behind the subscribe form and code. The only inset effect is the 2px lume underline on the current nav cell.
 
-## The reading page
+### Named Rules
+**The Ruled Not Raised Rule.** Separate with a hairline, never with a shadow or a floating card.
 
-Text and rail (Sơn, 2026-09-04, brief
-`.impeccable/surfaces/src-pages-readings-slug-astro.md`). From 1100px the
-text keeps its measure on the left and a 300px sticky rail on the right
-holds, in order: the stamp (theme, byline with runtime, date, language and
-reading time, revision with the git history link); "In this reading", the
-h2 headings with the current one lume, tracked by scroll; the sources
-grouped by hostname with counts, each expanding to its URLs; "Next", up to
-three related readings, same theme first then same agent, as small rows;
-Sơn's notes at the foot, warm. Below 1100px the rail stacks after the text,
-minus the headings list, and the stamp returns above the title. Vietnamese
-readings carry Vietnamese rail labels. Nothing new moves while reading: the
-progress hairline and the current heading are the only motion.
+## Shapes
 
-## Pictures
-
-- **The portrait** (`public/portrait.jpg`): Sơn's real photograph, treated in the
-  palette: luminance mapped from `--void` to a cool light, mids pushed dark, edges
-  faded into the ground, light grain. 720px JPEG, ~120KB. Beside the hero on
-  `/about/` with a mono caption; a 72px round face beside the home lede. Bright
-  theme inverts it to shadow-on-paper. The source photo is never committed
-  (`.impeccable/refs/portrait/` is ignored); regenerate with
-  `.impeccable/refs/portrait/process.html` if replacing the photo.
-
-- **The field** (`Field.astro`): the `/readings/` index's picture: readings drawn as
-  a map, x by date, rows by kind, size by revision, dashed lines join readings by
-  the same agent. Hover reveals the title; click opens it; filters hide nodes.
-  Rendered only when there are ≥ 4 readings. Not on the home.
-- **Kind glyphs** (`lib/glyphs.ts`): one drawn line icon per kind, 1.6 stroke.
-
-## Sections: one boundary grammar
-
-Every section on every page is built the same way: a 1px `--line` rule on top,
-a header row with the statement on the left (Sora 300, up to 36px, one muted
-span) and the mono meta or link on the right, sitting on a `--line-2` rule, then
-the content. Sections that are not the ledger alternate onto a `--ground` band
-that runs edge to edge between the frame rules, so the page reads as blocks, not
-as air. No other heading device exists.
+Square corners throughout (radius 0): buttons, inputs, nav cells, tags, labels, code and the form panel. Borders are 1px. The outbound-link arrow and the theme icons are drawn SVG at a 1.4 to 1.5 stroke, square-cornered.
 
 ## Components
 
-- **Tally** — mono, in the hero's action row: agents · readings · this week. Real
-  numbers from the build; they count up once. No "online", no build time.
-- **Ledger row** (`.r`) — 118px mono index (date, kind glyph, `vi`) beside title,
-  dek, byline, revision, and the warm note count when notes exist.
-- **Stamp** — under a reading's title: kind, byline, date, language, revision
-  (linked to git history), and "read by Sơn" in warm once a note exists.
-- **Turn** — at the end of every reading: older · all readings · newer.
-- **Sources** — domain in the index column, full URL beside it, real links.
-- **Subscribe** — one field, one promise, under "What Sonar found" on the home
-  and the Sonar profile. RSS link beside it.
-- **Filters** — mono pills; pills with zero items are not rendered.
-- **Search** — ⌘K (Ctrl K where there is no ⌘); Pagefind, themed.
-- **Theme toggle** — stored preference, else the system.
+### Buttons
+- **Shape:** square (0).
+- **Primary:** lume fill, void text, Space Mono 700 0.75rem uppercase, 48px tall.
+- **Hover / Focus:** fill turns to ink. Focus is a 2px lume outline offset 2px.
+- **Disabled:** lume mixed 78% into ground, `not-allowed` cursor, and the amber note beside it says why.
 
-## Motion
+### Inputs / Fields
+- **Style:** void field, 1px rule border, square, 48px, Geist 1rem. It sits flush against the button, with no gap and no right border.
+- **Focus:** the border turns lume, with the outline inset.
 
-- No scroll snapping (tried 2026-09-03, removed the same day: it locked the
-  page). Sections keep their natural height. The stack diagram's three tiles rise as they enter.
+### Navigation
+- **Style:** ruled cells in Space Mono 0.6875rem uppercase, ink-2. Subscribe is always lume. The current page shows ink text with a 2px lume underline.
+- **Mobile:** a 4-cell grid under the bar, every cell at least 44px.
+- **Structure:** the wordmark is the Home link and sits inside the Main nav, so every page, Home included, marks itself with `aria-current`. The theme toggle sits outside the nav, top right.
 
-Exponential ease-out, transform and opacity first, one authored moment per
-surface, everything visible without it, all off under `prefers-reduced-motion`.
-Hero lines land in sequence; counters ease to their value; rows arrive on entry
-(opacity floor 50%); page changes crossfade in 180ms; the search panel pops; the
-field's nodes breathe.
+### Ruled Row (signature)
+A numbered row (01, 02, ...) with a Geist title, a Space Mono meta line (kind in lume, then date or host), and a summary. The title link stretches over the whole row, so the row is the touch target. Fact tables and secondary links sit above that overlay.
 
-Added 2026-09-04, the interactive layer, all meaning and no decoration:
+### Fact Table
+A two-column `dl`: Space Mono label at 5.5rem, value in Geist with tabular figures. There is a rule on top and a faint rule under each row.
 
-- **The stack is a live circuit** (the home's authored moment). Each tile
-  carries its runtime's real numbers from the collections: readings filed,
-  diary posts, last active day. Hover or focus a tile and a lume wire draws
-  from "Sơn decides" into it, then out to Sonar: six CSS segments per lane in
-  two 22px bands over the resting stubs, each a 1.5px bar scaling from its
-  origin, 160ms apiece, staggered 0 to 680ms, pixel-exact at any width. The
-  other tiles' contents recede to 45%, the tile's runtime label and numbers
-  turn lume. Tiles are focusable; keyboard gets the same. Phone: no wires, no
-  dimming, numbers stay. Never name a segment class `w`; that is the column.
-- **The stack powers up once** (home). When the block enters: "Sơn decides"
-  rises (450ms), all three top wires draw down (from 120ms), the tiles rise
-  in order (from 400ms, 90ms apart), the bottom wires draw out (from 780ms),
-  Sonar lights (1050ms), and the wires fade back to rest by 1.6s so the hover
-  circuit still means something. Replaces the scrubbed tile rise.
-- **The run lights on entry** (home). The six stations rise in theme order
-  (80ms apart) and the lit bars draw one after another (from 250ms), once;
-  the Sonar mark in the header sweeps at 500ms. Nothing on the home filters
-  any more.
-- **Filtering moves the cards** (Sonar profile). A theme pill starts a
-  same-document view transition; every card carries a `view-transition-name`,
-  so the survivors slide to their new places and the leavers fade. The Sonar
-  mark in the section header sweeps its three arcs once (700ms, staggered).
-- **Reading progress.** A 2px lume hairline across the top of a reading or a
-  diary post grows with the scroll (CSS scroll timeline, no script). The
-  stamp shows the reading time.
-- **The archive map answers the filters** (`/readings/`, `Field.astro`).
-  Rows are the six themes; x is time with a dated axis; a line joins each
-  reading to the previous one by the same agent (one per node, never all
-  pairs). A filter dims what it excludes to 14% instead of removing it, so
-  the whole archive stays as a ghost. Hovering a row lights its node and
-  title on the map; hovering a node lights its row. Nodes were on the old
-  six kinds until 2026-09-04 and the map was not rendered at all.
-- **The portfolio card is a pipeline.** Hover or focus it and a 1.5px lume
-  bar draws across Find, then Research, then Publish, 280ms apart, and each
-  step's number turns lume: themes, sources cited across all readings,
-  readings and revisions. The numbers are computed from the collections.
+### Theme Toggle
+A 44px square, 1px rule border. It shows a sun in dark and a moon in light, and its label names the theme it switches to. It is hidden without JS. A head script applies the stored theme before first paint.
 
-Nothing else moves.
+## Do's and Don'ts
 
-## Delight (one thesis)
+### Do:
+- **Do** separate content with 1px rules (`line` for structure, `line-2` between rows).
+- **Do** set every label, date and count in Space Mono uppercase at 0.6875rem with 0.08em tracking and tabular figures.
+- **Do** keep every touch target at 44px or more (nav cells, toggle, inputs, footer links, row overlays).
+- **Do** put motion under `prefers-reduced-motion: no-preference` and start from a visible default. The About introduction is static. Rows arrive once on intersection (transform only, 220ms, 4px, stagger capped at 120ms), retaining full contrast throughout and a visible default. Interactive row focus/hover sweeps a cyan rule and shifts indices/arrows (160ms). Theme changes crossfade for 160ms when supported; buttons depress 1px immediately and return in 90ms. Only transform and opacity animate; reduced motion and JS-off retain the complete static page. Theme state and subscription messages/API behavior are unchanged. For stable first-paint geometry, regular Space Mono is additionally preloaded, and article pages preload the existing Geist 600 face; these are the explicitly approved exceptions in the Preload Pair Rule.
 
-The only celebrated action is subscribing: the field clears and the line says
-"Kept. Sonar will write." Nothing else on the site celebrates anything.
-
-## Refusals
-
-Cards as page structure · glass · gradient text · kickers or eyebrows above
-headings · numbered section scaffolding · a colour per kind · monospace as costume
-· mono below 12px · muted text under 4.5:1 · background imagery or pattern
-(grids, starfields, water, orbits) · the mark as ornament · "online" or build
-telemetry on a public page · any use of `--human` for machine output · a second
-name for the same thing.
+### Don't:
+- **Don't** round corners, add shadows, glows or decorative gradients, or put content in shadowed cards (Son, 2026-10-18).
+- **Don't** use pixel or bitmap fonts, or any third face (Son, 2026-10-18).
+- **Don't** use growth green or neon glow (Son, 2026-10-18).
+- **Don't** use lume or amber for decoration.
+- **Don't** set long prose in Space Mono.

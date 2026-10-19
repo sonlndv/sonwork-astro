@@ -1,0 +1,43 @@
+---
+title: A new default must not break the old one
+description: Keymarchy 2.1.0 changed the Vietnamese engine for new installs. The first draft broke everyone who already had the old one.
+date: 2026-10-18
+draft: true
+tags: [keymarchy, omarchy, upgrades]
+---
+
+When you change a default, the people who matter most are the ones who already have the old one. New installs get the new default for free. Existing setups are where a change like this breaks.
+
+[Keymarchy](https://github.com/sonlndv/omarchy-vietkey) is my input plugin for Omarchy. Up to version 2.0, it set up Vietnamese with Unikey, a Vietnamese engine for fcitx5. By October I had been typing with another engine, fcitx5-bamboo, every day on my own machine, and I preferred it. So version 2.1.0 makes Bamboo the default.
+
+## The first draft broke Unikey users
+
+A coding agent wrote the change, and its first draft did the obvious thing: it switched the language catalogue from Unikey to Bamboo. For a fresh install, that is all you need.
+
+For everyone who already had Unikey, it was a regression. Two things broke. The bar badge, which shows `VI` when you are typing Vietnamese, fell back to `UN`, because the badge only knew Bamboo now. And the Telex and VNI mode switch was wired to Bamboo's config, so on a Unikey setup it pointed at an engine that was not there.
+
+Nothing in a fresh install would show either bug. You only see them if you start from the old version.
+
+## Follow the engine the user has
+
+The fix was to stop assuming which engine is installed. The bar widget and the Settings page now look at the user's fcitx5 group and use the Vietnamese engine that is actually in it: the current one, else the first one in the group, else Bamboo.
+
+That meant the Settings page had to speak both engines. Bamboo spells its charset names differently from Unikey and lacks one Unikey option. I took the values from a live fcitx5-bamboo 1.0.11 instead of guessing them.
+
+Three more rules keep an upgrade safe:
+
+- Keymarchy never removes Unikey from the group. Moving to Bamboo is your call, and the README gives you the two commands.
+- The setup script writes Bamboo's default options only if that file does not exist yet. An existing config is left alone.
+- The plugin id is unchanged, so an update upgrades in place instead of asking you to remove and re-add.
+
+## Tests on both paths
+
+The pull request lists what ran. The unit tests went to 23, all passing, with new checks that both `bamboo` and `unikey` show the `VI` badge. The typing test, which drives a private fcitx5 and reads the text it commits, ran 19 cases and passed all of them, including new Bamboo cases for Telex, VNI and switching back to English. The old Unikey cases passed too.
+
+It also says what did not run: a live session with the bar widget reloaded. That was checked by the QML linter only. I would rather write that down than let a reader assume it.
+
+The change merged on 2026-10-07 as [pull request #2](https://github.com/sonlndv/omarchy-vietkey/pull/2).
+
+## The rule
+
+Test a new default from the old version, not only from nothing. A fresh install proves the new path works. An upgrade proves you did not break the people who trusted the old one.

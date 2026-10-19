@@ -1,0 +1,143 @@
+---
+// Posts to the newsletter's signup API (mailcheap POST /api/v1/contacts) from
+// the browser. PUBLIC_SIGNUP_URL and PUBLIC_SIGNUP_KEY (a signups only key:
+// public by design, it can only add contacts) come from the build's env.
+// Until both are set, the form renders with submit disabled. When they are,
+// submit still starts disabled and the script below enables it, so a reader
+// without JS (or a click before the script runs) never posts to the page.
+interface Props {
+  id?: string;
+}
+
+const { id = 'subscribe' } = Astro.props;
+const signupUrl = import.meta.env.PUBLIC_SIGNUP_URL;
+const signupKey = import.meta.env.PUBLIC_SIGNUP_KEY;
+const newsletter = import.meta.env.PUBLIC_SIGNUP_NEWSLETTER;
+const enabled = Boolean(signupUrl && signupKey);
+const describedBy = enabled ? `${id}-note ${id}-status` : `${id}-note`;
+---
+<form
+  class="subscribe-form"
+  method="post"
+  action={enabled ? undefined : signupUrl}
+  aria-describedby={describedBy}
+  data-signup-url={enabled ? signupUrl : undefined}
+  data-signup-key={enabled ? signupKey : undefined}
+  data-newsletter={enabled ? newsletter : undefined}
+>
+  <label for={`${id}-email`}>Email address</label>
+  <div class="field-row">
+    <input id={`${id}-email`} name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby={enabled ? `${id}-status` : undefined} />
+    <button type="submit" disabled>Subscribe</button>
+  </div>
+  <div class="honeypot" aria-hidden="true">
+    <label for={`${id}-website`}>Leave this field empty</label>
+    <input id={`${id}-website`} name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+  {enabled && <p id={`${id}-status`} class="form-status" role="status" aria-live="polite"></p>}
+  <p id={`${id}-note`} class="form-note">
+    New posts by email. Confirm once, unsubscribe any time.{' '}
+    {!enabled && <span class="soon">Signup opens soon.</span>}
+    {enabled && <noscript><span class="soon">Signup needs JavaScript.</span></noscript>}
+  </p>
+</form>
+
+<script>
+  type Signup = { status?: string; created?: boolean; inbox?: { name: string; url: string } | null };
+  type Problem = { error?: { code?: string; message?: string } };
+
+  const MESSAGES = {
+    sending: 'Sending…',
+    created: "Check your inbox. Confirm the email from Sonwork and you're in.",
+    pending: "You're already on the list. Confirm the email we sent; it's on its way again.",
+    active: "You're already subscribed.",
+    other: "This address can't be signed up again from here.",
+    invalid: (message: string) => `That address won't work: ${/[.?!]$/.test(message) ? message : `${message}.`}`,
+    rateLimited: 'Too many tries. Wait a minute, then try again.',
+    unreachable: "Couldn't reach the signup server. Check your connection and try again.",
+    failed: 'Signup failed on our end. Try again later.',
+  };
+
+  function setup(form: HTMLFormElement) {
+    const url = form.dataset.signupUrl;
+    const key = form.dataset.signupKey;
+    const newsletter = form.dataset.newsletter;
+    const email = form.querySelector<HTMLInputElement>('input[name="email"]');
+    const honeypot = form.querySelector<HTMLInputElement>('input[name="website"]');
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const status = form.querySelector<HTMLElement>('.form-status');
+    if (!url || !key || !email || !button || !status) return;
+
+    function show(state: 'busy' | 'ok' | 'error', text: string, link?: { name: string; url: string } | null) {
+      status!.dataset.state = state;
+      status!.textContent = text;
+      if (link && /^https:\/\//.test(link.url)) {
+        const a = document.createElement('a');
+        a.href = link.url;
+        a.rel = 'noopener';
+        a.target = '_blank';
+        a.textContent = `Open ${link.name}`;
+        status!.append(' ', a);
+      }
+    }
+
+    function done() {
+      form.removeAttribute('aria-busy');
+      button!.disabled = false;
+    }
+
+    button.disabled = false;
+    email.addEventListener('input', () => email.removeAttribute('aria-invalid'));
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (form.getAttribute('aria-busy') === 'true') return;
+      if (!form.reportValidity()) return;
+      email.removeAttribute('aria-invalid');
+
+      // Bots fill every field; people never see this one. Tell the bot it worked.
+      if (honeypot?.value) {
+        show('ok', MESSAGES.created);
+        return;
+      }
+
+      form.setAttribute('aria-busy', 'true');
+      button.disabled = true;
+      show('busy', MESSAGES.sending);
+
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+          body: JSON.stringify({ email: email.value.trim(), source: 'website', ...(newsletter && { newsletter }) }),
+        });
+      } catch {
+        // Offline, DNS, or a CORS refusal: the browser doesn't say which.
+        show('error', MESSAGES.unreachable);
+        done();
+        return;
+      }
+
+      const body: (Signup & Problem) | null = await response.json().catch(() => null);
+      if (response.status === 201) {
+        show('ok', MESSAGES.created, body?.inbox);
+        form.reset();
+      } else if (response.status === 200) {
+        const known = body?.status === 'pending' ? 'pending' : body?.status === 'active' ? 'active' : 'other';
+        show(known === 'other' ? 'error' : 'ok', MESSAGES[known], known === 'pending' ? body?.inbox : null);
+      } else if (response.status === 400 && body?.error?.message) {
+        show('error', MESSAGES.invalid(body.error.message));
+        email.setAttribute('aria-invalid', 'true');
+        email.focus();
+      } else if (response.status === 429) {
+        show('error', MESSAGES.rateLimited);
+      } else {
+        show('error', MESSAGES.failed);
+      }
+      done();
+    });
+  }
+
+  document.querySelectorAll<HTMLFormElement>('form.subscribe-form[data-signup-url]').forEach(setup);
+</script>

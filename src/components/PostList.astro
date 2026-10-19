@@ -1,0 +1,57 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import DraftLabel from './DraftLabel.astro';
+import { formatDate, isoDate } from '../lib/content';
+
+interface Props {
+  posts: CollectionEntry<'posts'>[];
+  headingLevel?: 2 | 3;
+  start?: number;
+  bare?: boolean;
+}
+
+// `bare` renders only the list items, for a parent list that already
+// holds other rows (the contents list on the front page).
+const { posts, headingLevel = 2, start = 1, bare = false } = Astro.props;
+const Heading = `h${headingLevel}` as 'h2' | 'h3';
+const items = posts.map((post, i) => ({ post, n: String(start + i).padStart(2, '0') }));
+---
+{posts.length === 0 ? (
+  bare ? null : <p class="empty">No posts yet.</p>
+) : bare ? (
+  items.map(({ post, n }) => (
+    <li>
+      <article class="row post-item">
+        <span class="row-index" aria-hidden="true">{n}</span>
+        <div class="row-body">
+          <Heading><a href={`/writing/${post.id}`}>{post.data.title}</a></Heading>
+          <p class="meta">
+            <span class="kind">Post</span>
+            <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+            {post.data.draft && <DraftLabel />}
+          </p>
+          <p>{post.data.description}</p>
+        </div>
+      </article>
+    </li>
+  ))
+) : (
+  <ol class="rows post-list">
+    {items.map(({ post, n }) => (
+      <li>
+        <article class="row post-item">
+          <span class="row-index" aria-hidden="true">{n}</span>
+          <div class="row-body">
+            <Heading><a href={`/writing/${post.id}`}>{post.data.title}</a></Heading>
+            <p class="meta">
+              <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+              {post.data.tags.map((tag) => <span>#{tag}</span>)}
+              {post.data.draft && <DraftLabel />}
+            </p>
+            <p>{post.data.description}</p>
+          </div>
+        </article>
+      </li>
+    ))}
+  </ol>
+)}

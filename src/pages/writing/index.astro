@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts } from '../../lib/content';
+
+const posts = await getPosts();
+const description = 'Posts by Son on building software with coding agents: what worked, what did not.';
+---
+<BaseLayout title="Writing" description={description}>
+  <div class="index-page">
+    <header class="page-head">
+      <h1>Writing</h1>
+      <p>{description}</p>
+    </header>
+    <section class="page-section" aria-labelledby="writing-posts">
+      <div class="section-head">
+        <h2 id="writing-posts">Posts</h2>
+        <a href="/rss.xml">RSS feed</a>
+      </div>
+      <PostList posts={posts} />
+    </section>
+  </div>
+</BaseLayout>
