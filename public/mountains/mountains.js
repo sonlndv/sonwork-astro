@@ -49,7 +49,7 @@
       [-3 * a, -b, -9 * a, -3 * b].forEach((n, i) => v(CAM[i], n));
     }
     // Compact: Mount cannot perch beside the builds (88px test as companion.js); only after a real scroll.
-    if (!done && scrollY > 0 && sec.getBoundingClientRect().left < 88 && passed()) fire();
+    if (!done && sec && scrollY > 0 && sec.getBoundingClientRect().left < 88 && passed()) fire();
   };
   const ask = () => {
     if (!raf && !reduce.matches && !document.hidden) raf = requestAnimationFrame(frame);

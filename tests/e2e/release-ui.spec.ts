@@ -1,10 +1,12 @@
 import { createHash } from 'node:crypto';
-import { expect, test, type Browser, type BrowserContextOptions, type Page } from '@playwright/test';
+import { expect, test, type Browser, type BrowserContextOptions, type Locator, type Page } from '@playwright/test';
+import { builtPages } from './routes';
 
 // Every case builds its own explicit context, so each project runs the same real native behaviour
 // (fine-pointer desktop, coarse-touch phone, reduced motion, no JavaScript) with no conditional skips.
 const hermes = 'Hermes is my main driver now. I use it to build things, try ideas, and learn as I go.';
 const ROUTES = ['/', '/work/', '/writing/', '/about/', '/subscribe/'];
+const UNKNOWN = '/no-such-page-sitewide-background';
 const FAVICON_SHA256 = '410266c6050fb5ed9ea44768a987748c2e51600e091a8fd8797cd2f8498243c4';
 
 const desktop: BrowserContextOptions = { viewport: { width: 1440, height: 900 }, hasTouch: false, isMobile: false, reducedMotion: 'no-preference' };
@@ -91,28 +93,45 @@ test('the original Mount favicon is linked on every route and served byte-identi
   });
 });
 
-test('the landscape exists on Home only and never takes input', async ({ browser, baseURL }) => {
+test('the landscape is on every built HTML page and the 404, in both themes, and never takes input', async ({ browser, baseURL }) => {
+  test.setTimeout(90_000); // all pages x two sizes x two themes
+  const paths = [...builtPages(), UNKNOWN];
   for (const options of [desktop, touch]) {
-    await open(browser, baseURL, options, async page => {
-      await page.goto('/');
-      const scene = page.locator('.mtn-scene');
-      await expect(scene).toHaveCount(1);
-      await expect(page.locator('body')).toHaveClass(/mountains/);
-      await expect(scene).toHaveAttribute('aria-hidden', 'true');
-      await expect(scene).toHaveAttribute('inert', '');
-      expect(await scene.evaluate(el => ({ z: getComputedStyle(el).zIndex, p: getComputedStyle(el).pointerEvents, pos: getComputedStyle(el).position }))).toEqual({ z: '-1', p: 'none', pos: 'fixed' });
-      await expect(scene.locator('path.mtn-rim')).not.toHaveCount(0);
-      const link = page.locator('.build-entry h3 a').first();
-      await link.scrollIntoViewIfNeeded();
-      const box = (await link.boundingBox())!;
-      expect(await link.evaluate((el, [x, y]) => document.elementFromPoint(x, y) === el, [box.x + box.width / 2, box.y + box.height / 2])).toBe(true);
-      for (const path of ROUTES.slice(1)) {
-        await page.goto(path);
-        await expect(page.locator('.mtn-scene')).toHaveCount(0);
-        await expect(page.locator('body')).not.toHaveClass(/mountains/);
-        await expect(page.locator('link[href="/mountains/mountains.css"]')).toHaveCount(0);
-      }
-    });
+    for (const theme of ['dark', 'light'] as const) {
+      await open(browser, baseURL, { ...options, colorScheme: theme }, async page => {
+        for (const path of paths) {
+          await page.goto(path);
+          const scene = page.locator('.mtn-scene');
+          await expect(scene, `${path} scene`).toHaveCount(1);
+          await expect(page.locator('body'), `${path} body`).toHaveClass(/mountains/);
+          await expect(page.locator('link[href="/mountains/mountains.css"]'), `${path} css`).toHaveCount(1);
+          await expect(page.locator('script[src="/mountains/mountains.js"]'), `${path} js`).toHaveCount(1);
+          await expect(scene).toHaveAttribute('aria-hidden', 'true');
+          await expect(scene).toHaveAttribute('inert', '');
+          expect(await scene.evaluate(el => ({ z: getComputedStyle(el).zIndex, p: getComputedStyle(el).pointerEvents, pos: getComputedStyle(el).position }))).toEqual({ z: '-1', p: 'none', pos: 'fixed' });
+          await expect(scene.locator('path.mtn-rim')).not.toHaveCount(0);
+          await page.evaluate(() => document.fonts.ready);
+          const hits = async (link: Locator) => {
+            await link.scrollIntoViewIfNeeded();
+            const box = (await link.boundingBox())!;
+            return link.evaluate((el, [x, y]) => {
+              const top = document.elementFromPoint(x, y);
+              return top === el || el.contains(top);
+            }, [box.x + box.width / 2, box.y + box.height / 2]);
+          };
+          // A visible link inside main is the content check; nav links are the fallback only where main has none.
+          const inMain = page.locator('main a[href]:visible').first();
+          const content = (await inMain.count()) > 0 ? inMain : page.locator('.site-nav ul a:visible').first();
+          expect(await hits(content), `${path} content link hit test`).toBe(true);
+          expect(await hits(page.locator('.site-nav .wordmark')), `${path} wordmark hit test`).toBe(true);
+        }
+        await page.goto('/');
+        const build = page.locator('.build-entry h3 a').first();
+        await build.scrollIntoViewIfNeeded();
+        const box = (await build.boundingBox())!;
+        expect(await build.evaluate((el, [x, y]) => document.elementFromPoint(x, y) === el, [box.x + box.width / 2, box.y + box.height / 2])).toBe(true);
+      });
+    }
   }
 });
 

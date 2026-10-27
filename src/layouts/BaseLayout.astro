@@ -11,10 +11,9 @@ interface Props {
   description: string;
   type?: 'website' | 'article';
   noIndex?: boolean;
-  mountains?: boolean;
 }
 
-const { title, description, type = 'website', noIndex = false, mountains = false } = Astro.props;
+const { title, description, type = 'website', noIndex = false } = Astro.props;
 const siteName = 'Son';
 const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
 const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1');
@@ -74,11 +73,12 @@ function isCurrent(href: string): boolean {
     {type === 'article' && <link rel="preload" href="/fonts/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />}
     <!-- Mount: native button, focus, touch and motion behaviour (styles come from companion.css above). -->
     <script is:inline src="/companion.js" defer></script>
-    {mountains && <link rel="stylesheet" href="/mountains/mountains.css" />}
-    {mountains && <script is:inline src="/mountains/mountains.js" defer></script>}
+    <!-- Site-wide landscape: every page renders exactly one scene with its single stylesheet and script. -->
+    <link rel="stylesheet" href="/mountains/mountains.css" />
+    <script is:inline src="/mountains/mountains.js" defer></script>
   </head>
-  <body class={mountains ? 'mountains' : undefined}>
-    {mountains && <MountainScene />}
+  <body class="mountains">
+    <MountainScene />
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="bar">

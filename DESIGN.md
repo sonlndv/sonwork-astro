@@ -211,3 +211,7 @@ A 44px square, 1px rule border. It shows a sun in dark and a moon in light, and 
 - **Don't** use growth green or neon glow (Son, 2026-10-18).
 - **Don't** use lume or amber for decoration.
 - **Don't** set long prose in Space Mono.
+
+## Current override: site-wide living-valley background
+
+The approved mountain landscape is part of the shared layout and appears on every HTML page: Home, Build, work details, Writing, preview-only drafts, About, Subscribe, the 404 and any future page using `BaseLayout`. There is no per-page opt-in. Each page renders exactly one inert, `aria-hidden`, pointer-transparent, fixed scene (z-index -1) with its single stylesheet and deferred script. Artwork, palette and motion are unchanged. It is static without JavaScript, still under reduced motion, and hidden under forced colors. Only the build-arrival phrase on the Selected projects section remains Home-specific. This supersedes any older wording that treats the landscape as Home-only; the earlier no-gradient rule is not otherwise relaxed.

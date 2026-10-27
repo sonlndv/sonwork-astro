@@ -1,4 +1,4 @@
-/* Mountain environment: a fixed, inert, full-viewport landscape behind the accepted homepage.
+/* Mountain environment: a fixed, inert, full-viewport landscape behind every page.
    Scoped to body.mountains / .mtn-*. light-dark() follows the site's own color-scheme, so the manual
    theme toggle themes it. Colours are Mount's low-chroma navy (dark) and pale blue-grey (light). */
 body.mountains {
