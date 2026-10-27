@@ -1,24 +1,28 @@
 ---
 import '../styles/fonts.css';
 import '../styles/global.css';
+import '../styles/companion.css';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import MountCompanion from '../components/MountCompanion.astro';
+import MountainScene from '../components/MountainScene.astro';
 
 interface Props {
   title: string;
   description: string;
   type?: 'website' | 'article';
   noIndex?: boolean;
+  mountains?: boolean;
 }
 
-const { title, description, type = 'website', noIndex = false } = Astro.props;
-const siteName = 'Sonwork';
+const { title, description, type = 'website', noIndex = false, mountains = false } = Astro.props;
+const siteName = 'Son';
 const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
 const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1');
 const canonical = new URL(path, Astro.site);
 
 // Home is the wordmark; the strip holds the four sections.
 const nav = [
-  { href: '/work', label: 'Work' },
+  { href: '/work', label: 'Build' },
   { href: '/writing', label: 'Writing' },
   { href: '/about', label: 'About' },
   { href: '/subscribe', label: 'Subscribe' },
@@ -50,7 +54,7 @@ function isCurrent(href: string): boolean {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     {!noIndex && <meta property="og:url" content={canonical} />}
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.svg?v=mount-1" type="image/svg+xml" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#04070e" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f8fafd" media="(prefers-color-scheme: light)" />
@@ -68,15 +72,21 @@ function isCurrent(href: string): boolean {
     <link rel="preload" href="/fonts/space-mono-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     {type === 'article' && <link rel="preload" href="/fonts/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />}
+    <!-- Mount: native button, focus, touch and motion behaviour (styles come from companion.css above). -->
+    <script is:inline src="/companion.js" defer></script>
+    {mountains && <link rel="stylesheet" href="/mountains/mountains.css" />}
+    {mountains && <script is:inline src="/mountains/mountains.js" defer></script>}
   </head>
-  <body>
+  <body class={mountains ? 'mountains' : undefined}>
+    {mountains && <MountainScene />}
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="bar">
         <nav class="site-nav" aria-label="Main">
-          <a class="wordmark" href="/" aria-current={path === '/' ? 'page' : undefined}>
-            Son<b aria-hidden="true">/</b>work
-          </a>
+          <div class="personal-brand">
+            <a class="wordmark" href="/" aria-current={path === '/' ? 'page' : undefined}>Son</a>
+            <MountCompanion />
+          </div>
           <ul>
             {nav.map((item) => (
               <li>
@@ -93,7 +103,8 @@ function isCurrent(href: string): boolean {
     </main>
     <footer class="site-footer">
       <div class="frame">
-        <p class="footer-name"><span>Sonwork</span><span>sonwork.org</span></p>
+        <div class="footer-seat"><span class="footer-slot" aria-hidden="true"></span><button class="footer-top" id="companion-return" type="button" hidden>Back to top</button></div>
+        <p class="footer-name"><span>Son</span><span>sonwork.org</span></p>
         <ul class="contact-links">
           {contact.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
         </ul>

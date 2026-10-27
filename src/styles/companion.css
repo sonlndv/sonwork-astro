@@ -1,0 +1,351 @@
+.personal-brand {
+  display: flex;
+  align-items: stretch;
+  justify-self: start;
+}
+
+.personal-brand .wordmark {
+  flex: none;
+}
+
+/* Safety reflow, only when enlarged type no longer fits the original desktop masthead
+   (width < 45rem, i.e. 720px at default size). Default 768/1440 never match. Mirrors the
+   source's own mobile masthead: wordmark row above four equal nav columns. */
+.bar {
+  container-type: inline-size;
+}
+
+@media (min-width: 720px) {
+  @container (width < 45rem) {
+    .site-nav {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .site-nav ul {
+      margin-right: 0;
+      border-top: 1px solid var(--line);
+      border-left: 0;
+      grid-template-columns: repeat(4, 1fr);
+      justify-self: stretch;
+    }
+
+    .site-nav li {
+      border-right: 0;
+    }
+
+    .site-nav li + li {
+      border-left: 1px solid var(--line-2);
+    }
+
+    .site-nav li a {
+      height: auto;
+      min-height: var(--hit);
+      padding: 0 var(--s1);
+      font-size: 0.6875rem;
+    }
+  }
+}
+
+.companion {
+  flex: none;
+  align-self: center;
+  display: block;
+  width: 68px; /* stationary native target; the extra width is room for the stroll */
+  height: var(--hit);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.companion:disabled {
+  cursor: default;
+}
+
+/* Perches: the same native button is translated from its reserved header seat. The explicit
+   :active rule keeps the site's generic button press transform from snapping it home. */
+.companion {
+  position: relative;
+  transform: translate(var(--cx, 0px), var(--cy, 0px));
+  touch-action: manipulation;
+}
+
+.companion:not(:disabled) {
+  transition: opacity 120ms linear;
+}
+
+.companion:not(:disabled):active {
+  transform: translate(var(--cx, 0px), var(--cy, 0px));
+}
+
+.companion[data-fade="out"] {
+  opacity: 0;
+}
+
+/* Footer: a genuinely reserved row for the friend plus the native Back to top action. */
+.footer-seat {
+  display: none;
+}
+
+.js .footer-seat {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  grid-column: 1 / -1;
+  min-height: var(--hit);
+}
+
+.footer-slot {
+  flex: none;
+  width: 68px;
+  height: var(--hit);
+}
+
+.footer-top {
+  min-height: var(--hit);
+  padding: 0 var(--s3);
+  border: 1px solid var(--line);
+  background: var(--void);
+  color: var(--lume);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.footer-top[hidden] {
+  display: none;
+}
+
+.footer-top:hover {
+  border-color: var(--lume);
+}
+
+/* The drawing sits 3px from the target's starting edge (so it rests close to Son) and travels
+   inside the 68px target; at the build perch it rests 24px farther right and strolls left. */
+.companion svg {
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  display: block;
+  width: 38px;
+  height: 38px;
+  max-width: none;
+  --sx: 24px;
+}
+
+.companion[data-perch="build"] svg {
+  left: 27px;
+  --sx: -24px;
+}
+
+/* Wordmark: only the inherited right padding goes, so Son and Mount read as one. */
+.personal-brand .wordmark {
+  padding-inline-end: 4px;
+}
+
+.front-lead .hermes-note {
+  max-width: 65ch;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+/* Original mountain art tokens, from the previous study. */
+.companion {
+  --art-navy: #0a1633;
+  --art-edge: #7f9cf5;
+  --art-eye: #eef2ff;
+}
+
+.companion svg { overflow: visible; }
+.companion .shape { fill: url(#companion-fill); stroke: var(--art-navy); stroke-width: 3; stroke-linejoin: round; }
+.companion .ridge { fill: rgba(5, 11, 28, 0.35); stroke: none; }
+.companion .edge { fill: none; stroke: var(--art-edge); stroke-width: 4; stroke-linecap: round; opacity: 0.85; }
+.companion .eye path { fill: var(--art-eye); }
+.companion .body { transform-box: fill-box; transform-origin: 50% 92%; transform: rotate(-1deg); }
+.companion .eye { transform-box: fill-box; transform-origin: 50% 50%; --sy: 1; transform: scaleY(var(--sy)); }
+.companion .eye-r { --sy: 0.82; }
+
+/* Homepage builds: three equal, unboxed entries on one shared title / status / summary / action
+   rhythm. Proximity and whitespace do the grouping; the section head's rule is the only boundary. */
+.front-projects {
+  container-type: inline-size;
+}
+
+.front-projects .build-list {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s6);
+  margin: 0;
+  padding: var(--s5) 0 0;
+  list-style: none;
+}
+
+.build-entry {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+}
+
+.build-entry h3 {
+  display: flex;
+  align-items: center;
+  min-height: var(--hit);
+  font-size: 1.375rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.build-entry h3 a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--hit);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.build-entry h3 a:hover {
+  color: var(--lume);
+}
+
+.build-entry .build-status {
+  margin: 0;
+}
+
+.build-entry .build-desc {
+  margin: var(--s2) 0 0;
+  max-width: 36ch;
+  color: var(--ink-2);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.build-entry .build-action {
+  margin: var(--s2) 0 0;
+}
+
+.build-entry .build-quiet {
+  display: flex;
+  align-items: center;
+  min-height: var(--hit);
+  padding: 0;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+@container (width >= 52rem) {
+  .front-projects .build-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(4, auto);
+    column-gap: var(--s7);
+    row-gap: 0;
+  }
+
+  .build-entry {
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+  }
+}
+
+/* Mount's expressions. All finite, one iteration, driven by data attributes set by companion.js
+   (landing/nod: data-pose; hello: data-greeting). The rest pose is the original one. */
+.companion {
+  --gx: 0px;
+  --gy: 4px;
+}
+
+.companion[data-perch="build"] {
+  --gx: 14px;
+  --gy: -2px;
+}
+
+.companion[data-perch="footer"] {
+  --gx: 12px;
+  --gy: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .companion[data-greeting="true"] .m-eye {
+    animation: companion-greet 700ms linear 1;
+  }
+
+  .companion[data-greeting="true"] .body {
+    animation: companion-hello 700ms cubic-bezier(0.16, 1, 0.3, 1) 1;
+  }
+
+  .companion[data-pose="land"] .body {
+    animation: companion-land 450ms cubic-bezier(0.16, 1, 0.3, 1) 1;
+  }
+
+  .companion[data-pose="land"] .eye {
+    animation: companion-glance 450ms ease-out 1;
+  }
+
+  .companion[data-stroll="true"] svg {
+    animation: companion-stroll 900ms cubic-bezier(0.4, 0, 0.2, 1) 1;
+  }
+
+  .companion[data-pose="nod"] .body {
+    animation: companion-nod 360ms cubic-bezier(0.16, 1, 0.3, 1) 1;
+  }
+}
+
+/* Pointer gaze: independent translate/rotate properties compose with the transform-based
+   blink, hello, landing and nod above. The transition exists only while data-look is set, so
+   removing it neutralizes at once. Hover-capable fine mice only (companion.js decides). */
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .companion[data-look="true"] .eye {
+    translate: var(--look-x, 0px) var(--look-y, 0px);
+    transition: translate 120ms ease-out;
+  }
+
+  .companion[data-look="true"] .body {
+    rotate: var(--look-r, 0deg);
+    transition: rotate 120ms ease-out;
+  }
+}
+
+@keyframes companion-hello {
+  0% { transform: rotate(-1deg) scale(1, 1); }
+  14% { transform: rotate(-1deg) scale(1.07, 0.88); }
+  34% { transform: translateY(-5%) rotate(-8deg) scale(0.96, 1.07); }
+  56% { transform: rotate(5deg) scale(1.03, 0.97); }
+  78% { transform: rotate(-3deg) scale(1, 1); }
+  100% { transform: rotate(-1deg) scale(1, 1); }
+}
+
+@keyframes companion-land {
+  0% { transform: translateY(-6%) rotate(-1deg) scale(0.96, 1.05); }
+  30% { transform: translateY(0) rotate(-1deg) scale(1.08, 0.86); }
+  58% { transform: translateY(-2%) rotate(-3deg) scale(0.98, 1.04); }
+  80% { transform: rotate(0deg) scale(1.01, 0.99); }
+  100% { transform: rotate(-1deg) scale(1, 1); }
+}
+
+@keyframes companion-stroll {
+  0%, 100% { transform: translateX(0); }
+  38%, 52% { transform: translateX(var(--sx)); }
+}
+
+@keyframes companion-nod {
+  0%, 100% { transform: rotate(-1deg) scale(1, 1); }
+  40% { transform: rotate(-1deg) scale(1.05, 0.92); }
+}
+
+@keyframes companion-glance {
+  0%, 100% { transform: translate(0, 0) scaleY(var(--sy)); }
+  25%, 70% { transform: translate(var(--gx), var(--gy)) scaleY(var(--sy)); }
+}
+
+@keyframes companion-greet {
+  0%, 100% { transform: scaleY(var(--sy)); }
+  20%, 60% { transform: scaleY(calc(var(--sy) * 0.2)); }
+  40%, 80% { transform: scaleY(var(--sy)); }
+}

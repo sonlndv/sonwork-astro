@@ -43,10 +43,13 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     expect(projects.y).toBeGreaterThanOrEqual(profile.y + profile.height);
     if (width === 1440) expect(profile.width).toBeGreaterThan(1000);
     await expect(page.locator('.front-projects h3')).toHaveText(['Trivia Hub', 'Keymarchy', 'Perfeat']);
-    await expect(page.locator('.work-card a[href="https://games.sonwork.org"]')).toHaveCount(1);
-    await expect(page.locator('.side-project').first().locator('a')).not.toHaveCount(0);
-    await expect(page.locator('.side-project').last().locator('a')).toHaveCount(0);
-    await expect(page.locator('.side-project').last()).toContainText('Building');
+    const entries = page.locator('.build-entry');
+    await expect(entries).toHaveCount(3);
+    await expect(entries.first().locator('a[href="https://games.sonwork.org"]')).toHaveCount(1);
+    await expect(entries.nth(1).locator('a')).not.toHaveCount(0);
+    await expect(entries.last().locator('a')).toHaveCount(0);
+    await expect(entries.last()).toContainText('Building');
+    await expect(entries.last()).toContainText('Not released yet.');
     const summary = page.locator('summary');
     await expect(summary).toHaveText("What I'm exploring");
     const summaryBox = (await summary.boundingBox())!;

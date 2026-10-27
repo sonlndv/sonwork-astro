@@ -7,6 +7,7 @@ const ci = Boolean(process.env.CI);
 export default defineConfig({
   testDir: 'tests/e2e',
   fullyParallel: true,
+  workers: 2,
   forbidOnly: ci,
   retries: ci ? 1 : 0,
   reporter: ci ? [['list'], ['html', { open: 'never' }]] : [['list']],

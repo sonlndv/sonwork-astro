@@ -362,13 +362,20 @@ main > * {
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* Narrow: four equal columns at normal size; whole labels wrap onto a new row (never clip or shrink)
+   when enlarged text no longer fits. */
 .site-nav ul {
   border-top: 1px solid var(--line);
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.site-nav li {
+  flex: 1 0 25%;
+  min-width: max-content;
 }
 
 .site-nav li + li {
@@ -409,6 +416,7 @@ main > * {
   }
 
   .site-nav ul {
+    display: grid;
     grid-template-columns: repeat(4, auto);
     justify-self: end;
     margin-right: calc(var(--hit) + var(--gutter) + 8px);
@@ -495,6 +503,21 @@ main > * {
 
 .contact-links a:hover {
   color: var(--lume);
+}
+
+/* Hermes note: the inline link keeps its glyphs and flow; a centred 44px pseudo-element is its touch target. */
+.hermes-note a {
+  position: relative;
+}
+
+.hermes-note a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 44px;
+  transform: translateY(-50%);
 }
 
 @media (min-width: 720px) {
