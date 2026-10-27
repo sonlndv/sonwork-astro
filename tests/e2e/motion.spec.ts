@@ -17,6 +17,9 @@ test('About stays static; row arrival preserves geometry and cancels on preferen
   const bounds = await page.locator('h1').boundingBox();
   await page.waitForTimeout(700);
   expect(await page.locator('h1').boundingBox()).toEqual(bounds);
+  // Home has no rows; the one-shot row arrival lives on the index pages.
+  await page.goto('/writing/');
+  await page.evaluate(() => document.fonts.ready);
   await page.locator('.row').first().scrollIntoViewIfNeeded();
   await expect(page.locator('.row').first()).toHaveAttribute('data-motion-arrive', '');
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -36,7 +39,7 @@ test('theme state survives rapid toggles, reload and keyboard focus', async ({ p
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  const link = page.locator('.row h3 a').first();
+  const link = page.locator('.build-entry h3 a').first();
   await link.focus();
   await expect(link).toBeFocused();
   expect(await link.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe('none');
@@ -85,27 +88,49 @@ for (const colorScheme of ['dark', 'light'] as const) {
       expect((await new AxeBuilder({ page }).withRules(['color-contrast']).analyze()).violations, `contrast during arrival at ${time}ms`).toEqual([]);
     }
 
+    // Home: pin the one real build-phrase settle (mtn-settle) at its first frame, then compare with its end state.
+    await page.addInitScript(() => {
+      document.addEventListener('animationstart', event => {
+        if (event.animationName === 'mtn-settle' && event.target instanceof Element) {
+          event.target.getAnimations().forEach(animation => animation.pause());
+        }
+      });
+    });
     await page.goto('/');
-    const keymarchy = page.locator('.side-project').filter({ has: page.getByRole('heading', { name: 'Keymarchy', exact: true }) });
-    await keymarchy.scrollIntoViewIfNeeded();
-    await expect.poll(() => keymarchy.evaluate(el => el.getAnimations().some(a => a.playState === 'paused'))).toBe(true);
-    const dimensions = await keymarchy.evaluate(el => {
-      for (const animation of el.getAnimations()) animation.currentTime = 85.59;
+    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(() => {
+      const head = document.querySelector('.front-projects .section-head')!;
+      scrollTo(0, scrollY + head.getBoundingClientRect().top - 120);
+    });
+    const keymarchy = page.locator('.build-entry').filter({ has: page.getByRole('heading', { name: 'Keymarchy', exact: true }) });
+    const paused = () => keymarchy.evaluate(el => el.getAnimations().some(a => a.playState === 'paused' && (a as CSSAnimation).animationName === 'mtn-settle'));
+    await expect.poll(paused, { timeout: 8000 }).toBe(true);
+    const measure = (at: 'start' | 'end') => keymarchy.evaluate((el, at) => {
+      const animation = el.getAnimations().find(a => (a as CSSAnimation).animationName === 'mtn-settle')!;
+      const timing = animation.effect!.getTiming();
+      animation.currentTime = at === 'start' ? Number(timing.delay) : Number(timing.delay) + Number(timing.duration) - 1;
       const matrix = new DOMMatrixReadOnly(getComputedStyle(el).transform);
       return {
-        scaleX: matrix.a, scaleY: matrix.d,
+        scaleX: matrix.a, scaleY: matrix.d, shiftY: matrix.f,
         targets: [...el.querySelectorAll<HTMLAnchorElement>('.links a')].map(link => ({
           rect: link.getBoundingClientRect().height, client: link.clientHeight, layout: link.offsetHeight,
         })),
       };
-    });
-    await testInfo.attach('pinned-target-dimensions', { body: JSON.stringify(dimensions, null, 2), contentType: 'application/json' });
-    expect(dimensions.scaleX).toBe(1);
-    expect(dimensions.scaleY).toBe(1);
-    for (const target of dimensions.targets) {
-      expect(target.rect).toBeGreaterThanOrEqual(43.99); // tight float tolerance only
-      expect(target.client).toBeGreaterThanOrEqual(44);
-      expect(target.layout).toBeGreaterThanOrEqual(44);
+    }, at);
+    const start = await measure('start');
+    const end = await measure('end');
+    await testInfo.attach('pinned-target-dimensions', { body: JSON.stringify({ start, end }, null, 2), contentType: 'application/json' });
+    expect(start.shiftY).toBeGreaterThan(7); // the settle really starts 8px low
+    expect(end.shiftY).toBeLessThan(0.5); // and really arrives
+    for (const state of [start, end]) {
+      expect(state.scaleX).toBe(1);
+      expect(state.scaleY).toBe(1);
+      expect(state.targets.length).toBeGreaterThan(0);
+      for (const target of state.targets) {
+        expect(target.rect).toBeGreaterThanOrEqual(43.99); // tight float tolerance only
+        expect(target.client).toBeGreaterThanOrEqual(44);
+        expect(target.layout).toBeGreaterThanOrEqual(44);
+      }
     }
   });
 }

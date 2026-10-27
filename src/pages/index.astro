@@ -1,17 +1,39 @@
 ---
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import WorkCard from '../components/WorkCard.astro';
-import SideProjectItem from '../components/SideProjectItem.astro';
 import CopyEmail from '../components/CopyEmail.astro';
 import SubscribeForm from '../components/SubscribeForm.astro';
-import { getSideProjects, getWork, isVisible } from '../lib/content';
+import { isVisible } from '../lib/content';
 
 const about = await getEntry('pages', 'about');
 const copy = about && isVisible(about) ? about.data : undefined;
 const intro = copy?.homeIntro;
-const work = await getWork();
-const sideProjects = await getSideProjects();
+
+// Three equally weighted, unboxed entries. Summaries are fixed copy; destinations are the published ones.
+const builds = [
+  {
+    name: 'Trivia Hub',
+    href: '/work/trivia-hub',
+    status: 'Live',
+    desc: 'Daily games with one shared reset.',
+    links: [{ href: 'https://games.sonwork.org', label: 'Play' }],
+  },
+  {
+    name: 'Keymarchy',
+    status: 'Listed',
+    desc: 'Type in English and Vietnamese on Omarchy.',
+    links: [
+      { href: 'https://plugins.omarchy.org/plugin.html?id=sonlndv.vietkey', label: 'Live page' },
+      { href: 'https://github.com/sonlndv/omarchy-vietkey', label: 'Source' },
+    ],
+  },
+  {
+    name: 'Perfeat',
+    status: 'Building',
+    desc: 'A food diary for meals and who you ate with.',
+    links: [],
+  },
+];
 const contact = [
   { label: 'Email', value: 'son@sonwork.org', href: 'mailto:son@sonwork.org' },
   { label: 'X', value: '@sonldv', href: 'https://x.com/sonldv' },
@@ -19,11 +41,12 @@ const contact = [
   { label: 'LinkedIn', value: 'in/sonle2003', href: 'https://www.linkedin.com/in/sonle2003' },
 ];
 ---
-<BaseLayout title="Sonwork" description={copy?.description ?? 'Software, writing and a newsletter from Son.'}>
+<BaseLayout title="Son" description={copy?.description ?? 'Software, writing and a newsletter from Son.'} mountains>
   <div class="front">
     <section class="front-lead front-about" aria-labelledby="home-title">
       <h1 id="home-title">{copy?.homeTitle ?? 'About'}</h1>
       {intro && <p class="home-intro">{intro}</p>}
+      <p class="hermes-note"><a href="https://hermes-agent.nousresearch.com/docs/">Hermes</a> is my main driver now. I use it to build things, try ideas, and learn as I go.</p>
       {copy?.homeBuild && <details class="home-build">
         <summary>What I'm exploring</summary>
         <p>{copy.homeBuild}</p>
@@ -35,13 +58,27 @@ const contact = [
       <section class="front-projects" aria-labelledby="home-projects">
         <div class="section-head">
           <h2 id="home-projects">Selected projects</h2>
-          <a href="/work">All work</a>
+          <a href="/work">All builds</a>
         </div>
-        <ol class="rows">
-          {work.map((entry, i) => <li><WorkCard entry={entry} headingLevel={3} index={i + 1} /></li>)}
-        </ol>
-        <ul class="side-rows">
-          {sideProjects.map((entry) => <li><SideProjectItem entry={entry} compact /></li>)}
+        <ul class="build-list">
+          {builds.map((build) => (
+            <li class="build-entry">
+              <h3>{build.href ? <a href={build.href}>{build.name}</a> : build.name}</h3>
+              <p class="meta build-status">{build.status}</p>
+              <p class="build-desc">{build.desc}</p>
+              {build.links.length > 0 ? (
+                <ul class="links build-action">
+                  {build.links.map((link) => (
+                    <li>
+                      <a href={link.href}>{link.label}<svg class="arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 8L8 2M3.5 2H8v4.5" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg><span class="visually-hidden">: {build.name}</span></a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="build-action build-quiet">Not released yet.</p>
+              )}
+            </li>
+          ))}
         </ul>
       </section>
 
