@@ -48,7 +48,7 @@
     --ink: oklch(0.19 0.03 256);
     --ink-2: oklch(0.36 0.028 254);
     --ink-3: oklch(0.47 0.024 252);
-    --lume: oklch(0.5 0.15 236);
+    --lume: oklch(0.44 0.13 236);
     --lume-ink: oklch(0.985 0.004 250);
     --human: oklch(0.5 0.13 48);
     color-scheme: light;
@@ -64,7 +64,7 @@
   --ink: oklch(0.19 0.03 256);
   --ink-2: oklch(0.36 0.028 254);
   --ink-3: oklch(0.47 0.024 252);
-  --lume: oklch(0.5 0.15 236);
+  --lume: oklch(0.44 0.13 236);
   --lume-ink: oklch(0.985 0.004 250);
   --human: oklch(0.5 0.13 48);
   color-scheme: light;
@@ -461,12 +461,35 @@ main > * {
 
 .site-footer .frame {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s3);
   padding-block: var(--s5) var(--s6);
 }
 
+/* Enlarged text: every footer row sizes to the column, never to its own intrinsic width. Whole words
+   wrap only when they must; nothing is clipped or shrunk, and the seat keeps its 68px slot. */
+.site-footer .frame > * {
+  min-inline-size: 0;
+}
+
+.js .footer-seat {
+  flex-wrap: wrap;
+}
+
+.site-footer .atmosphere-toggle {
+  max-inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.atmosphere-status {
+  overflow-wrap: anywhere;
+}
+
 .footer-name {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s3);
   justify-content: space-between;
   margin: 0;
   font-family: var(--mono);
@@ -476,6 +499,15 @@ main > * {
   color: var(--ink-3);
 }
 
+.footer-name span {
+  overflow-wrap: anywhere;
+}
+
+/* Five equal cells at normal size; the footer container reflows them when enlarged text needs it. */
+.site-footer {
+  container-type: inline-size;
+}
+
 .contact-links {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -483,6 +515,10 @@ main > * {
   padding: 0;
   list-style: none;
   border: 1px solid var(--line-2);
+}
+
+.contact-links li {
+  min-inline-size: 0;
 }
 
 .contact-links li + li {
@@ -522,7 +558,7 @@ main > * {
 
 @media (min-width: 720px) {
   .site-footer .frame {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
   }
 
@@ -533,6 +569,31 @@ main > * {
 
   .contact-links a {
     padding: 0 var(--s5);
+  }
+}
+
+@container (max-width: 36rem) {
+  .site-footer .frame {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+}
+
+@container (max-width: 17rem) {
+  .contact-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contact-links li:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .contact-links li:nth-child(n + 3) {
+    border-top: 1px solid var(--line-2);
+  }
+
+  .contact-links li:nth-child(5) {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1392,14 +1453,73 @@ main > * {
   button:not(:disabled) { transition: transform 90ms var(--out); }
   button:not(:disabled):active { transform: translateY(1px); transition-duration: 0ms; }
 
-  /* Override the browser's default group geometry animation: fade only. */
-  ::view-transition-group(root) { animation: none; }
-  ::view-transition-old(root) { animation: fade-out 160ms linear both; }
-  ::view-transition-new(root) { animation: fade-in 160ms linear both; }
-  ::view-transition-image-pair(root) { isolation: isolate; }
-  ::view-transition-old(root), ::view-transition-new(root) { mix-blend-mode: normal; }
+  /* Theme change: ThemeToggle marks the root only while its own same-document transition runs and
+     drives the circular reveal of the new snapshot (Web Animations). The old scene stays put under it.
+     Without the marker no theme path inherits any animation from here. */
+  :root[data-theme-vt='aperture']::view-transition-group(root) { animation: none; }
+  :root[data-theme-vt='aperture']::view-transition-old(root),
+  :root[data-theme-vt='aperture']::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+  :root[data-theme-vt='aperture']::view-transition-image-pair(root) { isolation: isolate; }
+  /* Soft edge: only while ThemeToggle has set the flag and animates --aperture-r with the clip. The
+     feather sits inside the clip circle; with the property undriven it is huge, so the mask is opaque. */
+  :root[data-theme-vt='aperture'][data-theme-vt-edge='feather']::view-transition-new(root) {
+    mask-image: radial-gradient(circle at var(--aperture-x) var(--aperture-y), #000 calc(var(--aperture-r) - 4px), transparent var(--aperture-r));
+  }
 
   @keyframes arrive { from { transform: translateY(4px); } to { transform: translateY(0); } }
   @keyframes fade-out { to { opacity: 0; } }
   @keyframes fade-in { from { opacity: 0; } }
+}
+
+/* Page-to-page continuity: optional, same-origin, native navigation (no router, no link interception).
+   Only browsers that understand transition types opt in, so everything else navigates exactly as before.
+   The @view-transition opt-in itself lives in an early inline <style> in BaseLayout's head: the incoming
+   document's native reveal needs it known while the head is parsed, before any stylesheet arrives.
+   The scenery, header and footer hold steady; only <main> crossfades. The names exist only while a
+   'sonwork-page' navigation is active, so theme changes (no type) keep their whole-scene snapshot. */
+@supports selector(:active-view-transition-type(sonwork-page)) {
+  @media (prefers-reduced-motion: no-preference) and (not (forced-colors: active)) {
+    :root:active-view-transition-type(sonwork-page) .mtn-scene { view-transition-name: sw-scene; }
+    :root:active-view-transition-type(sonwork-page) .site-header { view-transition-name: sw-header; }
+    :root:active-view-transition-type(sonwork-page) main { view-transition-name: sw-main; }
+    :root:active-view-transition-type(sonwork-page) .site-footer { view-transition-name: sw-footer; }
+
+    :root:active-view-transition-type(sonwork-page)::view-transition-group(*) { animation-duration: 1ms; }
+    :root:active-view-transition-type(sonwork-page)::view-transition-image-pair(*) { isolation: isolate; }
+    :root:active-view-transition-type(sonwork-page)::view-transition-old(*) { display: none; }
+    :root:active-view-transition-type(sonwork-page)::view-transition-new(*) { animation: none; mix-blend-mode: normal; }
+
+    :root:active-view-transition-type(sonwork-page)::view-transition-old(sw-main),
+    :root:active-view-transition-type(sonwork-page)::view-transition-old(sw-footer) {
+      display: block;
+      animation: sw-page-out 160ms linear both;
+      mix-blend-mode: normal;
+    }
+    :root:active-view-transition-type(sonwork-page)::view-transition-new(sw-main),
+    :root:active-view-transition-type(sonwork-page)::view-transition-new(sw-footer) {
+      animation: sw-page-in 200ms linear both;
+    }
+
+    @keyframes sw-page-out { to { opacity: 0; } }
+    @keyframes sw-page-in { from { opacity: 0; } }
+  }
+}
+
+/* Enlarged text: the contact list stacks label over value when its box is narrower than 17rem, a length
+   that grows with the reader's root size, so content reflows instead of overflowing. At normal size
+   the threshold (272px) is below every supported phone width, so the composition does not change. */
+.front-contact .facts {
+  container-type: inline-size;
+}
+
+.facts dd,
+.facts dd a {
+  overflow-wrap: anywhere;
+}
+
+@container (max-width: 17rem) {
+  .facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s1) 0;
+  }
 }

@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CopyEmail from '../components/CopyEmail.astro';
 import SubscribeForm from '../components/SubscribeForm.astro';
 import { isVisible } from '../lib/content';
+import '../styles/overlook.css';
 
 const about = await getEntry('pages', 'about');
 const copy = about && isVisible(about) ? about.data : undefined;
@@ -43,8 +44,11 @@ const contact = [
 ---
 <BaseLayout title="Son" description={copy?.description ?? 'Software, writing and a newsletter from Son.'}>
   <div class="front">
-    <section class="front-lead front-about" aria-labelledby="home-title">
-      <h1 id="home-title">{copy?.homeTitle ?? 'About'}</h1>
+    <section class="front-lead front-about" aria-labelledby="home-title" data-valley-landmark="entry">
+      <div class="home-overlook" data-home-direction="valley-overlook-r4">
+        <h1 id="home-title">{copy?.homeTitle ?? 'About'}</h1>
+        <a class="overlook-link" href="#home-projects">Selected projects<svg class="overlook-arrow" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2v8M2.5 6.5L6 10l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg></a>
+      </div>
       {intro && <p class="home-intro">{intro}</p>}
       <p class="hermes-note"><a href="https://hermes-agent.nousresearch.com/docs/">Hermes</a> is my main driver now. I use it to build things, try ideas, and learn as I go.</p>
       {copy?.homeBuild && <details class="home-build">
@@ -55,7 +59,7 @@ const contact = [
     </section>
 
     <div class="front-main">
-      <section class="front-projects" aria-labelledby="home-projects">
+      <section class="front-projects" aria-labelledby="home-projects" data-valley-landmark="projects">
         <div class="section-head">
           <h2 id="home-projects">Selected projects</h2>
           <a href="/work">All builds</a>
@@ -82,7 +86,7 @@ const contact = [
         </ul>
       </section>
 
-      <section class="front-contact" aria-labelledby="home-contact">
+      <section class="front-contact" aria-labelledby="home-contact" data-valley-landmark="contact">
         <div class="section-head">
           <h2 id="home-contact">Contact</h2>
         </div>
@@ -93,7 +97,7 @@ const contact = [
           </div>)}
         </dl>
       </section>
-      <section class="front-newsletter" aria-labelledby="home-newsletter">
+      <section class="front-newsletter" aria-labelledby="home-newsletter" data-valley-landmark="ending">
         <div class="section-head"><h2 id="home-newsletter">Newsletter</h2></div>
         <SubscribeForm id="home-subscribe" />
       </section>

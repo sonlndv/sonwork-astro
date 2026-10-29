@@ -6,11 +6,11 @@ body.mountains {
 }
 
 .mtn-scene {
-  --mtn-c-far: light-dark(#edf1f8, #1c2946);
-  --mtn-c-mid: light-dark(#e6ecf4, #16233f);
-  --mtn-c-near: light-dark(#dce5f0, #101c38);
-  --mtn-plane: light-dark(rgba(52, 74, 118, 0.04), rgba(2, 5, 14, 0.4));
-  --mtn-rim: light-dark(rgba(40, 64, 130, 0.12), rgba(127, 156, 245, 0.3));
+  --mtn-c-far: light-dark(#d3deed, #26375d);
+  --mtn-c-mid: light-dark(#bfd0e5, #1e2f53);
+  --mtn-c-near: light-dark(#a7bfdc, #152549);
+  --mtn-plane: light-dark(rgba(52, 74, 118, 0.07), rgba(2, 5, 14, 0.4));
+  --mtn-rim: light-dark(rgba(40, 64, 130, 0.25), rgba(127, 156, 245, 0.38));
   position: fixed;
   inset: 0;
   overflow: hidden; /* clips only this decorative layer */
@@ -77,25 +77,26 @@ body.mountains {
    scroll transform is untouched) while the existing rims sketch in (JS adds a temporary pathLength=1 and
    data-intro; clearing it restores the full solid rim). Camera: mouse depth, transition only while data-cam. */
 @media (prefers-reduced-motion: no-preference) {
-  .mtn-scene[data-intro] > div.mtn-far { animation: mtn-far-in 640ms cubic-bezier(0.16, 1, 0.3, 1) 1 both; }
-  .mtn-scene[data-intro] > div.mtn-near { animation: mtn-near-in 800ms cubic-bezier(0.16, 1, 0.3, 1) 1 both; }
+  /* Valley rise: far 1200ms, near 1600ms after a 150ms stagger (done by 1750ms); opacity never changes. */
+  .mtn-scene[data-intro] > div.mtn-far { animation: mtn-far-in 1200ms cubic-bezier(0.16, 1, 0.3, 1) 1 both; }
+  .mtn-scene[data-intro] > div.mtn-near { animation: mtn-near-in 1600ms cubic-bezier(0.16, 1, 0.3, 1) 150ms 1 both; }
   .mtn-scene[data-intro] .mtn-rim {
     stroke-dasharray: 1;
-    animation: mtn-draw 640ms cubic-bezier(0.16, 1, 0.3, 1) 1 both;
+    animation: mtn-draw 900ms cubic-bezier(0.16, 1, 0.3, 1) 1 both;
   }
-  .mtn-scene[data-intro] > div.mtn-near .mtn-rim { animation-duration: 700ms; }
+  .mtn-scene[data-intro] > div.mtn-near .mtn-rim { animation-duration: 1000ms; animation-delay: 300ms; }
   .mtn-scene[data-cam] > div.mtn-far,
   .mtn-scene[data-cam] > div.mtn-near { transition: translate 140ms ease-out; }
 }
 
 @keyframes mtn-far-in {
-  from { translate: 0 10px; opacity: 0.4; }
-  to { translate: 0 0; opacity: 1; }
+  from { translate: 0 min(8vh, 64px); }
+  to { translate: 0 0; }
 }
 
 @keyframes mtn-near-in {
-  from { translate: 0 20px; opacity: 0.4; }
-  to { translate: 0 0; opacity: 1; }
+  from { translate: 0 min(20vh, 180px); }
+  to { translate: 0 0; }
 }
 
 @keyframes mtn-draw {
@@ -143,4 +144,253 @@ body.mountains {
 
 @media (forced-colors: active) {
   .mtn-scene { display: none; }
+}
+
+/* Sky-to-valley artwork interface. T04 owns --sv-progress (0..1, actual landmarks),
+   data-mode=home|index|calm, and optional data-stage=entry|range|valley for static poses.
+   --sv-aurora-x/y accept lengths; --sv-aurora-opacity accepts 0..1 for finite owned responses.
+   No timer or independent animation is introduced here. Every layer is painted by default. */
+.mtn-scene {
+  --sv-progress: 0;
+  --sv-rest: 0;
+  --sv-span: 1;
+  --sv-depth: clamp(0, calc(var(--sv-rest) + var(--sv-progress) * var(--sv-span)), 1);
+  --sv-aurora-x: 0px;
+  --sv-aurora-y: 0px;
+  --sv-aurora-opacity: 1;
+  --sv-aurora-ink: light-dark(transparent, #8298c5);
+  --sv-haze: light-dark(rgba(235, 243, 252, 0.65), rgba(103, 127, 171, 0.045));
+  /* Daylight admits more of the page backdrop through the scenic reading corridor. */
+  --mtn-veil-edge: light-dark(rgba(0, 0, 0, 0.72), #000);
+  --mtn-veil-shoulder: light-dark(rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.55));
+  --mtn-veil-center: light-dark(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.36));
+  --mtn-veil: linear-gradient(90deg, var(--mtn-veil-edge) 0%, var(--mtn-veil-shoulder) 13%, var(--mtn-veil-center) 32%, var(--mtn-veil-center) 68%, var(--mtn-veil-shoulder) 87%, var(--mtn-veil-edge) 100%);
+  isolation: isolate;
+}
+.mtn-scene[data-mode='index'] { --sv-rest: 0.2; --sv-span: 0.32; }
+.mtn-scene[data-mode='calm'] { --sv-rest: 0.44; --sv-span: 0; }
+.mtn-scene[data-stage='entry'] { --sv-progress: 0; }
+.mtn-scene[data-stage='range'] { --sv-progress: 0.5; }
+.mtn-scene[data-stage='valley'] { --sv-progress: 1; }
+
+/* Keep the ORIGINAL art canvas: viewport width, viewport height + 96px, top -48px.
+   The larger outer envelope does not resize an SVG or change its preserveAspectRatio crop.
+   Only these direct outer layers travel; identically named inner SVG groups never transform. */
+.mtn-scene > div.mtn-layer {
+  position: absolute;
+  inset: -360px 0;
+}
+.mtn-scene > .mtn-layer > .mtn-ridge,
+.mtn-scene > .mtn-layer > .mtn-flank-art {
+  position: absolute;
+  inset: 312px auto auto 0;
+  width: 100%;
+  height: calc(100% - 624px);
+  overflow: visible;
+}
+.mtn-scene > .mtn-layer.mtn-far {
+  z-index: 1;
+  transform: translate3d(0, calc(34svh - 26svh * var(--sv-depth) + var(--mtn-far-y, 0px)), 0);
+}
+.mtn-scene > .mtn-layer.mtn-middle {
+  z-index: 2;
+  transform: translate3d(0, calc(44svh - 44svh * var(--sv-depth)), 0);
+}
+.mtn-scene > .mtn-layer.mtn-near {
+  z-index: 4;
+  transform: translate3d(0, calc(46svh - 70svh * var(--sv-depth) + var(--mtn-near-y, 0px)), 0);
+}
+.mtn-scene > .mtn-layer.mtn-near > .mtn-ridge {
+  /* Feather the original canvas tail before its lower edge enters the ending viewport.
+     Summit geometry and canvas dimensions stay intact; the separate flanks still frame it. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+}
+.mtn-scene .mtn-flank-art {
+  opacity: calc(var(--sv-depth) * 0.82);
+  /* Added foreground paths close below the art canvas. Fade their inner tails before those
+     vertical closures enter the reading corridor; original near ridges remain fully intact. */
+  --sv-flank-mask: linear-gradient(90deg, #000 0%, #000 18%, transparent 35%, transparent 65%, #000 82%, #000 100%);
+  /* Intersect the retained inner-edge mask with the same canvas-tail feather as the ridge.
+     The separate flank canvas otherwise exposes its lower closure at the ending. */
+  -webkit-mask-image: var(--sv-flank-mask), linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image: var(--sv-flank-mask), linear-gradient(to bottom, #000 0%, #000 78%, transparent 100%);
+  mask-composite: intersect;
+}
+.mtn-scene .mtn-flank-art.mtn-tall {
+  --sv-flank-mask: linear-gradient(90deg, #000 0%, #000 26%, transparent 49%, transparent 72%, #000 94%, #000 100%);
+}
+.mtn-scene .sv-flank { fill: var(--mtn-c-near); }
+.mtn-scene .sv-flank-plane { fill: var(--mtn-plane); }
+.mtn-scene .sv-flank-rim {
+  fill: none;
+  stroke: var(--mtn-rim);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.5;
+}
+.mtn-scene .sv-haze { fill: var(--sv-haze); }
+
+/* Sky stays above the rising mountain silhouette. The quiet ending closes the aurora;
+   daylight has transparent aurora ink, with a separately authored blue-grey haze below. */
+.mtn-scene > .mtn-sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  clip-path: inset(0 0 calc(64% + 24% * var(--sv-depth)) 0);
+}
+.mtn-scene .mtn-sky-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: translate3d(var(--sv-aurora-x), var(--sv-aurora-y), 0);
+  opacity: calc((1 - var(--sv-depth)) * var(--sv-aurora-opacity));
+}
+.mtn-scene .sv-aurora-stop { stop-color: var(--sv-aurora-ink); }
+.mtn-scene .sv-aurora-thread {
+  fill: none;
+  stroke: var(--sv-aurora-ink);
+  stroke-width: 0.8;
+  opacity: 0.18;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (max-aspect-ratio: 5/4) and (max-width: 899px) {
+  .mtn-scene {
+    --mtn-veil-edge: light-dark(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.86));
+    --mtn-veil-center: light-dark(rgba(0, 0, 0, 0.26), rgba(0, 0, 0, 0.4));
+    --mtn-veil: linear-gradient(90deg, var(--mtn-veil-edge), var(--mtn-veil-center) 22%, var(--mtn-veil-center) 78%, var(--mtn-veil-edge));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mtn-scene,
+  .mtn-scene[data-mode] { --sv-rest: 0.38; --sv-span: 0; }
+  .mtn-scene > div.mtn-layer,
+  .mtn-scene .mtn-sky-art { animation: none; transition: none; translate: none; }
+}
+@media (forced-colors: active) {
+  .mtn-scene { display: none; }
+}
+
+/* One sky-to-range signature. Default markup/CSS is a complete static composition. */
+.mtn-scene {
+  --sv-sketch: 1;
+  --sv-sky-alpha: 0.86;
+  --sv-cloud-travel: 0.52;
+}
+/* Keep the liked aurora's existing sky crop, without rectangular clipping of the asterism. */
+.mtn-scene > .mtn-sky { clip-path: none; }
+.mtn-scene .mtn-sky-art { clip-path: inset(0 0 calc(64% + 24% * var(--sv-depth)) 0); }
+.mtn-scene .sv-constellation {
+  position: absolute;
+  right: 48px;
+  top: var(--sv-sky-top, calc(3.5rem + 12px));
+  width: 80px;
+  height: 56px;
+  overflow: visible;
+  /* --sv-yield (JS, 0..1) takes the drawing out of any glyph/control that nears its pocket. */
+  opacity: calc(var(--sv-sky-alpha) * var(--sv-yield, 1));
+  fill: #cbd5e4;
+  pointer-events: none;
+}
+.mtn-scene[data-sky-detail] .sv-constellation { width: 220px; height: 150px; }
+.mtn-scene .sv-constellation-full { display: none; }
+.mtn-scene[data-sky-detail] .sv-constellation-full { display: inline; }
+.mtn-scene[data-sky-detail] .sv-constellation-simple { display: none; }
+.mtn-scene .sv-constellation-path,
+.mtn-scene .sv-constellation-simple path {
+  fill: none;
+  stroke: #cbd5e4;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.mtn-scene .sv-constellation-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc((1 - var(--sv-sketch)) * 0.12);
+  opacity: 0.88;
+}
+.mtn-scene .sv-star-distant { opacity: 0.6; }
+.mtn-scene .sv-constellation-guide,
+.mtn-scene .sv-constellation-rest { fill: #e8edf4; }
+.mtn-scene .sv-constellation-rest { display: none; }
+.mtn-scene .sv-cloud-surface { display: none; }
+.mtn-scene .sv-cloud-shadow {
+  fill: #344a76;
+  fill-opacity: 0.28;
+  transform-box: view-box;
+  transform: translateX(calc(-26% + var(--sv-cloud-travel) * 58%));
+}
+.mtn-scene .sv-cloud-middle .sv-cloud-shadow {
+  fill-opacity: 0.32;
+  transform: translateX(calc(-44% + var(--sv-cloud-travel) * 102%));
+}
+.mtn-scene .sv-cloud-near .sv-cloud-shadow {
+  fill-opacity: 0.26;
+  transform: translateX(calc(-62% + var(--sv-cloud-travel) * 134%));
+}
+/* Original surface alpha and the existing scene veil preserve the reading corridor. */
+:root[data-theme='light'] .mtn-scene .sv-constellation { display: none; }
+:root[data-theme='light'] .mtn-scene .sv-cloud-surface { display: inline; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) .mtn-scene .sv-constellation { display: none; }
+  :root:not([data-theme='dark']) .mtn-scene .sv-cloud-surface { display: inline; }
+}
+@media (max-width: 899px) {
+  .mtn-scene .sv-constellation {
+    right: 16px;
+    top: var(--sv-sky-top, calc(6rem + 8px));
+    width: 48px;
+    height: 36px;
+  }
+  .mtn-scene[data-sky-detail] .sv-constellation { width: 96px; height: 84px; }
+  .mtn-scene .sv-star-distant { display: none; }
+}
+@media (max-width: 359px), (max-height: 699px) {
+  .mtn-scene[data-sky-detail] .sv-constellation,
+  .mtn-scene .sv-constellation { width: 48px; height: 30px; }
+  .mtn-scene .sv-constellation-full { display: none !important; }
+  .mtn-scene .sv-constellation-simple { display: inline !important; }
+}
+/* JavaScript-disabled night: with no script to measure copy, the fixed reading-world drawing is
+   off and a slim static 3-point summit sits in the OUTER right gutter, hung from the sticky header
+   (its containing block). top: 100% follows the real header height at any width/text size; the
+   12px column at right:2px is outside the >=16px frame gutter, so it never meets copy or targets.
+   No dependency on optional CSS features, no listener/timer, no added layout height. */
+.site-header > .sv-gutter-sky { display: none; }
+html:not(.js) .mtn-scene .sv-constellation { display: none; }
+html:not(.js):not([data-theme='light']) .site-header > .sv-gutter-sky {
+  display: block;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 2px;
+  width: 12px;
+  height: 24px;
+  max-width: none;
+  overflow: visible;
+  pointer-events: none;
+  opacity: 0.86;
+}
+.site-header > .sv-gutter-sky path {
+  fill: none;
+  stroke: #cbd5e4;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.site-header > .sv-gutter-sky circle { fill: #e8edf4; }
+@media (prefers-color-scheme: light) {
+  html:not(.js):not([data-theme='dark']) .site-header > .sv-gutter-sky { display: none; }
+}
+@media (forced-colors: active) {
+  .site-header > .sv-gutter-sky { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mtn-scene { --sv-sketch: 1 !important; --sv-sky-alpha: 0.86 !important; --sv-cloud-travel: 0.52 !important; }
+  .mtn-scene .sv-constellation-guide { display: none; }
+  .mtn-scene .sv-constellation-rest { display: inline; }
 }

@@ -362,8 +362,8 @@ test('without JavaScript the scene sits in its static pose and Mount and builds 
     const scene = page.locator('.mtn-scene');
     await expect(scene).toHaveCount(1);
     await expect(scene).not.toHaveAttribute('data-intro', /.*/);
-    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBe(72);
-    expect(await scene.locator('div.mtn-far').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBe(0);
+    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * 0.46, 1);
+    expect(await scene.locator('div.mtn-far').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * 0.34, 1);
     await expect(page.locator('.companion')).toBeDisabled();
     await expect(page.locator('.build-entry')).toHaveCount(3);
     await expect(page.locator('.hermes-note')).toHaveText(hermes);
