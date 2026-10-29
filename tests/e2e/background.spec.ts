@@ -1,4 +1,6 @@
 import { expect, test, type Browser, type BrowserContextOptions, type Page } from '@playwright/test';
+import { Buffer } from 'node:buffer';
+import { inflateSync } from 'node:zlib';
 import { builtPages } from './routes';
 
 // The living-valley scenery is part of the shared layout: every HTML page and the 404 must show it,
@@ -61,7 +63,69 @@ async function geometry(page: Page) {
   });
 }
 
-// Proof of paint: the lower viewport differs pixel-for-pixel when only the scene is hidden. For this isolated
+// Decode the browser's noninterlaced 8-bit RGB/RGBA PNGs with public Node APIs, including all PNG row filters.
+// Unsupported output fails explicitly; there is no private Playwright decoder or new dependency.
+function raster(png: Buffer) {
+  expect(png.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
+  let width = 0, height = 0, channels = 0;
+  const chunks: Buffer[] = [];
+  for (let offset = 8; offset + 12 <= png.length;) {
+    const length = png.readUInt32BE(offset);
+    expect(offset + length + 12).toBeLessThanOrEqual(png.length);
+    const kind = png.toString('ascii', offset + 4, offset + 8);
+    const chunk = png.subarray(offset + 8, offset + 8 + length);
+    if (kind === 'IHDR') {
+      width = chunk.readUInt32BE(0); height = chunk.readUInt32BE(4);
+      expect(chunk[8]).toBe(8);
+      expect([2, 6]).toContain(chunk[9]);
+      expect([...chunk.subarray(10, 13)]).toEqual([0, 0, 0]);
+      channels = chunk[9] === 6 ? 4 : 3;
+    } else if (kind === 'IDAT') chunks.push(chunk);
+    offset += length + 12;
+    if (kind === 'IEND') break;
+  }
+  expect(width * height * channels).toBeGreaterThan(0);
+  const raw = inflateSync(Buffer.concat(chunks)), stride = width * channels;
+  expect(raw.length).toBe((stride + 1) * height);
+  const data = Buffer.alloc(stride * height);
+  for (let y = 0; y < height; y++) {
+    const start = y * (stride + 1), row = y * stride, filter = raw[start];
+    if (filter > 4) throw new Error('Unsupported PNG row filter: ' + filter);
+    for (let x = 0; x < stride; x++) {
+      const left = x >= channels ? data[row + x - channels] : 0;
+      const up = y ? data[row + x - stride] : 0;
+      const corner = y && x >= channels ? data[row + x - stride - channels] : 0;
+      const p = left + up - corner;
+      const a = Math.abs(p - left), b = Math.abs(p - up), c = Math.abs(p - corner);
+      const paeth = a <= b && a <= c ? left : b <= c ? up : corner;
+      const prediction = filter === 0 ? 0 : filter === 1 ? left : filter === 2 ? up : filter === 3 ? Math.floor((left + up) / 2) : paeth;
+      data[row + x] = (raw[start + x + 1] + prediction) & 255;
+    }
+  }
+  return { width, height, channels, data };
+}
+
+function paintControls(first: Buffer, hidden: Buffer, restored: Buffer) {
+  const base = raster(first);
+  const difference = (png: Buffer) => {
+    const other = raster(png);
+    expect([other.width, other.height, other.channels]).toEqual([base.width, base.height, base.channels]);
+    let maximumChannel = 0, materialPixels = 0;
+    for (let i = 0; i < base.data.length; i += base.channels) {
+      let delta = 0;
+      for (let channel = 0; channel < base.channels; channel++) delta = Math.max(delta, Math.abs(base.data[i + channel] - other.data[i + channel]));
+      maximumChannel = Math.max(maximumChannel, delta);
+      if (delta > 2) materialPixels += 1;
+    }
+    return { maximumChannel, materialPixels };
+  };
+  // T07/round2-paint-controls-pixel-analysis.json measured restoration noise <=2/255.
+  // EVERY restored channel must stay within that bound, with unchanged composition.
+  // Hiding must change >2 levels over >=0.1% of pixels (at least 64), rejecting missing/tiny paint.
+  return { paint: difference(hidden), restoration: difference(restored), minimumPaintPixels: Math.max(64, Math.ceil(base.width * base.height * 0.001)) };
+}
+
+// Proof of paint: hiding only the scene makes a material difference beyond measured raster noise. For this isolated
 // diagnostic the companion is hidden and every other animation/transition is frozen, so identical content state
 // is compared and Mount or arrival effects cannot account for a difference. The styles are removed afterwards.
 async function painted(page: Page, js = true) {
@@ -80,12 +144,33 @@ async function painted(page: Page, js = true) {
     if (js) await page.evaluate(() => new Promise<void>(done => requestAnimationFrame(() => requestAnimationFrame(() => done()))));
     else await page.waitForTimeout(32);
     const withScene = await page.screenshot({ clip, animations: 'disabled' });
+    const composition = () => page.locator('.mtn-scene').evaluate(el => {
+      const rect = (node: Element) => { const r = node.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; };
+      const main = document.querySelector('main')!;
+      return {
+        viewport: [innerWidth, innerHeight, scrollX, scrollY, document.documentElement.scrollWidth, document.documentElement.scrollHeight],
+        theme: document.documentElement.dataset.theme, mode: (el as HTMLElement).dataset.mode,
+        progress: getComputedStyle(el).getPropertyValue('--sv-progress'), scene: rect(el),
+        layers: [...el.querySelectorAll(':scope > .mtn-layer')].map(layer => ({
+          rect: rect(layer), transform: getComputedStyle(layer).transform, translate: getComputedStyle(layer).translate,
+        })),
+        text: main.textContent, content: rect(main),
+      };
+    });
+    const before = await composition();
     const hide = await style('.mtn-scene { visibility: hidden !important; }');
-    const without = await page.screenshot({ clip, animations: 'disabled' });
-    await hide.evaluate(el => el.remove());
-    const again = await page.screenshot({ clip, animations: 'disabled' });
-    // The scene-visible state is reproducible, so the difference above is the landscape alone.
-    return !withScene.equals(without) && withScene.equals(again);
+    try {
+      const without = await page.screenshot({ clip, animations: 'disabled' });
+      await hide.evaluate(el => el.remove());
+      const again = await page.screenshot({ clip, animations: 'disabled' });
+      const after = await composition();
+      const controls = paintControls(withScene, without, again);
+      await test.info().attach('scene-paint-controls', { body: JSON.stringify({ route: page.url(), js, ...controls, before, after }, null, 2), contentType: 'application/json' });
+      expect(after, 'hiding/restoring decoration preserves geometry, content, theme and progress').toEqual(before);
+      return controls.paint.materialPixels >= controls.minimumPaintPixels && controls.restoration.maximumChannel <= 2;
+    } finally {
+      await hide.evaluate(el => el.remove());
+    }
   } finally {
     await still.evaluate(el => el.remove());
   }
@@ -118,21 +203,24 @@ for (const [name, options] of [['desktop', desktop], ['phone', phone]] as const)
   }
 }
 
-test('an inner page scrolls with the camera: the scene stays fixed, depth moves, no errors', async ({ browser, baseURL }) => {
+test('a calm inner page keeps fixed depth and refuses pointer motion while native content scrolls', async ({ browser, baseURL }) => {
   await open(browser, baseURL, desktop, async page => {
     await page.goto('/about/');
     await settle(page);
     const scene = page.locator('.mtn-scene');
-    const near = () => scene.evaluate(el => parseFloat(el.style.getPropertyValue('--mtn-near-y')));
+    const near = () => scene.locator(':scope > .mtn-layer.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).m42);
     const before = await near();
     await page.mouse.wheel(0, 3000);
     await expect.poll(() => page.evaluate(() => scrollY), { timeout: 4000 }).toBeGreaterThan(0);
-    await expect.poll(near, { timeout: 4000 }).toBeLessThan(before);
+    expect(await near()).toBeCloseTo(before, 2);
+    expect(before).toBeCloseTo(900 * (0.46 - 0.7 * 0.44), 1);
     const g = await geometry(page);
     expect([g.top, g.left, g.width, g.height]).toEqual([0, 0, g.viewW, g.viewH]);
-    // Mouse camera is live on inner pages too (fine pointer), and the guarded frame loop never throws.
+    // Calm prose refuses the fine-pointer camera while content and native scrolling remain usable.
+    expect(await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)).toBe(true);
     await page.mouse.move(1439, 899);
-    await expect.poll(async () => scene.evaluate(el => parseFloat(el.style.getPropertyValue('--mtn-fx'))), { timeout: 3000 }).toBeLessThan(-2.5);
+    await expect(scene).not.toHaveAttribute('data-cam', /.*/);
+    expect(await near()).toBeCloseTo(before, 2);
   });
 });
 
@@ -148,7 +236,7 @@ test('reduced motion keeps a still, painted scene on an inner page', async ({ br
     await page.waitForTimeout(250);
     await expect(scene).not.toHaveAttribute('data-cam', /.*/);
     expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
-    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBe(72);
+    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * (0.46 - 0.7 * 0.38), 1);
     expect((await geometry(page)).drawnRims).toBeGreaterThan(0);
     expect(await painted(page)).toBe(true);
   });

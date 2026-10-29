@@ -1,0 +1,133 @@
+/* Passing valley mist. One soft ribbon between the far and near ridges: a single finite
+   transform/opacity pass that atmosphere.js starts (data-run) and removes. At rest it is invisible,
+   so noJS, reduced motion, forced colours and paused states show only the solid scenery. */
+.mtn-mist {
+  --mist: light-dark(rgba(96, 124, 176, 0.2), rgba(150, 176, 238, 0.2));
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  display: none; /* revealed only with script, no reduced motion */
+}
+
+.mtn-mist-ribbon {
+  position: absolute;
+  left: 0;
+  top: 44%;
+  width: 80%;
+  height: 18%;
+  opacity: 0;
+  transform: translate3d(-100%, 0, 0);
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, var(--mist) 0%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .mtn-mist { display: block; }
+
+  .mtn-mist[data-run] .mtn-mist-ribbon {
+    will-change: transform, opacity;
+    animation: mtn-mist-pass 7000ms cubic-bezier(0.45, 0, 0.25, 1) 1 both;
+  }
+}
+
+@keyframes mtn-mist-pass {
+  from { transform: translate3d(-100%, 0, 0); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  to { transform: translate3d(125%, 0, 0); opacity: 0; }
+}
+
+/* Mount's hello earns a visibly different answer than the ambient pass: the original ridge edges
+   (.mtn-rim) are re-traced, far then near over about 900ms, and settle back to their exact solid rest
+   stroke. Only the dash offset animates; the stroke colour and alpha are unchanged. mountains.js sets data-trace
+   (plus a temporary pathLength) only when atmosphere.js admits the hello, so every pause, hidden,
+   scrolled, reduced and forced guard applies, and it clears both on animationend or any snap. */
+@media (prefers-reduced-motion: no-preference) and (not (forced-colors: active)) {
+  .mtn-scene[data-trace] .mtn-rim {
+    stroke-dasharray: 1;
+    animation: mtn-rim-hello 500ms cubic-bezier(0.16, 1, 0.3, 1) 1 both;
+  }
+  .mtn-scene[data-trace] > div.mtn-near .mtn-rim { animation-duration: 600ms; animation-delay: 300ms; }
+}
+
+@keyframes mtn-rim-hello {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@media (forced-colors: active) {
+  .mtn-mist { display: none !important; }
+}
+
+/* Footer control: native button, shown only once atmosphere.js is running. */
+.atmosphere-toggle {
+  min-height: var(--hit, 44px);
+  min-width: 44px;
+  grid-column: 1 / -1; /* the footer frame may be a grid */
+  justify-self: start;
+  margin-top: var(--s3);
+  padding: 0 var(--s3);
+  border: 1px solid var(--line);
+  background: var(--void);
+  color: var(--lume);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.atmosphere-toggle[hidden] {
+  display: none;
+}
+
+/* Fixed box (same for Pause and Resume) so the label swap never shifts the footer. */
+.atmosphere-toggle {
+  box-sizing: border-box;
+  width: min(11.5rem, 100%);
+  height: var(--hit, 44px);
+  line-height: 1;
+  text-align: center;
+}
+
+/* With script and motion allowed, the slot is reserved before first paint: laid out but
+   invisible (visibility:hidden also removes it from focus and the accessibility tree) until
+   atmosphere.js removes `hidden`. noJS, reduced motion and forced colours keep display:none. */
+@media (prefers-reduced-motion: no-preference) and (not (forced-colors: active)) {
+  .js .atmosphere-toggle[hidden] {
+    display: inline-block;
+    visibility: hidden;
+  }
+}
+
+.atmosphere-toggle:hover {
+  border-color: var(--lume);
+}
+
+.atmosphere-toggle:focus-visible {
+  outline: 2px solid var(--lume);
+  outline-offset: 3px;
+}
+
+/* Visually hidden live status that describes the toggle ("Atmosphere paused / running"). */
+.atmosphere-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* One real mist between the independent middle and near planes. Retain the existing finite
+   data-run / data-trace responses until T04 connects their shared eligibility/progress owner. */
+.mtn-scene > .mtn-mist {
+  z-index: 3;
+  --mist: light-dark(rgba(225, 237, 251, 0.32), rgba(137, 159, 202, 0.12));
+}
+.mtn-scene > .mtn-mist .mtn-mist-ribbon {
+  top: calc(76% - 24% * var(--sv-depth));
+  height: 11%;
+}
+.mtn-scene[data-mode='calm'] > .mtn-mist { display: none; }

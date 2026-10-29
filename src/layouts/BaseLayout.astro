@@ -44,6 +44,18 @@ function isCurrent(href: string): boolean {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Native page-navigation opt-in, first in the head: the incoming reveal must know it before stylesheets load.
+         The only @view-transition rule; animation and naming selectors stay in global.css. -->
+    <style is:inline>
+      @supports selector(:active-view-transition-type(sonwork-page)) {
+        @media (prefers-reduced-motion: no-preference) and (not (forced-colors: active)) {
+          @view-transition {
+            navigation: auto;
+            types: sonwork-page;
+          }
+        }
+      }
+    </style>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noIndex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
@@ -73,9 +85,12 @@ function isCurrent(href: string): boolean {
     {type === 'article' && <link rel="preload" href="/fonts/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />}
     <!-- Mount: native button, focus, touch and motion behaviour (styles come from companion.css above). -->
     <script is:inline src="/companion.js" defer></script>
-    <!-- Site-wide landscape: every page renders exactly one scene with its single stylesheet and script. -->
+    <!-- One shared scene. Defer order: native Mount producer, landscape frame, atmosphere eligibility. -->
     <link rel="stylesheet" href="/mountains/mountains.css" />
     <script is:inline src="/mountains/mountains.js" defer></script>
+    <!-- Atmosphere connects the existing Pause/hello policy; finite effects never schedule idle recurrence. -->
+    <link rel="stylesheet" href="/atmosphere.css" />
+    <script is:inline src="/atmosphere.js" defer></script>
   </head>
   <body class="mountains">
     <MountainScene />
@@ -97,17 +112,20 @@ function isCurrent(href: string): boolean {
         </nav>
         <ThemeToggle />
       </div>
+      <svg class="sv-gutter-sky" viewBox="0 0 12 24" width="12" height="24" aria-hidden="true" focusable="false"><path d="M2.5 20.5L6 3.5L9.5 15"></path><circle cx="2.5" cy="20.5" r="1.5"></circle><circle cx="6" cy="3.5" r="1.5"></circle><circle cx="9.5" cy="15" r="1.5"></circle></svg>
     </header>
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <footer class="site-footer">
+    <footer class="site-footer" data-valley-landmark="footer">
       <div class="frame">
         <div class="footer-seat"><span class="footer-slot" aria-hidden="true"></span><button class="footer-top" id="companion-return" type="button" hidden>Back to top</button></div>
         <p class="footer-name"><span>Son</span><span>sonwork.org</span></p>
         <ul class="contact-links">
           {contact.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
         </ul>
+        <button class="atmosphere-toggle" type="button" aria-describedby="atmosphere-status" hidden>Pause atmosphere</button>
+        <span class="atmosphere-status" id="atmosphere-status" role="status"></span>
       </div>
     </footer>
     <script>

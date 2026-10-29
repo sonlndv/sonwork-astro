@@ -31,27 +31,90 @@
   }
 
   const motion = matchMedia('(prefers-reduced-motion: no-preference)');
+  const forced = matchMedia('(forced-colors: active)');
+  const APERTURE_MS = 480;
+  const FEATHER_PX = 4;
+  // Soft edge: a typed length animated beside clipPath in the same effect, read by a narrow radial mask
+  // in global.css. Its initial value is huge, so with no animation driving it the mask is fully opaque.
+  // Missing registerProperty or mask support keeps the sharp circle.
+  let featherReady = false;
+  try {
+    if (
+      typeof CSS !== 'undefined' && typeof CSS.registerProperty === 'function' &&
+      CSS.supports('mask-image', 'radial-gradient(circle at 0px 0px, #000 0px, transparent 1px)')
+    ) {
+      CSS.registerProperty({ name: '--aperture-r', syntax: '<length>', inherits: false, initialValue: '100000px' });
+      featherReady = true;
+    }
+  } catch {}
+  // Clears every flag and position this file owns on the root for the soft edge.
+  const clearEdge = () => {
+    delete root.dataset.themeVtEdge;
+    root.style.removeProperty('--aperture-x');
+    root.style.removeProperty('--aperture-y');
+  };
+  const endMarker = () => {
+    clearEdge();
+    delete root.dataset.themeVt;
+  };
   let transition: ViewTransition | undefined;
   let desired = current();
-  motion.addEventListener('change', () => transition?.skipTransition());
-  button?.addEventListener('click', () => {
+  const settle = () => transition?.skipTransition();
+  motion.addEventListener('change', settle);
+  forced.addEventListener('change', settle);
+  button?.addEventListener('click', (event) => {
     desired = (transition ? desired : current()) === 'dark' ? 'light' : 'dark';
     transition?.skipTransition();
+    clearEdge();
+    // Always applies the latest wish, so a skipped earlier callback can never leave a stale theme.
     const apply = () => {
       root.dataset.theme = desired;
       try { localStorage.setItem('theme', desired); } catch {}
       label();
     };
-    if (motion.matches && document.startViewTransition) {
-      try {
-        const next = document.startViewTransition(apply);
-        transition = next;
-        void next.finished.catch(() => {}).finally(() => {
-          if (transition === next) transition = undefined;
-        });
-        void next.ready.catch(() => {});
-      } catch { apply(); }
-    } else apply();
+    if (!motion.matches || forced.matches || typeof document.startViewTransition !== 'function') {
+      endMarker();
+      apply();
+      return;
+    }
+    // Day and night open from the real button centre (pointer and keyboard alike) out to the far corner.
+    const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    root.dataset.themeVt = 'aperture';
+    try {
+      const next = document.startViewTransition(apply);
+      transition = next;
+      void next.ready.then(() => {
+        if (transition !== next) return;
+        const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`];
+        const timing = { duration: APERTURE_MS, easing: 'cubic-bezier(0.5, 0, 0.15, 1)', pseudoElement: '::view-transition-new(root)' };
+        if (featherReady) {
+          try {
+            root.style.setProperty('--aperture-x', `${x}px`);
+            root.style.setProperty('--aperture-y', `${y}px`);
+            // Ends past the clip radius so the feather has left the viewport and the snapshot is fully opaque.
+            root.animate({ clipPath, '--aperture-r': ['0px', `${radius + FEATHER_PX}px`] }, timing);
+            root.dataset.themeVtEdge = 'feather';
+            return;
+          } catch {
+            clearEdge();
+          }
+        }
+        root.animate({ clipPath }, timing);
+      }).catch(() => {});
+      void next.finished.catch(() => {}).finally(() => {
+        if (transition !== next) return;
+        transition = undefined;
+        endMarker();
+        if (root.dataset.theme !== desired) apply();
+      });
+    } catch {
+      transition = undefined;
+      endMarker();
+      apply();
+    }
   });
   light.addEventListener('change', label);
   label();

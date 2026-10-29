@@ -83,10 +83,17 @@
   function clearPose() {
     clearTimeout(poseTimer);
     poseTimer = 0;
+    if (btn.dataset.pose === 'perk') {
+      btn.style.removeProperty('--look-x');
+      btn.style.removeProperty('--look-y');
+      btn.style.removeProperty('--look-r');
+    }
     btn.removeAttribute('data-pose');
   }
 
   function setPose(name, ms) {
+    // A contextual perk is only a courtesy: a real landing/nod replaces it at once.
+    if (btn.dataset.pose === 'perk' && name !== 'perk') clearPose();
     if (reduce.matches || document.hidden || blinkTimer || poseTimer) return;
     resetGaze();
     btn.dataset.pose = name;
@@ -138,6 +145,8 @@
     btn.dataset.greetingState = 'greeting';
     btn.dataset.greetings = String(Number(btn.dataset.greetings || 0) + 1);
     blinkTimer = setTimeout(stopBlink, GREETING_MS);
+    // The valley answers (atmosphere.js decides whether a soft mist pass is eligible).
+    document.dispatchEvent(new CustomEvent('sonwork:greet'));
   }
 
   // ---- perches ---------------------------------------------------------------
@@ -344,6 +353,63 @@
         update();
       });
     }
+  }
+
+  // ---- contextual perk (finite; reuses the pose timer, gaze clamp and seat rules) -----------------
+  // Hover, keyboard focus or an intentional touch on a project entry: Mount looks toward it once.
+  const PERK_MS = 560;
+  const PERK_GAP_MS = 1200; // the same entry cannot re-trigger inside this window
+  let perkEntry = null;
+  let perkAt = 0;
+
+  const entryOf = (t) => {
+    const el = t instanceof Element ? t.closest('.build-entry, li, article') : null;
+    return el && projects?.contains(el) && el.querySelector('a[href]') ? el : null;
+  };
+
+  function perk(entry) {
+    if (
+      !entry || station === 'footer' || blinkTimer || poseTimer || strollTimer || moving || hopTimer ||
+      open || returning || btn.disabled || btn.dataset.fade || reduce.matches || document.hidden ||
+      document.activeElement === btn
+    ) return;
+    const now = performance.now();
+    if (entry === perkEntry && now - perkAt < PERK_GAP_MS) return;
+    const svg = btn.querySelector('svg');
+    if (!svg) return;
+    const s = svg.getBoundingClientRect();
+    const e = entry.getBoundingClientRect();
+    const dx = e.left + Math.min(e.width, 240) / 2 - (s.left + s.width / 2);
+    const dy = e.top + Math.min(e.height, 120) / 2 - (s.top + s.height / 2);
+    const d = Math.hypot(dx, dy);
+    if (!d) return;
+    perkEntry = entry;
+    perkAt = now;
+    cancelStarter();
+    resetGaze();
+    const k = d / (d + LOOK_GAIN);
+    btn.style.setProperty('--look-x', `${((dx / d) * k * LOOK_X).toFixed(2)}px`);
+    btn.style.setProperty('--look-y', `${((dy / d) * k * LOOK_Y).toFixed(2)}px`);
+    btn.style.setProperty('--look-r', `${((dx / d) * k * LOOK_R).toFixed(2)}deg`);
+    btn.dataset.pose = 'perk';
+    btn.dataset.perks = String(Number(btn.dataset.perks || 0) + 1);
+    poseTimer = setTimeout(clearPose, PERK_MS);
+  }
+
+  if (projects) {
+    document.addEventListener('pointerover', (e) => {
+      if (e.pointerType !== 'mouse' || !e.isTrusted || !fine.matches) return;
+      const entry = entryOf(e.target);
+      if (entry && !entry.contains(e.relatedTarget)) perk(entry);
+    }, { passive: true });
+    document.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse' || !e.isTrusted) return; // touch/pen; never prevented, so the link still opens
+      perk(entryOf(e.target));
+    }, { passive: true });
+    document.addEventListener('focusin', (e) => {
+      const t = e.target;
+      if (t instanceof Element && t.matches('a[href]:focus-visible')) perk(entryOf(t));
+    });
   }
 
   // ---- events ----------------------------------------------------------------

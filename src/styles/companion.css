@@ -209,8 +209,30 @@
   text-decoration: none;
 }
 
-.build-entry h3 a:hover {
+.build-entry h3 a:focus-visible {
   color: var(--lume);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .build-entry h3 a:hover {
+    color: var(--lume);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .build-entry .arrow {
+    transition: transform 160ms var(--out);
+  }
+
+  .build-entry a:focus-visible .arrow {
+    transform: translateX(2px);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .build-entry a:hover .arrow {
+      transform: translateX(2px);
+    }
+  }
 }
 
 .build-entry .build-status {
@@ -310,6 +332,26 @@
     rotate: var(--look-r, 0deg);
     transition: rotate 120ms ease-out;
   }
+}
+
+/* Contextual perk (companion.js sets data-pose="perk" for 560ms): eyes and body lean toward the
+   project entry using the same clamped --look-* values as the pointer gaze. Finite, one iteration. */
+@media (prefers-reduced-motion: no-preference) {
+  .companion[data-pose="perk"] .body {
+    animation: companion-perk 560ms cubic-bezier(0.16, 1, 0.3, 1) 1;
+    rotate: var(--look-r, 0deg);
+  }
+
+  .companion[data-pose="perk"] .eye {
+    translate: var(--look-x, 0px) var(--look-y, 0px);
+    transition: translate 120ms ease-out;
+  }
+}
+
+@keyframes companion-perk {
+  0%, 100% { transform: rotate(-1deg) scale(1, 1); }
+  35% { transform: translateY(-4%) rotate(-1deg) scale(0.98, 1.05); }
+  70% { transform: rotate(-1deg) scale(1.02, 0.98); }
 }
 
 @keyframes companion-hello {

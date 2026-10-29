@@ -1,5 +1,16 @@
 ---
 // Site-wide landscape, rendered once by BaseLayout: owned static art, rendered as authored markup.
 import scene from '../assets/mountain-scene.html?raw';
+
+// The owned asset has independent sky, far, middle and near planes. Insert mist once at its
+// explicit middle/near boundary; moving original SVG groups never changes their path data.
+const anchor = '<!-- sonwork:mist-boundary -->';
+if (scene.split(anchor).length !== 2) throw new Error('mountain-scene.html: mist anchor is missing or not unique');
+const mist = '<div class="mtn-mist" aria-hidden="true"><i class="mtn-mist-ribbon"></i></div>';
+const route = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1') || '/';
+const mode = route === '/' ? 'home' : ['/work', '/writing'].includes(route) ? 'index' : 'calm';
+const modeAnchor = 'data-mode="calm"';
+if (scene.split(modeAnchor).length !== 2) throw new Error('mountain-scene.html: mode anchor is missing or not unique');
+const layered = scene.replace(anchor, mist).replace(modeAnchor, `data-mode="${mode}"`);
 ---
-<Fragment set:html={scene} />
+<Fragment set:html={layered} />
