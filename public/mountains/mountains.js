@@ -1,13 +1,14 @@
 (() => {
   // One event-driven landscape frame. atmosphere.js supplies the sole eligibility/preference
   // policy after this deferred renderer loads; finite effects never schedule another scroll driver.
+  // The night sky lives inside the far-ridge SVGs (see mountain-scene.html) and is posed purely by
+  // CSS from --sv-progress, so this frame has no sky geometry of its own.
   const scene = document.querySelector('.mtn-scene');
   if (!scene) return;
   const doc = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const forced = matchMedia('(forced-colors: active)');
   const fine = matchMedia('(hover: hover) and (pointer: fine)');
-  const daylight = matchMedia('(prefers-color-scheme: light)');
   const mode = scene.dataset.mode || 'calm';
   const main = document.querySelector('main');
   const header = document.querySelector('.site-header');
@@ -20,17 +21,10 @@
   const list = section && section.querySelector('.build-list');
   const mount = document.querySelector('.companion');
   const rims = scene.querySelectorAll('.mtn-rim');
-  const sketch = scene.querySelector('.sv-constellation-path');
-  const guide = scene.querySelector('.sv-constellation-guide');
-  const sky = scene.querySelector('.sv-constellation');
-  // Sample owned SVG geometry once, before any scene writes. Frames interpolate this small table.
-  const sketchLength = sketch ? sketch.getTotalLength() : 0;
-  const starRoute = sketch ? Array.from({ length: 65 }, (_, i) => {
-    const p = sketch.getPointAtLength(sketchLength * i / 64);
-    return { x: p.x, y: p.y };
-  }) : null;
-  const cameraKeys = ['fx', 'fy', 'nx', 'ny'];
-  const auroras = new Set();
+  const cameraKeys = ['fx', 'fy', 'nx', 'ny', 'ax', 'ay', 'ak', 'sx', 'sy'];
+  // Stable references: the scene box is the LARGE viewport tall, the far layer is the SMALL viewport
+  // (svh) + 720px. Neither follows transient browser-bar / visualViewport heights.
+  const farLayer = scene.querySelector('.mtn-far');
   let policy = null;
   let raf = 0;
   let dirty = true;
@@ -54,10 +48,6 @@
     scene.removeAttribute('data-cam');
     cameraKeys.forEach(key => scene.style.removeProperty('--mtn-' + key));
   };
-  const clearAurora = () => {
-    for (const animation of [...auroras]) animation.cancel();
-    auroras.clear();
-  };
   const solidRims = () => rims.forEach(rim => rim.removeAttribute('pathLength'));
   const finishIntro = (completed = false) => {
     if (!intro) return;
@@ -73,7 +63,6 @@
   };
   const interrupt = () => {
     clearCamera();
-    clearAurora();
     finishIntro();
     clearTrace();
     policy?.cancel();
@@ -93,11 +82,16 @@
   // Geometry reads are confined to invalidation. The artwork has no influence on page height.
   function measure() {
     const y = scrollY;
-    const height = window.visualViewport?.height || innerHeight;
-    const width = window.visualViewport?.width || innerWidth;
-    const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-    const reader = headerBottom + Math.max(0, height - headerBottom) * 0.45 + (window.visualViewport?.offsetTop || 0);
-    const span = Math.max(0, doc.scrollHeight - innerHeight);
+    // Layout sizes (offset*) ignore transforms and the visual viewport, so a collapsing toolbar cannot
+    // move the landmarks. Real resize, rotation, font and zoom changes still change them and invalidate.
+    const large = scene.offsetHeight || innerHeight;
+    const small = farLayer && farLayer.offsetHeight > 720 ? farLayer.offsetHeight - 720 : large;
+    const height = large;
+    const width = scene.offsetWidth || innerWidth;
+    const headerBottom = header ? header.offsetHeight : 0;
+    const reader = headerBottom + Math.max(0, small - headerBottom) * 0.45;
+    // Measured against the large viewport so the final scroll position (bars collapsed) reaches 1.
+    const span = Math.max(0, doc.scrollHeight - large);
     const top = node => node ? node.getBoundingClientRect().top + y : span + reader;
     let knots = [{ y: 0, p: 0 }, { y: span, p: 1 }];
     let projectTop = Infinity;
@@ -119,73 +113,34 @@
       for (let i = values.length - 2; i > 0; i--) values[i] = Math.min(values[i], values[i + 1] - gap);
       knots = values.map((value, i) => ({ y: value, p: [0, 0.48, 0.82, 0.94, 1][i] }));
     }
+    // Monotone cubic Hermite (PCHIP) tangents: continuous slope at every landmark, no overshoot.
+    const gaps = [], rates = [];
+    for (let i = 0; i < knots.length - 1; i++) {
+      gaps[i] = Math.max(0.001, knots[i + 1].y - knots[i].y);
+      rates[i] = (knots[i + 1].p - knots[i].p) / gaps[i];
+    }
+    knots[0].m = rates[0];
+    knots[knots.length - 1].m = rates[rates.length - 1];
+    for (let i = 1; i < knots.length - 1; i++) {
+      if (rates[i - 1] * rates[i] <= 0) { knots[i].m = 0; continue; }
+      const w1 = 2 * gaps[i] + gaps[i - 1], w2 = gaps[i] + 2 * gaps[i - 1];
+      knots[i].m = (w1 + w2) / (w1 / rates[i - 1] + w2 / rates[i]);
+    }
     const big = parseFloat(getComputedStyle(doc).fontSize) > 20;
-    const heading = document.querySelector('h1');
-    let glyphs = null;
-    if (heading) {
-      const range = document.createRange();
-      range.selectNodeContents(heading);
-      glyphs = range.getBoundingClientRect();
-    }
-    let skySmall = mode === 'calm' || big || width < 360 || height < 700 ||
-      (width < 900 && glyphs && glyphs.right > width - 118);
-    const skyTopFor = small => small ? headerBottom + 5 :
-      // Document-owned: the heading's position at scroll 0, never its current scrolled position.
-      Math.max(headerBottom + 14, (glyphs ? glyphs.top + y : headerBottom + 42) - 20);
-    // The fixed drawing owns one sky pocket. Fit it, then read the painted box and the actual
-    // glyph/control rectangles that can ever cross it, so frames only compare numbers.
-    const fit = small => {
-      scene.toggleAttribute('data-sky-detail', !small);
-      scene.style.setProperty('--sv-sky-top', skyTopFor(small).toFixed(2) + 'px');
-      return skyRects(y);
-    };
-    let sky = fit(skySmall);
-    // A full drawing with no calm room beside the opening copy becomes the small summit.
-    if (!skySmall && sky && clearance(sky, 0) < 1) {
-      skySmall = true;
-      sky = fit(true);
-    }
-    geometry = { span, height, width, reader, knots, projectTop, projectLeft,
-      big, skySmall, skyTop: skyTopFor(skySmall), sky, generation: ++generation };
+    geometry = { span, height, width, reader, knots, projectTop, projectLeft, big, generation: ++generation };
     dirty = false;
-  }
-  function skyRects(y) {
-    const box = sky && sky.getBoundingClientRect();
-    if (!box || !box.width || !box.height) return null;
-    const area = { l: box.left - 10, r: box.right + 10, t: box.top - 8, b: box.bottom + 8 };
-    const rects = [];
-    const skip = node => !node || !!node.closest('.site-header, .mtn-scene, .companion, script, style, noscript');
-    const take = r => {
-      if (r.width > 0 && r.height > 0 && r.right > area.l && r.left < area.r) rects.push({ t: r.top + y, b: r.bottom + y });
-    };
-    const range = document.createRange();
-    for (const root of [main, footer]) {
-      if (!root) continue;
-      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-        if (!node.nodeValue.trim() || skip(node.parentElement)) continue;
-        range.selectNodeContents(node);
-        for (const r of range.getClientRects()) take(r);
-      }
-      root.querySelectorAll('a, button, input, select, textarea, summary').forEach(node => {
-        if (!skip(node)) take(node.getBoundingClientRect());
-      });
-    }
-    return { area, rects };
-  }
-  // 0 when any painted glyph/control is within the pocket at this scroll, 1 once it is 28px clear.
-  function clearance(box, scroll) {
-    let gap = Infinity;
-    for (const r of box.rects) gap = Math.min(gap, Math.max(r.t - scroll - box.area.b, box.area.t - (r.b - scroll)));
-    return clamp(gap / 28);
   }
   function position(y) {
     if (!geometry.span || mode === 'calm') return 0;
     const knots = geometry.knots;
+    if (y <= knots[0].y) return knots[0].p;
     for (let i = 1; i < knots.length; i++) {
       if (y <= knots[i].y) {
         const a = knots[i - 1], b = knots[i];
-        return a.p + (b.p - a.p) * clamp((y - a.y) / Math.max(0.001, b.y - a.y));
+        const h = Math.max(0.001, b.y - a.y);
+        const t = clamp((y - a.y) / h), t2 = t * t, t3 = t2 * t;
+        return clamp((2 * t3 - 3 * t2 + 1) * a.p + (t3 - 2 * t2 + t) * h * a.m +
+          (-2 * t3 + 3 * t2) * b.p + (t3 - t2) * h * b.m);
       }
     }
     return 1;
@@ -196,22 +151,9 @@
     scene.dataset.progress = progress.toFixed(5);
     scene.dataset.geometry = String(geometry.generation);
     scene.toggleAttribute('data-big', geometry.big);
-    // Same native progress and eligibility as the ridges; no independent star/cloud scheduler.
-    const staticSky = reduce.matches || geometry.skySmall || mode === 'calm';
-    const step = staticSky ? 1 : mode === 'index' ? 0.35 + 0.25 * progress : clamp(progress / 0.48);
-    const alpha = staticSky ? 0.86 : mode === 'index' ? 0.6 : 1 - clamp((progress - 0.26) / 0.36);
-    scene.toggleAttribute('data-sky-detail', !geometry.skySmall);
-    scene.style.setProperty('--sv-sky-top', geometry.skyTop.toFixed(2) + 'px');
-    scene.style.setProperty('--sv-sketch', step.toFixed(5));
-    scene.style.setProperty('--sv-sky-alpha', alpha.toFixed(5));
-    scene.style.setProperty('--sv-yield', (geometry.sky ? clearance(geometry.sky, y) : 1).toFixed(3));
+    // Same native progress and eligibility as the ridges; no independent cloud/sky scheduler.
     scene.style.setProperty('--sv-cloud-travel', (reduce.matches || mode === 'calm' ? 0.52 :
       mode === 'index' ? 0.32 + 0.2 * progress : clamp(progress / 0.82)).toFixed(5));
-    if (guide && starRoute) {
-      const at = step * 64, lower = Math.floor(at), a = starRoute[lower], b = starRoute[Math.min(64, lower + 1)];
-      guide.setAttribute('cx', (a.x + (b.x - a.x) * (at - lower)).toFixed(3));
-      guide.setAttribute('cy', (a.y + (b.y - a.y) * (at - lower)).toFixed(3));
-    }
   }
   function phrase() {
     if (phraseDone || !section) return;
@@ -221,15 +163,8 @@
   }
   function frame() {
     raf = 0;
-    if (!eligible()) {
-      // Paused/reduced/hidden: nothing moves or replays, but the static drawing must still
-      // yield to copy after a scroll, font load, zoom or text enlargement.
-      if (policy && !away && !document.hidden) {
-        if (dirty || !geometry) measure();
-        scene.style.setProperty('--sv-yield', (geometry.sky ? clearance(geometry.sky, scrollY) : 1).toFixed(3));
-      }
-      return;
-    }
+    // Paused/reduced/hidden: nothing moves or replays; the composition stays as last painted.
+    if (!eligible()) return;
     if (dirty || !geometry) measure();
     const y = scrollY;
     // All geometry reads above precede this frame's scene writes.
@@ -240,13 +175,14 @@
       pointer = null;
       camera = true;
       scene.setAttribute('data-cam', '');
-      [-3 * x, -py, -9 * x, -3 * py].forEach((value, i) => scene.style.setProperty('--mtn-' + cameraKeys[i], value + 'px'));
+      // One viewpoint: far/near terrain, then sky as counter-offsets on the far plane (aurora farther, stars farthest).
+      [-3 * x, -py, -9 * x, -3 * py, 1.2 * x, 0.5 * py, 0.5 * x, 2 * x, 0.7 * py].forEach((value, i) => scene.style.setProperty('--mtn-' + cameraKeys[i], i < 4 ? value + 'px' : value.toFixed(2)));
     }
     if (landed || (y > 0 && geometry.projectLeft < 88 && geometry.projectTop - y <= geometry.reader)) phrase();
     landed = false;
   }
   function ask() {
-    // One-shot per event; the fixed sky must follow native scroll on every page, in any state.
+    // One-shot per event; the fixed world must follow native scroll on every page, in any state.
     if (!raf && policy && !away && !document.hidden) raf = requestAnimationFrame(frame);
   }
   function invalidate() {
@@ -260,27 +196,6 @@
     ask();
     if (!eligible() && geometry && geometry.projectTop - scrollY <= geometry.reader) phraseDone = true;
   }
-  function auroraAnswer() {
-    clearAurora();
-    const dark = doc.dataset.theme === 'dark' || (doc.dataset.theme !== 'light' && !daylight.matches);
-    if (!eligible() || mode === 'calm' || !dark) return;
-    // A bounded browser-owned effect, admitted by the same policy as mist/rims. No JS tick.
-    const layers = [...scene.querySelectorAll('.mtn-sky-art')].map(art => {
-      const style = getComputedStyle(art);
-      return { art, opacity: Number(style.opacity), visible: style.display !== 'none' };
-    });
-    layers.forEach(({ art, opacity, visible }) => {
-      if (!visible || typeof art.animate !== 'function') return;
-      const animation = art.animate([
-        { transform: 'translate3d(0,0,0)', opacity },
-        { transform: 'translate3d(8px,-3px,0)', opacity: opacity * 0.82, offset: 0.5 },
-        { transform: 'translate3d(0,0,0)', opacity },
-      ], { duration: 1400, easing: 'cubic-bezier(0.16,1,0.3,1)', iterations: 1 });
-      auroras.add(animation);
-      animation.oncancel = () => auroras.delete(animation);
-      animation.onfinish = () => { auroras.delete(animation); animation.cancel(); };
-    });
-  }
   function answer() {
     if (!eligible() || !policy.canAnswer()) return;
     finishIntro();
@@ -289,7 +204,6 @@
       rims.forEach(rim => rim.setAttribute('pathLength', 1));
       scene.setAttribute('data-trace', '');
     }
-    auroraAnswer();
   }
 
   // This is the existing renderer's connection to the existing atmosphere policy, not another
@@ -319,7 +233,8 @@
       }
       if (!eligible()) phraseDone = true;
     },
-    auroraAnswer,
+    // The sky has no hello response; atmosphere.js still calls this after the arrival.
+    auroraAnswer() {},
     isActive: eligible,
   };
 
@@ -379,8 +294,9 @@
     const sizes = new ResizeObserver(invalidate);
     [main, header, footer, about].forEach(node => { if (node) sizes.observe(node); });
   }
-  new MutationObserver(() => { clearAurora(); invalidate(); }).observe(doc, { attributes: true, attributeFilter: ['data-theme'] });
-  daylight.addEventListener('change', () => { clearAurora(); invalidate(); });
+  const recolor = () => { clearCamera(); invalidate(); };
+  new MutationObserver(recolor).observe(doc, { attributes: true, attributeFilter: ['data-theme'] });
+  matchMedia('(prefers-color-scheme: light)').addEventListener('change', recolor);
   reduce.addEventListener('change', refresh);
   forced.addEventListener('change', refresh);
   document.addEventListener('visibilitychange', refresh);

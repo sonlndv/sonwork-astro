@@ -7,7 +7,7 @@ colors:
   line: "oklch(0.3 0.008 254)"
   line-2: "oklch(0.245 0.007 254)"
   ink: "oklch(0.965 0.006 250)"
-  ink-2: "oklch(0.76 0.014 250)"
+  ink-2: "oklch(0.88 0.014 250)"
   ink-3: "oklch(0.66 0.02 252)"
   lume: "oklch(0.8 0.135 222)"
   human: "oklch(0.82 0.095 55)"
@@ -16,9 +16,9 @@ colors:
   light-line: "oklch(0.8 0.016 250)"
   light-line-2: "oklch(0.885 0.012 250)"
   light-ink: "oklch(0.19 0.03 256)"
-  light-ink-2: "oklch(0.36 0.028 254)"
-  light-ink-3: "oklch(0.47 0.024 252)"
-  light-lume: "oklch(0.5 0.15 236)"
+  light-ink-2: "oklch(0.32 0.028 254)"
+  light-ink-3: "oklch(0.33 0.024 252)"
+  light-lume: "oklch(0.33 0.13 236)"
   light-human: "oklch(0.5 0.13 48)"
 typography:
   display:
@@ -90,6 +90,10 @@ components:
 ---
 
 # Design System: Sonwork
+
+## Release Contract Amendment (2026-10-30)
+
+Son has accepted the current look (the living-valley scene with its connected fixed night sky). Earlier private-only staging statuses are historical and stay in the archive. The sky is background art inside the two far-ridge SVGs: sparse stars and curved aurora, cut by the exact far skyline, night only, with no foreground constellation, guide or header drawing. Without JavaScript, and under reduced motion, the same far-SVG sky is the static composition. Son deferred numeric design/GPT scoring; full technical review and testing remain with the parent release process and are not claimed here. Foreground text tokens were lightened slightly (same hues and chroma) to meet 4.5:1 contrast over the scene (light accent `--lume` is now 0.33). Technical-closure update: the specs' literal expectations follow the accepted scene declarations: light ridges #c3d7ee / #98b2d4 / #6a85b2, plane rgba(40,62,108,0.38), rim rgba(40,64,130,0.4); outer-layer rest poses far 34svh − 5svh·depth, middle 44svh − 44svh·depth, near 46svh − 62svh·depth, with the middle layer scaling by 1 + 0.03·ease; the mist sits between the middle and near layers; the sky is inside the two far SVGs; mountains CSS/JS are linked with the `?v=impeccable-1` query. Runtime results are the parent's to report; none are claimed here.
 
 ## Overview
 
@@ -400,3 +404,40 @@ All 19 SV obligations, finite ownership, compressed budgets, >=4.5:1 body/link a
 44px native targets, original 27 defining paths, independent reviews and the full frozen technical gate remain.
 Parent must render forward/reverse day/night, worst contrast frames, phone/desktop/short/320px/200% text and all
 lifecycle states on this new source. Source syntax, prior scores and baseline captures accept none of this art.
+
+## Approved private prototype amendment: one distant alpine sky (T1–T4, 2026-10-30)
+
+Son likes the original mountains and rejects the disconnected smoke-like aurora and the diagram-like constellation. For this private Home prototype only, the "Selected T11 addendum" constellation/guide-point/sketch clauses and the earlier broad crossing aurora ribbons are **historical**; their history above is retained. Everything else (protected copy, fonts, layout, original ridge path data, canvases and aspect variants, Mount, single progress/eligibility owner, Pause/Resume, forced colours, budgets) remains active.
+
+- **Sky is behind terrain.** Night sky art (restrained translucent auroral folds and rays plus a few sparsely composed points, no connecting lines, labels or travelling point) is the first group inside each existing far-ridge SVG, using that SVG's own viewBox, slice/meet crop and ancestor layer transforms. An inverse luminance mask (solid white sky rectangle, solid black exact copy of the variant's `sv-surface-far-*` path data) removes sky beneath the real far skyline, so points and curtains are occluded by the actual projected ridge and never by translucent terrain or a rectangle. The mask path duplicates the original `d` by design; keep them identical.
+- **Day and fallbacks.** Light has no stars or aurora. Reduced motion and no-JS show the same fixed composition at the rest pose; forced colours still hide the scene. `.sv-gutter-sky` is hidden in all modes until its markup is removed in T5.
+- **Valley opens.** Depth (existing `--sv-depth`, from the one measured progress) also drives a modest spatial uncovering: far and middle planes scale slightly and the foreground flanks spread outward, so distance is revealed around Selected projects, reversing exactly on upward scroll. No new peak, page height, timer, loop or preference.
+- **Status.** Authored only; not rendered, tested or reviewed. Son's T4 judgement decides.
+
+## Private cohesion correction P2 (2026-10-30)
+
+A bounded refinement of the liked coherent-alpine P1; identity, terrain, type, layout, copy and compact phone opening are unchanged. Earlier clauses on far-plane scaling/travel, sky fade, the R8 exact light stops and the opaque header are historical for this candidate only. Authored only; not rendered, tested or reviewed here.
+
+- **Header.** `.site-header` keeps its dimensions and hit targets but is a feathered, translucent scene-coloured scrim (no backdrop blur) so the sky reaches behind navigation. `viewport-fit=cover` with safe-area top/side padding; the browser `theme-color` follows stored/manual theme via a head script, with the media-matched metas as the system fallback. Browser chrome gets a flat colour only; no clock/location theme switching.
+- **Travel.** Progress between measured landmarks uses a monotone cubic Hermite (PCHIP) curve: continuous slope, no overshoot, same single event-driven owner and one queued frame. Near-plane travel is 62svh (was 70svh); the far composite is nearly stationary (5svh, no scale) while middle and near planes supply depth. The original skyline masks and all terrain `d` strings are untouched.
+- **Sky.** Irregular folded green/teal curtains with a little violet, fine tapered rays and uneven stars (mostly tiny and dim, a few clearer, some cropped by the phone edge); sky-art colours only, no UI token changes. The sky no longer fades to nearly nothing as the valley opens (18% at most).
+- **Morning.** Same terrain in a pale cool-blue fixed sky with a soft upper-left light wash, blue-grey aerial depth (far `#bccde2`, mid `#a3b8d3`, near `#85a0c4`), restrained haze; no stars, aurora, sun disc or particles.
+
+## Private phone-first repair P3 (2026-10-30)
+
+Bounded repair for iPhone 17 Pro Safari (Playwright geometry 402x681 CSS, DPR 3; also 375x812 and 1440x900). Chromium emulation is not Safari proof. Authored only; not rendered, tested or reviewed by the author. P2 source is archived in `.omh/evidence/cohesion-phone-p3-20261030/p2-source.tar.gz`. Earlier P2 clauses on veil strength and the phone sky position are historical for this candidate.
+
+- **Phone night is the signature.** The tall (portrait) far SVG's sky is re-posed into the real opening between header scrim and skyline (svg y about -130..140; the P2 position sat under the header). Folds are stronger (peak about .52 vs .3), rays finer and uneven with feathered ends, stars larger/brighter. Phone dark veil centre .4 -> .62 (edge .92) so the root .72 x mask no longer crushes it. Terrain and skyline mask `d` strings are untouched. Wide sky gets a modest lift.
+- **Morning.** Veil centre .26 -> .5 on phone (.24 -> .4 desktop), stronger shaded-face planes (.2), crisper rims (.4) and cooler far/mid colours (`#b4cbe6`, `#9bb4d6`, `#8099c0`), so near/far ranges and lit/shaded faces read as the same place. No new geometry.
+- **Stable camera.** The scene box is `100lvh` (coverage) and layers are `100svh + 720px` (art canvas = small viewport + 96px). `measure()` reads layout sizes only: the scene (large), the far layer (small) and `header.offsetHeight`; the visualViewport height and offsetTop no longer enter progress, reader line or span. Span uses the large viewport so the bottom reaches 1. Invalidation, PCHIP and the single event-driven frame are unchanged.
+- **Desktop pointer sky.** While the existing fine-pointer camera is active, `.sv-aurora` translates (+-26 user units) and skews (+-2.4deg) toward the pointer and `.sv-stars` moves less (+-8), inside the masked `.sv-sky`, so the skyline mask never moves. Finite 900/1200ms CSS settle; cleared by the existing scroll/touch/key/focus/pause/hidden/reduced/pagehide paths. No new loop, listener, sensor or cursor effect.
+- **Cache.** `mountains.css` and `mountains.js` hrefs carry `?v=phone-p3-1`.
+
+## Current refinement note: impeccable-1 correction (2026-10-30)
+
+Authored only; not rendered, tested or reviewed by the author. No Safari, device or creative acceptance is claimed. The cache token is now `?v=impeccable-1`.
+
+- **Aurora.** The first impeccable pass left the sky too faint. Phone fold and ray gradient opacities are raised (main stop about .9, from .5), and the two folds are taller so they sit below the 98px header. Barcode rays are cut to a few uneven ones. Soft masked edges, skyline masks and stars are unchanged. The wide sky gets a smaller lift.
+- **Header.** Scrim is about .93 at the top and .90 at the bottom, with a 12px feather at .5 opacity. There is no blur and no mask or clip on `main`.
+- **Day.** Near and middle ridges are bluer and deeper (`#6a85b2`, `#98b2d4`) with stronger shaded planes. Local haze is lower (.5 to .22) and the scene opacity is .94, so the near faces read behind the footer. The feather and the upper-left light are unchanged.
+- **Retained.** Pause cancels sky transitions, the reduced-motion change clears the camera, and the `100svh`/`100lvh` geometry is unchanged.

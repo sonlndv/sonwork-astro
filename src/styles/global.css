@@ -9,7 +9,7 @@
   --line: oklch(0.3 0.008 254);
   --line-2: oklch(0.245 0.007 254);
   --ink: oklch(0.965 0.006 250);
-  --ink-2: oklch(0.76 0.014 250);
+  --ink-2: oklch(0.88 0.014 250);
   --ink-3: oklch(0.66 0.02 252);
   --lume: oklch(0.8 0.135 222);
   --lume-ink: oklch(0.115 0.022 256);
@@ -46,9 +46,9 @@
     --line: oklch(0.8 0.016 250);
     --line-2: oklch(0.885 0.012 250);
     --ink: oklch(0.19 0.03 256);
-    --ink-2: oklch(0.36 0.028 254);
-    --ink-3: oklch(0.47 0.024 252);
-    --lume: oklch(0.44 0.13 236);
+    --ink-2: oklch(0.32 0.028 254);
+    --ink-3: oklch(0.33 0.024 252);
+    --lume: oklch(0.33 0.13 236);
     --lume-ink: oklch(0.985 0.004 250);
     --human: oklch(0.5 0.13 48);
     color-scheme: light;
@@ -62,9 +62,9 @@
   --line: oklch(0.8 0.016 250);
   --line-2: oklch(0.885 0.012 250);
   --ink: oklch(0.19 0.03 256);
-  --ink-2: oklch(0.36 0.028 254);
-  --ink-3: oklch(0.47 0.024 252);
-  --lume: oklch(0.44 0.13 236);
+  --ink-2: oklch(0.32 0.028 254);
+  --ink-3: oklch(0.33 0.024 252);
+  --lume: oklch(0.33 0.13 236);
   --lume-ink: oklch(0.985 0.004 250);
   --human: oklch(0.5 0.13 48);
   color-scheme: light;
@@ -101,6 +101,7 @@ body {
   font-family: var(--sans);
   font-size: 1rem;
   line-height: 1.6;
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
 }
@@ -279,8 +280,26 @@ main > * {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--void);
+  /* Scene-coloured, translucent: the real sky reaches behind the bar instead of an opaque band.
+     Prose scrolling underneath stays quiet because the scrim keeps most of its weight. */
+  --scrim-top: light-dark(rgba(205, 223, 241, 0.93), rgba(4, 7, 14, 0.93));
+  --scrim-bottom: light-dark(rgba(214, 228, 243, 0.9), rgba(4, 7, 14, 0.9));
+  padding-top: env(safe-area-inset-top, 0px);
+  background: linear-gradient(180deg, var(--scrim-top), var(--scrim-bottom));
   border-bottom: 1px solid var(--line);
+}
+
+/* Feathered lower edge: the scrim dissolves into the page rather than ending on a hard band. */
+.site-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 12px;
+  background: linear-gradient(180deg, var(--scrim-bottom), transparent);
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .bar {
