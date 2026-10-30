@@ -104,12 +104,18 @@ test('the landscape is on every built HTML page and the 404, in both themes, and
           const scene = page.locator('.mtn-scene');
           await expect(scene, `${path} scene`).toHaveCount(1);
           await expect(page.locator('body'), `${path} body`).toHaveClass(/mountains/);
-          await expect(page.locator('link[href="/mountains/mountains.css"]'), `${path} css`).toHaveCount(1);
-          await expect(page.locator('script[src="/mountains/mountains.js"]'), `${path} js`).toHaveCount(1);
+          // Versioned resources: exactly one of each, at the exact pathname with the declared cache-bust query.
+          const resources = (selector: string, attribute: string, pathname: string) => page.evaluate(([s, a, p]) =>
+            [...document.querySelectorAll(s)].map(n => new URL(n.getAttribute(a)!, location.href))
+              .filter(u => u.pathname === p).map(u => u.pathname + u.search), [selector, attribute, pathname]);
+          expect(await resources('link[rel="stylesheet"][href]', 'href', '/mountains/mountains.css'), `${path} css`)
+            .toEqual(['/mountains/mountains.css?v=impeccable-1']);
+          expect(await resources('script[src]', 'src', '/mountains/mountains.js'), `${path} js`)
+            .toEqual(['/mountains/mountains.js?v=impeccable-1']);
           await expect(scene).toHaveAttribute('aria-hidden', 'true');
           await expect(scene).toHaveAttribute('inert', '');
           expect(await scene.evaluate(el => ({ z: getComputedStyle(el).zIndex, p: getComputedStyle(el).pointerEvents, pos: getComputedStyle(el).position }))).toEqual({ z: '-1', p: 'none', pos: 'fixed' });
-          await expect(scene.locator('path.mtn-rim')).not.toHaveCount(0);
+          await expect(scene.locator('path.mtn-rim'), `${path} original rim paths`).toHaveCount(6);
           await page.evaluate(() => document.fonts.ready);
           const hits = async (link: Locator) => {
             await link.scrollIntoViewIfNeeded();

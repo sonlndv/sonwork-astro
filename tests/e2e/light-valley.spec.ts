@@ -20,11 +20,11 @@ const test = base.extend({
 
 test.use({ colorScheme: 'light', javaScriptEnabled: true, reducedMotion: 'no-preference', forcedColors: 'none' });
 
-// Fixed contract values: light #d3deed/#bfd0e5/#a7bfdc; retained dark #26375d/#1e2f53/#152549.
+// Fixed accepted values: light #c3d7ee/#98b2d4/#6a85b2; retained dark #26375d/#1e2f53/#152549.
 const paint = {
   light: {
-    far: 'rgb(211, 222, 237)', mid: 'rgb(191, 208, 229)', near: 'rgb(167, 191, 220)',
-    plane: 'rgba(52, 74, 118, 0.07)', rim: 'rgba(40, 64, 130, 0.25)', lume: 'oklch(0.44 0.13 236)',
+    far: 'rgb(195, 215, 238)', mid: 'rgb(152, 178, 212)', near: 'rgb(106, 133, 178)',
+    plane: 'rgba(40, 62, 108, 0.38)', rim: 'rgba(40, 64, 130, 0.4)', lume: 'oklch(0.33 0.13 236)',
   },
   dark: {
     far: 'rgb(38, 55, 93)', mid: 'rgb(30, 47, 83)', near: 'rgb(21, 37, 73)',
@@ -98,7 +98,7 @@ async function expectStaticScene(page: Page) {
   const layers = scene.locator(':scope > div.mtn-layer');
   const { height, reduced } = await page.evaluate(() => ({ height: innerHeight, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches }));
   const depth = reduced ? 0.38 : 0; // independent authored Home fallback, not a runtime offset oracle
-  const expected = [0.34 - 0.26 * depth, 0.44 - 0.44 * depth, 0.46 - 0.7 * depth];
+  const expected = [0.34 - 0.05 * depth, 0.44 - 0.44 * depth, 0.46 - 0.62 * depth];
   const matrices = await layers.evaluateAll(elements => elements.map(element => {
     const m = new DOMMatrixReadOnly(getComputedStyle(element).transform);
     return [m.m41, m.m42, m.m43];

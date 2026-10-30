@@ -128,7 +128,11 @@ test.describe('shared scene', () => {
       const order = await page.evaluate(() =>
         [...document.querySelector('.mtn-scene')!.children].map((c) => c.className),
       );
-      expect(order).toEqual(['mtn-sky', 'mtn-layer mtn-far', 'mtn-layer mtn-middle', 'mtn-mist', 'mtn-layer mtn-near']);
+      // The night sky is no direct child: it lives inside each of the two far-ridge SVGs.
+      expect(order).toEqual(['mtn-layer mtn-far', 'mtn-layer mtn-middle', 'mtn-mist', 'mtn-layer mtn-near']);
+      await expect(page.locator('.mtn-scene .mtn-sky')).toHaveCount(0);
+      await expect(page.locator('.mtn-scene > .mtn-far > svg.mtn-ridge > g.sv-sky')).toHaveCount(2);
+      await expect(page.locator('.mtn-scene g.sv-sky')).toHaveCount(2);
       await expect(page.locator('.atmosphere-toggle')).toHaveCount(1);
       await expect(mist(page)).toHaveAttribute('aria-hidden', 'true');
       expect(errors).toEqual([]);

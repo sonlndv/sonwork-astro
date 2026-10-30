@@ -213,7 +213,8 @@ test('a calm inner page keeps fixed depth and refuses pointer motion while nativ
     await page.mouse.wheel(0, 3000);
     await expect.poll(() => page.evaluate(() => scrollY), { timeout: 4000 }).toBeGreaterThan(0);
     expect(await near()).toBeCloseTo(before, 2);
-    expect(before).toBeCloseTo(900 * (0.46 - 0.7 * 0.44), 1);
+    // Accepted calm pose: near plane at 46svh - 62svh * 0.44 (authored rest depth).
+    expect(before).toBeCloseTo(900 * (0.46 - 0.62 * 0.44), 1);
     const g = await geometry(page);
     expect([g.top, g.left, g.width, g.height]).toEqual([0, 0, g.viewW, g.viewH]);
     // Calm prose refuses the fine-pointer camera while content and native scrolling remain usable.
@@ -236,7 +237,7 @@ test('reduced motion keeps a still, painted scene on an inner page', async ({ br
     await page.waitForTimeout(250);
     await expect(scene).not.toHaveAttribute('data-cam', /.*/);
     expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
-    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * (0.46 - 0.7 * 0.38), 1);
+    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * (0.46 - 0.62 * 0.38), 1);
     expect((await geometry(page)).drawnRims).toBeGreaterThan(0);
     expect(await painted(page)).toBe(true);
   });

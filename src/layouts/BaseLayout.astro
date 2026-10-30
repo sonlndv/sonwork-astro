@@ -43,7 +43,7 @@ function isCurrent(href: string): boolean {
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <!-- Native page-navigation opt-in, first in the head: the incoming reveal must know it before stylesheets load.
          The only @view-transition rule; animation and naming selectors stay in global.css. -->
     <style is:inline>
@@ -68,7 +68,7 @@ function isCurrent(href: string): boolean {
     <link rel="icon" href="/favicon.svg?v=mount-1" type="image/svg+xml" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#04070e" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f8fafd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#cddff1" media="(prefers-color-scheme: light)" />
     <!-- Apply the stored theme before first paint, so there is no flash. -->
     <script is:inline>
       try {
@@ -76,6 +76,20 @@ function isCurrent(href: string): boolean {
         if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
       } catch {}
       document.documentElement.classList.add('js');
+      // Keep the browser theme colour in step with a stored/manual theme. Browser chrome only gets a
+      // flat colour (the header scrim's own tone); with no manual choice the media-matched metas rule.
+      (() => {
+        const root = document.documentElement;
+        const metas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
+        const tones = { dark: '#04070e', light: '#cddff1' };
+        metas.forEach((meta) => { meta.dataset.system = meta.content; });
+        const sync = () => {
+          const t = root.dataset.theme;
+          metas.forEach((meta) => { meta.content = t === 'light' || t === 'dark' ? tones[t] : meta.dataset.system; });
+        };
+        sync();
+        new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+      })();
     </script>
     <!-- Two faces above the fold: display/label mono and prose sans. -->
     <!-- Regular mono also sets visible nav geometry; fetch before first paint. -->
@@ -86,8 +100,8 @@ function isCurrent(href: string): boolean {
     <!-- Mount: native button, focus, touch and motion behaviour (styles come from companion.css above). -->
     <script is:inline src="/companion.js" defer></script>
     <!-- One shared scene. Defer order: native Mount producer, landscape frame, atmosphere eligibility. -->
-    <link rel="stylesheet" href="/mountains/mountains.css" />
-    <script is:inline src="/mountains/mountains.js" defer></script>
+    <link rel="stylesheet" href="/mountains/mountains.css?v=impeccable-1" />
+    <script is:inline src="/mountains/mountains.js?v=impeccable-1" defer></script>
     <!-- Atmosphere connects the existing Pause/hello policy; finite effects never schedule idle recurrence. -->
     <link rel="stylesheet" href="/atmosphere.css" />
     <script is:inline src="/atmosphere.js" defer></script>
@@ -112,7 +126,6 @@ function isCurrent(href: string): boolean {
         </nav>
         <ThemeToggle />
       </div>
-      <svg class="sv-gutter-sky" viewBox="0 0 12 24" width="12" height="24" aria-hidden="true" focusable="false"><path d="M2.5 20.5L6 3.5L9.5 15"></path><circle cx="2.5" cy="20.5" r="1.5"></circle><circle cx="6" cy="3.5" r="1.5"></circle><circle cx="9.5" cy="15" r="1.5"></circle></svg>
     </header>
     <main id="main" tabindex="-1">
       <slot />
