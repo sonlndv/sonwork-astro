@@ -272,7 +272,7 @@ test.describe('pause control', () => {
   test('resume and returning to top align scenery without queuing a missed pass', async ({ page }) => {
     await page.clock.install();
     await page.goto('/');
-    await expect(mist(page)).toHaveAttribute('data-state', 'running', { timeout: 3_000 }); // real CSS arrival earns the pass
+    await finishArrival(page); // controlled admission; natural arrival timing is tested separately
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
     await toggle(page).evaluate((el) => (el as HTMLButtonElement).click());
     await expect(mist(page)).toHaveAttribute('data-state', 'paused');
@@ -293,7 +293,7 @@ test.describe('pause control', () => {
   test('simulated bfcache restore queues no new pass (pagehide/pageshow events, not a native bfcache)', async ({ page }) => {
     await page.clock.install();
     await page.goto('/');
-    await expect(mist(page)).toHaveAttribute('data-state', 'running', { timeout: 3_000 }); // real CSS arrival earns the pass
+    await finishArrival(page); // controlled admission; natural arrival timing is tested separately
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
     await page.evaluate(() => {
       dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true }));
@@ -311,7 +311,7 @@ test.describe('pause control', () => {
   test('repeated native scroll events do not arm an idle recurrence', async ({ page }) => {
     await page.clock.install();
     await page.goto('/');
-    await expect(mist(page)).toHaveAttribute('data-state', 'running', { timeout: 3_000 }); // real CSS arrival earns the pass
+    await finishArrival(page); // controlled admission; natural arrival timing is tested separately
     await finishMist(page); // actual CSS completion; JS time cannot finish it
     await expect(mist(page)).toHaveAttribute('data-state', 'idle');
     await page.clock.runFor(20_000);
