@@ -143,7 +143,7 @@ async function painted(page: Page, js = true) {
     // Without JavaScript a page-side frame promise never resolves; screenshots paint synchronously.
     if (js) await page.evaluate(() => new Promise<void>(done => requestAnimationFrame(() => requestAnimationFrame(() => done()))));
     else await page.waitForTimeout(32);
-    const withScene = await page.screenshot({ clip, animations: 'disabled' });
+    const cold = await page.screenshot({ clip, animations: 'disabled' });
     const composition = () => page.locator('.mtn-scene').evaluate(el => {
       const rect = (node: Element) => { const r = node.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; };
       const main = document.querySelector('main')!;
@@ -157,6 +157,26 @@ async function painted(page: Page, js = true) {
         text: main.textContent, content: rect(main),
       };
     });
+    // One-time verifier initialisation. CI first controlled triplet on /about and /subscribe changed 42 pixels by
+    // max channel 4; the normalised no-op below asserts later stability. Exactly one real hide + restore runs here,
+    // with real screenshot barriers, before the causal comparison. Its cold statistics are attached, never discarded;
+    // there is no loop, retry or best-frame choice, and the restoration threshold of 2 below is unchanged. JS-free: parent-side only.
+    const first = await composition();
+    const initHide = await style('.mtn-scene { visibility: hidden !important; }');
+    let initHidden: Buffer;
+    try {
+      initHidden = await page.screenshot({ clip, animations: 'disabled' });
+    } finally {
+      await initHide.evaluate(el => el.remove());
+    }
+    const initRestored = await page.screenshot({ clip, animations: 'disabled' });
+    expect(await composition(), 'initialisation leaves world/viewport/content/theme/progress/layers unchanged').toEqual(first);
+    const init = paintControls(cold, initHidden, initRestored);
+    await test.info().attach('scene-cold-initialisation', { body: JSON.stringify({ route: page.url(), js, ...init }, null, 2), contentType: 'application/json' });
+    expect(init.paint.materialPixels, 'initialisation hiding really removes scenery paint').toBeGreaterThanOrEqual(init.minimumPaintPixels);
+    expect(init.restoration.materialPixels, 'cold restoration is only raster invalidation, not a composition change').toBeLessThan(init.minimumPaintPixels);
+    const withScene = await page.screenshot({ clip, animations: 'disabled' });
+    expect(paintControls(initRestored, withScene, withScene).paint.maximumChannel, 'normalised paint is stable before the measured triplet').toBeLessThanOrEqual(2);
     const before = await composition();
     const hide = await style('.mtn-scene { visibility: hidden !important; }');
     try {
