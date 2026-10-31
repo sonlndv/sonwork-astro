@@ -1,7 +1,8 @@
 ---
-import '../styles/fonts.css';
-import '../styles/global.css';
-import '../styles/companion.css';
+import sceneCss from '../styles/scene.css?inline';
+import fontsCss from '../styles/fonts.css?inline';
+import globalCss from '../styles/global.css?inline';
+import companionCss from '../styles/companion.css?inline';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import MountCompanion from '../components/MountCompanion.astro';
 import MountainScene from '../components/MountainScene.astro';
@@ -13,11 +14,17 @@ interface Props {
   noIndex?: boolean;
 }
 
+// The processed (bundled, minified) shared cascade in its original order: scene, fonts, global, companion.
+// Delivered in the document itself so the first paint does not wait on a separate render-blocking stylesheet request.
+const sharedCss = [sceneCss, fontsCss, globalCss, companionCss].join('\n');
+
 const { title, description, type = 'website', noIndex = false } = Astro.props;
 const siteName = 'Son';
 const fullTitle = title === siteName ? siteName : `${title} | ${siteName}`;
 const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1');
 const canonical = new URL(path, Astro.site);
+// Shared world: every route carries the same mist ground, header scrim and browser-chrome tone.
+const lightTone = '#dfe4ea';
 
 // Home is the wordmark; the strip holds the four sections.
 const nav = [
@@ -68,7 +75,7 @@ function isCurrent(href: string): boolean {
     <link rel="icon" href="/favicon.svg?v=mount-1" type="image/svg+xml" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#04070e" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#cddff1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={lightTone} media="(prefers-color-scheme: light)" />
     <!-- Apply the stored theme before first paint, so there is no flash. -->
     <script is:inline>
       try {
@@ -81,8 +88,9 @@ function isCurrent(href: string): boolean {
       (() => {
         const root = document.documentElement;
         const metas = Array.from(document.querySelectorAll('meta[name="theme-color"]'));
-        const tones = { dark: '#04070e', light: '#cddff1' };
         metas.forEach((meta) => { meta.dataset.system = meta.content; });
+        const lightMeta = metas.find((meta) => meta.media.includes('light'));
+        const tones = { dark: '#04070e', light: lightMeta ? lightMeta.dataset.system : '#cddff1' };
         const sync = () => {
           const t = root.dataset.theme;
           metas.forEach((meta) => { meta.content = t === 'light' || t === 'dark' ? tones[t] : meta.dataset.system; });
@@ -97,16 +105,16 @@ function isCurrent(href: string): boolean {
     <link rel="preload" href="/fonts/space-mono-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     {type === 'article' && <link rel="preload" href="/fonts/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />}
+    <!-- The shared cascade follows the font preloads, so the browser discovers the same faces before it consumes the inline CSS. -->
+    <style is:inline set:html={sharedCss}></style>
     <!-- Mount: native button, focus, touch and motion behaviour (styles come from companion.css above). -->
     <script is:inline src="/companion.js" defer></script>
     <!-- One shared scene. Defer order: native Mount producer, landscape frame, atmosphere eligibility. -->
-    <link rel="stylesheet" href="/mountains/mountains.css?v=impeccable-1" />
     <script is:inline src="/mountains/mountains.js?v=impeccable-1" defer></script>
     <!-- Atmosphere connects the existing Pause/hello policy; finite effects never schedule idle recurrence. -->
-    <link rel="stylesheet" href="/atmosphere.css" />
     <script is:inline src="/atmosphere.js" defer></script>
   </head>
-  <body class="mountains">
+  <body class="mountains home-study">
     <MountainScene />
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">

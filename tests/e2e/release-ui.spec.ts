@@ -15,11 +15,12 @@ const reduced: BrowserContextOptions = { ...desktop, reducedMotion: 'reduce' };
 const noJs: BrowserContextOptions = { ...desktop, javaScriptEnabled: false };
 
 const mountPaths = [
-  'M36 330C36 322 44 314 60 296L150 138C170 100 186 78 204 74C222 72 236 90 252 118L268 144C280 128 296 124 308 140L366 240C378 262 372 290 366 318C364 330 352 338 340 338L62 338C46 338 36 336 36 330Z',
-  'M204 74C222 72 236 90 252 118L268 144C280 128 296 124 308 140L366 240C378 262 372 290 366 318C364 330 352 338 340 338L250 338L222 190Z',
-  'M60 296L150 138C170 100 186 78 204 74C222 72 236 90 252 118',
-  'M155 208L183 221L183 266Q183 278 169 278Q155 278 155 266Z',
-  'M240 216L268 203L268 252Q268 264 254 264Q240 264 240 252Z',
+  // Approved refined original Mount: one shared contour, a straight crease, matching rounded upright eyes.
+  'M38 332C38 324 46 316 62 298L148 144C168 102 186 78 204 76C224 74 238 92 252 118L266 142C278 126 296 124 308 140L364 236C376 258 372 290 366 318C364 330 352 338 340 338L66 338C50 338 38 336 38 332Z',
+  'M204 76C224 74 238 92 252 118L266 142C278 126 296 124 308 140L364 236C376 258 372 290 366 318C364 330 352 338 340 338L246 338Z',
+  'M62 298L148 144C168 102 186 78 204 76C214 75 222 80 230 90',
+  'M152 212Q152 202 162 202L170 202Q180 202 180 212L180 256Q180 266 170 266L162 266Q152 266 152 256Z',
+  'M244 212Q244 202 254 202L262 202Q272 202 272 212L272 256Q272 266 262 266L254 266Q244 266 244 256Z',
 ];
 
 async function open(browser: Browser, baseURL: string | undefined, options: BrowserContextOptions, run: (page: Page) => Promise<void>) {
@@ -108,8 +109,26 @@ test('the landscape is on every built HTML page and the 404, in both themes, and
           const resources = (selector: string, attribute: string, pathname: string) => page.evaluate(([s, a, p]) =>
             [...document.querySelectorAll(s)].map(n => new URL(n.getAttribute(a)!, location.href))
               .filter(u => u.pathname === p).map(u => u.pathname + u.search), [selector, attribute, pathname]);
-          expect(await resources('link[rel="stylesheet"][href]', 'href', '/mountains/mountains.css'), `${path} css`)
-            .toEqual(['/mountains/mountains.css?v=impeccable-1']);
+          // The shared cascade is delivered inline in the head: exactly one active nonempty style carries the scenic and
+          // atmosphere rules, followed in order by the fonts, global and companion rules; no raw scene links remain and
+          // no external stylesheet duplicates the scene.
+          const sheet = await page.evaluate(() => {
+            const textOf = (css: CSSStyleSheet | null) => (css ? [...css.cssRules].map(rule => rule.cssText).join('\n') : '');
+            const carriers = [...document.querySelectorAll<HTMLStyleElement>('head > style')].filter(s => textOf(s.sheet).includes('.mtn-scene'));
+            const text = textOf(carriers[0]?.sheet ?? null);
+            const links = [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href]')];
+            const at = (needle: string) => text.indexOf(needle);
+            return {
+              carriers: carriers.length,
+              active: !!carriers[0]?.sheet && !carriers[0].sheet.disabled && carriers[0].sheet.cssRules.length > 0,
+              raw: links.filter(l => ['/mountains/mountains.css', '/atmosphere.css'].includes(new URL(l.href).pathname)).length,
+              external: links.filter(l => textOf(l.sheet).includes('.mtn-scene')).length,
+              scenic: ['.mtn-scene', '.mtn-layer', '.mtn-mist', '.atmosphere-toggle', '.sv-home-sky', '.sv-hs-night'].filter(s => at(s) < 0),
+              world: at('data-world') >= 0,
+              order: at('.mtn-scene') >= 0 && at('.mtn-scene') < at('@font-face') && at('@font-face') < at('.skip-link') && at('.skip-link') < at('.personal-brand'),
+            };
+          });
+          expect(sheet, `${path} inline shared stylesheet`).toEqual({ carriers: 1, active: true, raw: 0, external: 0, scenic: [], world: true, order: true });
           expect(await resources('script[src]', 'src', '/mountains/mountains.js'), `${path} js`)
             .toEqual(['/mountains/mountains.js?v=impeccable-1']);
           await expect(scene).toHaveAttribute('aria-hidden', 'true');
@@ -368,7 +387,7 @@ test('without JavaScript the scene sits in its static pose and Mount and builds 
     const scene = page.locator('.mtn-scene');
     await expect(scene).toHaveCount(1);
     await expect(scene).not.toHaveAttribute('data-intro', /.*/);
-    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * 0.46, 1);
+    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * ((await page.evaluate(() => innerWidth)) >= 900 ? 0.38 : 0.46), 1); // approved desktop near rest 38svh, narrow 46svh
     expect(await scene.locator('div.mtn-far').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * 0.34, 1);
     await expect(page.locator('.companion')).toBeDisabled();
     await expect(page.locator('.build-entry')).toHaveCount(3);

@@ -198,8 +198,12 @@ test.describe('mist pass', () => {
   });
 
   test('scrolling interrupts an active pass', async ({ page }) => {
+    // Controlled admission: the genuine owned entrance is completed by the proven helper (clock installed BEFORE
+    // navigation), which yields an actual running mist pass; the real-time start/move/end case above stays natural.
+    await page.clock.install();
     await page.goto('/');
-    await expect(mist(page)).toHaveAttribute('data-state', 'running', { timeout: 3_000 });
+    await finishArrival(page);
+    await expect(mist(page)).toHaveAttribute('data-state', 'running', { timeout: 3_000 }); // original explicit 3000ms admission
     await page.evaluate(() => scrollTo(0, 400));
     await expect(mist(page)).not.toHaveAttribute('data-run', '');
     await page.waitForTimeout(500);

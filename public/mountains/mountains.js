@@ -21,7 +21,8 @@
   const list = section && section.querySelector('.build-list');
   const mount = document.querySelector('.companion');
   const rims = scene.querySelectorAll('.mtn-rim');
-  const cameraKeys = ['fx', 'fy', 'nx', 'ny', 'ax', 'ay', 'ak', 'sx', 'sy'];
+  // The last ten are the Home sky layers (dust, mid stars/far clouds, bright stars, sun, near clouds).
+  const cameraKeys = ['fx', 'fy', 'nx', 'ny', 'ax', 'ay', 'ak', 'sx', 'sy', 'dx', 'dy', 'mx', 'my', 'bx', 'by', 'ux', 'uy', 'kx', 'ky'];
   // Stable references: the scene box is the LARGE viewport tall, the far layer is the SMALL viewport
   // (svh) + 720px. Neither follows transient browser-bar / visualViewport heights.
   const farLayer = scene.querySelector('.mtn-far');
@@ -39,6 +40,156 @@
   let generation = 0;
   let geometry = null;
   const clamp = (n, low = 0, high = 1) => Math.max(low, Math.min(high, n));
+  // Progress at the entry, Projects, Contact, ending and bottom landmarks.
+  const LANDMARKS = [0, 0.48, 0.82, 0.94, 1];
+  const smooth = t => t * t * (3 - 2 * t);
+  // Redundant same-value style writes are skipped (they dirtied the whole inherited scene tree every frame).
+  const written = {};
+  const put = (name, value) => {
+    if (written[name] === value) return;
+    written[name] = value;
+    scene.style.setProperty(name, value);
+  };
+  let meteorTimer = 0;
+  let meteorCycle = 0;
+  let blurred = false;
+  let touches = 0;
+  const heldPointers = new Set();
+  const heldKeys = new Set();
+  const shots = [];
+  // Home real sky: a fixed illustrative Orion/Taurus J2000 field (not the current sky, location or time),
+  // projected ONCE from the same-origin catalogue into each variant. `hush` rectangles are heading/prose
+  // areas where stars keep their true place but are quieted. Core fallback stars live in the markup.
+  const SKY = {
+    wide: { sel: '.mtn-wide', ra0: 335, dec0: -5, cx: 1130, cy: -50, scale: 850, x: [-100, 1700], y: [-280, 380], grow: 1,
+      hush: [[285, -118, 610, -55], [285, -32, 1020, 24], [285, 26, 760, 56], [285, 78, 870, 100], [285, 118, 930, 400], [285, 270, 1310, 700]] },
+    tall: { sel: '.mtn-tall', ra0: 335, dec0: -5, cx: 320, cy: -25, scale: 360, x: [-20, 420], y: [-125, 180], grow: 1.15,
+      hush: [[5, -55, 265, 3], [5, 30, 145, 50], [-20, 68, 420, 200]] },
+  };
+  // The seven true Aquarius core members read slightly clearer (point radius x1.18, base opacity x1.35 capped .90, before quieting).
+  const HINT = new Set([110395, 110960, 111497, 110672, 109074, 106278, 113136]);
+  const tint = bv => (bv < 0.15 ? '#cfe0ff' : bv < 0.55 ? '#f4f6ff' : bv < 0.9 ? '#ffeacf' : '#ffc99a');
+  function buildSky(rows) {
+    const rad = Math.PI / 180;
+    Object.values(SKY).forEach(p => {
+      const host = scene.querySelector(p.sel + ' .sv-hs-night');
+      if (!host) return;
+      const d0 = p.dec0 * rad;
+      const pts = [];
+      rows.forEach(r => {
+        const dec = r[2] * rad, dra = (r[1] - p.ra0) * rad;
+        const den = Math.sin(d0) * Math.sin(dec) + Math.cos(d0) * Math.cos(dec) * Math.cos(dra);
+        if (den <= 0.15) return;
+        const x = p.cx - p.scale * Math.cos(dec) * Math.sin(dra) / den;
+        const y = p.cy - p.scale * (Math.cos(d0) * Math.sin(dec) - Math.sin(d0) * Math.cos(dec) * Math.cos(dra)) / den;
+        if (x < p.x[0] || x > p.x[1] || y < p.y[0] || y > p.y[1]) return;
+        pts.push([x, y, r[3], r[4], r[0]]);
+      });
+      pts.sort((a, b) => a[2] - b[2]);
+      const NS = 'http://www.w3.org/2000/svg';
+      const group = document.createElementNS(NS, 'g');
+      group.setAttribute('class', 'sv-hs-sky sv-hs-full');
+      pts.slice(0, 600).forEach(([x, y, mag, bv, hip]) => {
+        const quiet = p.hush.some(h => x >= h[0] && x <= h[2] && y >= h[1] && y <= h[3]);
+        const c = document.createElementNS(NS, 'circle');
+        c.setAttribute('data-hip', String(hip));
+        c.setAttribute('cx', x.toFixed(2));
+        c.setAttribute('cy', y.toFixed(2));
+        c.setAttribute('r', (Math.max(0.4, (0.45 + (6 - mag) * 0.28) * p.grow) * (HINT.has(hip) ? 1.18 : 1) * (quiet ? 0.8 : 1)).toFixed(2));
+        c.setAttribute('fill', tint(bv));
+        c.setAttribute('opacity', (Math.min(HINT.has(hip) ? 0.9 : 1, Math.max(0.32, 0.3 + (6 - mag) * 0.14) * (HINT.has(hip) ? 1.35 : 1)) * (quiet ? 0.38 : 1)).toFixed(2));
+        group.appendChild(c);
+      });
+      host.appendChild(group);
+    });
+    scene.dataset.sky = 'full';
+  }
+  function loadSky() {
+    if (typeof fetch !== 'function') return; // the shared world carries the real catalogue field on every route
+    fetch('/mountains/home-star-catalog.json', { credentials: 'same-origin' })
+      .then(res => (res.ok ? res.json() : Promise.reject(new Error('catalog'))))
+      .then(data => {
+        const list = Array.isArray(data) ? data : Object.values(data || {}).find(v => Array.isArray(v) && Array.isArray(v[0]));
+        const rows = (list || []).filter(r => Array.isArray(r) && r.length >= 5 && r.slice(0, 5).every(Number.isFinite));
+        if (rows.length > 100) buildSky(rows);
+      })
+      .catch(() => { /* The static core stars in the markup remain. */ });
+  }
+  // One finite cloud-opening moment (CSS-driven, data-moment=run) that any yield settles into its end pose.
+  // Yielding freezes each VISIBLE bank at its currently painted translate (read before the marker changes) and
+  // stops the meteor at once; banks of a hidden variant simply take the composed end pose. No timer, no restart.
+  const momentDone = () => {
+    if (scene.dataset.moment !== 'run') return;
+    const frozen = Array.from(scene.querySelectorAll('.sv-hs-bank'), bank => [bank, bank.getClientRects().length ? getComputedStyle(bank).translate : '']);
+    scene.dataset.moment = 'done';
+    frozen.forEach(([bank, value]) => { if (value && value !== 'none') bank.style.translate = value; });
+  };
+  // Recurring night meteors (Son-requested): one shot every ~7-11s of quiet, every third cycle a short 3-shot shower.
+  // Sparse timer + finite WAAPI clones of the original trail; nothing is pending or alive while ineligible.
+  const visibleMeteor = () => Array.from(scene.querySelectorAll('.sv-hs-meteor')).find(m => m.parentNode.getClientRects().length);
+  // Input-hot-path predicate: theme, policy, held input and focus only; no layout/geometry reads here.
+  const lightQuery = matchMedia('(prefers-color-scheme: light)');
+  const isNight = () => (doc.dataset.theme === 'dark' ? true : doc.dataset.theme === 'light' ? false : !lightQuery.matches);
+  const isHeld = () => heldPointers.size > 0 || touches > 0 || heldKeys.size > 0;
+  // Only an interactive control with visible keyboard focus counts; the focused MAIN/BODY reading container does not.
+  const meaningfulFocus = () => {
+    const el = document.activeElement;
+    if (!el || el === document.body || el === main || !el.matches) return false;
+    return el.matches(':focus-visible') && el.matches('a[href], button, input, select, textarea, summary, [contenteditable], [tabindex]:not([tabindex="-1"])');
+  };
+  const meteorOk = () => (mode === 'home' || mode === 'index') && !!policy && eligible() && !blurred && document.hasFocus() && !isHeld() && isNight() && !document.hidden &&
+    !forced.matches && !reduce.matches && typeof Element.prototype.animate === 'function' && !meaningfulFocus();
+  function scheduleMeteor(ms) {
+    clearTimeout(meteorTimer);
+    meteorTimer = 0;
+    if (meteorOk()) meteorTimer = setTimeout(fireMeteor, ms);
+  }
+  function meteorStop(rearm = true) {
+    clearTimeout(meteorTimer);
+    meteorTimer = 0;
+    shots.splice(0).forEach(shot => { shot.anim.cancel(); shot.el.remove(); });
+    if (rearm) scheduleMeteor(1800);
+  }
+  function fireMeteor() {
+    meteorTimer = 0;
+    if (!meteorOk()) return;
+    if (scene.dataset.moment === 'run') { scheduleMeteor(1500); return; }
+    const base = visibleMeteor();
+    const tpl = base && base.firstElementChild;
+    const at = tpl && /translate\(\s*(-?[\d.]+)[ ,]+(-?[\d.]+)/.exec(tpl.getAttribute('transform') || '');
+    if (!at) { scheduleMeteor(9000); return; }
+    const style = getComputedStyle(base);
+    const mx = parseFloat(style.getPropertyValue('--hs-mx')) || -320;
+    const my = parseFloat(style.getPropertyValue('--hs-my')) || 120;
+    const wide = !!base.closest('.mtn-wide');
+    meteorCycle += 1;
+    const count = meteorCycle % 3 === 0 ? 3 : 1;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      el.setAttribute('class', 'sv-hs-shot');
+      const clone = tpl.cloneNode(true);
+      // Safe open-sky lanes only: start shifts stay in the upper-right pocket, away from the H1 and prose.
+      const jx = -Math.random() * (wide ? 220 : 55);
+      const jy = Math.random() * (wide ? 40 : 8);
+      clone.setAttribute('transform', `translate(${(Number(at[1]) + jx).toFixed(1)} ${(Number(at[2]) + jy).toFixed(1)})`);
+      el.appendChild(clone);
+      base.parentNode.appendChild(el);
+      const k = 0.8 + Math.random() * 0.4;
+      let anim;
+      try {
+        anim = el.animate([
+          { opacity: 0, translate: '0px 0px' },
+          { opacity: 1, offset: 0.12 },
+          { opacity: 1, offset: 0.72 },
+          { opacity: 0, translate: `${(mx * k).toFixed(1)}px ${(my * k).toFixed(1)}px` },
+        ], { duration: 1100 + Math.random() * 400, delay: i * 330 + Math.random() * 120, easing: 'cubic-bezier(0.3, 0, 0.5, 1)', fill: 'both' });
+      } catch { el.remove(); return; } // unsupported: the static sky stays, nothing pending
+      const shot = { el, anim };
+      shots.push(shot);
+      anim.onfinish = () => { el.remove(); const at2 = shots.indexOf(shot); if (at2 >= 0) shots.splice(at2, 1); };
+    }
+    scheduleMeteor(7000 + Math.random() * 4000);
+  }
   const eligible = () => !!policy && !away && policy.canRun();
   const clearPhrase = () => section && section.removeAttribute('data-mtn');
   const clearCamera = () => {
@@ -62,6 +213,8 @@
     if (!intro) solidRims();
   };
   const interrupt = () => {
+    meteorStop();
+    momentDone();
     clearCamera();
     finishIntro();
     clearTrace();
@@ -111,7 +264,7 @@
       const gap = Math.min(48, span / 20);
       for (let i = 1; i < values.length - 1; i++) values[i] = Math.max(values[i], values[i - 1] + gap);
       for (let i = values.length - 2; i > 0; i--) values[i] = Math.min(values[i], values[i + 1] - gap);
-      knots = values.map((value, i) => ({ y: value, p: [0, 0.48, 0.82, 0.94, 1][i] }));
+      knots = values.map((value, i) => ({ y: value, p: LANDMARKS[i] }));
     }
     // Monotone cubic Hermite (PCHIP) tangents: continuous slope at every landmark, no overshoot.
     const gaps = [], rates = [];
@@ -127,7 +280,8 @@
       knots[i].m = (w1 + w2) / (w1 / rates[i - 1] + w2 / rates[i]);
     }
     const big = parseFloat(getComputedStyle(doc).fontSize) > 20;
-    geometry = { span, height, width, reader, knots, projectTop, projectLeft, big, generation: ++generation };
+    const sig = [span, height, width, big, ...knots.map(k => Math.round(k.y))].join('|');
+    geometry = { span, height, width, reader, knots, projectTop, projectLeft, big, sig, generation: ++generation };
     dirty = false;
   }
   function position(y) {
@@ -145,15 +299,31 @@
     }
     return 1;
   }
-  function paintProgress(y) {
+  // `y` is the real scroll position (semantic progress for policy/landmarks/lifecycle); `scenicY` is the
+  // Home-only followed position that drives ONLY --sv-scene/--sv-settle/--sv-hs.
+  function paintProgress(y, scenicY = y) {
     progress = position(y);
-    scene.style.setProperty('--sv-progress', progress.toFixed(5));
-    scene.dataset.progress = progress.toFixed(5);
-    scene.dataset.geometry = String(geometry.generation);
-    scene.toggleAttribute('data-big', geometry.big);
+    const scenic = scenicY === y ? progress : position(scenicY);
+    put('--sv-progress', progress.toFixed(5));
+    if (scene.dataset.progress !== progress.toFixed(5)) scene.dataset.progress = progress.toFixed(5);
+    if (scene.dataset.geometry !== String(geometry.generation)) scene.dataset.geometry = String(geometry.generation);
+    if (scene.hasAttribute('data-big') !== geometry.big) scene.toggleAttribute('data-big', geometry.big);
+    // Home: the bounded scenic composition opens fully by the Projects landmark and then holds;
+    // a short settle follows Contact. Progress itself keeps advancing for lifecycle consumers.
+    // Short or tall documents can pin the Projects knot a few dozen px from the top; only then, spread the
+    // scenic opening over a fraction of the EXISTING span (semantic landmarks and page height are untouched).
+    // Desktop (>=900px) uses most of the existing span; narrower widths keep the source1 phone rule.
+    const want = geometry ? (geometry.width >= 900 ? Math.min(geometry.span * 0.75, geometry.height) : Math.min(geometry.span * 0.4, geometry.height * 0.6)) : 0;
+    const stretched = mode === 'home' && geometry && geometry.knots[1].y < want;
+    const arrive = mode !== 'home' ? 0 : stretched ? smooth(clamp(scenicY / want)) : smooth(clamp(scenic / LANDMARKS[1]));
+    if (mode === 'home') {
+      put('--sv-scene', arrive.toFixed(5));
+      put('--sv-hs', arrive.toFixed(5)); // sky travel; CSS holds 0.75 without script and under reduced motion
+      put('--sv-settle', smooth(clamp((scenic - LANDMARKS[2]) / (1 - LANDMARKS[2]))).toFixed(5));
+    }
     // Same native progress and eligibility as the ridges; no independent cloud/sky scheduler.
-    scene.style.setProperty('--sv-cloud-travel', (reduce.matches || mode === 'calm' ? 0.52 :
-      mode === 'index' ? 0.32 + 0.2 * progress : clamp(progress / 0.82)).toFixed(5));
+    put('--sv-cloud-travel', (reduce.matches || mode === 'calm' ? 0.52 :
+      mode === 'index' ? 0.32 + 0.2 * progress : 0.2 + 0.32 * arrive).toFixed(5));
   }
   function phrase() {
     if (phraseDone || !section) return;
@@ -161,12 +331,14 @@
     if (!eligible() || section.contains(document.activeElement)) return;
     section.dataset.mtn = 'go';
   }
-  function frame() {
+  function frame(now = performance.now()) {
     raf = 0;
     // Paused/reduced/hidden: nothing moves or replays; the composition stays as last painted.
     if (!eligible()) return;
-    if (dirty || !geometry) measure();
+    const wasDirty = dirty || !geometry;
+    if (wasDirty) measure();
     const y = scrollY;
+    // The scenery follows the browser's own continuous scroll in this one coalesced frame (no second smoothing layer).
     // All geometry reads above precede this frame's scene writes.
     paintProgress(y);
     if (pointer) {
@@ -176,7 +348,10 @@
       camera = true;
       scene.setAttribute('data-cam', '');
       // One viewpoint: far/near terrain, then sky as counter-offsets on the far plane (aurora farther, stars farthest).
-      [-3 * x, -py, -9 * x, -3 * py, 1.2 * x, 0.5 * py, 0.5 * x, 2 * x, 0.7 * py].forEach((value, i) => scene.style.setProperty('--mtn-' + cameraKeys[i], i < 4 ? value + 'px' : value.toFixed(2)));
+      // Home sky layers sit inside the far plane (already -3x, -py), so their own offsets compensate it:
+      // net dust -x, mid stars -1.5x, bright -2x, sun -1.5x (all farther than the mountains), near clouds -12x.
+      [-3 * x, -py, -9 * x, -3 * py, 1.2 * x, 0.5 * py, 0.5 * x, 2 * x, 0.7 * py,
+        2 * x, 0.6 * py, 1.5 * x, 0.5 * py, x, 0.3 * py, 1.5 * x, 0.5 * py, -9 * x, -2.5 * py].forEach((value, i) => scene.style.setProperty('--mtn-' + cameraKeys[i], i < 4 ? value + 'px' : value.toFixed(2)));
     }
     if (landed || (y > 0 && geometry.projectLeft < 88 && geometry.projectTop - y <= geometry.reader)) phrase();
     landed = false;
@@ -222,11 +397,17 @@
       try {
         continuous = !!document.referrer && new URL(document.referrer).origin === location.origin && nav?.type === 'navigate';
       } catch { /* An unavailable referrer simply has no continuity evidence. */ }
+      loadSky();
+      scheduleMeteor(9000); // after the original arrival shot (2.6s + 1.3s) has finished
       if (mode === 'calm' || !eligible() || scrollY > 8 || nav?.type === 'back_forward') {
         scene.dataset.arrival = 'static';
-      } else if (continuous) scene.dataset.arrival = 'continuous';
-      else {
+        scene.dataset.moment = 'done';
+      } else if (continuous) {
+        scene.dataset.arrival = 'continuous';
+        scene.dataset.moment = 'done';
+      } else {
         scene.dataset.arrival = 'first';
+        scene.dataset.moment = mode === 'home' ? 'run' : 'done'; // only Home plays the finite opening, once; never restarted by resume, restore or theme
         intro = true;
         rims.forEach(rim => rim.setAttribute('pathLength', 1));
         scene.setAttribute('data-intro', '');
@@ -246,16 +427,29 @@
     if (event.animationName === 'mtn-settle' && event.target.matches(':last-child')) clearPhrase();
   });
   scene.addEventListener('animationend', event => {
-    if (intro && event.animationName === 'mtn-near-in') finishIntro(true);
+    // Night has no clouds (hidden), so its finite moment ends with the one meteor; day ends with the bank drift.
+    // The meteor ends the moment only inside the ACTIVE night group (hidden children can still report an end).
+    const night = event.animationName === 'sv-hs-meteor' ? event.target.closest('.sv-hs-night') : null;
+    if (event.animationName === 'sv-hs-drift-a' || (night && night.getClientRects().length)) momentDone();
+    else if (intro && event.animationName === 'mtn-near-in') finishIntro(true);
     else if (trace && event.animationName === 'mtn-rim-hello' && event.target.closest('.mtn-near')) clearTrace();
   });
   document.addEventListener('sonwork:ridge-answer', answer);
   document.addEventListener('sonwork:atmosphere', refresh);
   const passive = { passive: true, capture: true };
-  addEventListener('pointerdown', () => { clearCamera(); finishIntro(); clearTrace(); clearPhrase(); }, passive);
-  addEventListener('keydown', () => { clearCamera(); finishIntro(); clearTrace(); clearPhrase(); }, passive);
+  // Held-input membership (pointer ids, remaining touches, keys); each release rearms once idle and eligible.
+  addEventListener('touchstart', event => { touches = event.touches.length; }, passive);
+  ['touchend', 'touchcancel'].forEach(type => addEventListener(type, event => { touches = event.touches.length; scheduleMeteor(1800); }, passive));
+  ['pointerup', 'pointercancel'].forEach(type => addEventListener(type, event => { heldPointers.delete(event.pointerId); scheduleMeteor(1800); }, passive));
+  addEventListener('keyup', event => { heldKeys.delete(event.code); scheduleMeteor(1800); }, passive);
+  addEventListener('focusout', () => scheduleMeteor(1800), passive);
+  addEventListener('focus', () => { blurred = false; heldKeys.clear(); heldPointers.clear(); touches = 0; scheduleMeteor(1800); });
+  addEventListener('pointerdown', event => { heldPointers.add(event.pointerId); meteorStop(false); momentDone(); clearCamera(); finishIntro(); clearTrace(); clearPhrase(); }, passive);
+  addEventListener('keydown', event => { heldKeys.add(event.code); meteorStop(false); momentDone(); clearCamera(); finishIntro(); clearTrace(); clearPhrase(); }, passive);
   ['wheel', 'touchstart'].forEach(type => addEventListener(type, interrupt, passive));
   addEventListener('focusin', event => {
+    meteorStop();
+    momentDone();
     clearCamera(); finishIntro(); clearTrace(); clearPhrase();
     if (!(event.target instanceof Element) || !event.target.closest('.companion')) policy?.cancel();
   });
@@ -267,9 +461,17 @@
     ask();
   }, { passive: true });
   document.addEventListener('pointerout', event => { if (!event.relatedTarget) clearCamera(); });
-  addEventListener('blur', cancelEffects);
+  addEventListener('blur', () => {
+    blurred = true; // owned shots/timers are cleared unconditionally; no rearm until window focus returns
+    heldKeys.clear(); heldPointers.clear(); touches = 0;
+    cancelEffects();
+    meteorStop(false);
+  });
   fine.addEventListener('change', clearCamera);
-  addEventListener('scroll', () => { interrupt(); ask(); }, { passive: true });
+  addEventListener('scroll', () => {
+    interrupt();
+    ask();
+  }, { passive: true });
   const viewportGeometry = () => {
     const viewport = window.visualViewport;
     return [innerWidth, innerHeight, viewport?.width ?? innerWidth, viewport?.height ?? innerHeight,
@@ -294,15 +496,17 @@
     const sizes = new ResizeObserver(invalidate);
     [main, header, footer, about].forEach(node => { if (node) sizes.observe(node); });
   }
-  const recolor = () => { clearCamera(); invalidate(); };
+  const recolor = () => { clearCamera(); meteorStop(); invalidate(); };
   new MutationObserver(recolor).observe(doc, { attributes: true, attributeFilter: ['data-theme'] });
   matchMedia('(prefers-color-scheme: light)').addEventListener('change', recolor);
   reduce.addEventListener('change', refresh);
   forced.addEventListener('change', refresh);
   document.addEventListener('visibilitychange', refresh);
-  addEventListener('pagehide', () => { away = true; stop(); });
+  addEventListener('pagehide', () => { away = true; heldKeys.clear(); heldPointers.clear(); touches = 0; stop(); meteorStop(false); });
   addEventListener('pageshow', event => {
     away = false;
+    blurred = false;
+    if (event.persisted) scheduleMeteor(1800); // initial load keeps the already-armed first sequence
     if (event.persisted || scrollY > 8) cancelEffects();
     invalidate();
   });
