@@ -358,3 +358,307 @@ body.mountains::before {
 @media (prefers-reduced-motion: reduce) {
   .mtn-scene { --sv-cloud-travel: 0.52 !important; }
 }
+
+/* Home study (private T1). Everything below is scoped to body.home-study (BaseLayout adds it only on "/")
+   and the scene's data-mode='home', so About/Build/Writing/details/404 keep their incumbent paint.
+   The existing --sv-progress still advances for lifecycle consumers; the scenic composition instead
+   follows --sv-scene (0..1 by the Projects landmark, then held) and --sv-settle (short ending settle),
+   both written by the same event-driven frame in mountains.js. No timer, loop or second owner. */
+body.home-study .mtn-scene[data-world] {
+  --sv-scene: 0;
+  --sv-settle: 0;
+  --sv-max: 0.52;
+  --sv-tail: 0.06;
+  --sv-depth: clamp(0, calc(var(--sv-scene) * var(--sv-max) + var(--sv-settle) * var(--sv-tail)), 1);
+  /* Day: near-neutral mist and slate instead of icy blue; night keeps its navy stops. */
+  --mtn-c-far: light-dark(#d6dde7, #26375d);
+  --mtn-c-mid: light-dark(#bcc7d6, #1e2f53);
+  --mtn-c-near: light-dark(#9aa9be, #152549);
+  --mtn-plane: light-dark(rgba(46, 60, 86, 0.2), rgba(2, 5, 14, 0.4));
+  --mtn-rim: light-dark(rgba(52, 66, 96, 0.3), rgba(140, 168, 250, 0.42));
+  --sv-haze: light-dark(rgba(236, 240, 245, 0.3), rgba(103, 127, 171, 0.07));
+  /* Open flanks, quiet reading corridor. */
+  --mtn-veil-edge: light-dark(rgba(0, 0, 0, 0.85), #000);
+  --mtn-veil-shoulder: light-dark(rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.5));
+  --mtn-veil-center: light-dark(rgba(0, 0, 0, calc(0.34 - 0.1 * var(--sv-ease))), rgba(0, 0, 0, calc(0.42 - 0.1 * var(--sv-ease))));
+  opacity: 0.72; /* night; light overrides follow (light-dark() is not valid opacity grammar) */
+}
+body.home-study .mtn-scene[data-world][data-big] { opacity: 0.6; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world] { opacity: 0.8; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world][data-big] { opacity: 0.62; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world] { opacity: 0.8; }
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world][data-big] { opacity: 0.62; }
+}
+
+/* Night: no aurora curtain on Home; stars and terrain carry the sky. */
+body.home-study .mtn-scene[data-world] .sv-aurora { display: none; }
+
+/* Day: far fewer slate patches over the ridges, and a flank field that opens with the scene. */
+body.home-study .mtn-scene[data-world] .sv-cloud-shadow { fill: #3d485c; fill-opacity: 0.1; }
+body.home-study .mtn-scene[data-world] .sv-cloud-middle .sv-cloud-shadow { fill-opacity: 0.11; }
+body.home-study .mtn-scene[data-world] .sv-cloud-near .sv-cloud-shadow { fill-opacity: 0.09; }
+body.home-study .mtn-scene[data-world] .mtn-flank-art { opacity: calc(var(--sv-scene) * 0.7); }
+
+/* Day ground: near-neutral mist, a soft upper-left light, no blue cast. */
+body.mountains.home-study::before {
+  background:
+    radial-gradient(120% 60% at 14% 0%, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, #dfe4ea 0%, #e5e9ee 40%, #ecf0f3 75%, #f1f3f6 100%);
+}
+
+/* Phone: lower, peripheral terrain and a smaller travel envelope. */
+@media (max-aspect-ratio: 5/4) and (max-width: 899px) {
+  body.home-study .mtn-scene[data-world] {
+    --sv-max: 0.36;
+    --sv-tail: 0.04;
+    --mtn-veil-edge: light-dark(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.92));
+    --mtn-veil-center: light-dark(rgba(0, 0, 0, calc(0.38 - 0.1 * var(--sv-ease))), rgba(0, 0, 0, calc(0.5 - 0.12 * var(--sv-ease))));
+    --mtn-veil: linear-gradient(90deg, var(--mtn-veil-edge), var(--mtn-veil-center) 22%, var(--mtn-veil-center) 78%, var(--mtn-veil-edge));
+  }
+  /* Phone DARK only (manual dark, or no manual choice with a non-light system; never manual light): the quiet
+     reading corridor starts at the reading gutter (~6%) with a darker centre, so dim labels over terrain keep
+     contrast. Edges stay full strength; day, scene opacity, art and every other route are untouched. */
+  :root[data-theme='dark'] body.home-study .mtn-scene[data-world] {
+    --mtn-veil-center: rgba(0, 0, 0, calc(0.28 - 0.04 * var(--sv-ease)));
+    --mtn-veil: linear-gradient(90deg, var(--mtn-veil-edge), var(--mtn-veil-center) 6%, var(--mtn-veil-center) 94%, var(--mtn-veil-edge));
+  }
+  @media not (prefers-color-scheme: light) {
+    :root:not([data-theme='light']) body.home-study .mtn-scene[data-world] {
+      --mtn-veil-center: rgba(0, 0, 0, calc(0.28 - 0.04 * var(--sv-ease)));
+      --mtn-veil: linear-gradient(90deg, var(--mtn-veil-edge), var(--mtn-veil-center) 6%, var(--mtn-veil-center) 94%, var(--mtn-veil-edge));
+    }
+  }
+}
+
+/* Home sky (art: .sv-home-sky inside each far-ridge SVG, already masked by the exact skyline).
+   Hidden by default so every other route keeps its incumbent paint; Home shows night stars in dark
+   and the pale sun with thin clouds in light, for manual data-theme and for the system preference. */
+.sv-hs-night,
+.sv-hs-day { display: none; }
+body.home-study .mtn-scene[data-world] .sv-hs-night { display: inline; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world] .sv-hs-night { display: none; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world] .sv-hs-day { display: inline; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world] .sv-hs-night { display: none; }
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world] .sv-hs-day { display: inline; }
+}
+
+/* Star colour: cool off-white, a few warmer; highlights stay small so prose contrast is unaffected. */
+.sv-hs-dust circle { fill: #cfd9ec; }
+.sv-hs-mid circle { fill: #e2e9f6; }
+.sv-hs-mid circle:nth-child(3n) { fill: #ffe9cc; }
+.sv-hs-bright circle { fill: #f4f8ff; }
+/* Day: irregular tapered clouds (gradient fills in the art) with a cool slate underside. */
+.sv-hs-cloud-near path.s { fill: rgba(105, 121, 150, 0.2); }
+
+/* Sky travel: --sv-hs is the existing --sv-scene (settled by Projects). Distant dust stays still; nearer
+   layers drift slightly; the near clouds slide away and uncover the sun. Camera vars add the hover look. */
+body.home-study .mtn-scene[data-world] {
+  /* No-script rest pose (.75). mountains.js overwrites --sv-hs inline with the scroll value; reduced motion wins with !important. */
+  --sv-hs: 0.75;
+}
+/* Home foreground terrain answers the hover look a little more than before (sky is compensated below). */
+body.home-study .mtn-scene[data-world] > div.mtn-near {
+  translate: calc(var(--mtn-nx, 0px) * 1.5) calc(var(--mtn-ny, 0px) * 1.5);
+}
+.mtn-scene .mtn-wide { --hs-run: 300; --hs-ma: 440px; --hs-mb: 110px; --hs-mc: 60px; --hs-ra: 140; --hs-rb: 70; --hs-rc: 30; --hs-mx: -320px; --hs-my: 120px; }
+.mtn-scene .mtn-tall { --hs-run: 150; --hs-ma: 130px; --hs-mb: 40px; --hs-mc: 30px; --hs-ra: 60; --hs-rb: 30; --hs-rc: 15; --hs-mx: -118px; --hs-my: 44px;
+  /* Home-only anchor (used below): keeps the authored sky band under the header at any phone/tablet height
+     (box top 34svh-48, art bottom-aligned, scale min(width/400, (svh+96)/800)). */
+  --hs-ty: calc((119px - (1.34 * 100svh + 48px - min(200vw, 100svh + 96px))) * 1.03 + 66px); }
+@media (min-width: 720px) {
+  .mtn-scene .mtn-tall { --hs-ty: calc((100px - (1.34 * 100svh + 48px - min(200vw, 100svh + 96px))) * 0.72 + 66px); }
+}
+.mtn-scene .mtn-wide { --hs-ty: calc((116px - (1.34 * 100svh + 48px - max(56.25vw, 100svh + 96px))) * 0.9 + 128px); }
+@media (max-height: 560px) {
+  .mtn-scene .mtn-wide { --hs-ty: calc((116px - (1.34 * 100svh + 48px - max(56.25vw, 100svh + 96px))) * 1.8 + 128px); }
+}
+body.home-study .mtn-scene[data-world] .mtn-ridge > .sv-home-sky > .sv-hs-night,
+body.home-study .mtn-scene[data-world] .mtn-ridge > .sv-home-sky > .sv-hs-day,
+body.home-study .mtn-scene[data-world] .mtn-ridge > .sv-home-sky > .sv-hs-clouds { translate: 0 var(--hs-ty, 0px); }
+/* Sun only (independent individual translate; stars, clouds and original art stay put): short landscape moves it
+   into the open right sky clear of the H1; tablet portrait lifts it so its glow clears the first paragraph. */
+@media (max-height: 560px) {
+  body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun { translate: 1090px 0; }
+}
+@media (min-width: 720px) {
+  body.home-study .mtn-scene[data-world] .mtn-tall .sv-hs-sun { translate: 90px -22px; }
+}
+body.home-study .mtn-scene[data-world] .sv-hs-dust {
+  transform: translate(calc(var(--mtn-dx, 0) * 1px), calc(var(--mtn-dy, 0) * 1px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-mid {
+  transform: translate(calc(var(--mtn-mx, 0) * 1px), calc(var(--mtn-my, 0) * 1px - var(--sv-hs) * 4px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-bright {
+  transform: translate(calc(var(--mtn-bx, 0) * 1px), calc(var(--mtn-by, 0) * 1px - var(--sv-hs) * 9px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-sun {
+  transform: translate(calc(var(--mtn-ux, 0) * 1px), calc(var(--mtn-uy, 0) * 1px - var(--sv-hs) * 6px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-cloud-far {
+  transform: translate(calc(var(--mtn-kx, 0) * 0.45px + var(--sv-hs) * var(--hs-run) * 0.22px), calc(var(--mtn-ky, 0) * 0.45px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-cloud-near {
+  transform: translate(calc(var(--mtn-kx, 0) * 1px + var(--sv-hs) * var(--hs-run) * 1px), calc(var(--mtn-ky, 0) * 1px - var(--sv-hs) * 8px));
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Finite look-around only while the live camera is on; scroll, Pause, theme, blur and focus drop data-cam. */
+  body.home-study .mtn-scene[data-cam] .sv-hs-dust,
+  body.home-study .mtn-scene[data-cam] .sv-hs-mid,
+  body.home-study .mtn-scene[data-cam] .sv-hs-bright,
+  body.home-study .mtn-scene[data-cam] .sv-hs-sun,
+  body.home-study .mtn-scene[data-cam] .sv-hs-cloud-far,
+  body.home-study .mtn-scene[data-cam] .sv-hs-cloud-near { transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1); }
+}
+/* Desktop (>=900px, Home only): the ranges read as layered terrain instead of near-black corners around a void.
+   Gentler tonal steps between far/mid/near, clearer rims, a fuller flank field and a slightly higher rise.
+   The phone composition (max-width 899px) is untouched; SVG framing, masks and geometry are unchanged. */
+@media (min-width: 900px) {
+  body.home-study .mtn-scene[data-world] {
+    --sv-max: 0.6;
+    --mtn-c-far: light-dark(#d0d9e6, #2c4068);
+    --mtn-c-mid: light-dark(#b4c0d1, #243a64);
+    --mtn-c-near: light-dark(#8f9fb6, #1c3060);
+    --mtn-rim: light-dark(rgba(52, 66, 96, 0.36), rgba(150, 178, 255, 0.5));
+    --mtn-veil-edge: light-dark(rgba(0, 0, 0, 0.9), #000);
+    --mtn-veil-shoulder: light-dark(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.62));
+  }
+  body.home-study .mtn-scene[data-world] .mtn-flank-art { opacity: calc(var(--sv-scene) * 0.9); }
+  /* First paint: middle and near ranges start about 8svh and 8svh higher and travel roughly a third less, ending
+     at nearly the same reading pose; the far sky plane (stars, sun anchor) is not touched. */
+  body.home-study .mtn-scene[data-world] > .mtn-layer.mtn-middle {
+    transform: translate3d(0, calc(36svh - 30svh * var(--sv-depth)), 0);
+  }
+  body.home-study .mtn-scene[data-world] > .mtn-layer.mtn-near {
+    transform: translate3d(0, calc(38svh - 47svh * var(--sv-depth) + var(--mtn-near-y, 0px)), 0);
+  }
+}
+
+/* Tall desktop (>=900px and aspect <= 5/4, e.g. 1280x1280, 1440x1200; Home only): the outer middle/near layers rest
+   higher with smaller travel so terrain structure is visible below the first screen, and ONLY the sun moves into the
+   open upper-right sky (+734.06, +95.48 SVG units puts its centre near (900,160) at 1280x1280, clear of the H1).
+   Far plane, stars, meteor, clouds, SVG geometry and every other width/aspect are unchanged. */
+@media (min-width: 900px) and (max-aspect-ratio: 5/4) {
+  body.home-study .mtn-scene[data-world] > .mtn-layer.mtn-middle {
+    transform: translate3d(0, calc(20svh - 18svh * var(--sv-depth)), 0);
+  }
+  body.home-study .mtn-scene[data-world] > .mtn-layer.mtn-near {
+    transform: translate3d(0, calc(26svh - 34svh * var(--sv-depth) + var(--mtn-near-y, 0px)), 0);
+  }
+  body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun { translate: 734.06px 95.48px; }
+  /* Planet: centre about (830,490), diameter about 550px at 1280x1280 (landscape art is sized for 1440x900). */
+  body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-planet image,
+  body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-planet circle {
+    transform-box: fill-box;
+    transform-origin: center;
+    scale: 1.03;
+    translate: -140px 85px;
+  }
+  /* The ridge (far plane) rests 12svh higher (34svh -> 22svh); the added sky children take +100 SVG units on their
+     existing --hs-ty so stars, sun, meteor and clouds stay in the verified open sky (net about 0 at 1280x1280). */
+  body.home-study .mtn-scene[data-world] > .mtn-layer.mtn-far {
+    transform: translate3d(0, calc(22svh - 5svh * var(--sv-depth) + var(--mtn-far-y, 0px)), 0);
+  }
+  .mtn-scene .mtn-wide { --hs-ty: calc((116px - (1.34 * 100svh + 48px - max(56.25vw, 100svh + 96px))) * 0.9 + 128px + 100px); }
+  body.home-study .mtn-scene[data-world] {
+    --mtn-c-mid: light-dark(#acb9cc, #243a64);
+    --mtn-c-near: light-dark(#8697b0, #1c3060);
+  }
+}
+
+/* Reduced motion / no scripted journey: a deliberately composed reading pose. */
+@media (prefers-reduced-motion: reduce) {
+  body.home-study .mtn-scene[data-world] {
+    --sv-depth: calc(var(--sv-max) * 0.75);
+    --sv-hs: 0.75 !important;
+  }
+  body.home-study .mtn-scene[data-world] .sv-home-sky * { transition: none; }
+}
+@media (forced-colors: active) {
+  body.home-study .mtn-scene[data-world] { display: none; }
+}
+
+/* ---- Real-sky v2 (Home only). Real catalogue stars (mountains.js appends .sv-hs-full; .sv-hs-core is the
+   static/failure fallback), larger lit cloud banks, one finite cloud-opening moment plus a night meteor. ---- */
+.sv-hs-clouds { display: none; }
+/* Night is a clear sky: no cloud banks and no legacy haze (manual dark and default/system dark). Day shows them. */
+body.home-study .mtn-scene[data-world] .sv-hs-clouds,
+body.home-study .mtn-scene[data-world] .sv-haze { display: none; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world] .sv-hs-clouds { display: inline; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world] .sv-haze { display: inline; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world] .sv-hs-clouds { display: inline; }
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world] .sv-haze { display: inline; }
+}
+/* The invented dots and the legacy random stars are replaced on Home; every other route keeps them. */
+body.home-study .mtn-scene[data-world] .sv-stars,
+body.home-study .mtn-scene[data-world] .sv-hs-dust,
+body.home-study .mtn-scene[data-world] .sv-hs-mid,
+body.home-study .mtn-scene[data-world] .sv-hs-bright,
+body.home-study .mtn-scene[data-world] .sv-hs-cloud-far,
+body.home-study .mtn-scene[data-world] .sv-hs-cloud-near { display: none; }
+body.home-study .mtn-scene[data-world][data-sky='full'] .sv-hs-core { display: none; }
+/* Cloud material: warm upper-left top, cool shaded underside by day; dark ambient navy at night. */
+body.home-study .mtn-scene[data-world] {
+  --hs-cl-hi: light-dark(#fffaf0, rgba(98, 118, 168, 0.88));
+  --hs-cl-mid: light-dark(#eef2f8, rgba(64, 82, 128, 0.86));
+  --hs-cl-lo: light-dark(rgba(190, 202, 222, 0.95), rgba(36, 50, 92, 0.8));
+  --hs-cl-sh: light-dark(rgba(96, 114, 146, 0.36), rgba(4, 8, 20, 0.5));
+}
+.sv-hs-s0 { stop-color: var(--hs-cl-hi); }
+.sv-hs-s1 { stop-color: var(--hs-cl-mid); }
+.sv-hs-s2 { stop-color: var(--hs-cl-lo); }
+.sv-hs-sh { fill: var(--hs-cl-sh); }
+/* One rigid far sky (hover offsets compensate the far plane); banks answer scroll and hover more than stars. */
+body.home-study .mtn-scene[data-world] .sv-hs-sky {
+  transform: translate(calc(var(--mtn-bx, 0) * 1px), calc(var(--mtn-by, 0) * 1px - var(--sv-hs) * 6px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-bank-a {
+  transform: translate(calc(var(--mtn-kx, 0) * 1px + var(--sv-hs) * var(--hs-ra) * 1px), calc(var(--mtn-ky, 0) * 1px - var(--sv-hs) * 6px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-bank-b {
+  transform: translate(calc(var(--mtn-kx, 0) * 0.6px + var(--sv-hs) * var(--hs-rb) * 1px), calc(var(--mtn-ky, 0) * 0.6px - var(--sv-hs) * 4px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-bank-c {
+  transform: translate(calc(var(--mtn-kx, 0) * 0.45px + var(--sv-hs) * var(--hs-rc) * 1px), calc(var(--mtn-ky, 0) * 0.45px));
+}
+body.home-study .mtn-scene[data-world] .sv-hs-meteor { opacity: 0; }
+/* The planet is one stable authored raster (no spin, loop or filter); it is only shown inside .sv-hs-night (Home, dark). */
+/* A glimpsed planet: only a thin lit crescent on the upper-left limb remains (a circle offset toward the lower right
+   is cut away), the rest of the body falls into the night. */
+body.home-study .mtn-scene[data-world] .sv-hs-planet image {
+  opacity: 0.92;
+  -webkit-mask-image: radial-gradient(ellipse 58% 58% at 62% 64%, transparent 0, transparent 95%, #000 100%);
+  mask-image: radial-gradient(ellipse 58% 58% at 62% 64%, transparent 0, transparent 95%, #000 100%);
+}
+/* Shared world: routes without the Home journey rest in a composed, readable pose (Home's JS drives --sv-scene). */
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --sv-scene: 0.8; }
+/* Moment end pose: held after the drift finishes or is yielded; reduced motion shows it directly. */
+body.home-study .mtn-scene[data-world][data-moment='done'] .sv-hs-bank-a { translate: var(--hs-ma) 0; }
+body.home-study .mtn-scene[data-world][data-moment='done'] .sv-hs-bank-b { translate: var(--hs-mb) 0; }
+body.home-study .mtn-scene[data-world][data-moment='done'] .sv-hs-bank-c { translate: var(--hs-mc) 0; }
+@media (prefers-reduced-motion: reduce) {
+  body.home-study .mtn-scene[data-world] .sv-hs-bank-a { translate: var(--hs-ma) 0; }
+  body.home-study .mtn-scene[data-world] .sv-hs-bank-b { translate: var(--hs-mb) 0; }
+  body.home-study .mtn-scene[data-world] .sv-hs-bank-c { translate: var(--hs-mc) 0; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Finite arrival only (mountains.js sets data-moment=run once on a first arrival, done on any yield). */
+  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-a { animation: sv-hs-drift-a 7s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
+  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-b { animation: sv-hs-drift-b 7s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
+  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-c { animation: sv-hs-drift-c 7s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
+  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-meteor { animation: sv-hs-meteor 1.3s cubic-bezier(0.3, 0, 0.5, 1) 2.6s 1 backwards; }
+  body.home-study .mtn-scene[data-cam] .sv-hs-sky,
+  body.home-study .mtn-scene[data-cam] .sv-hs-bank { transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1); }
+}
+@keyframes sv-hs-drift-a { from { translate: 0 0; } to { translate: var(--hs-ma) 0; } }
+@keyframes sv-hs-drift-b { from { translate: 0 0; } to { translate: var(--hs-mb) 0; } }
+@keyframes sv-hs-drift-c { from { translate: 0 0; } to { translate: var(--hs-mc) 0; } }
+@keyframes sv-hs-meteor {
+  0% { opacity: 0; translate: 0 0; }
+  12% { opacity: 1; }
+  72% { opacity: 1; }
+  100% { opacity: 0; translate: var(--hs-mx) var(--hs-my); }
+}

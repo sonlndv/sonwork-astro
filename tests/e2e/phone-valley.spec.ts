@@ -91,8 +91,8 @@ test('at 720px and wider the opening keeps its default geometry', async ({ page 
 test.describe('valley paint in both themes', () => {
   // The old dark stops, kept here only as the "before" yardstick for the lift.
   const before = { far: [28, 41, 70], mid: [22, 35, 63], near: [16, 28, 56] };
-  // Accepted light stops: fixed RGB channels from #c3d7ee, #98b2d4 and #6a85b2.
-  const lightStops = { far: [195, 215, 238], mid: [152, 178, 212], near: [106, 133, 178] };
+  // Approved sitewide light stops at 375x812: fixed RGB channels from #d6dde7, #bcc7d6 and #9aa9be.
+  const lightStops = { far: [214, 221, 231], mid: [188, 199, 214], near: [154, 169, 190] };
 
   test('dark stops stay lifted, R8 light stops resolve through the real manual toggle', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });

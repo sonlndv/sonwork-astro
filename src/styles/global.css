@@ -289,6 +289,12 @@ main > * {
   border-bottom: 1px solid var(--line);
 }
 
+/* Home study only: the day scrim follows Home's near-neutral mist ground (other routes keep the blue scrim). */
+body.home-study .site-header {
+  --scrim-top: light-dark(rgba(223, 228, 234, 0.93), rgba(4, 7, 14, 0.93));
+  --scrim-bottom: light-dark(rgba(229, 233, 238, 0.9), rgba(4, 7, 14, 0.9));
+}
+
 /* Feathered lower edge: the scrim dissolves into the page rather than ending on a hard band. */
 .site-header::after {
   content: '';

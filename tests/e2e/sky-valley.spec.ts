@@ -83,6 +83,13 @@ async function paintedPlane(page: Page, role: string, baseline: Buffer, label: s
     const after = await geometry(page);
     const controls = paintControls(baseline, hidden, restored);
     await test.info().attach('plane-paint-controls-' + role, { body: JSON.stringify({ label, ...controls, before, after }, null, 2), contentType: 'application/json' });
+    // Diagnostics only: keep the exact measured PNG buffers when restoration exceeds the unchanged 2/255 bound.
+    if (controls.restoration.maximumChannel > 2) {
+      const tag = (role + '-' + label).replace(/[^A-Za-z0-9]+/g, '-');
+      await test.info().attach('plane-restoration-baseline-' + tag, { body: baseline, contentType: 'image/png' });
+      await test.info().attach('plane-restoration-hidden-' + tag, { body: hidden, contentType: 'image/png' });
+      await test.info().attach('plane-restoration-restored-' + tag, { body: restored, contentType: 'image/png' });
+    }
     expect(after, label + ' unchanged independent canvas/plane geometry').toEqual(before);
     expect(await page.locator('main').textContent(), label + ' unchanged content').toBe(content);
     expect(controls.paint.materialPixels, label + ' material causal paint').toBeGreaterThanOrEqual(controls.minimumPaintPixels);
@@ -132,13 +139,27 @@ async function geometry(page: Page) {
   }));
 }
 
-function expectPose(value: Awaited<ReturnType<typeof geometry>>, depth: number) {
+// `state` selects an independently declared rest/journey pose of the approved sitewide world:
+// 0 entry / no-JS, 1 the ending (Home scene 1 x max + settle 1 x tail), 0.44 a calm route (composed scene .8 x max),
+// any other value the reduced rest (max x .75). max/tail: phone .36/.04, >=900px .6/.06.
+function expectPose(value: Awaited<ReturnType<typeof geometry>>, state: number) {
+  const wide = value.width >= 900;
+  const tall = wide && value.width / value.height <= 1.25;
+  // Declared max/tail: >=900px .6/.06; narrow portrait (<=899px and aspect <= 5/4) .36/.04; any other width the base .52/.06.
+  const portrait = value.width <= 899 && value.width / value.height <= 1.25;
+  const max = wide ? 0.6 : portrait ? 0.36 : 0.52, tail = wide ? 0.06 : portrait ? 0.04 : 0.06;
+  const depth = state === 0 ? 0 : state === 1 ? max + tail : state === 0.44 ? 0.8 * max : 0.75 * max;
   expect(value.overflow).toBeLessThanOrEqual(0);
   expect(value.layers.map(layer => layer.role)).toEqual(['far', 'middle', 'near']);
   // Accepted authored poses (independent constants): far 34svh - 5svh*depth, middle 44svh - 44svh*depth,
   // near 46svh - 62svh*depth; the middle layer alone scales by 1 + 0.03*ease about its centre once the valley opens
   // (open = clamp((depth - 0.12) / 0.5), ease = smoothstep(open)). Translation and canvas size stay as authored.
-  const offsets = [0.34 - 0.05 * depth, 0.44 - 0.44 * depth, 0.46 - 0.62 * depth];
+  // Approved poses: narrow 34/44/46 svh (slopes 5/44/62); >=900px 34/36/38 (5/30/47); tall desktop 22/20/26 (5/18/34).
+  const offsets = tall
+    ? [0.22 - 0.05 * depth, 0.2 - 0.18 * depth, 0.26 - 0.34 * depth]
+    : wide
+      ? [0.34 - 0.05 * depth, 0.36 - 0.3 * depth, 0.38 - 0.47 * depth]
+      : [0.34 - 0.05 * depth, 0.44 - 0.44 * depth, 0.46 - 0.62 * depth];
   const open = Math.min(1, Math.max(0, (depth - 0.12) / 0.5));
   const scales = [1, 1 + 0.03 * open * open * (3 - 2 * open), 1];
   value.layers.forEach((layer, i) => {
@@ -266,28 +287,22 @@ for (const profile of [
       expect(travel[0]).toBeGreaterThan(1);
       expect(travel[1]).toBeGreaterThan(travel[0]);
       expect(travel[2]).toBeGreaterThan(travel[1]);
-      expect(travel[1] / travel[0]).toBeCloseTo(44 / 5, 2);
-      expect(travel[2] / travel[0]).toBeCloseTo(62 / 5, 2);
+      // Declared slopes: narrow 5/44/62, >=900px 5/30/47.
+      expect(travel[1] / travel[0]).toBeCloseTo(profile.width >= 900 ? 30 / 5 : 44 / 5, 2);
+      expect(travel[2] / travel[0]).toBeCloseTo(profile.width >= 900 ? 47 / 5 : 62 / 5, 2);
       expect(range.innerTransforms.every(transform => transform === 'none')).toBe(true);
       await toEdge(page, true, profile.touch);
       const ending = await geometry(page);
       expectPose(ending, 1);
       // Controlled paint diagnostic: freeze other decoration, then hide ONE actual outer plane.
       // Compare reproducible pixels, not CSS presence. Never alter progress or application state.
-      const quiet = await page.evaluateHandle(() => {
-        const style = document.createElement('style');
-        style.textContent = '*{animation:none!important;transition:none!important;caret-color:transparent!important}.companion,#companion-return{visibility:hidden!important}';
-        document.head.append(style);
-        return style;
-      });
-      try {
+      // The shared helper also uses the real public Pause owner, so future recurring meteors cannot start; prior state is restored.
+      await quiet(page, async () => {
         const baseline = await page.screenshot({ animations: 'disabled' });
         for (const role of ['far', 'middle', 'near']) {
           await paintedPlane(page, role, baseline, role + ' ending');
         }
-      } finally {
-        await quiet.evaluate(el => el.remove());
-      }
+      });
       await toEdge(page, false, profile.touch);
       expectPose(await geometry(page), 0);
       expect(await page.locator('h1').boundingBox()).toEqual(initialHeading);
@@ -515,7 +530,8 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
       const request = window.requestAnimationFrame;
       const cancel = window.cancelAnimationFrame;
       const set = window.setTimeout;
-      const work = { frames: 0, timers: 0, pending: new Set<number>() };
+      const clearT = window.clearTimeout;
+      const work = { frames: 0, timers: 0, pending: new Set<number>(), timerPending: new Map<number, number>(), delays: [] as number[] };
       const owned = () => /\/(?:mountains\/mountains|atmosphere)\.js/.test(new Error().stack || '');
       (window as any).__landscapeWork = work;
       window.requestAnimationFrame = function (this: Window, callback: FrameRequestCallback) {
@@ -532,14 +548,33 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
         work.pending.delete(handle);
         return cancel.call(this, handle);
       };
+      // Observation only: record pending timers owned by mountains.js/atmosphere.js (the approved sparse night-meteor
+      // scheduler is the single permitted one); callbacks, delays and handles are passed through unchanged.
       window.setTimeout = function (this: Window, ...args: any[]) {
-        if (owned()) work.timers += 1;
-        return Reflect.apply(set, this, args);
+        if (!owned()) return Reflect.apply(set, this, args);
+        work.timers += 1;
+        work.delays.push(Number(args[1] ?? 0));
+        const callback = args[0];
+        let handle = 0;
+        if (typeof callback === 'function') {
+          args[0] = function (this: unknown, ...rest: unknown[]) {
+            work.timerPending.delete(handle);
+            return Reflect.apply(callback, this, rest);
+          };
+        }
+        handle = Reflect.apply(set, this, args) as unknown as number;
+        work.timerPending.set(handle, Number(args[1] ?? 0));
+        return handle;
       } as typeof window.setTimeout;
+      window.clearTimeout = function (this: Window, ...args: Parameters<typeof clearT>) {
+        const handle: unknown = args[0];
+        if (typeof handle === 'number') work.timerPending.delete(handle);
+        return Reflect.apply(clearT, this, args);
+      } as typeof window.clearTimeout;
     });
     const work = () => page.evaluate(() => {
       const value = (window as any).__landscapeWork;
-      return { frames: value.frames, timers: value.timers, pending: value.pending.size };
+      return { frames: value.frames, timers: value.timers, pending: value.pending.size, timerPending: value.timerPending.size, delays: [...value.delays] as number[] };
     });
     await page.goto('/');
     await settled(page);
@@ -552,7 +587,10 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
     await page.screenshot({ animations: 'disabled' });
     expect(await work()).toEqual(idle);
     expect(idle.frames).toBeGreaterThan(0);
-    expect(idle.timers).toBe(0);
+    // Zero idle RAF recurrence stays. The only approved owned timer is the ONE sparse night-meteor scheduler
+    // (Home/index, dark, focused, visible, not Paused): at most one pending, never a short ambient loop.
+    expect(idle.timerPending).toBeLessThanOrEqual(1);
+    expect(Math.min(...idle.delays, Infinity)).toBeGreaterThanOrEqual(1800);
     const p = await progress(page);
     // Explicit simulated document lifecycle, not evidence of a physical tab or native bfcache.
     await page.evaluate(() => {
@@ -564,6 +602,7 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
     await page.setViewportSize({ width: 1100, height: 780 });
     expect(await progress(page)).toBe(p);
     expect((await work()).pending).toBe(0);
+    expect((await work()).timerPending, 'simulated hidden/pagehide leaves no owned timer').toBe(0);
     await expect(scene(page).locator('.mtn-rim[pathLength]')).toHaveCount(0);
     expect(await scene(page).evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
     await page.evaluate(() => {
@@ -574,7 +613,8 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
     await expect.poll(() => progress(page)).toBeGreaterThan(0);
     await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
     await expect(page.locator('.mtn-mist')).not.toHaveAttribute('data-run', /.*/);
-    expect((await work()).timers).toBe(0);
+    // A persisted pageshow may rearm the one sparse scheduler (>=1.8s idle); nothing else, and no RAF.
+    expect((await work()).timerPending).toBeLessThanOrEqual(1);
     await testInfo.attach('observed-owner-work', { body: JSON.stringify({ idle, restored: await work() }, null, 2), contentType: 'application/json' });
   });
 });
@@ -586,7 +626,9 @@ const twoFrames = (page: Page) => page.evaluate(() => new Promise(done => reques
 const variantFor = (size: { width: number; height: number }) =>
   size.width <= 899 && size.width / size.height <= 1.25 ? 'tall' : 'wide';
 
-const skyFacts = (page: Page) => page.evaluate(() => {
+// Legacy (R8-era) oracles for the `.sv-sky` / `.sv-stars` / aurora groups. The approved world INTENTIONALLY hides
+// them on every route; they are kept only as dead reference and are not called by any case.
+const legacySkyFacts = (page: Page) => page.evaluate(() => {
   const svgs = [...document.querySelectorAll<SVGSVGElement>('.mtn-far > svg.mtn-ridge')];
   const visible = svgs.filter(svg => getComputedStyle(svg).display !== 'none');
   const own = (svg: SVGSVGElement) => svg.querySelectorAll(':scope > g.sv-sky');
@@ -615,7 +657,7 @@ const skyFacts = (page: Page) => page.evaluate(() => {
   };
 });
 
-function expectSkyShape(f: Awaited<ReturnType<typeof skyFacts>>, role: string, label = 'sky') {
+function legacyExpectSkyShape(f: Awaited<ReturnType<typeof legacySkyFacts>>, role: string, label = 'sky') {
   expect(f.variants, label + ' two far variants').toBe(2);
   expect(f.ownSkies, label + ' one masked sky per variant').toEqual([1, 1]);
   expect(f.visibleVariants, label + ' exactly one visible variant').toBe(1);
@@ -630,6 +672,83 @@ function expectSkyShape(f: Awaited<ReturnType<typeof skyFacts>>, role: string, l
   expect(f.maskMatches, label + ' sky cut by the exact far surface').toBe(true);
 }
 
+// ---- Approved sitewide world: the visible sky is the additive `.sv-home-sky` group inside each far-ridge SVG,
+// masked by the original exact skyline. Night (`.sv-hs-night`) holds the fixed illustrative Aquarius field: 18 HIP-labelled
+// fallback points (`.sv-hs-core`) until the catalogue field (`.sv-hs-full`, <=600 per variant, 308 wide / 246 tall) replaces
+// them (`data-sky="full"`), a quiet partial planet and the meteor. No aurora, no chart lines, no night clouds.
+const skyFacts = async (page: Page) => {
+  const scripted = await page.evaluate(() => document.documentElement.classList.contains('js'));
+  if (scripted) await expect(scene(page)).toHaveAttribute('data-sky', 'full', { timeout: 5000 });
+  return page.evaluate(() => {
+    const svgs = [...document.querySelectorAll<SVGSVGElement>('.mtn-far > svg.mtn-ridge')];
+    const visible = svgs.filter(svg => getComputedStyle(svg).display !== 'none');
+    const maskMatches = svgs.length > 0 && svgs.every(svg => {
+      const home = svg.querySelector(':scope > g.sv-home-sky');
+      const id = /url\(#([^)]+)\)/.exec(home?.getAttribute('mask') ?? '')?.[1];
+      const cut = id ? svg.querySelector(`mask[id="${id}"] path[fill="#000"]`) : null;
+      const surface = svg.querySelector('path.mtn-lit');
+      return !!cut && !!surface && /^sv-surface-far-/.test(surface.id) && cut.getAttribute('d') === surface.getAttribute('d');
+    });
+    const svg = visible[0];
+    const home = svg?.querySelector<SVGGElement>(':scope > g.sv-home-sky') ?? null;
+    const night = home?.querySelector<SVGGElement>(':scope > g.sv-hs-night') ?? null;
+    const shown = !!night && !!home && getComputedStyle(night).display !== 'none' && Number(getComputedStyle(home).opacity) > 0.02;
+    const groups = [...(svg?.querySelectorAll<SVGGElement>('g.sv-hs-sky') ?? [])].filter(g => getComputedStyle(g).display !== 'none');
+    const stars = groups.flatMap(g => [...g.children]);
+    const hips = stars.map(n => Number(n.getAttribute('data-hip')));
+    return {
+      variants: svgs.length, visibleVariants: visible.length,
+      ownSkies: svgs.map(s => s.querySelectorAll(':scope > g.sv-home-sky').length),
+      role: svg ? (svg.classList.contains('mtn-tall') ? 'tall' : 'wide') : '',
+      shown, opacity: home ? Number(getComputedStyle(home).opacity) : 0,
+      full: document.querySelector('.mtn-scene')?.getAttribute('data-sky') === 'full',
+      groupKinds: shown ? groups.map(g => (g.classList.contains('sv-hs-full') ? 'full' : 'core')) : [],
+      stars: shown ? stars.length : 0,
+      nonCircleStars: stars.filter(n => n.tagName !== 'circle').length,
+      labelled: hips.every(h => Number.isInteger(h) && h > 0), uniqueHip: new Set(hips).size === hips.length,
+      waterJar: [110395, 110960, 111497, 110672].every(h => hips.includes(h)),
+      visibleAurora: [...(svg?.querySelectorAll('.sv-aurora') ?? [])].filter(el => getComputedStyle(el).display !== 'none').length,
+      chart: home?.querySelectorAll('line, polyline, polygon, text, [class*="guide"], [class*="constellation"]').length ?? -1,
+      foreign: document.querySelectorAll('.sv-constellation, .sv-constellation-simple, .sv-constellation-guide, .sv-gutter-sky').length,
+      maskMatches,
+    };
+  });
+};
+
+function expectSkyShape(f: Awaited<ReturnType<typeof skyFacts>>, role: string, label = 'sky') {
+  expect(f.variants, label + ' two far variants').toBe(2);
+  expect(f.ownSkies, label + ' one masked home sky per variant').toEqual([1, 1]);
+  expect(f.visibleVariants, label + ' exactly one visible variant').toBe(1);
+  expect(f.role, label + ' visible variant').toBe(role);
+  expect(f.shown, label + ' night sky visible').toBe(true);
+  expect(f.foreign, label + ' no constellation/guide/gutter drawing').toBe(0);
+  expect(f.chart, label + ' no connecting chart primitives').toBe(0);
+  expect(f.visibleAurora, label + ' no aurora in the approved world').toBe(0);
+  expect(f.nonCircleStars, label + ' stars are plain points').toBe(0);
+  expect(f.labelled && f.uniqueHip, label + ' every point carries a unique HIP').toBe(true);
+  expect(f.waterJar, label + ' Aquarius Water Jar (Gamma, Zeta, Eta, Pi) present').toBe(true);
+  expect(f.stars, label + ' genuine points').toBeGreaterThanOrEqual(12);
+  expect(f.stars, label + ' at most 600 per variant').toBeLessThanOrEqual(600);
+  if (f.full) {
+    expect(f.groupKinds, label + ' catalogue field replaces the fallback').toEqual(['full']);
+    expect(f.stars, label + ' catalogue points').toBe(role === 'tall' ? 246 : 308);
+  } else {
+    expect(f.groupKinds, label + ' static fallback core').toEqual(['core']);
+    expect(f.stars, label + ' fallback points').toBe(18);
+  }
+  expect(f.maskMatches, label + ' sky cut by the exact far surface').toBe(true);
+}
+
+const visibleFarSvg = () => [...document.querySelectorAll<SVGSVGElement>('.mtn-far > svg.mtn-ridge')].find(s => getComputedStyle(s).display !== 'none')!;
+const setSky = (page: Page, kind: 'sky' | 'stars', hide: boolean) => page.evaluate(([kind, hide]) => {
+  const svg = [...document.querySelectorAll<SVGSVGElement>('.mtn-far > svg.mtn-ridge')].find(s => getComputedStyle(s).display !== 'none')!;
+  const nodes = kind === 'sky'
+    ? [...svg.querySelectorAll<SVGElement>(':scope > g.sv-home-sky')]
+    : [...svg.querySelectorAll<SVGElement>('g.sv-hs-sky')].filter(g => getComputedStyle(g).display !== 'none');
+  nodes.forEach(el => { if (hide) el.style.visibility = 'hidden'; else el.style.removeProperty('visibility'); });
+  return nodes.length;
+}, [kind, hide] as const);
+
 const quietCss = '*{animation:none!important;transition:none!important;caret-color:transparent!important}.companion,#companion-return{visibility:hidden!important}';
 async function quiet<T>(page: Page, run: () => Promise<T>) {
   const style = await page.evaluateHandle(css => {
@@ -638,6 +757,16 @@ async function quiet<T>(page: Page, run: () => Promise<T>) {
     document.head.append(s);
     return s;
   }, quietCss);
+  // The approved finite meteor scheduler can create FUTURE shots, which pausing current WAAPI cannot stop. When scripts run,
+  // use the REAL public Pause owner (the footer button) and restore its prior state afterwards; with JavaScript disabled
+  // there is no scheduler and nothing is clicked.
+  const pauseState = await page.evaluate(() => {
+    const button = document.querySelector<HTMLButtonElement>('.atmosphere-toggle');
+    if (!button || button.hidden || !document.documentElement.classList.contains('js')) return 'none';
+    if (button.textContent === 'Resume atmosphere') return 'already';
+    button.click();
+    return 'paused';
+  });
   // Bounded parent-side settle (no page frame/timer promise, so it is safe with JavaScript disabled).
   await page.waitForTimeout(50);
   // Freeze only the WebAnimations that are running right now; already paused/finished/cancelled ones are left alone.
@@ -647,6 +776,7 @@ async function quiet<T>(page: Page, run: () => Promise<T>) {
     return running;
   });
   try { return await run(); } finally {
+    if (pauseState === 'paused') await page.evaluate(() => document.querySelector<HTMLButtonElement>('.atmosphere-toggle')?.click()).catch(() => undefined);
     await held.evaluate(list => list.forEach(a => { if (a.playState === 'paused') a.play(); })).catch(() => undefined);
     await held.dispose().catch(() => undefined);
     await style.evaluate(el => el.remove());
@@ -658,6 +788,29 @@ const shot = (page: Page, clip?: { x: number; y: number; width: number; height: 
 
 // Pixel control: hiding the whole sky, then only its stars, must change real pixels; restoring must not.
 async function skyPaint(page: Page, label: string) {
+  await quiet(page, async () => {
+    try {
+      const first = await shot(page);
+      expect(await setSky(page, 'sky', true), label + ' selects the one visible .sv-home-sky').toBe(1);
+      const noSky = await shot(page);
+      await setSky(page, 'sky', false);
+      const restored = await shot(page);
+      expect(await setSky(page, 'stars', true), label + ' selects the visible HIP star group').toBeGreaterThan(0);
+      const noStars = await shot(page);
+      await setSky(page, 'stars', false);
+      const sky = paintControls(first, noSky, restored);
+      const stars = paintControls(first, noStars, restored);
+      await test.info().attach('sky-paint-controls', { body: JSON.stringify({ label, sky, stars }, null, 2), contentType: 'application/json' });
+      expect(sky.paint.materialPixels, label + ' sky paints').toBeGreaterThanOrEqual(sky.minimumPaintPixels);
+      expect(stars.paint.materialPixels, label + ' stars paint').toBeGreaterThanOrEqual(12);
+      expect(sky.restoration.maximumChannel, label + ' restored').toBeLessThanOrEqual(2);
+    } finally {
+      await setSky(page, 'sky', false);
+      await setSky(page, 'stars', false);
+    }
+  });
+}
+async function legacySkyPaint(page: Page, label: string) {
   await quiet(page, async () => {
     const set = (selector: string, hide: boolean) => page.locator(selector).evaluateAll((nodes, hidden) => nodes.forEach(el => {
       if (hidden) (el as SVGElement).style.visibility = 'hidden'; else (el as SVGElement).style.removeProperty('visibility');
@@ -687,6 +840,60 @@ async function skyPaint(page: Page, label: string) {
 // Original terrain occlusion through the real skyline mask: a white probe added inside the live stars group
 // shows above the skyline (positive control) and is cut by the mask below it (no light leaks through terrain).
 async function maskProbe(page: Page, label: string) {
+  await quiet(page, async () => {
+    const probes = (on: boolean) => page.evaluate(on => {
+      document.querySelectorAll('.sv-probe-test').forEach(n => n.remove());
+      if (!on) return null;
+      const svg = [...document.querySelectorAll<SVGSVGElement>('.mtn-far > svg.mtn-ridge')].find(s => getComputedStyle(s).display !== 'none')!;
+      const surface = svg.querySelector<SVGGeometryElement>('path.mtn-lit')!;
+      const home = svg.querySelector(':scope > g.sv-home-sky')!;
+      const group = home.querySelector(':scope > g.sv-hs-night')!;
+      // The night group carries its own vertical offset inside the masked container; account for it (user units) so
+      // the probe sits at the intended skyline-relative height. The bounding box below includes every ancestor CTM.
+      const parts = getComputedStyle(group).translate.split(' ');
+      const ty = parts.length > 1 ? parseFloat(parts[1]) || 0 : 0;
+      const vb = svg.viewBox.baseVal, x = vb.x + vb.width / 2;
+      let skyline = -300;
+      while (skyline < 900 && !surface.isPointInFill(new DOMPoint(x, skyline))) skyline += 2;
+      const rect = (cy: number) => {
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('class', 'sv-probe-test');
+        c.setAttribute('cx', String(x)); c.setAttribute('cy', String(cy - ty)); c.setAttribute('r', '14');
+        c.setAttribute('fill', '#fff'); c.setAttribute('opacity', '1');
+        group.append(c);
+        const r = c.getBoundingClientRect();
+        return { x: Math.max(0, Math.floor(r.left) - 2), y: Math.max(0, Math.floor(r.top) - 2), width: Math.ceil(r.width) + 4, height: Math.ceil(r.height) + 4 };
+      };
+      return { above: rect(skyline - 60), below: rect(skyline + 36), viewport: [innerWidth, innerHeight] };
+    }, on);
+    try {
+      const plan = (await probes(true))!;
+      await probes(false);
+      for (const clip of [plan.above, plan.below]) {
+        expect(clip.width, label + ' probe on screen').toBeGreaterThan(8);
+        expect(clip.x + clip.width, label + ' probe inside viewport').toBeLessThanOrEqual(plan.viewport[0]);
+        expect(clip.y + clip.height, label + ' probe inside viewport').toBeLessThanOrEqual(plan.viewport[1]);
+      }
+      const baseA = await shot(page, plan.above);
+      const baseB = await shot(page, plan.below);
+      await probes(true);
+      const withA = await shot(page, plan.above);
+      const withB = await shot(page, plan.below);
+      await probes(false);
+      const againA = await shot(page, plan.above);
+      const againB = await shot(page, plan.below);
+      const above = paintControls(baseA, withA, againA);
+      const below = paintControls(baseB, withB, againB);
+      await test.info().attach('sky-mask-probe', { body: JSON.stringify({ label, above, below }, null, 2), contentType: 'application/json' });
+      expect(above.paint.materialPixels, label + ' probe visible in open sky').toBeGreaterThanOrEqual(64);
+      expect(below.paint.maximumChannel, label + ' probe cut by terrain mask').toBeLessThanOrEqual(2);
+      expect(above.restoration.maximumChannel).toBeLessThanOrEqual(2);
+    } finally {
+      await probes(false);
+    }
+  });
+}
+async function legacyMaskProbe(page: Page, label: string) {
   await quiet(page, async () => {
     const probes = (on: boolean) => page.evaluate(on => {
       document.querySelectorAll('.sv-probe-test').forEach(n => n.remove());
@@ -761,18 +968,41 @@ const expectReadable = async (page: Page, label: string) => {
   expect(await unreachable(page), label + ' foreground controls reachable above the sky').toEqual([]);
 };
 // Resting aurora/stars: both far variants (2 + 2 groups). Zero offsets may serialize as the identity matrix.
-const skyAtRest = (page: Page) => page.locator('.sv-aurora, .sv-stars').evaluateAll(nodes => ({
+// Approved world: the HIP-labelled sky groups (core + catalogue, both variants) own no running animation and the
+// camera is not live, i.e. no autonomous drift.
+const skyAtRest = (page: Page) => page.evaluate(() => {
+  const groups = [...document.querySelectorAll<SVGElement>('g.sv-hs-sky')];
+  const root = document.querySelector<HTMLElement>('.mtn-scene')!;
+  // clearCamera removes the hover offsets; CSS reads them with fallback 0 and never declares them, so both stay empty at rest.
+  const offsetsUnset = ['--mtn-bx', '--mtn-by'].every(name =>
+    root.style.getPropertyValue(name) === '' && getComputedStyle(root).getPropertyValue(name).trim() === '');
+  return { count: groups.length, rest: !root.hasAttribute('data-cam') && offsetsUnset && groups.every(g => g.getAnimations().length === 0) };
+});
+const legacySkyAtRest = (page: Page) => page.locator('.sv-aurora, .sv-stars').evaluateAll(nodes => ({
   count: nodes.length,
   rest: nodes.every(el => {
     const transform = getComputedStyle(el).transform;
     return transform === 'none' || new DOMMatrixReadOnly(transform).isIdentity;
   }),
 }));
-const skySignature = (page: Page) => scene(page).evaluate(el => ({
-  progress: getComputedStyle(el).getPropertyValue('--sv-progress'),
-  cloud: getComputedStyle(el).getPropertyValue('--sv-cloud-travel'),
-  opacity: getComputedStyle(el.querySelector('.sv-sky')!).opacity,
-}));
+// Pause/theme/static pose signature of the CURRENT world: the visible variant's `.sv-home-sky` (opacity, night display),
+// its shown HIP star points, and the scene's progress / cloud travel / sky travel. A missing visible sky fails.
+const skySignature = (page: Page) => scene(page).evaluate(el => {
+  const svg = [...el.querySelectorAll<SVGSVGElement>('.mtn-far > svg.mtn-ridge')].find(s => getComputedStyle(s).display !== 'none');
+  const home = svg?.querySelector(':scope > g.sv-home-sky');
+  if (!svg || !home) throw new Error('Expected one visible far variant with a .sv-home-sky');
+  const night = home.querySelector(':scope > g.sv-hs-night')!;
+  const nightShown = getComputedStyle(night).display !== 'none';
+  const points = nightShown
+    ? [...svg.querySelectorAll('g.sv-hs-sky')].filter(g => getComputedStyle(g).display !== 'none').reduce((n, g) => n + g.children.length, 0)
+    : 0;
+  return {
+    progress: getComputedStyle(el).getPropertyValue('--sv-progress'),
+    cloud: getComputedStyle(el).getPropertyValue('--sv-cloud-travel'),
+    skyTravel: getComputedStyle(el).getPropertyValue('--sv-hs'),
+    opacity: getComputedStyle(home).opacity, nightShown, points,
+  };
+});
 
 test('night sky is a painted far-SVG background: variants, sparse points, curved aurora, exact terrain mask', async ({ browser, baseURL }) => {
   for (const size of [{ width: 375, height: 812 }, { width: 1440, height: 900 }]) {
@@ -801,7 +1031,8 @@ test('night sky follows native progress and shares Pause/theme state; day has cl
     await toEdge(page, true, false);
     const valley = await geometry(page);
     expect(valley.layers[0].y).toBeLessThan(entry.layers[0].y);
-    expect((await skyFacts(page)).opacity).toBeCloseTo(0.82, 2);
+    // The 0.82 fade belonged to the hidden legacy `.sv-sky`; the approved visible `.sv-home-sky` declares no local fade (opacity 1).
+    expect((await skyFacts(page)).opacity).toBeCloseTo(1, 2);
     expect(await skyAtRest(page), 'no autonomous sky drift').toEqual({ count: 4, rest: true });
     await toEdge(page, false, false);
     expect((await skyFacts(page)).opacity).toBeCloseTo(1, 2);
@@ -887,7 +1118,8 @@ test('night sky follows native progress and shares Pause/theme state; day has cl
     await page.locator('.atmosphere-toggle').evaluate(el => (el as HTMLElement).focus({ preventScroll: true }));
     await page.keyboard.press('Enter');
     await expect.poll(() => progress(page)).toBe(0);
-    expect(Number((await skySignature(page)).cloud)).toBe(0);
+    // Home cloud travel is declared as 0.2 + 0.32 x arrive; at the entry arrive is 0, so the exact literal is 0.2.
+    expect(Number((await skySignature(page)).cloud)).toBe(0.2);
   });
 });
 
@@ -1048,14 +1280,26 @@ for (const [size, variant] of [
 ] as const) {
   test(`JS-disabled dark sky is painted and clear across routes/200%/404 (${variant} ${size.width}x${size.height})`, async ({ browser, baseURL }) => {
     await open(browser, baseURL, { javaScriptEnabled: false, colorScheme: 'dark', viewport: size }, async page => {
-      if (variant === 'supports-absent') await page.route('**/mountains/mountains.css*', async route => {
+      // The scene styles are bundled into the compiled Astro stylesheet, so that response is the one transformed.
+      const intercepted: { status: number; bytes: number; scenic: boolean }[] = [];
+      if (variant === 'supports-absent') await page.route('**/_astro/*.css*', async route => {
         const response = await route.fetch();
         const css = await response.text();
+        intercepted.push({ status: response.status(), bytes: css.length, scenic: css.includes('.mtn-scene') });
         await route.fulfill({ response, body: css.replace(/@supports[^{]*\{/g, '@media not all {') });
       });
+      // Every affected navigation must have actually passed a successful, nonempty scenic stylesheet through the route.
+      const visit = async (target: string) => {
+        const seen = intercepted.length;
+        await page.goto(target);
+        if (variant !== 'supports-absent') return;
+        const fresh = intercepted.slice(seen);
+        expect(fresh.length, `${target} compiled stylesheet intercepted`).toBeGreaterThan(0);
+        expect(fresh.some(r => r.status === 200 && r.bytes > 0 && r.scenic), `${target} intercepted a nonempty scenic stylesheet`).toBe(true);
+      };
       for (const route of ['/', '/about', '/work', '/writing', '/subscribe', '/work/trivia-hub', '/missing-sky-valley-page']) {
         for (const zoom of ['100%', '200%']) {
-          await page.goto(route);
+          await visit(route);
           await page.evaluate(percent => { document.documentElement.style.fontSize = percent; }, zoom);
           const label = `${route} ${zoom}`;
           expectSkyShape(await skyFacts(page), variantFor(size), label);
@@ -1070,7 +1314,7 @@ for (const [size, variant] of [
         }
       }
       // Actual paint control on the real sky: painted / hidden / restored pixels.
-      await page.goto('/');
+      await visit('/');
       await skyPaint(page, `${variant} ${size.width}x${size.height}`);
     });
   });

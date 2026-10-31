@@ -1,0 +1,5 @@
+/* Scene stylesheet delivery: the shared mountain world and the atmosphere control, in their original order
+   (mountains, then atmosphere), bundled into the same compiled stylesheet as fonts/global/companion
+   instead of two separate render-blocking requests. The source files are unchanged. */
+@import '../../public/mountains/mountains.css';
+@import '../../public/atmosphere.css';
