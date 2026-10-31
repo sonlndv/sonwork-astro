@@ -1,8 +1,8 @@
 ---
-import '../styles/scene.css';
-import '../styles/fonts.css';
-import '../styles/global.css';
-import '../styles/companion.css';
+import sceneCss from '../styles/scene.css?inline';
+import fontsCss from '../styles/fonts.css?inline';
+import globalCss from '../styles/global.css?inline';
+import companionCss from '../styles/companion.css?inline';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import MountCompanion from '../components/MountCompanion.astro';
 import MountainScene from '../components/MountainScene.astro';
@@ -13,6 +13,10 @@ interface Props {
   type?: 'website' | 'article';
   noIndex?: boolean;
 }
+
+// The processed (bundled, minified) shared cascade in its original order: scene, fonts, global, companion.
+// Delivered in the document itself so the first paint does not wait on a separate render-blocking stylesheet request.
+const sharedCss = [sceneCss, fontsCss, globalCss, companionCss].join('\n');
 
 const { title, description, type = 'website', noIndex = false } = Astro.props;
 const siteName = 'Son';
@@ -101,6 +105,8 @@ function isCurrent(href: string): boolean {
     <link rel="preload" href="/fonts/space-mono-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     {type === 'article' && <link rel="preload" href="/fonts/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />}
+    <!-- The shared cascade follows the font preloads, so the browser discovers the same faces before it consumes the inline CSS. -->
+    <style is:inline set:html={sharedCss}></style>
     <!-- Mount: native button, focus, touch and motion behaviour (styles come from companion.css above). -->
     <script is:inline src="/companion.js" defer></script>
     <!-- One shared scene. Defer order: native Mount producer, landscape frame, atmosphere eligibility. -->

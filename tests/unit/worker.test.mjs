@@ -46,6 +46,19 @@ test('release identifier accepts only actual full Git SHAs', () => {
   assert.match(buildSha({}), /^[a-f0-9]{40}$/);
 });
 
+test('inline style collector keeps each distinct style once and ignores text outside style elements', async () => {
+  const { collectInlineStyles } = await import('../../scripts/verify-release.mjs');
+  const shared = '@font-face{src:url(/fonts/unpreloaded-vietnamese-400.woff2)}body{margin:0}';
+  const pageA = `<head><style is:inline>@supports (a:b){x{y:z}}</style><style>${shared}</style></head>
+    <body><p>url(/fonts/plain-text.woff2)</p><script>const s = '<style>url(/fonts/in-script.woff2)</style>';</script>
+    <!-- <style>url(/fonts/in-comment.woff2)</style> --></body>`;
+  const pageB = `<head><style>${shared}</style><style>  </style><style>.extra{color:red}</style></head>`;
+  const collected = collectInlineStyles([pageA, pageB]);
+  assert.deepEqual(collected, ['@supports (a:b){x{y:z}}', shared, '.extra{color:red}']);
+  assert.ok(collected.join('').includes('/fonts/unpreloaded-vietnamese-400.woff2'));
+  assert.ok(!collected.join('').includes('plain-text') && !collected.join('').includes('in-script') && !collected.join('').includes('in-comment'));
+});
+
 test('live verification stops before legacy endpoints when release SHA differs', async () => {
   const { verifyRelease } = await import('../../scripts/verify-release.mjs');
   const original = globalThis.fetch;

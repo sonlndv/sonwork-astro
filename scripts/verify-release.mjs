@@ -26,6 +26,17 @@ export function fetchNavigation(url) {
   });
 }
 
+// Contents of every actual <style> element in the given HTML documents, each distinct string once. Comments and
+// <script> bodies are removed first, so text that merely mentions a style tag is never collected.
+export function collectInlineStyles(documents) {
+  const found = new Set();
+  for (const document of documents) {
+    const markup = document.replace(/<!--[\s\S]*?-->/g, '').replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '');
+    for (const [, content] of markup.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)) if (content.trim()) found.add(content);
+  }
+  return [...found];
+}
+
 export async function verifyRelease(base, expectedSha, output) {
   assert.match(expectedSha ?? '', /^[a-f0-9]{40}$/, 'expected actual full release SHA is required');
   const inventory = [];
@@ -112,7 +123,8 @@ export async function verifyRelease(base, expectedSha, output) {
       const path = match[1]; assert.ok(path.startsWith('/')); assets.set(path, path.endsWith('.css') ? /text\/css/ : /font\/woff2|application\/font/);
     }
   }
-  const css = [];
+  // Inline <style> contents (the shared cascade is delivered in the document) plus every external stylesheet below.
+  const css = collectInlineStyles(html);
   for (const [path, type] of assets) await check(`asset ${path}`, async () => {
     const response = await get(path); assert.equal(response.status, 200); assert.match(response.headers.get('content-type'), type);
     if (path.endsWith('.css')) css.push(await response.text());

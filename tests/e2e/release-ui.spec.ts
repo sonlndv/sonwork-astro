@@ -109,22 +109,26 @@ test('the landscape is on every built HTML page and the 404, in both themes, and
           const resources = (selector: string, attribute: string, pathname: string) => page.evaluate(([s, a, p]) =>
             [...document.querySelectorAll(s)].map(n => new URL(n.getAttribute(a)!, location.href))
               .filter(u => u.pathname === p).map(u => u.pathname + u.search), [selector, attribute, pathname]);
-          // Scene styles are bundled into the compiled Astro stylesheet: exactly one active content-hashed sheet,
-          // no leftover raw scene links, and that sheet really carries the scenic and atmosphere rules.
+          // The shared cascade is delivered inline in the head: exactly one active nonempty style carries the scenic and
+          // atmosphere rules, followed in order by the fonts, global and companion rules; no raw scene links remain and
+          // no external stylesheet duplicates the scene.
           const sheet = await page.evaluate(() => {
+            const textOf = (css: CSSStyleSheet | null) => (css ? [...css.cssRules].map(rule => rule.cssText).join('\n') : '');
+            const carriers = [...document.querySelectorAll<HTMLStyleElement>('head > style')].filter(s => textOf(s.sheet).includes('.mtn-scene'));
+            const text = textOf(carriers[0]?.sheet ?? null);
             const links = [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href]')];
-            const hashed = links.filter(l => /^\/_astro\/[^/]+\.[A-Za-z0-9_-]{6,}\.css$/.test(new URL(l.href).pathname));
-            const css = hashed[0]?.sheet;
-            const text = css ? [...css.cssRules].map(rule => rule.cssText).join('\n') : '';
+            const at = (needle: string) => text.indexOf(needle);
             return {
-              hashed: hashed.length,
-              active: !!css && !css.disabled && css.cssRules.length > 0,
+              carriers: carriers.length,
+              active: !!carriers[0]?.sheet && !carriers[0].sheet.disabled && carriers[0].sheet.cssRules.length > 0,
               raw: links.filter(l => ['/mountains/mountains.css', '/atmosphere.css'].includes(new URL(l.href).pathname)).length,
-              scenic: ['.mtn-scene', '.mtn-layer', '.mtn-mist', '.atmosphere-toggle', '.sv-home-sky', '.sv-hs-night'].filter(s => !text.includes(s)),
-              world: text.includes('data-world'),
+              external: links.filter(l => textOf(l.sheet).includes('.mtn-scene')).length,
+              scenic: ['.mtn-scene', '.mtn-layer', '.mtn-mist', '.atmosphere-toggle', '.sv-home-sky', '.sv-hs-night'].filter(s => at(s) < 0),
+              world: at('data-world') >= 0,
+              order: at('.mtn-scene') >= 0 && at('.mtn-scene') < at('@font-face') && at('@font-face') < at('.skip-link') && at('.skip-link') < at('.personal-brand'),
             };
           });
-          expect(sheet, `${path} compiled stylesheet`).toEqual({ hashed: 1, active: true, raw: 0, scenic: [], world: true });
+          expect(sheet, `${path} inline shared stylesheet`).toEqual({ carriers: 1, active: true, raw: 0, external: 0, scenic: [], world: true, order: true });
           expect(await resources('script[src]', 'src', '/mountains/mountains.js'), `${path} js`)
             .toEqual(['/mountains/mountains.js?v=impeccable-1']);
           await expect(scene).toHaveAttribute('aria-hidden', 'true');

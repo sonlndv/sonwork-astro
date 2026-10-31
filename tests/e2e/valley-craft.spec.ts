@@ -590,7 +590,14 @@ test.describe('native navigation stays native', () => {
       const head = await page.evaluate(() => {
         const nodes = [...document.head.children];
         const optIn = nodes.findIndex((n) => n.tagName === 'STYLE' && /@view-transition/.test(n.textContent ?? ''));
-        const sheets = nodes.flatMap((n, i) => (n.matches('link[rel~="stylesheet"]') ? [i] : []));
+        // Every stylesheet carrier: external links, and actual inline styles whose CSSOM sheet is enabled and nonempty
+        // (the opt-in style itself is excluded; it is the subject of the ordering check).
+        const active = (n: Element) => {
+          const sheet = (n as HTMLStyleElement).sheet;
+          try { return !!sheet && !sheet.disabled && sheet.cssRules.length > 0; } catch { return false; }
+        };
+        const sheets = nodes.flatMap((n, i) => (
+          n.matches('link[rel~="stylesheet"]') || (n.tagName === 'STYLE' && i !== optIn && active(n)) ? [i] : []));
         let rules = 0;
         const walk = (list: CSSRuleList) => {
           for (const rule of Array.from(list)) {

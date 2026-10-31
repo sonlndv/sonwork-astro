@@ -1,5 +1,5 @@
-/* Scene stylesheet delivery: the shared mountain world and the atmosphere control, in their original order
-   (mountains, then atmosphere), bundled into the same compiled stylesheet as fonts/global/companion
-   instead of two separate render-blocking requests. The source files are unchanged. */
+/* Scene styles: the shared mountain world and the atmosphere control, in their original order
+   (mountains, then atmosphere). BaseLayout processes this file with the fonts, global and companion styles
+   and delivers the whole cascade inline in the document head. The source files are unchanged. */
 @import '../../public/mountains/mountains.css';
 @import '../../public/atmosphere.css';

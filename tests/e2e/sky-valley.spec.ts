@@ -801,6 +801,14 @@ async function skyPaint(page: Page, label: string) {
       const sky = paintControls(first, noSky, restored);
       const stars = paintControls(first, noStars, restored);
       await test.info().attach('sky-paint-controls', { body: JSON.stringify({ label, sky, stars }, null, 2), contentType: 'application/json' });
+      // Failure-only diagnostics: keep the exact measured PNG buffers when any original assertion below would fail.
+      if (sky.paint.materialPixels < sky.minimumPaintPixels || stars.paint.materialPixels < 12 || sky.restoration.maximumChannel > 2) {
+        const tag = label.replace(/[^A-Za-z0-9]+/g, '-');
+        await test.info().attach('sky-paint-first-' + tag, { body: first, contentType: 'image/png' });
+        await test.info().attach('sky-paint-noSky-' + tag, { body: noSky, contentType: 'image/png' });
+        await test.info().attach('sky-paint-noStars-' + tag, { body: noStars, contentType: 'image/png' });
+        await test.info().attach('sky-paint-restored-' + tag, { body: restored, contentType: 'image/png' });
+      }
       expect(sky.paint.materialPixels, label + ' sky paints').toBeGreaterThanOrEqual(sky.minimumPaintPixels);
       expect(stars.paint.materialPixels, label + ' stars paint').toBeGreaterThanOrEqual(12);
       expect(sky.restoration.maximumChannel, label + ' restored').toBeLessThanOrEqual(2);
@@ -1280,22 +1288,33 @@ for (const [size, variant] of [
 ] as const) {
   test(`JS-disabled dark sky is painted and clear across routes/200%/404 (${variant} ${size.width}x${size.height})`, async ({ browser, baseURL }) => {
     await open(browser, baseURL, { javaScriptEnabled: false, colorScheme: 'dark', viewport: size }, async page => {
-      // The scene styles are bundled into the compiled Astro stylesheet, so that response is the one transformed.
-      const intercepted: { status: number; bytes: number; scenic: boolean }[] = [];
-      if (variant === 'supports-absent') await page.route('**/_astro/*.css*', async route => {
+      // The shared cascade (scene included) is delivered as an inline <style> in each document, so the document response
+      // is the one transformed: only the style block that carries the scenic rules has its @supports blocks made inert.
+      const intercepted: { status: number; bytes: number; replaced: number }[] = [];
+      if (variant === 'supports-absent') await page.route('**/*', async route => {
+        if (route.request().resourceType() !== 'document') return route.fallback();
         const response = await route.fetch();
-        const css = await response.text();
-        intercepted.push({ status: response.status(), bytes: css.length, scenic: css.includes('.mtn-scene') });
-        await route.fulfill({ response, body: css.replace(/@supports[^{]*\{/g, '@media not all {') });
+        const html = await response.text();
+        let bytes = 0, replaced = 0;
+        const body = html.replace(/(<style\b[^>]*>)([\s\S]*?)(<\/style>)/g, (whole, open: string, css: string, close: string) => {
+          if (!css.includes('.mtn-scene')) return whole;
+          bytes += css.length;
+          return open + css.replace(/@supports[^{]*\{/g, () => { replaced += 1; return '@media not all {'; }) + close;
+        });
+        intercepted.push({ status: response.status(), bytes, replaced });
+        await route.fulfill({ response, body });
       });
-      // Every affected navigation must have actually passed a successful, nonempty scenic stylesheet through the route.
+      // Every affected navigation must have actually passed a nonempty scenic stylesheet with real @supports blocks
+      // through the route, with the expected document status; an empty or missed interception fails.
       const visit = async (target: string) => {
         const seen = intercepted.length;
         await page.goto(target);
         if (variant !== 'supports-absent') return;
         const fresh = intercepted.slice(seen);
-        expect(fresh.length, `${target} compiled stylesheet intercepted`).toBeGreaterThan(0);
-        expect(fresh.some(r => r.status === 200 && r.bytes > 0 && r.scenic), `${target} intercepted a nonempty scenic stylesheet`).toBe(true);
+        expect(fresh.length, `${target} document intercepted`).toBeGreaterThan(0);
+        const expected = target.startsWith('/missing-') ? 404 : 200;
+        expect(fresh.some(r => r.status === expected && r.bytes > 0 && r.replaced > 0),
+          `${target} intercepted a nonempty scenic stylesheet with @supports blocks made inert`).toBe(true);
       };
       for (const route of ['/', '/about', '/work', '/writing', '/subscribe', '/work/trivia-hub', '/missing-sky-valley-page']) {
         for (const zoom of ['100%', '200%']) {
