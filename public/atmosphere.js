@@ -11,7 +11,8 @@
   const button = document.querySelector('.atmosphere-toggle');
   const status = document.getElementById('atmosphere-status');
   const KEY = 'sonwork-atmosphere';
-  const expressive = scene.dataset.mode === 'home' || scene.dataset.mode === 'index';
+  // Home carries no arrival or greeting mist (clear sky); Pause/eligibility still connect to the landscape.
+  const expressive = scene.dataset.mode === 'index';
   let paused = false;
   let running = false;
   let passes = 0;

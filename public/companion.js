@@ -14,6 +14,8 @@
   const header = document.querySelector('.site-header');
   const slot = document.querySelector('.footer-slot');
   const topBtn = document.querySelector('.footer-top');
+  // Home keeps Mount in the header seat (no scroll travel, no automatic stroll) and keeps Back to top native and instant.
+  const homeRoute = !!document.querySelector('.mtn-scene[data-mode="home"]');
   const projects = (document.getElementById('home-projects') || document.getElementById('work-live'))?.closest('section') ?? null;
 
   // ---- pointer gaze (event-driven; one pending frame; fine hover mouse only) -----------------
@@ -120,7 +122,7 @@
   }
 
   function setStroll() {
-    if (reduce.matches || document.hidden || strollTimer || moving || station === 'footer' || frozen()) return;
+    if (homeRoute || reduce.matches || document.hidden || strollTimer || moving || station === 'footer' || frozen()) return;
     resetGaze();
     btn.dataset.stroll = 'true';
     btn.dataset.strolls = String(Number(btn.dataset.strolls || 0) + 1);
@@ -197,7 +199,7 @@
   }
 
   function desired() {
-    if (reduce.matches || document.hidden || returning || scrollY <= 8) return 'header';
+    if (homeRoute || reduce.matches || document.hidden || returning || scrollY <= 8) return 'header';
     // A keyboard-focused friend keeps its current seat for as long as that seat is valid.
     if (frozen()) return seatFor(station) ? station : 'header';
     const h = home();
@@ -283,6 +285,7 @@
   // Reduced motion: the friend stays at the header, but the native Back to top stays available
   // in the reserved footer space whenever that space is visible. Not the friend's menu.
   function setUtility(v) {
+    if (homeRoute) v = true; // Home: the native footer action is always present
     if (utility === v) return;
     utility = v;
     if (!topBtn) return;
@@ -298,7 +301,7 @@
     }
     if (open && scrollY <= 8) setOpen(false);
     setUtility(
-      reduce.matches && !document.hidden && !returning && scrollY > 8 && !!footerSeat(home(), header.getBoundingClientRect().bottom),
+      homeRoute || (reduce.matches && !document.hidden && !returning && scrollY > 8 && !!footerSeat(home(), header.getBoundingClientRect().bottom)),
     );
 
     // Safety first, even mid-hop: never fade at a seat that is no longer valid. If the current
@@ -494,7 +497,7 @@
       schedule();
     }, RETURN_MS);
     settle('header');
-    scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+    scrollTo({ top: 0, behavior: homeRoute ? 'instant' : reduce.matches ? 'auto' : 'smooth' });
     btn.focus({ preventScroll: true });
   });
 
@@ -510,7 +513,7 @@
   btn.dataset.greetings = '0';
   btn.dataset.landings = '0';
   btn.dataset.strolls = '0';
-  if (!reduce.matches && !document.hidden) {
+  if (!homeRoute && !reduce.matches && !document.hidden) {
     starter = setTimeout(() => {
       starter = 0;
       if (station === 'header' && !moving && scrollY <= 8 && !frozen()) setStroll();
@@ -518,6 +521,7 @@
   }
   btn.dataset.perch = 'header';
   paintLabel();
+  setUtility(false);
   btn.disabled = false;
   schedule();
 })();
