@@ -21,8 +21,23 @@ async function completeMist(page: Page) {
   });
   await expect(mist(page)).toHaveAttribute('data-state', 'idle');
 }
+// The first-arrival intro ends when the real `mtn-near-in` CSS animation on the near layer reports animationend (mountains.js
+// finishIntro(true) then lets the policy start the arrival mist). Under `page.clock.install()` and a loaded whole-suite worker
+// that real-time animation can start late, so the setup finishes the ACTUAL effect (the same controlled-finish contract as
+// completeMist) and waits for the producer's own cleanup, with the original 3 s deadline. The natural intro timing keeps its
+// separate registered coverage (the /work mouse-depth case in release-ui.spec.ts waits for it unassisted).
+async function completeIntro(page: Page) {
+  const scene = page.locator('.mtn-scene');
+  await scene.evaluate(el => {
+    if (!el.hasAttribute('data-intro')) return; // it already ended naturally
+    const effects = el.getAnimations({ subtree: true }).filter(a => a instanceof CSSAnimation && a.animationName === 'mtn-near-in');
+    if (!effects.length) throw new Error('Missing actual intro effect');
+    effects.forEach(effect => effect.finish());
+  });
+  await expect(scene).not.toHaveAttribute('data-intro', /.*/, { timeout: 3_000 });
+}
 async function quietArrival(page: Page) {
-  await expect(page.locator('.mtn-scene')).not.toHaveAttribute('data-intro', /.*/, { timeout: 3_000 });
+  await completeIntro(page);
   await expect(mist(page)).toHaveAttribute('data-state', 'running');
   await completeMist(page);
 }

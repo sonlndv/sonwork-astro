@@ -269,27 +269,96 @@ test('mouse depth is signed to the viewport corner, bounded, and cleans up to ne
   });
 });
 
-test('Home mouse takes no scene or terrain depth: only the sky answers, bounded, and cleans up', async ({ browser, baseURL }) => {
+// Home is a static world: the pointer moves no terrain and no body, and writes no data-look, --ow-x/--ow-y or --mtn camera key.
+// The only thing a fine mouse produces is the small inert decorative star, shown strictly over genuine open sky. Producer
+// semantics (public/mountains/mountains.js placeStar): the first coalesced pointer frame after a cancel or scroll only records an
+// anchor, a later frame >= 6px away shows the star, and a scroll holds it off for a quiet moment and needs fresh travel again.
+test('Home mouse takes no scene, terrain or body depth: only the decorative star answers in open sky, and scroll and held input clean it up', async ({ browser, baseURL }) => {
   await open(browser, baseURL, desktop, async page => {
     await page.goto('/');
+    await page.waitForFunction(() => !!(window as any).sonworkLandscape?.isActive);
+    await page.bringToFront();
     const scene = page.locator('.mtn-scene');
+    expect(await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches), 'this context is a real fine pointer').toBe(true);
     await expect(scene).toHaveAttribute('data-arrival', 'static');
     await expect(scene).not.toHaveAttribute('data-intro', /.*/);
     expect(await scene.locator('.mtn-rim[pathLength]').count()).toBe(0);
-    await expect.poll(async () => {
-      await page.mouse.move(1439, 899);
-      await page.mouse.move(1430, 890);
-      return page.locator('.sv-home-sky[data-look]').count();
-    }, { timeout: 4000 }).toBeGreaterThan(0);
+    const frames = () => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+    const starOn = () => page.evaluate(() => !!document.querySelector('.ow-star[data-on]'));
+    // Complete static paint: every visible body image (rect, filter, opacity, href), the planet backing, the far ridge, and
+    // every attribute the retired pointer and camera paths used to write.
+    const paint = () => page.evaluate(() => {
+      const root = document.querySelector('.mtn-scene[data-mode="home"]')!;
+      const read = (sel: string) => Array.from(root.querySelectorAll(sel)).filter(el => el.getClientRects().length > 0).map(el => {
+        const r = el.getBoundingClientRect(), s = getComputedStyle(el);
+        return { rect: [r.left, r.top, r.width, r.height].map(v => Math.round(v * 100) / 100), filter: s.filter, opacity: s.opacity, href: el.getAttribute('href') };
+      });
+      const sky = root.querySelector('.sv-home-sky') as SVGGElement;
+      return {
+        planet: read('.sv-hs-planet > .sv-ow-pimg image'), backing: read('.sv-hs-planet > .sv-hs-body'),
+        a: read('.sv-ow-a image'), b: read('.sv-ow-b image'), c: read('.sv-ow-c image'), ridge: read('.mtn-wide #sv-surface-far-wide'),
+        retired: {
+          look: document.querySelectorAll('.sv-home-sky[data-look]').length, cam: root.hasAttribute('data-cam'),
+          ox: sky.style.getPropertyValue('--ow-x'), oy: sky.style.getPropertyValue('--ow-y'),
+          camera: ['fx', 'fy', 'nx', 'ny'].map(k => (root as HTMLElement).style.getPropertyValue(`--mtn-${k}`)),
+        },
+      };
+    });
+    // An independently measured, nonvacuous open-sky target (not in a glyph, control, header, visible body or sun, padded).
+    const target = await page.evaluate(() => {
+      const header = document.querySelector('.site-header')!.getBoundingClientRect().bottom;
+      const root = document.querySelector('.mtn-scene[data-mode="home"]')!;
+      const boxes: number[][] = [];
+      const add = (r: DOMRect, pad: number) => { if (r.width || r.height) boxes.push([r.left - pad, r.top - pad, r.right + pad, r.bottom + pad]); };
+      for (const el of Array.from(root.querySelectorAll('.sv-hs-planet > .sv-hs-body, .sv-hs-planet > .sv-ow-pimg image, .sv-ow-a image, .sv-ow-b image, .sv-ow-c image, .sv-hs-sun circle'))) {
+        if (el.getClientRects().length > 0) add(el.getBoundingClientRect(), 40);
+      }
+      for (const el of Array.from(document.querySelectorAll('a[href], button, summary, input, .companion'))) add(el.getBoundingClientRect(), 28);
+      const walker = document.createTreeWalker(document.querySelector('main')!, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent!.trim()) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        for (const g of Array.from(range.getClientRects())) add(g, 28);
+      }
+      for (let y = Math.ceil(header + 20); y <= Math.min(innerHeight * 0.45, header + 220); y += 12) {
+        for (let x = 28; x <= innerWidth - 28; x += 16) {
+          if (!boxes.some(b => x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3])) return [x, y];
+        }
+      }
+      return null;
+    });
+    expect(target, 'a genuinely open-sky target exists').not.toBeNull();
+    const [tx, ty] = target!;
+    const before = await paint();
+    for (const key of ['planet', 'backing', 'a', 'b', 'c', 'ridge'] as const) expect(before[key].length, `${key} is painted (no empty-selector pass)`).toBeGreaterThan(0);
+    expect(before.retired).toEqual({ look: 0, cam: false, ox: '', oy: '', camera: ['', '', '', ''] });
+    const arm = () => expect.poll(async () => {
+      await page.mouse.move(tx, ty);
+      await frames();
+      await page.mouse.move(tx + 8, ty + 8);
+      await frames();
+      return starOn();
+    }, { timeout: 4000 }).toBe(true);
+    await arm();
+    expect(await page.evaluate(() => { const s = document.querySelector('.ow-star')!; return [s.getAttribute('aria-hidden'), s.hasAttribute('inert'), getComputedStyle(s).pointerEvents]; })).toEqual(['true', true, 'none']);
+    expect(await paint(), 'terrain, bodies and every retired attribute are unchanged while the star is visible').toEqual(before);
     await expect(scene).not.toHaveAttribute('data-cam', /.*/);
-    for (const k of ['fx', 'fy', 'nx', 'ny']) expect(await scene.evaluate((el, k) => el.style.getPropertyValue(`--mtn-${k}`), k)).toBe('');
-    const offsets = await page.locator('.sv-home-sky[data-look]').evaluateAll(list => list.map(el => [
-      Number((el as HTMLElement).style.getPropertyValue('--ow-x')), Number((el as HTMLElement).style.getPropertyValue('--ow-y'))]));
-    expect(offsets.length).toBeGreaterThan(0);
-    for (const [x, y] of offsets) { expect(Math.abs(x)).toBeLessThan(4); expect(Math.abs(y)).toBeLessThan(2); } // 2px/1px at scale >= 0.5
+    // Native scroll cancels at once; the static sky is exactly as before, and one pixel of jitter cannot flash the star back.
     await page.mouse.wheel(0, 120);
-    await expect(page.locator('.sv-home-sky[data-look]')).toHaveCount(0);
-    for (const k of ['fx', 'fy', 'nx', 'ny']) expect(await scene.evaluate((el, k) => el.style.getPropertyValue(`--mtn-${k}`), k)).toBe('');
+    await expect(page.locator('.ow-star[data-on]')).toHaveCount(0);
+    await page.mouse.move(tx + 9, ty + 9);
+    await frames();
+    expect(await starOn(), 'no star during the scroll-idle gate or without fresh travel').toBe(false);
+    await page.mouse.wheel(0, -120);
+    await expect.poll(() => page.evaluate(() => Math.round(scrollY)), { timeout: 2000 }).toBe(0);
+    expect(await paint()).toEqual(before);
+    // Fresh eligible travel re-arms it; held input then cancels it and nothing about the scene changes.
+    await arm();
+    await page.mouse.down();
+    await expect(page.locator('.ow-star[data-on]')).toHaveCount(0);
+    await page.mouse.up();
+    expect(await paint()).toEqual(before);
   });
 });
 
