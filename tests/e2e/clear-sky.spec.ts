@@ -715,6 +715,62 @@ test('Home-only baked textures are not fetched on other routes, and Home keeps r
   }
 });
 
+test('only Home inlines the Home-only world CSS; other routes still hide the new art and keep the original night planet', async ({ browser }) => {
+  const css = (page: Page) => page.evaluate(() => Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\n'));
+  const homeRule = /ow-identity-scale/; // the Home-only nested-image guard, emitted only by the Home world CSS
+  // The minifier legitimately merges identical adjacent declarations into one selector list
+  // (e.g. `.mtn-scene[data-mode=calm]>.mtn-mist,.sv-ow-bodies,.sv-ow-pimg,.sv-ow-pm,.sv-ow-pn{display:none}`), so the
+  // default-hide guard inspects the real CSSOM: every wanted selector must be an entry of some display:none rule's selector list
+  // (grouping rules such as @media are walked too). Returns the wanted selectors that are NOT hidden by default.
+  const notHiddenByDefault = (page: Page) => page.evaluate(() => {
+    const wanted = ['.sv-ow-bodies', '.sv-ow-pimg', '.sv-ow-pm', '.sv-ow-pn'];
+    const hidden = new Set<string>();
+    let rulesSeen = 0;
+    const walk = (rules: CSSRuleList) => {
+      for (const rule of Array.from(rules)) {
+        if (rule instanceof CSSStyleRule) {
+          rulesSeen += 1;
+          if (rule.style.getPropertyValue('display') === 'none') {
+            for (const selector of rule.selectorText.split(',').map(part => part.trim())) hidden.add(selector);
+          }
+        } else if ('cssRules' in rule) {
+          walk((rule as CSSGroupingRule).cssRules);
+        }
+      }
+    };
+    for (const sheet of Array.from(document.styleSheets)) {
+      try { walk(sheet.cssRules); } catch { /* an unreadable sheet cannot be inspected */ }
+    }
+    return { rulesSeen, missing: wanted.filter(selector => !hidden.has(selector)) };
+  });
+  for (const route of ['/', '/work', '/about']) {
+    const context = await browser.newContext(base);
+    const page = await context.newPage();
+    const requests: string[] = [];
+    page.on('request', request => { if (request.resourceType() === 'stylesheet') requests.push(request.url()); });
+    await page.goto(route);
+    await page.waitForLoadState('load');
+    const text = await css(page);
+    expect(requests, `${route} requests no extra stylesheet (all CSS stays inline)`).toEqual([]);
+    const hiding = await notHiddenByDefault(page);
+    expect(hiding.rulesSeen, `${route} CSSOM is readable (nonempty)`).toBeGreaterThan(0);
+    expect(hiding.missing, `${route} hides the new art by default`).toEqual([]);
+    expect(text, `${route} keeps the original night planet rule`).toMatch(/\.sv-hs-planet/);
+    if (route === '/') expect(text, 'Home carries its world CSS').toMatch(homeRule);
+    else expect(text, `${route} omits the Home-only world CSS`).not.toMatch(homeRule);
+    await context.close();
+  }
+  for (const route of ['/work', '/about']) {
+    const context = await browser.newContext({ ...base, colorScheme: 'dark' });
+    const page = await context.newPage();
+    await page.goto(route);
+    expect(await shown(page, '.sv-ow-bodies'), `${route} paints none of the new bodies`).toBe(false);
+    expect(await shown(page, '.sv-ow-pimg'), `${route} paints no baked planet layer`).toBe(false);
+    expect(await shown(page, '.sv-hs-planet > image'), `${route} night still paints the original planet`).toBe(true);
+    await context.close();
+  }
+});
+
 test('a real control with keyboard-visible focus keeps the pointer star off until a fresh click in empty sky', async ({ browser }) => {
   const { context, page } = await open(browser, { ...base, colorScheme: 'light' }, '/', 'light');
   const errors = watchErrors(page);
