@@ -679,6 +679,42 @@ test('every cancellation path removes the star and the relight at once and needs
   await context.close();
 });
 
+test('Home-only baked textures are not fetched on other routes, and Home keeps real hrefs with or without JS', async ({ browser }) => {
+  for (const route of ['/work', '/about']) {
+    const context = await browser.newContext(base);
+    const page = await context.newPage();
+    const requests: string[] = [];
+    page.on('request', request => { if (/\/mountains\/ow-/.test(request.url())) requests.push(request.url()); });
+    await page.goto(route);
+    await page.waitForLoadState('load');
+    expect(requests, `${route} requests no Home-only texture`).toEqual([]);
+    const facts = await page.evaluate(() => ({
+      inert: Array.from(document.querySelectorAll('image[data-home-src]')).map(node => node.hasAttribute('href')),
+      withHref: document.querySelectorAll('image[href*="/mountains/ow-"]').length,
+      landscape: document.querySelectorAll('.mtn-scene .mtn-lit').length,
+    }));
+    expect(facts.inert.length, 'all 16 hidden texture nodes remain, inert').toBe(16);
+    expect(facts.inert.every(has => !has)).toBe(true);
+    expect(facts.withHref).toBe(0);
+    expect(facts.landscape, 'original landscape paths are intact').toBeGreaterThan(0);
+    await expect(page.locator('main')).toBeVisible();
+    await context.close();
+  }
+  for (const javaScriptEnabled of [true, false]) {
+    const context = await browser.newContext({ ...base, javaScriptEnabled });
+    const page = await context.newPage();
+    await page.goto('/');
+    const facts = await page.evaluate(() => ({
+      withHref: document.querySelectorAll('image[href*="/mountains/ow-"]').length,
+      inert: document.querySelectorAll('image[data-home-src]').length,
+    }));
+    expect(facts.withHref, `Home keeps its real hrefs (JS ${javaScriptEnabled})`).toBe(16);
+    expect(facts.inert).toBe(0);
+    expect(await shown(page, '.sv-hs-planet > .sv-ow-pimg image'), `Home shows its baked planet (JS ${javaScriptEnabled})`).toBe(true);
+    await context.close();
+  }
+});
+
 test('a real control with keyboard-visible focus keeps the pointer star off until a fresh click in empty sky', async ({ browser }) => {
   const { context, page } = await open(browser, { ...base, colorScheme: 'light' }, '/', 'light');
   const errors = watchErrors(page);
