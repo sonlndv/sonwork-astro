@@ -70,9 +70,28 @@ function paintControls(first: Buffer, hidden: Buffer, restored: Buffer) {
   return { paint: difference(hidden), restoration: difference(restored), minimumPaintPixels: Math.max(64, Math.ceil(base.width * base.height * 0.001)) };
 }
 
-async function paintedPlane(page: Page, role: string, baseline: Buffer, label: string) {
+// `expectation` is selected independently by the caller from the profile, never from the observed result:
+//  - 'visible' (default): the plane must truly paint, hiding it changes >= minimumPaintPixels.
+//  - 'offscreen': the static Home composition places this plane's landmass wholly below the viewport (removing scrolling
+//    parallax no longer lifts it), so its single retained visible-canvas `.mtn-lit` path must exist, be rendered (not
+//    display:none) and map to a screen top >= innerHeight, and hiding it must change NO material pixels.
+async function paintedPlane(page: Page, role: string, baseline: Buffer, label: string, expectation: 'visible' | 'offscreen' = 'visible') {
   const layer = scene(page).locator(':scope > .mtn-layer.mtn-' + role);
   await expect(layer).toHaveCount(1);
+  if (expectation === 'offscreen') {
+    const mapped = await layer.evaluate(el => {
+      const canvases = [...el.querySelectorAll<SVGSVGElement>(':scope > svg.mtn-ridge')].filter(svg => getComputedStyle(svg).display !== 'none');
+      const paths = canvases.flatMap(svg => [...svg.querySelectorAll<SVGPathElement>('path.mtn-lit')]);
+      return {
+        canvases: canvases.length, paths: paths.length, displays: paths.map(path => getComputedStyle(path).display),
+        top: paths.length ? paths[0].getBoundingClientRect().top : Number.NaN, viewportHeight: innerHeight,
+      };
+    });
+    expect(mapped.canvases, label + ' one retained visible canvas').toBe(1);
+    expect(mapped.paths, label + ' one retained landmass path').toBe(1);
+    expect(mapped.displays, label + ' landmass is rendered, not collapsed').not.toContain('none');
+    expect(mapped.top, label + ' landmass starts below the viewport').toBeGreaterThanOrEqual(mapped.viewportHeight);
+  }
   const before = await geometry(page);
   const content = await page.locator('main').textContent();
   await layer.evaluate(el => { (el as HTMLElement).style.visibility = 'hidden'; });
@@ -92,7 +111,8 @@ async function paintedPlane(page: Page, role: string, baseline: Buffer, label: s
     }
     expect(after, label + ' unchanged independent canvas/plane geometry').toEqual(before);
     expect(await page.locator('main').textContent(), label + ' unchanged content').toBe(content);
-    expect(controls.paint.materialPixels, label + ' material causal paint').toBeGreaterThanOrEqual(controls.minimumPaintPixels);
+    if (expectation === 'offscreen') expect(controls.paint.materialPixels, label + ' offscreen plane paints nothing in view').toBe(0);
+    else expect(controls.paint.materialPixels, label + ' material causal paint').toBeGreaterThanOrEqual(controls.minimumPaintPixels);
     expect(controls.restoration.maximumChannel, label + ' restored channels within measured raster noise').toBeLessThanOrEqual(2);
   } finally {
     await layer.evaluate(el => { (el as HTMLElement).style.removeProperty('visibility'); });
@@ -119,6 +139,7 @@ async function settled(page: Page) {
 
 async function geometry(page: Page) {
   return scene(page).evaluate(el => ({
+    mode: (el as HTMLElement).dataset.mode, // the scene's own route mode (home|index|calm), read from its producer
     width: innerWidth, height: innerHeight, y: scrollY,
     overflow: document.documentElement.scrollWidth - innerWidth,
     layers: [...el.querySelectorAll<HTMLElement>(':scope > .mtn-layer')].map(layer => {
@@ -155,7 +176,12 @@ function expectPose(value: Awaited<ReturnType<typeof geometry>>, state: number) 
   // near 46svh - 62svh*depth; the middle layer alone scales by 1 + 0.03*ease about its centre once the valley opens
   // (open = clamp((depth - 0.12) / 0.5), ease = smoothstep(open)). Translation and canvas size stay as authored.
   // Approved poses: narrow 34/44/46 svh (slopes 5/44/62); >=900px 34/36/38 (5/30/47); tall desktop 22/20/26 (5/18/34).
-  const offsets = tall
+  // Home on a portrait phone (<=719px wide, aspect <= 5/4) declares its own accepted middle/near rest poses
+  // (DESIGN.md "Portrait composition": middle 38svh - 44svh*depth, near 40svh - 54svh*depth; far stays 34svh - 5svh*depth).
+  const homePhone = value.mode === 'home' && value.width <= 719 && value.width / value.height <= 1.25;
+  const offsets = homePhone
+    ? [0.34 - 0.05 * depth, 0.38 - 0.44 * depth, 0.4 - 0.54 * depth]
+    : tall
     ? [0.22 - 0.05 * depth, 0.2 - 0.18 * depth, 0.26 - 0.34 * depth]
     : wide
       ? [0.34 - 0.05 * depth, 0.36 - 0.3 * depth, 0.38 - 0.47 * depth]
@@ -219,11 +245,24 @@ async function toEdge(page: Page, down: boolean, touch: boolean) {
   await expect.poll(() => progress(page)).toBeCloseTo(down ? 1 : 0, 4);
 }
 
+// Home's scene is static: native scroll reaches the document edge while scene progress stays 0 (index/calm routes keep toEdge).
+async function toHomeEdge(page: Page, down: boolean, touch: boolean) {
+  for (let i = 0; i < 12; i++) {
+    await nativeScroll(page, down, touch);
+    const edge = await page.evaluate(down => down
+      ? scrollY >= document.documentElement.scrollHeight - innerHeight - 1 : scrollY <= 1, down);
+    if (edge) break;
+  }
+  await expect.poll(() => page.evaluate(down => down
+    ? Math.abs(scrollY - (document.documentElement.scrollHeight - innerHeight)) : scrollY, down)).toBeLessThanOrEqual(1);
+  expect(await progress(page)).toBe(0);
+}
+
 for (const profile of [
   { name: 'desktop night', width: 1440, height: 900, touch: false, theme: 'dark' as const },
   { name: 'phone daylight Chromium touch emulation', width: 375, height: 812, touch: true, theme: 'light' as const },
 ]) {
-  test(`native reversible journey has independent painted depth and original canvas (${profile.name})`, async ({ browser, baseURL }, testInfo) => {
+  test(`native reversible journey keeps static Home geometry, original canvas and visible paint (${profile.name})`, async ({ browser, baseURL }, testInfo) => {
     await open(browser, baseURL, {
       viewport: { width: profile.width, height: profile.height }, isMobile: profile.touch, hasTouch: profile.touch, colorScheme: profile.theme,
     }, async page => {
@@ -232,31 +271,27 @@ for (const profile of [
         addEventListener('scroll', event => (window as any).__journeyScrolls.push({ trusted: event.isTrusted, y: scrollY }), { passive: true });
       });
       await page.goto('/');
-      // Controlled notification probe, followed by the genuine, unpaused CSS arrival below.
+      // Home is static on load (accepted clear-sky contract): no entrance animation, no arrival mist, no rim trace.
+      // Identical viewport notifications change nothing and start nothing.
       const noise = await scene(page).evaluate(el => {
         const viewport = () => [innerWidth, innerHeight, visualViewport?.width, visualViewport?.height,
           visualViewport?.offsetLeft, visualViewport?.offsetTop, visualViewport?.scale, scrollY];
-        const effect = el.getAnimations({ subtree: true }).find(animation =>
-          animation instanceof CSSAnimation && animation.animationName === 'mtn-near-in');
-        if (!el.hasAttribute('data-intro') || !effect || effect.playState !== 'running') {
-          throw new Error('Expected the actual running arrival before probing unchanged notifications');
-        }
         const before = viewport();
         dispatchEvent(new Event('resize'));
         visualViewport?.dispatchEvent(new Event('resize'));
         return {
-          before, after: viewport(), intro: el.hasAttribute('data-intro'),
-          sameEffect: el.getAnimations({ subtree: true }).includes(effect), state: effect.playState,
+          before, after: viewport(), intro: el.hasAttribute('data-intro'), arrival: (el as HTMLElement).dataset.arrival,
+          entrances: el.getAnimations({ subtree: true }).filter(animation =>
+            animation instanceof CSSAnimation && ['mtn-near-in', 'mtn-far-in', 'mtn-draw'].includes(animation.animationName)).length,
         };
       });
-      await testInfo.attach('controlled-identical-viewport-notifications', { body: JSON.stringify(noise, null, 2), contentType: 'application/json' });
+      await testInfo.attach('identical-viewport-notifications', { body: JSON.stringify(noise, null, 2), contentType: 'application/json' });
       expect(noise.after).toEqual(noise.before);
-      expect(noise.intro).toBe(true);
-      expect(noise.sameEffect).toBe(true);
-      expect(noise.state).toBe('running');
-      // Natural-time evidence: no JS clock, seek, finish, or dispatched arrival event.
-      await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', '1', { timeout: 3000 });
-      await expect(page.locator('.mtn-mist')).toHaveAttribute('data-state', 'running');
+      expect(noise.intro).toBe(false);
+      expect(noise.arrival).toBe('static');
+      expect(noise.entrances).toBe(0);
+      await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', '0');
+      await expect(page.locator('.mtn-mist')).not.toHaveAttribute('data-run', /.*/);
       await settled(page);
       expect(await page.evaluate(() => ({ width: innerWidth, height: innerHeight }))).toEqual({ width: profile.width, height: profile.height });
       if (!profile.touch) expect(await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)).toBe(true);
@@ -281,29 +316,29 @@ for (const profile of [
       // A real intermediate input precedes the complete native traversal.
       if (profile.touch) await nativeScroll(page, true, true);
       else await page.mouse.wheel(0, 240);
-      await expect.poll(() => progress(page)).toBeGreaterThan(0);
+      // Native scroll moves the document but never the Home scene: progress stays 0 and every layer keeps its entry pose.
+      await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+      expect(await progress(page)).toBe(0);
       const range = await geometry(page);
-      const travel = range.layers.map((layer, i) => entry.layers[i].y - layer.y);
-      expect(travel[0]).toBeGreaterThan(1);
-      expect(travel[1]).toBeGreaterThan(travel[0]);
-      expect(travel[2]).toBeGreaterThan(travel[1]);
-      // Declared slopes: narrow 5/44/62, >=900px 5/30/47.
-      expect(travel[1] / travel[0]).toBeCloseTo(profile.width >= 900 ? 30 / 5 : 44 / 5, 2);
-      expect(travel[2] / travel[0]).toBeCloseTo(profile.width >= 900 ? 47 / 5 : 62 / 5, 2);
+      expect(range.layers.map(layer => layer.y)).toEqual(entry.layers.map(layer => layer.y));
+      expectPose(range, 0);
       expect(range.innerTransforms.every(transform => transform === 'none')).toBe(true);
-      await toEdge(page, true, profile.touch);
+      await toHomeEdge(page, true, profile.touch);
       const ending = await geometry(page);
-      expectPose(ending, 1);
+      expectPose(ending, 0); // the ending is the same static pose on Home
       // Controlled paint diagnostic: freeze other decoration, then hide ONE actual outer plane.
       // Compare reproducible pixels, not CSS presence. Never alter progress or application state.
       // The shared helper also uses the real public Pause owner, so future recurring meteors cannot start; prior state is restored.
       await quiet(page, async () => {
         const baseline = await page.screenshot({ animations: 'disabled' });
+        // Static Home composition at the 375x812 phone profile: the near landmass sits below the 812px viewport
+        // (authored near rest 40svh, landmass top below the fold); far and middle truly paint. Every other profile paints all three.
+        const nearOffscreen = profile.touch && profile.width === 375 && profile.height === 812;
         for (const role of ['far', 'middle', 'near']) {
-          await paintedPlane(page, role, baseline, role + ' ending');
+          await paintedPlane(page, role, baseline, role + ' ending', role === 'near' && nearOffscreen ? 'offscreen' : 'visible');
         }
       });
-      await toEdge(page, false, profile.touch);
+      await toHomeEdge(page, false, profile.touch);
       expectPose(await geometry(page), 0);
       expect(await page.locator('h1').boundingBox()).toEqual(initialHeading);
       const events = await page.evaluate(() => (window as any).__journeyScrolls as { trusted: boolean; y: number }[]);
@@ -323,36 +358,25 @@ for (const profile of [
       viewport: { width: profile.width, height: profile.height }, isMobile: profile.touch, hasTouch: profile.touch, colorScheme: profile.theme,
     }, async page => {
       await page.goto('/');
-      await expect(scene(page)).toHaveAttribute('data-arrival', 'first');
-      const held = await scene(page).evaluateHandle(el => {
-        const effect = el.getAnimations({ subtree: true }).find(animation =>
-          animation instanceof CSSAnimation && animation.animationName === 'mtn-near-in');
-        if (!el.hasAttribute('data-intro') || !effect || effect.playState !== 'running') throw new Error('Expected the genuine running first arrival');
-        // Controlled pause of the actual CSS producer, never natural-time completion evidence.
-        effect.pause();
-        return effect;
+      // A fresh eligible Home visit has no arrival to cancel: it starts static, a real resize keeps the same entry pose.
+      await expect(scene(page)).toHaveAttribute('data-arrival', 'static');
+      await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
+      expect(await scene(page).evaluate(el => el.getAnimations({ subtree: true }).filter(animation =>
+        animation instanceof CSSAnimation && ['mtn-near-in', 'mtn-far-in', 'mtn-draw'].includes(animation.animationName)).length)).toBe(0);
+      await page.setViewportSize({ width: profile.width, height: profile.height - 32 });
+      await expect.poll(() => page.evaluate(() => innerHeight)).toBe(profile.height - 32);
+      await expect(scene(page).locator('.mtn-rim[pathLength]')).toHaveCount(0);
+      expectPose(await geometry(page), 0);
+      await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', '0');
+      await expect(page.locator('.mtn-mist')).not.toHaveAttribute('data-run', /.*/);
+      await page.setViewportSize({ width: profile.width, height: profile.height });
+      await expect.poll(() => page.evaluate(() => innerHeight)).toBe(profile.height);
+      await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
+      await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', '0');
+      expectPose(await geometry(page), 0);
+      await testInfo.attach('real-resize-static-home', {
+        body: JSON.stringify({ changedHeight: profile.height - 32, restored: await geometry(page) }, null, 2), contentType: 'application/json',
       });
-      try {
-        await page.setViewportSize({ width: profile.width, height: profile.height - 32 });
-        await expect.poll(() => page.evaluate(() => innerHeight)).toBe(profile.height - 32);
-        await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
-        await expect.poll(() => held.evaluate(effect => effect.playState)).toBe('idle');
-        await expect(scene(page).locator('.mtn-rim[pathLength]')).toHaveCount(0);
-        expectPose(await geometry(page), 0);
-        await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', '0');
-        await expect(page.locator('.mtn-mist')).not.toHaveAttribute('data-run', /.*/);
-        await page.setViewportSize({ width: profile.width, height: profile.height });
-        await expect.poll(() => page.evaluate(() => innerHeight)).toBe(profile.height);
-        await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
-        await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', '0');
-        expectPose(await geometry(page), 0);
-        await testInfo.attach('controlled-real-resize-cancellation', {
-          body: JSON.stringify({ changedHeight: profile.height - 32, restored: await geometry(page), effectState: await held.evaluate(effect => effect.playState) }, null, 2),
-          contentType: 'application/json',
-        });
-      } finally {
-        await held.dispose();
-      }
     });
   });
 }
@@ -382,7 +406,7 @@ test('Pause freezes painted progress while native scroll works; keyboard Resume 
   await open(browser, baseURL, {}, async page => {
     await page.goto('/');
     await settled(page);
-    await toEdge(page, true, false);
+    await toHomeEdge(page, true, false); // Home's scene progress stays 0 under native scroll
     const toggle = page.locator('.atmosphere-toggle');
     await toggle.click();
     await expect(toggle).toHaveText('Resume atmosphere');
@@ -391,7 +415,7 @@ test('Pause freezes painted progress while native scroll works; keyboard Resume 
     const passes = await page.locator('.mtn-mist').getAttribute('data-passes');
     await page.keyboard.press('Control+Home');
     await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
-    expect(await progress(page)).toBe(1);
+    expect(await progress(page)).toBe(0);
     expect((await geometry(page)).layers).toEqual(frozen.layers);
     await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
     await expect(scene(page)).not.toHaveAttribute('data-trace', /.*/);
@@ -427,7 +451,7 @@ test('native anchors/history/theme and disclosure/text/viewport changes retain u
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/#home-projects$/);
     await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
-    await expect.poll(() => progress(page)).toBeGreaterThan(0);
+    expect(await progress(page), 'Home scene progress stays 0 after the native anchor jump').toBe(0);
     const anchorY = await page.evaluate(() => scrollY);
     const beforeTheme = await progress(page);
     await note('native-anchor');
@@ -478,13 +502,14 @@ test('live reduced/forced changes and no-JS keep complete static scenery and con
     await page.goto('/');
     await settled(page);
     await page.mouse.wheel(0, 240);
-    await expect.poll(() => progress(page)).toBeGreaterThan(0);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+    expect(await progress(page)).toBe(0); // native scroll moves the document, never Home's scene
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
     await expect(scene(page)).not.toHaveAttribute('data-cam', /.*/);
     await expect(scene(page)).not.toHaveAttribute('data-trace', /.*/);
     await expect(scene(page).locator('.mtn-rim[pathLength]')).toHaveCount(0);
-    expectPose(await geometry(page), 0.38);
+    expectPose(await geometry(page), 0); // Home's reduced pose is the same static entry pose
     expect(await scene(page).evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
     await expect(page.locator('.atmosphere-toggle')).toBeHidden();
     for (const [route, mode] of [['/work.html', 'index'], ['/about.html', 'calm'], ['/index.html', 'home']] as const) {
@@ -492,7 +517,7 @@ test('live reduced/forced changes and no-JS keep complete static scenery and con
       await expect(scene(page)).toHaveAttribute('data-mode', mode);
       await expect(page.locator('main')).toBeVisible();
       await expect(scene(page)).toBeVisible();
-      expectPose(await geometry(page), 0.38);
+      expectPose(await geometry(page), mode === 'home' ? 0 : 0.38); // index/calm keep the reduced rest; Home is static at entry
       await expect(scene(page).locator('.mtn-rim[pathLength]')).toHaveCount(0);
       await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
       await expect(scene(page)).not.toHaveAttribute('data-trace', /.*/);
@@ -610,7 +635,7 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
       dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
       document.dispatchEvent(new Event('visibilitychange'));
     });
-    await expect.poll(() => progress(page)).toBeGreaterThan(0);
+    expect(await progress(page), 'Home scene progress stays 0 after the simulated restore').toBe(0);
     await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
     await expect(page.locator('.mtn-mist')).not.toHaveAttribute('data-run', /.*/);
     // A persisted pageshow may rearm the one sparse scheduler (>=1.8s idle); nothing else, and no RAF.
@@ -1024,7 +1049,7 @@ test('night sky is a painted far-SVG background: variants, sparse points, curved
   }
 });
 
-test('night sky follows native progress and shares Pause/theme state; day has cloud shadow instead', async ({ browser, baseURL }) => {
+test('Home night sky holds still under native scroll and shares Pause/theme state; the static Home day paints no cloud or shadow', async ({ browser, baseURL }) => {
   await open(browser, baseURL, { viewport: { width: 375, height: 812 } }, async page => {
     await page.goto('/');
     await settled(page);
@@ -1036,16 +1061,17 @@ test('night sky follows native progress and shares Pause/theme state; day has cl
       getComputedStyle(el).display === 'none'))).toBe(true);
     const entry = await geometry(page);
     // Same scene and progress: the far plane carries the sky; no independent drift without a mouse.
-    await toEdge(page, true, false);
+    await toHomeEdge(page, true, false); // Home's scene stays at its entry pose under native scroll
     const valley = await geometry(page);
-    expect(valley.layers[0].y).toBeLessThan(entry.layers[0].y);
+    expect(valley.layers[0].y).toBe(entry.layers[0].y);
     // The 0.82 fade belonged to the hidden legacy `.sv-sky`; the approved visible `.sv-home-sky` declares no local fade (opacity 1).
     expect((await skyFacts(page)).opacity).toBeCloseTo(1, 2);
     expect(await skyAtRest(page), 'no autonomous sky drift').toEqual({ count: 4, rest: true });
-    await toEdge(page, false, false);
+    await toHomeEdge(page, false, false);
     expect((await skyFacts(page)).opacity).toBeCloseTo(1, 2);
     await page.mouse.wheel(0, 180);
-    await expect.poll(() => progress(page)).toBeGreaterThan(0);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
+    expect(await progress(page)).toBe(0);
     const beforeTheme = await progress(page);
     await page.locator('.theme-toggle').click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
@@ -1053,71 +1079,33 @@ test('night sky follows native progress and shares Pause/theme state; day has cl
     // Night only: the day scene has no stars or aurora.
     expect((await skyFacts(page)).shown).toBe(false);
     await expect.poll(() => progress(page)).toBeCloseTo(beforeTheme, 4);
-    const cloud = page.locator('.mtn-ridge:visible .sv-cloud-shadow');
-    await expect(cloud).toHaveCount(3);
-    const start = await cloud.evaluateAll(nodes => nodes.map(el => getComputedStyle(el).transform));
-    await toEdge(page, true, false);
-    expect(await cloud.evaluateAll(nodes => nodes.map(el => getComputedStyle(el).transform))).not.toEqual(start);
-    await quiet(page, async () => {
-      const surfaces = page.locator('.sv-cloud-surface');
-      try {
-        await expect(surfaces).toHaveCount(6);
-        // One-time fixture paint-graph initialisation (measured: the FIRST hide/render/restore of these surfaces
-        // changes ~6 pixels by max channel 4; every later cycle changes 0). Exactly one real hide + restore runs
-        // here with real screenshot barriers, before the causal comparison. Its cold statistics are attached,
-        // not discarded; there is no loop, retry or selection of a best result, and the threshold stays 2.
-        const poseState = () => page.evaluate(() => {
-          const root = document.querySelector('.mtn-scene')!;
-          return {
-            scrollY, width: innerWidth, height: innerHeight,
-            progress: getComputedStyle(root).getPropertyValue('--sv-progress'),
-            travel: getComputedStyle(root).getPropertyValue('--sv-cloud-travel'),
-            layers: [...root.querySelectorAll(':scope > .mtn-layer')].map(layer => {
-              const box = layer.getBoundingClientRect();
-              return [getComputedStyle(layer).transform, box.top, box.height];
-            }),
-            shadows: [...document.querySelectorAll('.sv-cloud-shadow')].map(el => getComputedStyle(el).transform),
-          };
-        });
-        const poseBefore = await poseState();
-        const cold = await shot(page);
-        const originals = await surfaces.evaluateAll(nodes => nodes.map(el => {
-          const style = (el as SVGElement).style;
-          const original = { value: style.getPropertyValue('visibility'), priority: style.getPropertyPriority('visibility') };
-          style.setProperty('visibility', 'hidden');
-          return original;
-        }));
-        expect(originals).toHaveLength(6);
-        const initHidden = await shot(page);
-        await surfaces.evaluateAll((nodes, saved) => nodes.forEach((el, i) => {
-          const style = (el as SVGElement).style;
-          style.removeProperty('visibility');
-          if (saved[i].value) style.setProperty('visibility', saved[i].value, saved[i].priority);
-        }), originals);
-        const initRestored = await shot(page);
-        expect(await surfaces.evaluateAll(nodes => nodes.map(el => {
-          const style = (el as SVGElement).style;
-          return { value: style.getPropertyValue('visibility'), priority: style.getPropertyPriority('visibility') };
-        })), 'inline visibility restored exactly').toEqual(originals);
-        expect(await poseState(), 'initialisation leaves the world pose unchanged').toEqual(poseBefore);
-        const init = paintControls(cold, initHidden, initRestored);
-        await test.info().attach('day-cloud-cold-initialisation', { body: JSON.stringify(init, null, 2), contentType: 'application/json' });
-        expect(init.paint.materialPixels, 'initialisation hiding really removes cloud paint').toBeGreaterThanOrEqual(init.minimumPaintPixels);
-        const day = await shot(page);
-        const stable = paintControls(initRestored, day, day);
-        await test.info().attach('day-cloud-normalised-stability', { body: JSON.stringify(stable.paint, null, 2), contentType: 'application/json' });
-        expect(stable.paint.maximumChannel, 'normalised paint is stable before the measured triplet').toBeLessThanOrEqual(2);
-        await surfaces.evaluateAll(nodes => nodes.forEach(el => { (el as SVGElement).style.visibility = 'hidden'; }));
-        const noCloud = await shot(page);
-        await surfaces.evaluateAll(nodes => nodes.forEach(el => { (el as SVGElement).style.removeProperty('visibility'); }));
-        const dayAgain = await shot(page);
-        const shadow = paintControls(day, noCloud, dayAgain);
-        expect(shadow.paint.materialPixels).toBeGreaterThanOrEqual(shadow.minimumPaintPixels);
-        expect(shadow.restoration.maximumChannel).toBeLessThanOrEqual(2);
-      } finally {
-        await surfaces.evaluateAll(nodes => nodes.forEach(el => { (el as SVGElement).style.removeProperty('visibility'); }));
-      }
-    });
+    // Home's day is a CLEAR sky: no cloud shadow surface, wisp or bank paints, and native scroll does not move any of it.
+    // (The original cloud-shadow day paint and its causal pixel comparison belong to the index/calm routes, whose
+    // pose and cloud-travel cases stay in this suite.)
+    await expect(page.locator('.sv-cloud-surface')).toHaveCount(6);
+    expect(await page.locator('.sv-cloud-surface').evaluateAll(nodes => nodes.every(el => getComputedStyle(el).display === 'none'))).toBe(true);
+    // The six retained surface nodes (three per variant) must not paint: every shadow descendant is nonempty in markup
+    // but has no rendered box, because its own surface ancestor is display:none.
+    const shadows = await page.locator('.sv-cloud-shadow').evaluateAll(nodes => nodes.map(el => {
+      const surface = el.closest('.sv-cloud-surface') as Element;
+      return {
+        surfaceDisplay: getComputedStyle(surface).display, rects: el.getClientRects().length, surfaceRects: surface.getClientRects().length,
+        paintedDisplay: getComputedStyle(el).display,
+      };
+    }));
+    expect(shadows.length, 'retained cloud shadow nodes (nonempty, so this cannot pass vacuously)').toBe(6);
+    for (const shadow of shadows) {
+      expect(shadow.surfaceDisplay).toBe('none');
+      expect(shadow.surfaceRects).toBe(0);
+      expect(shadow.rects, 'a shadow under a display:none surface has no rendered box').toBe(0);
+    }
+    const banks = page.locator('.sv-hs-clouds');
+    expect(await banks.count()).toBeGreaterThan(0);
+    expect(await banks.evaluateAll(nodes => nodes.every(el => getComputedStyle(el).display === 'none'))).toBe(true);
+    await toHomeEdge(page, true, false);
+    expect(await progress(page)).toBe(0);
+    expect(await page.locator('.sv-cloud-shadow').evaluateAll(nodes => nodes.filter(el => el.getClientRects().length > 0).length),
+      'no cloud shadow gains a rendered box after native scroll').toBe(0);
     await page.locator('.atmosphere-toggle').click();
     const frozen = await skySignature(page);
     await page.keyboard.press('Control+Home');

@@ -117,86 +117,31 @@ for (const colorScheme of ['dark', 'light'] as const) {
       expect((await new AxeBuilder({ page }).withRules(['color-contrast']).analyze()).violations, `contrast during arrival at ${time}ms`).toEqual([]);
     }
 
-    // Home: pin the one real build-phrase settle (mtn-settle) at its first frame, then compare with its end state.
-    await page.addInitScript(() => {
-      const settles = new Map<Element, CSSAnimation>();
-      (window as any).__buildSettles = settles;
-      // Capture every genuine sibling effect at the producer's marker mutation. A sibling's
-      // natural end otherwise removes the shared marker before a later driver measurement.
-      new MutationObserver(records => {
-        for (const record of records) {
-          const section = record.target;
-          if (!(section instanceof Element) || !section.matches('.front-projects[data-mtn="go"]')) continue;
-          for (const entry of section.querySelectorAll('.build-entry')) {
-            const animation = entry.getAnimations().find((a): a is CSSAnimation =>
-              a instanceof CSSAnimation && a.animationName === 'mtn-settle');
-            if (!animation || animation.playState === 'finished' || animation.playState === 'idle') continue;
-            animation.pause();
-            settles.set(entry, animation);
-          }
-        }
-      }).observe(document, { subtree: true, attributes: true, attributeFilter: ['data-mtn'] });
-    });
+    // Home: the build phrase (mtn-settle) is intentionally gone (static, content-first Home). The accepted contract is
+    // that no entrance ever starts when the projects scroll into view, and that every project action keeps its native
+    // 44px target at rest with unchanged contrast.
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     await page.evaluate(() => {
       const head = document.querySelector('.front-projects .section-head')!;
       scrollTo(0, scrollY + head.getBoundingClientRect().top - 120);
     });
-    const keymarchy = page.locator('.build-entry').filter({ has: page.getByRole('heading', { name: 'Keymarchy', exact: true }) });
-    await expect(keymarchy).toHaveCount(1);
-    const paused = () => keymarchy.evaluate(el => {
-      const section = el.closest('.front-projects[data-mtn="go"]');
-      const entries = section ? [...section.querySelectorAll('.build-entry')] : [];
-      const settles = (window as any).__buildSettles as Map<Element, CSSAnimation>;
-      return entries.length > 0 && entries.includes(el) && settles.size === entries.length && entries.every(entry => {
-        const animation = settles.get(entry);
-        return !!animation && animation.animationName === 'mtn-settle' && animation.playState === 'paused' &&
-          (animation.effect as KeyframeEffect).target === entry && entry.getAnimations().includes(animation);
-      });
-    });
-    await expect.poll(paused, { timeout: 8000 }).toBe(true);
-    // Both frames come from the same captured effect in one task; genuine cancellation still fails.
-    const { start, end } = await keymarchy.evaluate(el => {
-      const section = el.closest('.front-projects[data-mtn="go"]');
-      const entries = section ? [...section.querySelectorAll('.build-entry')] : [];
-      const settles = (window as any).__buildSettles as Map<Element, CSSAnimation>;
-      if (!entries.length || !entries.includes(el) || settles.size !== entries.length || entries.some(entry => {
-        const effect = settles.get(entry);
-        return !effect || effect.animationName !== 'mtn-settle' || effect.playState !== 'paused' ||
-          (effect.effect as KeyframeEffect).target !== entry || !entry.getAnimations().includes(effect);
-      })) throw new Error('Every genuine build settle must remain captured and paused');
-      const animation = settles.get(el)!;
-      const timing = animation.effect!.getTiming();
-      const measure = (at: 'start' | 'end') => {
-        animation.currentTime = at === 'start' ? Number(timing.delay) : Number(timing.delay) + Number(timing.duration) - 1;
-        const matrix = new DOMMatrixReadOnly(getComputedStyle(el).transform);
-        return {
-          scaleX: matrix.a, scaleY: matrix.d, shiftY: matrix.f,
-          targets: [...el.querySelectorAll<HTMLAnchorElement>('.links a')].map(link => ({
-            rect: link.getBoundingClientRect().height, client: link.clientHeight, layout: link.offsetHeight,
-          })),
-        };
-      };
-      const start = measure('start');
-      const end = measure('end');
-      if (animation.playState !== 'paused' || !el.getAnimations().includes(animation)) {
-        throw new Error('The measured build settle must remain active on its genuine target');
-      }
-      return { start, end };
-    });
-    await testInfo.attach('pinned-target-dimensions', { body: JSON.stringify({ start, end }, null, 2), contentType: 'application/json' });
-    expect(start.shiftY).toBeGreaterThan(7); // the settle really starts 8px low
-    expect(end.shiftY).toBeLessThan(0.5); // and really arrives
-    for (const state of [start, end]) {
-      expect(state.scaleX).toBe(1);
-      expect(state.scaleY).toBe(1);
-      expect(state.targets.length).toBeGreaterThan(0);
-      for (const target of state.targets) {
-        expect(target.rect).toBeGreaterThanOrEqual(43.99); // tight float tolerance only
-        expect(target.client).toBeGreaterThanOrEqual(44);
-        expect(target.layout).toBeGreaterThanOrEqual(44);
-      }
+    await page.waitForTimeout(800);
+    await expect(page.locator('.front-projects')).not.toHaveAttribute('data-mtn', /.*/);
+    const entries = await page.locator('.build-entry').count();
+    expect(entries).toBeGreaterThan(0);
+    expect(await page.locator('.build-entry').evaluateAll(list =>
+      list.flatMap(entry => entry.getAnimations().map(a => (a as CSSAnimation).animationName)))).toEqual([]);
+    const targets = await page.locator('.build-entry .links a').evaluateAll(links => links.map(link => ({
+      rect: link.getBoundingClientRect().height, client: (link as HTMLElement).clientHeight, layout: (link as HTMLElement).offsetHeight,
+    })));
+    await testInfo.attach('static-target-dimensions', { body: JSON.stringify(targets, null, 2), contentType: 'application/json' });
+    expect(targets.length).toBeGreaterThan(0);
+    for (const target of targets) {
+      expect(target.rect).toBeGreaterThanOrEqual(43.99); // tight float tolerance only
+      expect(target.client).toBeGreaterThanOrEqual(44);
+      expect(target.layout).toBeGreaterThanOrEqual(44);
     }
+    expect((await new AxeBuilder({ page }).withRules(['color-contrast']).analyze()).violations, 'contrast on the static Home projects').toEqual([]);
   });
 }

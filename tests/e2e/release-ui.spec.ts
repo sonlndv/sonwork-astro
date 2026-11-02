@@ -236,8 +236,9 @@ test('Mount looks toward a fine pointer with real signed eye and tilt values', a
 });
 
 test('mouse depth is signed to the viewport corner, bounded, and cleans up to neutral', async ({ browser, baseURL }) => {
+  // The whole-scene mouse depth belongs to the index route /work; Home's own sky-only response is the next test.
   await open(browser, baseURL, desktop, async page => {
-    await page.goto('/');
+    await page.goto('/work');
     const scene = page.locator('.mtn-scene');
     await expect(scene).toHaveAttribute('data-intro', '');
     expect(await scene.locator('.mtn-rim').first().getAttribute('pathLength')).toBe('1');
@@ -268,21 +269,59 @@ test('mouse depth is signed to the viewport corner, bounded, and cleans up to ne
   });
 });
 
-test('Mount perches by the builds, then the footer, and the native Back to top returns', async ({ browser, baseURL }) => {
+test('Home mouse takes no scene or terrain depth: only the sky answers, bounded, and cleans up', async ({ browser, baseURL }) => {
+  await open(browser, baseURL, desktop, async page => {
+    await page.goto('/');
+    const scene = page.locator('.mtn-scene');
+    await expect(scene).toHaveAttribute('data-arrival', 'static');
+    await expect(scene).not.toHaveAttribute('data-intro', /.*/);
+    expect(await scene.locator('.mtn-rim[pathLength]').count()).toBe(0);
+    await expect.poll(async () => {
+      await page.mouse.move(1439, 899);
+      await page.mouse.move(1430, 890);
+      return page.locator('.sv-home-sky[data-look]').count();
+    }, { timeout: 4000 }).toBeGreaterThan(0);
+    await expect(scene).not.toHaveAttribute('data-cam', /.*/);
+    for (const k of ['fx', 'fy', 'nx', 'ny']) expect(await scene.evaluate((el, k) => el.style.getPropertyValue(`--mtn-${k}`), k)).toBe('');
+    const offsets = await page.locator('.sv-home-sky[data-look]').evaluateAll(list => list.map(el => [
+      Number((el as HTMLElement).style.getPropertyValue('--ow-x')), Number((el as HTMLElement).style.getPropertyValue('--ow-y'))]));
+    expect(offsets.length).toBeGreaterThan(0);
+    for (const [x, y] of offsets) { expect(Math.abs(x)).toBeLessThan(4); expect(Math.abs(y)).toBeLessThan(2); } // 2px/1px at scale >= 0.5
+    await page.mouse.wheel(0, 120);
+    await expect(page.locator('.sv-home-sky[data-look]')).toHaveCount(0);
+    for (const k of ['fx', 'fy', 'nx', 'ny']) expect(await scene.evaluate((el, k) => el.style.getPropertyValue(`--mtn-${k}`), k)).toBe('');
+  });
+});
+
+test('Home keeps Mount at the header, its 68x44 target unchanged, and the native Back to top instant', async ({ browser, baseURL }) => {
   await open(browser, baseURL, desktop, async page => {
     await page.goto('/');
     const mount = page.locator('.companion');
     await toBuilds(page);
-    await expect(mount).toHaveAttribute('data-perch', 'build', { timeout: 5000 });
-    await expect(mount).not.toHaveAttribute('data-moving', /.*/, { timeout: 3000 });
-    const projects = (await page.locator('.front-projects').boundingBox())!;
-    const seated = (await mount.boundingBox())!;
-    expect(seated.width).toBeCloseTo(68, 0);
-    expect(seated.height).toBeCloseTo(44, 0);
-    expect(seated.x + seated.width + 12).toBeCloseTo(projects.x, 0);
-    expect(Number(await mount.getAttribute('data-landings'))).toBeGreaterThanOrEqual(1);
-    expect(Number(await mount.getAttribute('data-strolls'))).toBeGreaterThanOrEqual(1);
+    await page.waitForTimeout(600);
+    await expect(mount).toHaveAttribute('data-perch', 'header');
+    await expect(mount).not.toHaveAttribute('data-moving', /.*/);
+    expect(await mount.getAttribute('data-strolls')).toBe('0');
+    const box = (await mount.boundingBox())!;
+    expect(box.width).toBeCloseTo(68, 0);
+    expect(box.height).toBeCloseTo(44, 0);
+    await toBottom(page);
+    await page.waitForTimeout(400);
+    await expect(mount).toHaveAttribute('data-perch', 'header');
+    const top = page.locator('#companion-return');
+    await expect(top).toBeVisible();
+    await top.click();
+    await expect.poll(() => page.evaluate(() => scrollY), { timeout: 1000 }).toBe(0); // instant on Home
+    await expect(mount).toBeFocused();
+    await expect(mount).toHaveAttribute('data-perch', 'header');
+  });
+});
 
+// The original perch travel (build seat is Home-specific and gone; the footer seat) stays on the index route /work.
+test('Mount perches at the footer on an index route, and the native Back to top returns', async ({ browser, baseURL }) => {
+  await open(browser, baseURL, desktop, async page => {
+    await page.goto('/work');
+    const mount = page.locator('.companion');
     await toBottom(page);
     await expect(mount).toHaveAttribute('data-perch', 'footer', { timeout: 5000 });
     await expect(mount).not.toHaveAttribute('data-moving', /.*/, { timeout: 3000 });
@@ -307,7 +346,7 @@ test('Mount perches by the builds, then the footer, and the native Back to top r
   });
 });
 
-test('the build phrase is observed starting, then plays once and clears itself', async ({ browser, baseURL }) => {
+test('the Home build phrase is gone: nothing starts, settles or sweeps when the builds come into view', async ({ browser, baseURL }) => {
   for (const options of [desktop, touch]) {
     await open(browser, baseURL, options, async page => {
       await page.addInitScript(() => {
@@ -324,12 +363,10 @@ test('the build phrase is observed starting, then plays once and clears itself',
       await page.evaluate(() => document.fonts.ready);
       expect(await page.evaluate(() => (window as any).phrase.go)).toBe(0);
       await toBuilds(page);
-      await expect.poll(() => page.evaluate(() => (window as any).phrase.go), { timeout: 8000 }).toBe(1);
-      await expect.poll(() => page.evaluate(() => (window as any).phrase.settle), { timeout: 3000 }).toBe(3);
-      await expect.poll(() => page.evaluate(() => (window as any).phrase.sweep), { timeout: 3000 }).toBe(1);
-      await expect(page.locator('.front-projects')).not.toHaveAttribute('data-mtn', /.*/, { timeout: 4000 });
-      await page.waitForTimeout(500);
-      expect(await page.evaluate(() => (window as any).phrase.go)).toBe(1);
+      await page.waitForTimeout(1_500); // the old phrase started within 8s of arriving at the builds; give it ample time
+      expect(await page.evaluate(() => (window as any).phrase)).toEqual({ go: 0, settle: 0, sweep: 0 });
+      await expect(page.locator('.front-projects')).not.toHaveAttribute('data-mtn', /.*/);
+      await expect(page.locator('.build-entry')).toHaveCount(3);
     });
   }
 });
@@ -358,7 +395,7 @@ test('reduced motion keeps everything still, with Back to top still native', asy
   });
 });
 
-test('coarse touch shows the tall composition, takes no mouse depth or gaze, and still perches', async ({ browser, baseURL }) => {
+test('coarse touch shows the tall composition, takes no mouse depth, star or gaze, and Mount stays at the header', async ({ browser, baseURL }) => {
   await open(browser, baseURL, touch, async page => {
     await page.goto('/');
     expect(await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)).toBe(false);
@@ -376,7 +413,10 @@ test('coarse touch shows the tall composition, takes no mouse depth or gaze, and
     expect(mount.width).toBeCloseTo(68, 0);
     expect(mount.height).toBeCloseTo(44, 0);
     await toBottom(page);
-    await expect(page.locator('.companion')).toHaveAttribute('data-perch', 'footer', { timeout: 5000 });
+    await page.waitForTimeout(400);
+    await expect(page.locator('.companion')).toHaveAttribute('data-perch', 'header'); // Home: no perch travel
+    await expect(page.locator('#companion-return')).toBeVisible(); // the native Back to top stays reachable
+    expect(await page.locator('.ow-star[data-on]').count()).toBe(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 });
