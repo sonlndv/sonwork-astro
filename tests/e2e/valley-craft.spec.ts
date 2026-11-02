@@ -401,9 +401,10 @@ test.describe('hello answers on the ridge edges', () => {
   const stroke = (page: Page) => rim(page).evaluate((el) => getComputedStyle(el).stroke);
 
   test('greeting re-traces original rims finitely, restores solid paint and queues no ambient recurrence', async ({ page }) => {
-    // Natural CSS arrival/completion; JS time below is only a no-recurrence observation.
+    // Natural CSS arrival/completion; JS time below is only a no-recurrence observation. Home has no scene trace or
+    // mist (accepted static Home), so the original finite re-trace is exercised on the index route /work.
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
 
     // Let the arrival sketch (data-intro, real-time CSS) finish so the rim is at its true rest.
     await expect(page.locator('.mtn-scene')).not.toHaveAttribute('data-intro', /.*/, { timeout: 3_000 });

@@ -1,5 +1,6 @@
 ---
 import sceneCss from '../styles/scene.css?inline';
+import homeSceneCss from '../styles/home-scene.css?inline';
 import fontsCss from '../styles/fonts.css?inline';
 import globalCss from '../styles/global.css?inline';
 import companionCss from '../styles/companion.css?inline';
@@ -16,7 +17,9 @@ interface Props {
 
 // The processed (bundled, minified) shared cascade in its original order: scene, fonts, global, companion.
 // Delivered in the document itself so the first paint does not wait on a separate render-blocking stylesheet request.
-const sharedCss = [sceneCss, fontsCss, globalCss, companionCss].join('\n');
+// Home inlines the scene cascade that includes its Home-only world CSS; every other route inlines the original scene CSS only.
+const isHome = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1') === '/';
+const sharedCss = [isHome ? homeSceneCss : sceneCss, fontsCss, globalCss, companionCss].join('\n');
 
 const { title, description, type = 'website', noIndex = false } = Astro.props;
 const siteName = 'Son';

@@ -47,14 +47,31 @@ const paintByWidth = {
   },
 } as const;
 
-async function expectPaint(page: Page, theme: 'light' | 'dark') {
+// Home's own accepted celestial-world terrain palette (one palette at every width), independent literals from the
+// authored contract (DESIGN.md "Terrain material", with the tuned plane/rim alphas of the accepted C15 stylesheet):
+// day far/mid/near #cbd7e4/#a8b9ce/#8197b0, plane rgba(39,60,87,.28), rim rgba(75,97,126,.38);
+// night #34496b/#253c5b/#182d49, plane rgba(2,5,14,.55), rim rgba(154,181,211,.55). Index/calm routes keep paintByWidth.
+const homePaint = {
+  light: {
+    far: 'rgb(203, 215, 228)', mid: 'rgb(168, 185, 206)', near: 'rgb(129, 151, 176)',
+    plane: 'rgba(39, 60, 87, 0.28)', rim: 'rgba(75, 97, 126, 0.38)', lume: 'oklch(0.33 0.13 236)',
+  },
+  dark: {
+    far: 'rgb(52, 73, 107)', mid: 'rgb(37, 60, 91)', near: 'rgb(24, 45, 73)',
+    plane: 'rgba(2, 5, 14, 0.55)', rim: 'rgba(154, 181, 211, 0.55)', lume: 'oklch(0.8 0.135 222)',
+  },
+} as const;
+
+async function expectPaint(page: Page, theme: 'light' | 'dark', route: 'home' | 'index' = 'home') {
   const view = page.viewportSize()!;
-  // Tall desktops (>=900px and aspect <= 5/4) firm the day mid/near faces: #acb9cc/#8697b0.
+  // Index/calm routes: tall desktops (>=900px and aspect <= 5/4) firm the day mid/near faces: #acb9cc/#8697b0.
   const tallDesktop = view.width >= 900 && view.width / view.height <= 1.25;
   const base = paintByWidth[view.width >= 900 ? 'wide' : 'narrow'][theme];
-  const expected = tallDesktop && theme === 'light'
-    ? { ...base, mid: 'rgb(172, 185, 204)', near: 'rgb(134, 151, 176)' }
-    : base;
+  const expected = route === 'home'
+    ? homePaint[theme]
+    : tallDesktop && theme === 'light'
+      ? { ...base, mid: 'rgb(172, 185, 204)', near: 'rgb(134, 151, 176)' }
+      : base;
   const scene = page.locator('.mtn-scene');
   await expect(scene).toHaveCount(1);
   await expect(scene).toBeVisible();
@@ -88,10 +105,12 @@ async function expectPaint(page: Page, theme: 'light' | 'dark') {
     }
   }, expected.lume);
   expect(lume.actual).toBe(lume.expected);
-  const action = page.locator('a.home-more');
-  await expect(action).toHaveCount(1);
-  await expect(action).toBeVisible();
-  await expect(action).toHaveCSS('color', lume.expected);
+  if (route === 'home') {
+    const action = page.locator('a.home-more');
+    await expect(action).toHaveCount(1);
+    await expect(action).toBeVisible();
+    await expect(action).toHaveCSS('color', lume.expected);
+  }
 }
 
 async function expectInactiveScene(page: Page) {
@@ -117,14 +136,22 @@ async function expectStaticScene(page: Page) {
   const scene = page.locator('.mtn-scene');
   await expect(scene).toBeVisible();
   const layers = scene.locator(':scope > div.mtn-layer');
-  const { height, width, reduced } = await page.evaluate(() => ({ height: innerHeight, width: innerWidth, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches }));
+  const { height, width, reduced, mode } = await page.evaluate(() => ({
+    height: innerHeight, width: innerWidth, reduced: matchMedia('(prefers-reduced-motion: reduce)').matches,
+    mode: document.querySelector('.mtn-scene')?.getAttribute('data-mode') ?? '', // the scene's own route mode
+  }));
   const wide = width >= 900;
-  // Independent authored world: depth is max x .75 when reduced, 0 without script. Declared max: >=900px .6;
-  // narrow portrait (<=899px and aspect <= 5/4) .36; any other width the base .52.
-  const portrait = width <= 899 && width / height <= 1.25;
-  const depth = reduced ? (wide ? 0.6 : portrait ? 0.36 : 0.52) * 0.75 : 0;
+  // Independent authored world: Home is static at its entry pose in every mode, so depth is 0 with or without script
+  // and under reduced motion (it was max x .75 for reduced before Home's scene became scroll- and preference-fixed).
+  void reduced;
+  const depth = 0;
   const tall = wide && width / height <= 1.25;
-  const expected = tall
+  // Home on a portrait phone (<=719px wide, aspect <= 5/4) declares its own accepted rest poses (DESIGN.md "Portrait
+  // composition"): far 34svh - 5svh*depth, middle 38svh - 44svh*depth, near 40svh - 54svh*depth.
+  const homePhone = mode === 'home' && width <= 719 && width / height <= 1.25;
+  const expected = homePhone
+    ? [0.34 - 0.05 * depth, 0.38 - 0.44 * depth, 0.4 - 0.54 * depth]
+    : tall
     ? [0.22 - 0.05 * depth, 0.2 - 0.18 * depth, 0.26 - 0.34 * depth]
     : wide
       ? [0.34 - 0.05 * depth, 0.36 - 0.3 * depth, 0.38 - 0.47 * depth]
@@ -151,6 +178,10 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByRole('button', { name: `Switch to ${theme === 'light' ? 'dark' : 'light'} theme`, exact: true }))
         .toBeVisible();
       await expectPaint(page, theme);
+      // The retained index route keeps its original (pre-celestial) exact palette in the same system theme.
+      await page.goto('/work');
+      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'index');
+      await expectPaint(page, theme, 'index');
     });
   });
 }
@@ -178,6 +209,11 @@ test.describe('manual preference', () => {
     await expectManual('dark');
     await page.reload();
     await expectManual('dark');
+    // The manual preference carries to the retained index route, which keeps its original palette.
+    await page.goto('/work');
+    await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'index');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await expectPaint(page, 'dark', 'index');
   });
 });
 
@@ -205,6 +241,10 @@ for (const mode of [
       await page.evaluate(() => window.scrollTo(0, 320));
       await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
       await expectStaticScene(page);
+      // The retained index route keeps its original palette in the same fallback (static paint; its rest pose is covered in sky-valley).
+      await page.goto('/work');
+      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'index');
+      await expectPaint(page, 'light', 'index');
     });
   });
 }

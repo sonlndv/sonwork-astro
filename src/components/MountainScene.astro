@@ -12,5 +12,12 @@ const mode = route === '/' ? 'home' : ['/work', '/writing'].includes(route) ? 'i
 const modeAnchor = 'data-mode="calm"';
 if (scene.split(modeAnchor).length !== 2) throw new Error('mountain-scene.html: mode anchor is missing or not unique');
 const layered = scene.replace(anchor, mist).replace(modeAnchor, `data-mode="${mode}"`);
+// The baked Home sky textures (/mountains/ow-*.webp, 16 image nodes) are display:none outside Home, yet browsers still
+// fetch hidden SVG <image> hrefs. Emit them as an inert `data-home-src` everywhere except Home, so index/calm routes
+// download nothing for them; Home's emitted scene (including no-JS) stays byte-identical. The protected original
+// blue-planet.webp href is untouched, and the lazy albedo maps are requested by script, not by markup.
+const homeTexture = 'href="/mountains/ow-';
+if (scene.split(homeTexture).length !== 17) throw new Error('mountain-scene.html: expected exactly 16 Home texture hrefs');
+const emitted = mode === 'home' ? layered : layered.replaceAll(homeTexture, 'data-home-src="/mountains/ow-');
 ---
-<Fragment set:html={layered} />
+<Fragment set:html={emitted} />

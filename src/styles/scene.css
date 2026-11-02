@@ -1,5 +1,11 @@
-/* Scene styles: the shared mountain world and the atmosphere control, in their original order
-   (mountains, then atmosphere). BaseLayout processes this file with the fonts, global and companion styles
-   and delivers the whole cascade inline in the document head. The source files are unchanged. */
+/* Scene styles for every route EXCEPT Home: the shared mountain world and the atmosphere control, in their original order
+   (mountains, then atmosphere). BaseLayout processes this file with the fonts, global and companion styles and delivers the
+   whole cascade inline in the document head. The Home-only part of the mountain world lives in src/styles/home-world.css
+   and is inlined only by src/styles/home-scene.css on "/". The source files are unchanged. */
 @import '../../public/mountains/mountains.css';
 @import '../../public/atmosphere.css';
+
+/* The Home-only art is part of the shared scene markup on every route; outside Home it must stay hidden. (Home gets the
+   same two rules from home-world.css.) The original night planet and every other original paint are untouched. */
+.sv-ow-bodies { display: none; }
+.sv-ow-pimg, .sv-ow-pm, .sv-ow-pn { display: none; }

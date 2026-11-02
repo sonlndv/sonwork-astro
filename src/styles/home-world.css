@@ -1,0 +1,448 @@
+
+/* ---- Another-world study (Home only; DESIGN.md "Approved private study"). Every changed incumbent rule below
+   also selects [data-mode='home'], because body.home-study is present on every route. Static: no motion, no JS. ---- */
+
+/* Terrain material: broad tonal roles only; the original faces, planes, rims and masks carry the relief. */
+body.home-study .mtn-scene[data-world][data-mode='home'] {
+  --mtn-c-far: light-dark(#cbd7e4, #34496b);
+  --mtn-c-mid: light-dark(#a8b9ce, #253c5b);
+  --mtn-c-near: light-dark(#8197b0, #182d49);
+  --mtn-plane: light-dark(rgba(39, 60, 87, 0.28), rgba(2, 5, 14, 0.55));
+  --mtn-rim: light-dark(rgba(75, 97, 126, 0.38), rgba(154, 181, 211, 0.55));
+}
+
+/* Morning shows the same whole globe (only the planet group, not stars or meteor). The Home crescent mask is gone:
+   the raster is shown unmasked at full opacity in both themes over a slightly smaller opaque backing. */
+:root[data-theme='light'] body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-night.sv-hs-planet { display: inline; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-night.sv-hs-planet { display: inline; }
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet image {
+  opacity: 1;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet .sv-hs-body { fill: light-dark(#0a1632, #050912); }
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-hs-planet .sv-hs-body { r: 186px; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-hs-planet .sv-hs-body { r: 111px; }
+
+/* Planet family: hidden everywhere by default, shown only in Home; every body rides the same per-variant sky offset.
+   Opaque radial-gradient spheres lit from the upper left (a grey rocky body A, a smaller violet-grey banded body B). */
+.sv-ow-bodies { display: none; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-bodies {
+  display: inline;
+  --ow-a0: light-dark(#e9edf1, #d3dae3);
+  --ow-a1: light-dark(#b0bccb, #74829a);
+  --ow-a2: light-dark(#5e6f87, #141c30);
+  --ow-b0: light-dark(#e8e5f0, #cdc7da);
+  --ow-b1: light-dark(#aaa6c2, #6f6b8a);
+  --ow-b2: light-dark(#5b5879, #15142a);
+  --ow-pit: light-dark(rgba(72, 88, 110, 0.3), rgba(4, 7, 16, 0.34));
+  --ow-band: light-dark(rgba(80, 76, 118, 0.26), rgba(8, 8, 24, 0.32));
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-ridge > .sv-home-sky > .sv-ow-bodies { translate: 0 var(--hs-ty, 0px); }
+.sv-ow-a0 { stop-color: var(--ow-a0); }
+.sv-ow-a1 { stop-color: var(--ow-a1); }
+.sv-ow-a2 { stop-color: var(--ow-a2); }
+.sv-ow-b0 { stop-color: var(--ow-b0); }
+.sv-ow-b1 { stop-color: var(--ow-b1); }
+.sv-ow-b2 { stop-color: var(--ow-b2); }
+.sv-ow-pit { fill: var(--ow-pit); }
+.sv-ow-band { fill: var(--ow-band); }
+
+/* Ordinary portrait Home: key light stays upper-left (sun moves left/up), the hero planet rests smaller at the right
+   edge, and the middle/near ranges rise from a slightly different pose. Other aspects keep their incumbent geometry. */
+@media (max-aspect-ratio: 5/4) and (max-width: 899px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-hs-sun { translate: -255px -80px; }
+}
+@media (max-aspect-ratio: 5/4) and (max-width: 719px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] > .mtn-layer.mtn-middle {
+    transform: translate3d(0, calc(38svh - 44svh * var(--sv-depth)), 0);
+  }
+  body.home-study .mtn-scene[data-world][data-mode='home'] > .mtn-layer.mtn-near {
+    transform: translate3d(0, calc(40svh - 54svh * var(--sv-depth) + var(--mtn-near-y, 0px)), 0);
+  }
+}
+
+/* ---- Clear-sky revision (Home only; DESIGN.md "Clear-sky and responsive-Mount"). Every rule selects
+   [data-mode='home']; the leading :root keeps specificity at least level with the theme-qualified incumbents. ---- */
+
+/* Fixed entry pose: the composed opening/settle stay zero, in script, no-script and reduced motion alike. */
+body.home-study .mtn-scene[data-world][data-mode='home'] { --sv-hs: 0; }
+@media (prefers-reduced-motion: reduce) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] { --sv-depth: 0; --sv-hs: 0 !important; }
+}
+/* The side flanks rest at a constant presence (they were scroll-opened) and the rims read slightly firmer. */
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-flank-art { opacity: 0.55; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-rim { stroke-width: 1.4; }
+
+/* Clear day: no cloud banks, wisps, cloud-cast shadows or mist, in manual and system light and every fallback. */
+:root body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-clouds,
+:root body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-cloud-far,
+:root body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-cloud-near,
+:root body.home-study .mtn-scene[data-world][data-mode='home'] .sv-cloud-surface { display: none; }
+:root body.home-study .mtn-scene[data-mode='home'] .mtn-mist { display: none !important; }
+
+/* Pointer: only celestial artwork answers a fine mouse, by at most 2 CSS px across / 1 down (mountains.js converts to
+   user units per variant and writes --ow-x/--ow-y on each sky group only). Each class sits inside the fixed skyline
+   mask, so terrain, occlusion, content and controls never move. Nearer bodies take a smaller share than the stars. */
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-sky {
+  transform: translate(calc(var(--ow-x, 0) * 1px), calc(var(--ow-y, 0) * 1px));
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-sun,
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-bodies {
+  transform: translate(calc(var(--ow-x, 0) * 0.8px), calc(var(--ow-y, 0) * 0.8px));
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet {
+  transform: translate(calc(var(--ow-x, 0) * 0.6px), calc(var(--ow-y, 0) * 0.6px));
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* The transition exists only while data-look is set, so removing it neutralizes the offset at once. */
+  body.home-study .mtn-scene[data-mode='home'] .sv-home-sky[data-look] :is(.sv-hs-sky, .sv-hs-sun, .sv-ow-bodies, .sv-hs-planet) {
+    transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.home-study .mtn-scene[data-mode='home'] .sv-home-sky :is(.sv-hs-sky, .sv-hs-sun, .sv-ow-bodies, .sv-hs-planet) {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---- Overhead sky, morning and night (Home only; DESIGN.md "Superseding addendum"). Geometry is expressed as
+   per-regime variables on the Home scene and applied to the planet and companion groups in SVG user units
+   (individual scale/translate about each body's own centre; no double translation with the pointer transform). ---- */
+body.home-study .mtn-scene[data-world][data-mode='home'] {
+  /* Viewport-anchored composition. Every body has a desired SCREEN centre (x, y) and radius, set per regime below
+     (g = globe, a = rocky body, b = banded body). The SVG offsets further down invert the real projection, so the
+     bodies sit at these screen positions whatever the art scale (St = tall meet scale, Sw = wide slice scale, f = the
+     far-plane fraction and --ow-h = the header height, which follows the root font size). */
+  --ow-h: calc(57px + (1rem - 16px) * 2.8);
+  --ow-f: 0.34;
+  --ow-gk: 1;
+  --ow-St: min(100vw / 400, (100svh + 96px) / 800);
+  --ow-Sw: max(100vw / 1600, (100svh + 96px) / 900);
+  /* Overhead sky. Regime 0 (1360px and up): an immense planet whose curve runs past the top and right edges (about 700px
+     across at 1440, clear of the 65ch intro), a large resolved rocky body cropped by the left edge in the left gutter,
+     and a small distant body in the open sky below-left of the planet. The old world-space mask union is gone: the scene
+     keeps the incumbent reading veil and the prose carries its own underlay (end of this section). */
+  --ow-gr: calc(min(25vw, 420px) * var(--ow-gk));
+  --ow-gx: calc(100vw - 60px);
+  --ow-gy: calc(var(--ow-h) + 73px);
+  --ow-ar: calc(7.5vw * var(--ow-gk));
+  --ow-ax: calc((100vw - 1116px) / 2 - var(--ow-ar) - 14px);
+  --ow-ay: calc(var(--ow-h) + 255px);
+  --ow-br: 14px;
+  --ow-bx: calc(var(--ow-gx) - var(--ow-gr) * 0.9);
+  --ow-by: calc(var(--ow-gy) + var(--ow-gr) * 0.75);
+  /* Projected sun direction as the rotation of the unit-disk phase construction (+X lit before rotation): night light comes
+     from the lower left (a below-horizon source lighting a lower-facing limb), morning light from the upper left. */
+  --ow-rot: 143deg;
+  --ow-unlit: light-dark(#14264a, #03060e);
+  --ow-wash: light-dark(rgba(214, 226, 242, 0.16), transparent);
+}
+:root[data-theme='light'] body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-rot: -145deg; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-rot: -145deg; }
+}
+/* Inverse projection. A screen point (cx, cy) is SVG user point X = vbw/2 + (cx - 50vw)/S, Y = vbh + (cy - (1+f)*100svh - 48px)/S,
+   and the direct sky parents add --hs-ty to Y, so each body is translated by (X - X0, Y - ty - Y0) from its source
+   centre and scaled by radius/(S*r0) about that centre. Image and backing share the rule, so they stay together. */
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet > image,
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet > .sv-hs-body,
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet > .sv-ow-pimg,
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-a,
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-b {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* Only the three direct children of the planet (image, backing, whole shade group) take the projection, so the circles
+   and paths inside the shade group are never scaled or translated twice. */
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-hs-planet > image,
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-hs-planet > .sv-hs-body,
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-hs-planet > .sv-ow-pimg {
+  scale: calc(var(--ow-gr) / var(--ow-Sw) / 189.8);
+  translate: calc(800px + (var(--ow-gx) - 50vw) / var(--ow-Sw) * 1px - 1214.5px)
+    calc(900px + (var(--ow-gy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-Sw) * 1px - var(--hs-ty) + 51.5px);
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-hs-planet > image,
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-hs-planet > .sv-hs-body,
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-hs-planet > .sv-ow-pimg {
+  scale: calc(var(--ow-gr) / var(--ow-St) / 113);
+  translate: calc(200px + (var(--ow-gx) - 50vw) / var(--ow-St) * 1px - 353.5px)
+    calc(800px + (var(--ow-gy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-St) * 1px - var(--hs-ty) + 8px);
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-ow-a {
+  scale: calc(var(--ow-ar) / var(--ow-Sw) / 30);
+  translate: calc(800px + (var(--ow-ax) - 50vw) / var(--ow-Sw) * 1px - 236px)
+    calc(900px + (var(--ow-ay) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-Sw) * 1px - var(--hs-ty) - 38px);
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-ow-a {
+  scale: calc(var(--ow-ar) / var(--ow-St) / 10);
+  translate: calc(200px + (var(--ow-ax) - 50vw) / var(--ow-St) * 1px - 237px)
+    calc(800px + (var(--ow-ay) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-St) * 1px - var(--hs-ty) + 73px);
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-ow-b {
+  scale: calc(var(--ow-br) / var(--ow-Sw) / 20);
+  translate: calc(800px + (var(--ow-bx) - 50vw) / var(--ow-Sw) * 1px - 1067px)
+    calc(900px + (var(--ow-by) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-Sw) * 1px - var(--hs-ty) + 120px);
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-ow-b {
+  scale: calc(var(--ow-br) / var(--ow-St) / 6);
+  translate: calc(200px + (var(--ow-bx) - 50vw) / var(--ow-St) * 1px - 375px)
+    calc(800px + (var(--ow-by) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-St) * 1px - var(--hs-ty) - 45px);
+}
+/* Enlarged text (mountains.js sets data-big): a smaller globe and no small bodies, so nothing sits over the taller prose. */
+body.home-study .mtn-scene[data-world][data-mode='home'][data-big] { --ow-gk: 0.55; }
+body.home-study .mtn-scene[data-world][data-mode='home'][data-big] :is(.sv-ow-a, .sv-ow-b) { display: none; }
+/* The far plane rests higher (22svh) only for desktop-width portrait windows. */
+@media (min-width: 900px) and (max-aspect-ratio: 5/4) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-f: 0.22; }
+}
+/* Regime 1 (1359px and narrower): the planet still crosses the top and right edges, with its lowest point held in the sky
+   band above the first paragraph; the rocky body sits left of it in the same band. */
+@media (max-width: 1359px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] {
+    --ow-ar: 38px;
+    --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - 100px);
+    --ow-ay: calc(var(--ow-h) + 18px + var(--ow-ar));
+  }
+}
+@media (max-width: 1199px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] {
+    --ow-gr: calc(clamp(110px, 16.5vw, 200px) * var(--ow-gk));
+    --ow-gx: calc(100vw - 30px);
+    --ow-gy: calc(var(--ow-h) + 135px - var(--ow-gr));
+    --ow-ar: calc(var(--ow-gr) * 0.3);
+    --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - var(--ow-ar) - 40px);
+    --ow-ay: calc(var(--ow-h) + 20px + var(--ow-ar));
+    --ow-br: 9px;
+    --ow-bx: calc(var(--ow-ax) - var(--ow-ar) - 40px);
+    --ow-by: calc(var(--ow-ay) + 10px);
+  }
+}
+/* Short landscape: a compact overhead family above the first paragraph. */
+@media (max-height: 560px) and (min-aspect-ratio: 5/4) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] {
+    --ow-gr: calc(clamp(60px, 18vh, 90px) * var(--ow-gk));
+    --ow-gy: calc(var(--ow-h) + 85px - var(--ow-gr));
+    --ow-ar: max(10px, calc(var(--ow-gr) * 0.2));
+    --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - var(--ow-ar) - 24px);
+    --ow-ay: calc(var(--ow-h) + 14px + var(--ow-ar));
+    --ow-br: 6px;
+    --ow-bx: calc(var(--ow-ax) - var(--ow-ar) - 24px);
+    --ow-by: var(--ow-ay);
+  }
+}
+/* Regime 2, tablet portrait (tall art, 720-899px): the planet runs off the top-right corner, lowest point above the paragraph. */
+@media (max-aspect-ratio: 5/4) and (max-width: 899px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] {
+    --ow-gr: calc(clamp(90px, 17vw, 140px) * var(--ow-gk));
+    --ow-gx: calc(100vw - 20px);
+    --ow-gy: calc(var(--ow-h) + 95px - var(--ow-gr));
+    --ow-ar: 20px;
+    --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - 60px);
+    --ow-ay: calc(var(--ow-h) + 12px + var(--ow-ar));
+    --ow-br: 7px;
+    --ow-bx: calc(var(--ow-ax) - 70px);
+    --ow-by: calc(var(--ow-h) + 50px);
+  }
+}
+/* Regime 3, phone (under 720px, header 98px): a planet of roughly 280-430px apparent diameter (radius 47vw, 140-215px)
+   centred just past the right edge (100vw + 10px), so a large part of the curved body is in frame; it is cut by the top
+   and right edges and may pass behind the heading and prose, which carry the reading canvas. Its lowest point stays
+   above the first prose (header + 157px). The rocky body sits just outside the planet's lower-left limb; the distant
+   body is dropped on phones. */
+@media (max-aspect-ratio: 5/4) and (max-width: 719px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] {
+    --ow-h: calc(98px + (1rem - 16px) * 2.75);
+    --ow-gr: calc(clamp(140px, 47vw, 215px) * var(--ow-gk));
+    --ow-gx: calc(100vw + 10px);
+    --ow-gy: calc(var(--ow-h) + 157px - var(--ow-gr));
+    --ow-ar: 11px;
+    --ow-ax: calc(var(--ow-gx) - var(--ow-gr) * 0.87);
+    --ow-ay: calc(var(--ow-gy) + var(--ow-gr) * 0.85);
+  }
+  body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-b { display: none; }
+}
+@media (max-width: 719px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-h: calc(98px + (1rem - 16px) * 2.75); }
+}
+
+/* Orthographic phase. Each .sv-ow-shade holds three nested copies of the unlit region of a sphere (unit-disk paths
+   t0/t1/t2: a left half-disc minus/plus a half ellipse whose semi-axis is the terminator offset, -0.03 / 0.22 / 0.47 for
+   source depth Lz = 0.22, about 61% lit). Stacked at rising opacity they deepen toward the dark limb (a stepped penumbra, not
+   a hard cut), and --ow-rot turns the construction to the projected sun direction. Hidden everywhere by default, so no other
+   route paints it; on Home it covers the same disk as the lit raster or gradient and shares its projection. */
+.sv-ow-shade { display: none; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-shade { display: inline; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-lit { rotate: var(--ow-rot); }
+.sv-ow-u { fill: var(--ow-unlit); }
+.sv-ow-u0 { fill-opacity: 0.34; }
+.sv-ow-u1 { fill-opacity: 0.42; }
+.sv-ow-u2 { fill-opacity: 0.5; }
+.sv-ow-wash { fill: var(--ow-wash); }
+
+/* Reading underlay (Home only, constant, not scroll-driven): the scene is fixed while the page scrolls, so the immense
+   bodies must not be able to sit at full strength behind prose. Paragraphs and the lower sections get a feathered tint in
+   the page's own --void colour: no border, shadow or card edge, no new colour token. The hero heading and its link row are
+   left clear so the opening arc stays visible. */
+body:has(.mtn-scene[data-mode='home']) :is(.home-intro, .hermes-note, .home-build, .home-more, .front-projects, .front-contact, .front-newsletter) {
+  position: relative;
+  z-index: 0;
+}
+body:has(.mtn-scene[data-mode='home']) :is(.home-intro, .hermes-note, .home-build, .home-more, .front-projects, .front-contact, .front-newsletter)::before {
+  content: "";
+  position: absolute;
+  inset: -6px -16px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0, color-mix(in srgb, var(--void) 66%, transparent) 16px, color-mix(in srgb, var(--void) 66%, transparent) calc(100% - 16px), transparent 100%);
+}
+@media (forced-colors: active) {
+  body:has(.mtn-scene[data-mode='home']) :is(.home-intro, .hermes-note, .home-build, .home-more, .front-projects, .front-contact, .front-newsletter)::before { display: none; }
+}
+
+/* ---- Correction after the first renders (Home only). ----
+   1. The three-path overlay shading is retired: the shade groups no longer exist in the markup. Home bodies are now
+      pre-shaded images (render-spheres.mjs: continuous orthographic diffuse light, one source vector per theme,
+      solid alpha inside every body) in groups hidden by default, and the original raster/backing stay for other routes. */
+.sv-ow-pimg, .sv-ow-pm, .sv-ow-pn { display: none; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet > image { display: none; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-pimg,
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-pn { display: inline; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-pn { display: none; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-pm { display: inline; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-pn { display: none; }
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-pm { display: inline; }
+}
+/* Phone: the rocky body becomes a large secondary arc near the left edge (centre 55px in, so its lit lower-left crescent
+   is visible), rising behind the distant ridge. */
+@media (max-aspect-ratio: 5/4) and (max-width: 719px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] {
+    --ow-ar: 120px;
+    --ow-ax: 55px;
+    --ow-ay: calc(var(--ow-h) + 392px);
+  }
+}
+/* 2. One continuous, feathered reading canvas replaces the per-paragraph pseudo-elements. It belongs to the existing
+      .front container (no wrapper, so grid gaps, measures and coordinates are untouched), starts below the heading row and
+      fades in/out both horizontally and vertically, so it has no card edge, border, shadow or new colour. */
+body:has(.mtn-scene[data-mode='home']) :is(.home-intro, .hermes-note, .home-build, .home-more, .front-projects, .front-contact, .front-newsletter)::before { content: none; }
+body:has(.mtn-scene[data-mode='home']) .front {
+  position: relative;
+  z-index: 0;
+}
+body:has(.mtn-scene[data-mode='home']) .front::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  top: 7.5rem;
+  bottom: 0;
+  /* Bounded by the real .front box (never wider than it, so no horizontal overflow); every feather lies inside it. */
+  left: 0;
+  right: 0;
+  /* Morning keeps robust protection; night is materially lighter so the dark terrain stays visible behind prose. */
+  background: light-dark(color-mix(in srgb, #e5e9ee 74%, transparent), color-mix(in srgb, var(--void) 30%, transparent));
+  /* Phone: full-width, so no narrow card edge crosses the page; only a broad (80px) top fade and a soft bottom fade. */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 80px, #000 calc(100% - 48px), transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 80px, #000 calc(100% - 48px), transparent 100%);
+}
+/* Tablet and desktop: a ~40px left feather and a broad right feather over the last 30% of the real .front box, so the
+   transition crosses the planet softly instead of ending in a visible vertical edge. */
+@media (min-width: 720px) {
+  body:has(.mtn-scene[data-mode='home']) .front::before {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 70%, transparent 100%), linear-gradient(180deg, transparent 0, #000 80px, #000 calc(100% - 48px), transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 70%, transparent 100%), linear-gradient(180deg, transparent 0, #000 80px, #000 calc(100% - 48px), transparent 100%);
+    mask-composite: intersect;
+  }
+}
+@media (forced-colors: active) {
+  body:has(.mtn-scene[data-mode='home']) .front::before { display: none; }
+}
+
+/* ---- Central companion (Home only; Son's "maybe another planet in the middle?" after the C7 captures). ----
+   One deeper-space body .sv-ow-c (the existing pre-shaded moon material, so the same light direction), clearly
+   subordinate (radius 48-60px) in the genuine open sky right of the heading glyphs and left of the primary and rocky
+   bodies. Unit source (centre 0,0, radius 1), placed with the same inverse projection as the other bodies; it is inside
+   .sv-ow-bodies, so it is hidden everywhere except Home and moves with the same sky-only pointer family. Its lowest image
+   edge sits about 20-23px below the top anchor plus its height (top 20px below the header, so it ends near header + 145-165px,
+   clear of the first prose at every width). It is shown
+   only from 1360px wide and 600px high at normal text: phones, tablets, short windows and enlarged text have no such sky
+   gap, so the optional fourth body is omitted there (C7's side-world composition is unchanged). */
+body.home-study .mtn-scene[data-world][data-mode='home'] {
+  --ow-cr: calc(clamp(48px, 4.2vw, 60px) * var(--ow-gk));
+  /* A distant companion immediately left of the giant primary body (not a viewport-centred dot): its right edge keeps
+     roughly 48px of clear sky from the primary's left limb, using the primary's own anchor and radius. */
+  --ow-cx: calc(var(--ow-gx) - var(--ow-gr) - var(--ow-cr) - 48px);
+  /* Top-anchored: the source image square is 2.087 radii tall (half 1.0435), so the image top sits 20px below the real
+     header at every radius. The earlier fixed-bottom rule assumed one prose Y and failed at 900px, where the prose starts
+     higher (about 203px). */
+  --ow-cy: calc(var(--ow-h) + 20px + var(--ow-cr) * 1.0435);
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-c {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-ow-c {
+  scale: calc(var(--ow-cr) / var(--ow-Sw));
+  translate: calc(800px + (var(--ow-cx) - 50vw) / var(--ow-Sw) * 1px)
+    calc(900px + (var(--ow-cy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-Sw) * 1px - var(--hs-ty));
+}
+body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-ow-c {
+  scale: calc(var(--ow-cr) / var(--ow-St));
+  translate: calc(200px + (var(--ow-cx) - 50vw) / var(--ow-St) * 1px)
+    calc(800px + (var(--ow-cy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-St) * 1px - var(--hs-ty));
+}
+/* Eligible only in the wide composition where rocky body A is still the left-gutter world (1360px and up). At 1359px and
+   narrower the original world already moves A into the upper-sky cluster beside the sun, so the optional fourth body would
+   make three round things in a narrow top strip (seen at 1280). */
+@media (max-width: 1359px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-c { display: none; }
+}
+@media (max-height: 599px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-c { display: none; }
+}
+body.home-study .mtn-scene[data-world][data-mode='home'][data-big] .sv-ow-c { display: none; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-home-sky .sv-ow-c { transform: none; }
+/* Pointer as a weak secondary star (Home only; mountains.js creates these two kinds of node lazily, only for a fine
+   mouse). The star is a 10px decorative four-ray drawing that follows the cursor; it has no footprint or hit target.
+   The relight layer is a small canvas inside a foreignObject aligned with a body image and screen-blended over it; it is
+   transparent unless the script marks it data-on. Both are invisible by default and removed by every cancel path. */
+body.home-study:has(.mtn-scene[data-mode='home']) .ow-star {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 40;
+}
+body.home-study:has(.mtn-scene[data-mode='home']) .ow-star[data-on] { opacity: 0.92; will-change: transform; }
+body.home-study:has(.mtn-scene[data-mode='home']) .ow-star svg { display: block; }
+body.home-study:has(.mtn-scene[data-mode='home']) .ow-star path { fill: light-dark(#cf9230, #cfe0ff); }
+body.home-study:has(.mtn-scene[data-mode='home']) .ow-star circle { fill: light-dark(#fffaf0, #ffffff); }
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-relight { pointer-events: none; mix-blend-mode: screen; opacity: 0; }
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-relight[data-on] { opacity: 1; }
+@media (forced-colors: active) { .ow-star { display: none; } }
+
+/* 3. Inheritance guard. Older planet rules (the tall-desktop scale 1.03 / translate(-140px, 85px), the crescent mask and
+      opacity) select every descendant image of .sv-hs-planet, so they would also hit the pre-shaded images nested in
+      .sv-ow-pimg after that group has been projected. Reset them there; the single projection stays on the group. */
+body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet > .sv-ow-pimg > image {
+  /* Explicit identities. The values go through var() fallbacks so a CSS optimiser cannot fold them away as initial values,
+     and !important lets them beat the older, equally specific individual-property rules on the nested images. */
+  scale: var(--ow-identity-scale, 1) !important;
+  translate: var(--ow-identity-shift, 0px) var(--ow-identity-shift, 0px) !important;
+  rotate: var(--ow-identity-turn, 0deg) !important;
+  transform: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+  opacity: 1;
+}

@@ -152,9 +152,28 @@ test.describe('shared scene', () => {
 });
 
 test.describe('mist pass', () => {
-  test('first pass starts promptly, moves, then ends finite', async ({ page }) => {
-    const errors = watchErrors(page);
+  // Home is static since the accepted clear-sky contract (no entrance, no arrival or greeting mist, scene progress 0).
+  // The original finite arrival/greeting mist contract is retained on the INDEX route `/work`, which keeps it.
+  test('Home is static on load and for hello: no entrance, no mist pass, no rim trace', async ({ page }) => {
     await page.goto('/');
+    const scene = page.locator('.mtn-scene');
+    await expect(scene).toHaveAttribute('data-mode', 'home');
+    await expect(scene).toHaveAttribute('data-arrival', 'static');
+    await expect(scene).not.toHaveAttribute('data-intro', /.*/);
+    await page.waitForTimeout(1_500);
+    await expect(mist(page)).toHaveAttribute('data-passes', '0');
+    await expect(mist(page)).not.toHaveAttribute('data-run', /.*/);
+    expect(await mist(page).evaluate((el) => getComputedStyle(el).display)).toBe('none');
+    await page.locator('.companion').evaluate((el) => (el as HTMLElement).click());
+    await page.waitForTimeout(500);
+    await expect(mist(page)).toHaveAttribute('data-passes', '0');
+    await expect(page.locator('.mtn-rim[pathLength]')).toHaveCount(0);
+    await expect(page.locator('.companion')).toHaveAttribute('data-perch', 'header');
+  });
+
+  test('first pass starts promptly, moves, then ends finite (index route /work)', async ({ page }) => {
+    const errors = watchErrors(page);
+    await page.goto('/work');
     await expect(mist(page)).toHaveAttribute('data-state', 'idle');
     const t0 = Date.now();
     await expect(mist(page)).toHaveAttribute('data-run', '', { timeout: 3_000 });
@@ -172,9 +191,9 @@ test.describe('mist pass', () => {
     expect(errors).toEqual([]);
   });
 
-  test('completed arrival remains idle beyond the old interval (controlled CSS finish, JS clock absence)', async ({ page }) => {
+  test('completed arrival remains idle beyond the old interval (controlled CSS finish, JS clock absence; index route /work)', async ({ page }) => {
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await finishArrival(page);
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
     await finishMist(page);
@@ -197,11 +216,11 @@ test.describe('mist pass', () => {
     expect(await ribbon(page).evaluate(el => el.getAnimations().length)).toBe(0);
   });
 
-  test('scrolling interrupts an active pass', async ({ page }) => {
+  test('scrolling interrupts an active pass (index route /work)', async ({ page }) => {
     // Controlled admission: the genuine owned entrance is completed by the proven helper (clock installed BEFORE
     // navigation), which yields an actual running mist pass; the real-time start/move/end case above stays natural.
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await finishArrival(page);
     await expect(mist(page)).toHaveAttribute('data-state', 'running', { timeout: 3_000 }); // original explicit 3000ms admission
     await page.evaluate(() => scrollTo(0, 400));
@@ -210,9 +229,9 @@ test.describe('mist pass', () => {
     expect((await ribbonStyle(page)).opacity).toBe(0);
   });
 
-  test('hidden tab cancels and does not replay in a burst', async ({ page }) => {
+  test('hidden tab cancels and does not replay in a burst (index route /work)', async ({ page }) => {
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await finishArrival(page);
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
     await page.evaluate(() => {
@@ -228,8 +247,8 @@ test.describe('mist pass', () => {
 test.describe('pause control', () => {
   const status = (page: Page) => page.locator('#atmosphere-status');
 
-  test('native click while the pass is active pauses at once, with a described state', async ({ page }) => {
-    await page.goto('/');
+  test('native click while the pass is active pauses at once, with a described state (index route /work)', async ({ page }) => {
+    await page.goto('/work');
     await expect(toggle(page)).toHaveText('Pause atmosphere');
     expect(await toggle(page).evaluate((el) => el.tagName)).toBe('BUTTON');
     await expect(toggle(page)).toHaveAttribute('aria-describedby', 'atmosphere-status');
@@ -273,9 +292,9 @@ test.describe('pause control', () => {
     await expect(mist(page)).toHaveAttribute('data-passes', '0');
   });
 
-  test('resume and returning to top align scenery without queuing a missed pass', async ({ page }) => {
+  test('resume and returning to top align scenery without queuing a missed pass (index route /work)', async ({ page }) => {
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await finishArrival(page); // controlled admission; natural arrival timing is tested separately
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
     await toggle(page).evaluate((el) => (el as HTMLButtonElement).click());
@@ -294,9 +313,9 @@ test.describe('pause control', () => {
     await expect(mist(page)).toHaveAttribute('data-passes', '1');
   });
 
-  test('simulated bfcache restore queues no new pass (pagehide/pageshow events, not a native bfcache)', async ({ page }) => {
+  test('simulated bfcache restore queues no new pass (pagehide/pageshow events, not a native bfcache; index route /work)', async ({ page }) => {
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await finishArrival(page); // controlled admission; natural arrival timing is tested separately
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
     await page.evaluate(() => {
@@ -312,9 +331,9 @@ test.describe('pause control', () => {
     await expect(mist(page)).toHaveAttribute('data-passes', '1');
   });
 
-  test('repeated native scroll events do not arm an idle recurrence', async ({ page }) => {
+  test('repeated native scroll events do not arm an idle recurrence (index route /work)', async ({ page }) => {
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await finishArrival(page); // controlled admission; natural arrival timing is tested separately
     await finishMist(page); // actual CSS completion; JS time cannot finish it
     await expect(mist(page)).toHaveAttribute('data-state', 'idle');
@@ -366,8 +385,8 @@ test.describe('reduced motion, noJS, forced colours', () => {
     await context.close();
   });
 
-  test('live reduced-motion change cancels the pass', async ({ page }) => {
-    await page.goto('/');
+  test('live reduced-motion change cancels the pass (index route /work)', async ({ page }) => {
+    await page.goto('/work');
     await expect(mist(page)).toHaveAttribute('data-state', 'running', { timeout: 3_000 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(mist(page)).toHaveAttribute('data-state', 'idle');

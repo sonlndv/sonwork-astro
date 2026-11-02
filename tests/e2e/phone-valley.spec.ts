@@ -91,10 +91,11 @@ test('at 720px and wider the opening keeps its default geometry', async ({ page 
 test.describe('valley paint in both themes', () => {
   // The old dark stops, kept here only as the "before" yardstick for the lift.
   const before = { far: [28, 41, 70], mid: [22, 35, 63], near: [16, 28, 56] };
-  // Approved sitewide light stops at 375x812: fixed RGB channels from #d6dde7, #bcc7d6 and #9aa9be.
-  const lightStops = { far: [214, 221, 231], mid: [188, 199, 214], near: [154, 169, 190] };
+  // Home's accepted light terrain stops (DESIGN.md "Terrain material"): fixed RGB channels from #cbd7e4, #a8b9ce and #8197b0.
+  // (The previous sitewide light stops #d6dde7/#bcc7d6/#9aa9be remain asserted for the retained index route in light-valley.spec.ts.)
+  const lightStops = { far: [203, 215, 228], mid: [168, 185, 206], near: [129, 151, 176] };
 
-  test('dark stops stay lifted, R8 light stops resolve through the real manual toggle', async ({ page }) => {
+  test('dark stops stay lifted, accepted Home light stops resolve through the real manual toggle', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await seed(page, 'dark');
     await page.goto('/');
@@ -200,11 +201,12 @@ test.describe('valley paint in both themes', () => {
   }
 
   for (const theme of ['light', 'dark'] as const) {
-    test(`${theme}: controlled sample of the real hello re-trace is partway drawn with the rest stroke unchanged`, async ({ page }) => {
+    test(`${theme}: controlled sample of the real hello re-trace is partway drawn with the rest stroke unchanged (index route /work)`, async ({ page }) => {
+      // Home no longer re-traces or has an entrance (static Home); the original finite re-trace stays on the index route.
       // Controlled admission of the original entrance, then its actual mist, before sampling hello.
       await page.setViewportSize({ width: 375, height: 812 });
       await seed(page, theme);
-      await page.goto('/');
+      await page.goto('/work');
       await finishSampleArrival(page);
       await expect(page.locator('.mtn-mist')).toHaveAttribute('data-state', 'running');
       await page.locator('.mtn-mist-ribbon').evaluate(el => {
@@ -238,6 +240,27 @@ test.describe('valley paint in both themes', () => {
       expect(sample!.stroke).toBe(rest);
       await expect(page.locator('.mtn-scene')).not.toHaveAttribute('data-trace', /.*/, { timeout: 3_000 });
       expect(await page.locator('.mtn-rim[pathLength]').count()).toBe(0);
+      expect(await rim.evaluate((el) => getComputedStyle(el).stroke)).toBe(rest);
+    });
+  }
+
+  for (const theme of ['light', 'dark'] as const) {
+    test(`${theme}: Home hello answers with Mount alone: no entrance, mist or rim re-trace`, async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 812 });
+      await seed(page, theme);
+      await page.goto('/');
+      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-arrival', 'static');
+      await expect(page.locator('.mtn-scene')).not.toHaveAttribute('data-intro', /.*/);
+      const rim = page.locator('.mtn-far .mtn-rim:visible').first();
+      const rest = await rim.evaluate((el) => getComputedStyle(el).stroke);
+      await page.locator('.companion').evaluate((el) => (el as HTMLElement).click());
+      await expect(page.locator('.companion')).toHaveAttribute('data-greeting', 'true'); // Mount's own expression still plays
+      await page.waitForTimeout(500);
+      await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', '0');
+      await expect(page.locator('.mtn-mist')).not.toHaveAttribute('data-run', /.*/);
+      await expect(page.locator('.mtn-scene')).not.toHaveAttribute('data-trace', /.*/);
+      expect(await page.locator('.mtn-rim[pathLength]').count()).toBe(0);
+      expect(await rim.evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
       expect(await rim.evaluate((el) => getComputedStyle(el).stroke)).toBe(rest);
     });
   }

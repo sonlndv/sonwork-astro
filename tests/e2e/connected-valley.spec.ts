@@ -28,9 +28,11 @@ async function quietArrival(page: Page) {
 }
 
 test.describe('hello answered by the valley', () => {
-  test('hello starts one finite greeting pass at once, through the same controller', async ({ page }) => {
+  // Hello and the arrival mist belong to the index route `/work`: Home is static (no arrival or greeting mist), which
+  // atmosphere.spec.ts asserts for Home itself. Mount's own hello expression still runs everywhere.
+  test('hello starts one finite greeting pass at once, through the same controller (index route /work)', async ({ page }) => {
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await quietArrival(page);
     await expect(mist(page)).toHaveAttribute('data-state', 'idle');
     await nativeClick(mount(page));
@@ -60,9 +62,9 @@ test.describe('hello answered by the valley', () => {
     await expect(mist(page)).toHaveAttribute('data-source', 'greeting');
   });
 
-  test('keyboard hello gives the same outcome', async ({ page }) => {
+  test('keyboard hello gives the same outcome (index route /work)', async ({ page }) => {
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await quietArrival(page);
     await mount(page).focus();
     await page.keyboard.press('Enter');
@@ -75,16 +77,16 @@ test.describe('hello answered by the valley', () => {
   test('touch hello gives the same outcome', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'touch input needs the mobile project');
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await quietArrival(page);
     await mount(page).tap();
     await expect(mist(page)).toHaveAttribute('data-source', 'greeting');
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
   });
 
-  test('Pause atmosphere stops the greeting pass immediately', async ({ page }) => {
+  test('Pause atmosphere stops the greeting pass immediately (index route /work)', async ({ page }) => {
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/work');
     await quietArrival(page);
     await nativeClick(mount(page));
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
@@ -149,9 +151,11 @@ test.describe('hello answered by the valley', () => {
 test.describe('same valley navigation', () => {
   const scene = (page: Page) => page.locator('.mtn-scene');
 
-  test('direct entry draws; internal link skips only the repeated draw; reload draws again', async ({ page }) => {
+  // Home is static (no entrance); the draw semantics are asserted on the index route /work it links to.
+  test('Home enters static; internal link skips the draw on an index route; reload draws again', async ({ page }) => {
     await page.goto('/');
-    await expect(scene(page)).toHaveAttribute('data-arrival', 'first');
+    await expect(scene(page)).toHaveAttribute('data-arrival', 'static');
+    await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
     await page.locator('.site-nav a[href="/work"]').click();
     await page.waitForURL('**/work');
     await expect(scene(page)).toHaveAttribute('data-arrival', 'continuous');
@@ -162,8 +166,10 @@ test.describe('same valley navigation', () => {
     await expect(scene(page)).toHaveAttribute('data-arrival', 'first');
   });
 
-  test('external referrer and fresh entry still draw', async ({ page }) => {
+  test('external referrer and fresh entry still draw on an index route; Home stays static', async ({ page }) => {
     await page.goto('/', { referer: 'https://example.com/somewhere' });
+    await expect(scene(page)).toHaveAttribute('data-arrival', 'static');
+    await page.goto('/work', { referer: 'https://example.com/somewhere' });
     await expect(scene(page)).toHaveAttribute('data-arrival', 'first');
     await page.goto('/work', { referer: 'not a url' });
     await expect(scene(page)).toHaveAttribute('data-arrival', 'first');
