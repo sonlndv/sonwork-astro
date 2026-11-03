@@ -13,6 +13,12 @@ for (const path of builtPages()) {
       await expect(page.locator('main')).toHaveCount(1);
     });
 
+    test('carries the one same-site prefetch rule', async ({ page }) => {
+      await page.goto(path);
+      const rules = await page.locator('head script[type="speculationrules"]').evaluateAll(scripts => scripts.map(s => JSON.parse(s.textContent ?? '')));
+      expect(rules).toEqual([{ prefetch: [{ where: { href_matches: '/*' }, eagerness: 'moderate' }] }]);
+    });
+
     test('marks its section in the main nav', async ({ page }) => {
       await page.goto(path);
       const nav = page.getByRole('navigation', { name: 'Main' });

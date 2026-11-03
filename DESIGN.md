@@ -110,6 +110,7 @@ This section supersedes, where they differ, the planet, sun and off-Home-planet 
 - **Tablet portrait Earth.** On tablet portrait (720-899px wide, aspect 5/4 or narrower), Earth's radius is 10px so the Moon stays clearly larger; its placement rule is unchanged.
 - **Neptune loads by theme (speed pass).** Pages other than Home load only the current theme's Neptune texture: an inline script sets it at low priority, so the decorative limb never competes with the text. No-JS gets a `<noscript>` copy of the planet under the far ridge.
 - **Follow-up (Son-approved 2026-11-03):** the accent moves from cyan to periwinkle (`oklch(0.8 0.11 254)`, light `oklch(0.36 0.12 258)`), the day mountains are 0.07 darker in OKLab lightness (dark unchanged; the planets keep their original grade), the no-JS planet copy is lifted above the stars in dark, and Lighthouse measures compressed pages, as Cloudflare serves them, with a 0.98 performance floor.
+- **Menu and prefetch (Son-approved 2026-11-03):** Subscribe is a plain nav item while signup is off, the empty Writing page links to Build, and every page carries one same-site speculation-rules prefetch (moderate: pointer rest or press; Chromium only, other browsers ignore it).
 
 Historical (superseded by the section above, kept for the record): the per-body daylight haze and chroma gains below (Neptune 22% and 2.4, Earth 16% and 3.6, Moon and Saturn 30% and 1); the masked thin crescent of the older `blue-planet.webp` on every non-Home route at night and no planet by day; and the day sun's feathered halo and radial-gradient disc, including the sun poses opposite the key light (top right on tall and short-landscape windows).
 
@@ -221,7 +222,7 @@ Square corners throughout (radius 0): buttons, inputs, nav cells, tags, labels, 
 - **Focus:** the border turns lume, with the outline inset.
 
 ### Navigation
-- **Style:** ruled cells in Space Mono 0.6875rem uppercase, ink-2. Subscribe is always lume. The current page shows ink text with a 2px lume underline.
+- **Style:** ruled cells in Space Mono 0.6875rem uppercase, ink-2. Subscribe is lume only while signup is open (`signupOpen` in `src/lib/signup.ts`, the same flag that wires the form); release builds keep signup off, so there it is ink-2 like the other items. The current page shows ink text with a 2px lume underline.
 - **Mobile:** a 4-cell grid under the bar, every cell at least 44px.
 - **Structure:** the wordmark is the Home link and sits inside the Main nav, so every page, Home included, marks itself with `aria-current`. The theme toggle sits outside the nav, top right.
 

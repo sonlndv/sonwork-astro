@@ -13,6 +13,7 @@ import homeLandscapeUrl from '../../public/mountains/mountains.js?worker&url';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import MountCompanion from '../components/MountCompanion.astro';
 import MountainScene from '../components/MountainScene.astro';
+import { signupOpen } from '../lib/signup';
 
 interface Props {
   title: string;
@@ -35,13 +36,17 @@ const canonical = new URL(path, Astro.site);
 // Shared world: every route carries the same mist ground, header scrim and browser-chrome tone.
 const lightTone = '#dfe4ea';
 
-// Home is the wordmark; the strip holds the four sections.
+// Home is the wordmark; the strip holds the four sections. Subscribe carries the accent only while signup is open.
 const nav = [
-  { href: '/work', label: 'Build' },
-  { href: '/writing', label: 'Writing' },
-  { href: '/about', label: 'About' },
-  { href: '/subscribe', label: 'Subscribe' },
+  { href: '/work', label: 'Build', accent: false },
+  { href: '/writing', label: 'Writing', accent: false },
+  { href: '/about', label: 'About', accent: false },
+  { href: '/subscribe', label: 'Subscribe', accent: signupOpen },
 ];
+
+// Same-site prefetch (speculation rules): Chromium starts loading a page when the pointer rests on its link or on press.
+// Other browsers ignore it. It matches only this site's paths and runs no script.
+const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/*' }, eagerness: 'moderate' }] });
 
 const contact = [
   { href: 'mailto:son@sonwork.org', label: 'Email' },
@@ -124,6 +129,7 @@ function isCurrent(href: string): boolean {
       : <script is:inline src={homeLandscapeUrl} defer data-landscape-runtime="mountains"></script>}
     <!-- Atmosphere connects the existing Pause/hello policy; finite effects never schedule idle recurrence. -->
     <script is:inline src="/atmosphere.js" defer></script>
+    <script type="speculationrules" is:inline set:html={speculationRules}></script>
   </head>
   <body class="mountains home-study">
     <MountainScene />
@@ -137,7 +143,7 @@ function isCurrent(href: string): boolean {
           </div>
           <ul>
             {nav.map((item) => (
-              <li>
+              <li class={item.accent ? 'nav-accent' : undefined}>
                 <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
               </li>
             ))}

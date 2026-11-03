@@ -20,7 +20,11 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
         await expect(page.locator('.home-intro')).toContainText('Vietnam');
         await expect(page.locator('.front-projects h3')).toHaveText(['Trivia Hub', 'Keymarchy', 'Perfeat']);
       }
-      if (path === '/writing') await expect(page.locator('main a[href^="/writing/"]')).toHaveCount(0);
+      if (path === '/writing') {
+        await expect(page.locator('main a[href^="/writing/"]')).toHaveCount(0);
+        await expect(page.locator('main .empty')).toHaveText("No posts yet. Meanwhile, see what I've built.");
+        await expect(page.locator('main .empty a')).toHaveAttribute('href', '/work');
+      }
     }
     await context.close();
   });
