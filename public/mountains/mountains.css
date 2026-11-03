@@ -8,9 +8,9 @@ body.mountains {
 .mtn-scene {
   /* Day: far range pale and hazy, middle cooler, near deepest; shaded (right-hand) faces are firmer so the
      stable upper-left light reads. Near stays light enough behind prose. */
-  --mtn-c-far: light-dark(#c3d7ee, #26375d);
-  --mtn-c-mid: light-dark(#98b2d4, #1e2f53);
-  --mtn-c-near: light-dark(#6a85b2, #152549);
+  --mtn-c-far: light-dark(#adc0d7, #26375d);
+  --mtn-c-mid: light-dark(#839cbd, #1e2f53);
+  --mtn-c-near: light-dark(#56709c, #152549);
   --mtn-plane: light-dark(rgba(40, 62, 108, 0.38), rgba(2, 5, 14, 0.4));
   --mtn-rim: light-dark(rgba(40, 64, 130, 0.4), rgba(127, 156, 245, 0.38));
   position: fixed;
@@ -371,9 +371,9 @@ body.home-study .mtn-scene[data-world] {
   --sv-tail: 0.06;
   --sv-depth: clamp(0, calc(var(--sv-scene) * var(--sv-max) + var(--sv-settle) * var(--sv-tail)), 1);
   /* Day: near-neutral mist and slate instead of icy blue; night keeps its navy stops. */
-  --mtn-c-far: light-dark(#d6dde7, #26375d);
-  --mtn-c-mid: light-dark(#bcc7d6, #1e2f53);
-  --mtn-c-near: light-dark(#9aa9be, #152549);
+  --mtn-c-far: light-dark(#bfc6d0, #26375d);
+  --mtn-c-mid: light-dark(#a6b1bf, #1e2f53);
+  --mtn-c-near: light-dark(#8593a8, #152549);
   --mtn-plane: light-dark(rgba(46, 60, 86, 0.2), rgba(2, 5, 14, 0.4));
   --mtn-rim: light-dark(rgba(52, 66, 96, 0.3), rgba(140, 168, 250, 0.42));
   --sv-haze: light-dark(rgba(236, 240, 245, 0.3), rgba(103, 127, 171, 0.07));
@@ -523,9 +523,9 @@ body.home-study .mtn-scene[data-world] .sv-hs-cloud-near {
 @media (min-width: 900px) {
   body.home-study .mtn-scene[data-world] {
     --sv-max: 0.6;
-    --mtn-c-far: light-dark(#d0d9e6, #2c4068);
-    --mtn-c-mid: light-dark(#b4c0d1, #243a64);
-    --mtn-c-near: light-dark(#8f9fb6, #1c3060);
+    --mtn-c-far: light-dark(#bac2cf, #2c4068);
+    --mtn-c-mid: light-dark(#9eaabb, #243a64);
+    --mtn-c-near: light-dark(#7a8aa0, #1c3060);
     --mtn-rim: light-dark(rgba(52, 66, 96, 0.36), rgba(150, 178, 255, 0.5));
     --mtn-veil-edge: light-dark(rgba(0, 0, 0, 0.9), #000);
     --mtn-veil-shoulder: light-dark(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.62));
@@ -593,8 +593,8 @@ body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun {
   }
   .mtn-scene .mtn-wide { --hs-ty: calc((116px - (1.34 * 100svh + 48px - max(56.25vw, 100svh + 96px))) * 0.9 + 128px + 100px); }
   body.home-study .mtn-scene[data-world] {
-    --mtn-c-mid: light-dark(#acb9cc, #243a64);
-    --mtn-c-near: light-dark(#8697b0, #1c3060);
+    --mtn-c-mid: light-dark(#96a3b6, #243a64);
+    --mtn-c-near: light-dark(#71829a, #1c3060);
   }
 }
 

@@ -84,7 +84,9 @@ body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv
 /* No-script fallback (speed pass): inner pages load Neptune's texture from an inline script, so without script a <noscript> copy of
    the planet (a sky-less SVG, first in the far layer, under the real far SVG) takes the real far SVG's box. It sits in <noscript>,
    so the direct-child box rule above cannot match it; everything else (projection, exposure, theme) already selects by .mtn-wide /
-   .mtn-tall and the group structure, which the copy shares. */
+   .mtn-tall and the group structure, which the copy shares. In dark (the OS preference; no toggle without script) the inline
+   <style> in the noscript block lifts the copy above the far sky SVG (z-index: 1), so the stars stay behind the planet as
+   before; the sky mask still keeps the ridges in front. In light it stays underneath. */
 .mtn-scene > .mtn-layer > noscript > .mtn-ridge.sv-np-fallback {
   position: absolute;
   inset: 312px auto auto 0;

@@ -9,7 +9,7 @@ colors:
   ink: "oklch(0.965 0.006 250)"
   ink-2: "oklch(0.88 0.014 250)"
   ink-3: "oklch(0.66 0.02 252)"
-  lume: "oklch(0.8 0.135 222)"
+  lume: "oklch(0.8 0.11 254)"
   human: "oklch(0.82 0.095 55)"
   light-void: "oklch(0.985 0.004 250)"
   light-ground: "oklch(0.962 0.008 250)"
@@ -18,7 +18,7 @@ colors:
   light-ink: "oklch(0.19 0.03 256)"
   light-ink-2: "oklch(0.32 0.028 254)"
   light-ink-3: "oklch(0.33 0.024 252)"
-  light-lume: "oklch(0.33 0.13 236)"
+  light-lume: "oklch(0.36 0.12 258)"
   light-human: "oklch(0.5 0.13 48)"
 typography:
   display:
@@ -109,6 +109,7 @@ This section supersedes, where they differ, the planet, sun and off-Home-planet 
 - **Day Earth, no haze.** The day Earth takes no far-tier haze (`earth.themes.light = { haze: 0 }` in `scripts/grade-planets.mjs`, beside the night override), so the one upper-left light reads on it by day.
 - **Tablet portrait Earth.** On tablet portrait (720-899px wide, aspect 5/4 or narrower), Earth's radius is 10px so the Moon stays clearly larger; its placement rule is unchanged.
 - **Neptune loads by theme (speed pass).** Pages other than Home load only the current theme's Neptune texture: an inline script sets it at low priority, so the decorative limb never competes with the text. No-JS gets a `<noscript>` copy of the planet under the far ridge.
+- **Follow-up (Son-approved 2026-11-03):** the accent moves from cyan to periwinkle (`oklch(0.8 0.11 254)`, light `oklch(0.36 0.12 258)`), the day mountains are 0.07 darker in OKLab lightness (dark unchanged; the planets keep their original grade), the no-JS planet copy is lifted above the stars in dark, and Lighthouse measures compressed pages, as Cloudflare serves them, with a 0.98 performance floor.
 
 Historical (superseded by the section above, kept for the record): the per-body daylight haze and chroma gains below (Neptune 22% and 2.4, Earth 16% and 3.6, Moon and Saturn 30% and 1); the masked thin crescent of the older `blue-planet.webp` on every non-Home route at night and no planet by day; and the day sun's feathered halo and radial-gradient disc, including the sun poses opposite the key light (top right on tall and short-landscape windows).
 
@@ -131,7 +132,7 @@ Son has accepted the current look (the living-valley scene with its connected fi
 
 **Creative North Star: "The Square Typewriter"**
 
-Sonwork is set like a ruled spec sheet typed on a square typewriter: one slab-leaning monospace for every heading and label, a quiet sans for reading, hairline rules for structure, and a dark navy ground with a single cyan accent. The style comes from Son's direction on 2026-10-18: tech-futuristic, straightforward, minimal. The colour tokens come from the previous sonwork.org; the layouts are new.
+Sonwork is set like a ruled spec sheet typed on a square typewriter: one slab-leaning monospace for every heading and label, a quiet sans for reading, hairline rules for structure, and a dark navy ground with a single periwinkle accent. The style comes from Son's direction on 2026-10-18: tech-futuristic, straightforward, minimal. The colour tokens come from the previous sonwork.org; the layouts are new.
 
 Density is moderate. Content sits in ruled rows with tabular numbering and two-column fact tables, not in cards. Nothing floats: there are no shadows, no glows, no gradients and no rounded corners. Depth comes from rules and from a slightly raised field (`ground`) behind the one form.
 
@@ -139,15 +140,15 @@ Density is moderate. Content sits in ruled rows with tabular numbering and two-c
 - One monospace voice (Space Mono) for display, headings, nav and meta; Geist only for reading text.
 - Hairline rules in two weights of tone (`line`, `line-2`) carry all structure.
 - Square corners everywhere (0).
-- Cyan lume is the only colour that means "act" or "go".
+- Periwinkle lume is the only colour that means "act" or "go".
 - Dark by default, with a light theme that mirrors every role; no flash on load.
 
 ## Colors
 
-A restrained palette: navy neutrals plus one cyan accent, with one warm signal colour kept for status.
+A restrained palette: navy neutrals plus one periwinkle accent, with one warm signal colour kept for status.
 
 ### Primary
-- **Lume Cyan** (`lume`, light theme `light-lume`): links, the Subscribe button, the active nav underline, focus rings, status labels. Nothing decorative uses it.
+- **Lume Periwinkle** (`lume`, light theme `light-lume`): links, the Subscribe button, the active nav underline, focus rings, status labels. Nothing decorative uses it.
 
 ### Secondary
 - **Human Amber** (`human`, light theme `light-human`): honest status only. That means the Draft label and the "Signup opens soon." note. Never used for decoration or emphasis.
@@ -162,7 +163,7 @@ A restrained palette: navy neutrals plus one cyan accent, with one warm signal c
 - **Ink Quiet** (`ink-3`): labels, dates, row indices, placeholders.
 
 ### Named Rules
-**The One Signal Rule.** Lume marks what can be acted on, nothing else. If an element is cyan, it is a link, a button, a focus ring or a status the visitor can rely on.
+**The One Signal Rule.** Lume marks what can be acted on, nothing else. If an element is periwinkle, it is a link, a button, a focus ring or a status the visitor can rely on.
 
 **The Honest Amber Rule.** Amber appears only where the site says something is not finished yet (draft, signup not open).
 
@@ -239,7 +240,7 @@ A 44px square, 1px rule border. It shows a sun in dark and a moon in light, and 
 - **Do** separate content with 1px rules (`line` for structure, `line-2` between rows).
 - **Do** set every label, date and count in Space Mono uppercase at 0.6875rem with 0.08em tracking and tabular figures.
 - **Do** keep every touch target at 44px or more (nav cells, toggle, inputs, footer links, row overlays).
-- **Do** put motion under `prefers-reduced-motion: no-preference` and start from a visible default. The About introduction is static. Rows arrive once on intersection (transform only, 220ms, 4px, stagger capped at 120ms), retaining full contrast throughout and a visible default. Interactive row focus/hover sweeps a cyan rule and shifts indices/arrows (160ms). Theme changes crossfade for 160ms when supported; buttons depress 1px immediately and return in 90ms. Only transform and opacity animate; reduced motion and JS-off retain the complete static page. Theme state and subscription messages/API behavior are unchanged. For stable first-paint geometry, regular Space Mono is additionally preloaded, and article pages preload the existing Geist 600 face; these are the explicitly approved exceptions in the Preload Pair Rule.
+- **Do** put motion under `prefers-reduced-motion: no-preference` and start from a visible default. The About introduction is static. Rows arrive once on intersection (transform only, 220ms, 4px, stagger capped at 120ms), retaining full contrast throughout and a visible default. Interactive row focus/hover sweeps a periwinkle rule and shifts indices/arrows (160ms). Theme changes crossfade for 160ms when supported; buttons depress 1px immediately and return in 90ms. Only transform and opacity animate; reduced motion and JS-off retain the complete static page. Theme state and subscription messages/API behavior are unchanged. For stable first-paint geometry, regular Space Mono is additionally preloaded, and article pages preload the existing Geist 600 face; these are the explicitly approved exceptions in the Preload Pair Rule.
 
 ### Don't:
 - **Don't** round corners, add shadows, glows or decorative gradients, or put content in shadowed cards (Son, 2026-10-18).
@@ -471,7 +472,7 @@ Authored only; not rendered, tested or reviewed by the author. No Safari, device
 
 - **Aurora.** The first impeccable pass left the sky too faint. Phone fold and ray gradient opacities are raised (main stop about .9, from .5), and the two folds are taller so they sit below the 98px header. Barcode rays are cut to a few uneven ones. Soft masked edges, skyline masks and stars are unchanged. The wide sky gets a smaller lift.
 - **Header.** Scrim is about .93 at the top and .90 at the bottom, with a 12px feather at .5 opacity. There is no blur and no mask or clip on `main`.
-- **Day.** Near and middle ridges are bluer and deeper (`#6a85b2`, `#98b2d4`) with stronger shaded planes. Local haze is lower (.5 to .22) and the scene opacity is .94, so the near faces read behind the footer. The feather and the upper-left light are unchanged.
+- **Day.** Near and middle ridges are bluer and deeper (`#56709c`, `#839cbd`; deepened 2026-11-03) with stronger shaded planes. Local haze is lower (.5 to .22) and the scene opacity is .94, so the near faces read behind the footer. The feather and the upper-left light are unchanged.
 - **Retained.** Pause cancels sky transitions, the reduced-motion change clears the camera, and the `100svh`/`100lvh` geometry is unchanged.
 
 ## Home-study amendment: one landscape that opens once, then lets you read (private T1, 2026-10-30)
@@ -521,7 +522,7 @@ Son explicitly approved execution of `.omh/plans/sonwork-otherworld-refinement-p
 - **One sky.** Preserve the original blue-planet raster and partial upper-left-lit limb. Keep its geometry/phase through a theme switch. Home daylight reveals an atmosphere-washed version of the same limb instead of removing the planetary landmark. Day body fill is `#d4dfe8`, not the night backing `#050912`; initial day image opacity is .32 versus .92 at night. Clouds/terrain retain foreground occlusion, and no star may show through a sphere. No new motion or live astronomy claim.
 - **Scale.** Add one subordinate muted rocky companion and one tiny distant body, not equal blue copies. Initial wide SVG anchors are companion `(1050,70)`, radius 18, distant `(905,-94)`, radius 4; portrait anchors are `(286,-68)`, radius 8, and `(235,-102)`, radius 2.2. Their shared sky wrapper follows the existing per-variant sky placement and skyline mask. These are an initial rendered-study target, not a promise that an unrendered pose clears all glyphs. New art is hidden outside Home in every theme/fallback.
 - **Light.** The primary light comes from the upper left, consistent with the original raster terminator and shaded mountain faces. For ordinary portrait Home only, shift the incumbent sun left/up by `(-255,-80)` SVG units so it no longer lights the system from the opposite side. Keep the sky bright in day and the starfield night-only. Companion material starts with night lit `#c8d1db`, shadow `#172137`, and day lit `#d4dbe0`, shadow `#a6b5c4`; no halos, rings, orbit diagrams or luminous UI.
-- **Terrain material.** Home day far/middle/near roles start at `#cbd7e4` / `#a8b9ce` / `#8197b0`, night at `#34496b` / `#253c5b` / `#182d49`; the plane is day `rgba(39,60,87,.23)` and night `rgba(2,5,14,.45)`, rim day `rgba(75,97,126,.32)` and night `rgba(154,181,211,.45)`. Preserve all original defining paths and masks. Use the existing faces/gradients for broad directional relief; no high-frequency texture, new mountain pack or filter. All UI/text/action tokens stay unchanged.
+- **Terrain material.** Home day far/middle/near roles are `#b5c0cd` / `#92a3b8` / `#6c829a` (deepened 2026-11-03; they started at `#cbd7e4` / `#a8b9ce` / `#8197b0`), night at `#34496b` / `#253c5b` / `#182d49`; the plane is day `rgba(39,60,87,.23)` and night `rgba(2,5,14,.45)`, rim day `rgba(75,97,126,.32)` and night `rgba(154,181,211,.45)`. Preserve all original defining paths and masks. Use the existing faces/gradients for broad directional relief; no high-frequency texture, new mountain pack or filter. All UI/text/action tokens stay unchanged.
 - **Portrait composition.** At widths below 720px in portrait, keep the far plane/canvas stable. The initial hero study may reduce the original planet image AND opaque body together to .78 around their common centre and translate down 24 SVG units, leaving it at the right edge rather than over the name. Initial middle pose is `38svh - 44svh*depth`, near `40svh - 54svh*depth`; all other aspects retain their incumbent outer geometry. Compact content-height opening, original font/copy/layout, safe areas and full first project target remain mandatory. Do not manufacture sky with page height, smaller text or hidden content.
 - **Ownership and limits.** Reuse the existing event-driven progress/eligibility controller unchanged; added JS is 0 bytes. Initial total raw added SVG+CSS target is at most 12 KiB. Pause/reduced/no-JS/forced/hidden behavior remains complete and native scrolling stays native. Parent owns first renders, focused checks, contrast and natural-time phone/desktop recordings; the author returns complete source before optional prose. No commit, push, merge, public preview or deployment. Source and visual acceptance remain pending until actually observed.
 

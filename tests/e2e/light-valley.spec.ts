@@ -21,56 +21,56 @@ const test = base.extend({
 test.use({ colorScheme: 'light', javaScriptEnabled: true, reducedMotion: 'no-preference', forcedColors: 'none' });
 
 // Approved sitewide world (independent literals from the v7 contract, not read back from production):
-// phone/narrow light #d6dde7/#bcc7d6/#9aa9be, plane rgba(46,60,86,.2), rim rgba(52,66,96,.3);
+// phone/narrow light #bfc6d0/#a6b1bf/#8593a8 (deepened 2026-11-03), plane rgba(46,60,86,.2), rim rgba(52,66,96,.3);
 // phone dark #26375d/#1e2f53/#152549, plane rgba(2,5,14,.4), rim rgba(140,168,250,.42);
-// desktop (>=900px) light #d0d9e6/#b4c0d1/#8f9fb6 (rim .36), dark #2c4068/#243a64/#1c3060 (rim rgba(150,178,255,.5)).
+// desktop (>=900px) light #bac2cf/#9eaabb/#7a8aa0 (deepened 2026-11-03; rim .36), dark #2c4068/#243a64/#1c3060 (rim rgba(150,178,255,.5)).
 const paintByWidth = {
   narrow: {
     light: {
-      far: 'rgb(214, 221, 231)', mid: 'rgb(188, 199, 214)', near: 'rgb(154, 169, 190)',
-      plane: 'rgba(46, 60, 86, 0.2)', rim: 'rgba(52, 66, 96, 0.3)', lume: 'oklch(0.33 0.13 236)',
+      far: 'rgb(191, 198, 208)', mid: 'rgb(166, 177, 191)', near: 'rgb(133, 147, 168)',
+      plane: 'rgba(46, 60, 86, 0.2)', rim: 'rgba(52, 66, 96, 0.3)', lume: 'oklch(0.36 0.12 258)',
     },
     dark: {
       far: 'rgb(38, 55, 93)', mid: 'rgb(30, 47, 83)', near: 'rgb(21, 37, 73)',
-      plane: 'rgba(2, 5, 14, 0.4)', rim: 'rgba(140, 168, 250, 0.42)', lume: 'oklch(0.8 0.135 222)',
+      plane: 'rgba(2, 5, 14, 0.4)', rim: 'rgba(140, 168, 250, 0.42)', lume: 'oklch(0.8 0.11 254)',
     },
   },
   wide: {
     light: {
-      far: 'rgb(208, 217, 230)', mid: 'rgb(180, 192, 209)', near: 'rgb(143, 159, 182)',
-      plane: 'rgba(46, 60, 86, 0.2)', rim: 'rgba(52, 66, 96, 0.36)', lume: 'oklch(0.33 0.13 236)',
+      far: 'rgb(186, 194, 207)', mid: 'rgb(158, 170, 187)', near: 'rgb(122, 138, 160)',
+      plane: 'rgba(46, 60, 86, 0.2)', rim: 'rgba(52, 66, 96, 0.36)', lume: 'oklch(0.36 0.12 258)',
     },
     dark: {
       far: 'rgb(44, 64, 104)', mid: 'rgb(36, 58, 100)', near: 'rgb(28, 48, 96)',
-      plane: 'rgba(2, 5, 14, 0.4)', rim: 'rgba(150, 178, 255, 0.5)', lume: 'oklch(0.8 0.135 222)',
+      plane: 'rgba(2, 5, 14, 0.4)', rim: 'rgba(150, 178, 255, 0.5)', lume: 'oklch(0.8 0.11 254)',
     },
   },
 } as const;
 
 // Home's own accepted celestial-world terrain palette (one palette at every width), independent literals from the
 // authored contract (DESIGN.md "Terrain material", with the tuned plane/rim alphas of the accepted C15 stylesheet):
-// day far/mid/near #cbd7e4/#a8b9ce/#8197b0, plane rgba(39,60,87,.28), rim rgba(75,97,126,.38);
+// day far/mid/near #b5c0cd/#92a3b8/#6c829a (deepened 2026-11-03), plane rgba(39,60,87,.28), rim rgba(75,97,126,.38);
 // night #34496b/#253c5b/#182d49, plane rgba(2,5,14,.55), rim rgba(154,181,211,.55). Index/calm routes keep paintByWidth.
 const homePaint = {
   light: {
-    far: 'rgb(203, 215, 228)', mid: 'rgb(168, 185, 206)', near: 'rgb(129, 151, 176)',
-    plane: 'rgba(39, 60, 87, 0.28)', rim: 'rgba(75, 97, 126, 0.38)', lume: 'oklch(0.33 0.13 236)',
+    far: 'rgb(181, 192, 205)', mid: 'rgb(146, 163, 184)', near: 'rgb(108, 130, 154)',
+    plane: 'rgba(39, 60, 87, 0.28)', rim: 'rgba(75, 97, 126, 0.38)', lume: 'oklch(0.36 0.12 258)',
   },
   dark: {
     far: 'rgb(52, 73, 107)', mid: 'rgb(37, 60, 91)', near: 'rgb(24, 45, 73)',
-    plane: 'rgba(2, 5, 14, 0.55)', rim: 'rgba(154, 181, 211, 0.55)', lume: 'oklch(0.8 0.135 222)',
+    plane: 'rgba(2, 5, 14, 0.55)', rim: 'rgba(154, 181, 211, 0.55)', lume: 'oklch(0.8 0.11 254)',
   },
 } as const;
 
 async function expectPaint(page: Page, theme: 'light' | 'dark', route: 'home' | 'index' = 'home') {
   const view = page.viewportSize()!;
-  // Index/calm routes: tall desktops (>=900px and aspect <= 5/4) firm the day mid/near faces: #acb9cc/#8697b0.
+  // Index/calm routes: tall desktops (>=900px and aspect <= 5/4) firm the day mid/near faces: #96a3b6/#71829a (deepened 2026-11-03).
   const tallDesktop = view.width >= 900 && view.width / view.height <= 1.25;
   const base = paintByWidth[view.width >= 900 ? 'wide' : 'narrow'][theme];
   const expected = route === 'home'
     ? homePaint[theme]
     : tallDesktop && theme === 'light'
-      ? { ...base, mid: 'rgb(172, 185, 204)', near: 'rgb(134, 151, 176)' }
+      ? { ...base, mid: 'rgb(150, 163, 182)', near: 'rgb(113, 130, 154)' }
       : base;
   const scene = page.locator('.mtn-scene');
   await expect(scene).toHaveCount(1);
