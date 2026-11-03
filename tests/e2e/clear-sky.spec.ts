@@ -1157,7 +1157,7 @@ for (const route of ['/about', '/work']) {
   }
 }
 
-test('only Home inlines the Home-only world CSS;other routes still hide the new small bodies and carry only the graded Neptune limb', async ({ browser }) => {
+test('only Home inlines the Home-only world CSS; other routes still hide the new small bodies and carry only the graded Neptune limb', async ({ browser }) => {
   const css = (page: Page) => page.evaluate(() => Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\n'));
   // The Home-only nested-image guard, emitted only by the Home world CSS. The off-Home carry-through names its own identity
   // tokens (--np-identity-scale/shift/turn), so none of the three Home tokens may appear on another route.
