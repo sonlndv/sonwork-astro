@@ -16,8 +16,12 @@ const layered = scene.replace(anchor, mist).replace(modeAnchor, `data-mode="${mo
 // fetch hidden SVG <image> hrefs. Emit them as an inert `data-home-src` everywhere except Home, so index/calm routes
 // download nothing for them; Home's emitted scene (including no-JS) stays byte-identical. The protected original
 // blue-planet.webp href is untouched, and the lazy albedo maps are requested by script, not by markup.
-const homeTexture = 'href="/mountains/ow-';
-if (scene.split(homeTexture).length !== 17) throw new Error('mountain-scene.html: expected exactly 16 Home texture hrefs');
-const emitted = mode === 'home' ? layered : layered.replaceAll(homeTexture, 'data-home-src="/mountains/ow-');
+const homeTexture = 'href="/mountains/real-';
+if (scene.split(homeTexture).length !== 17) throw new Error('mountain-scene.html: expected exactly 16 Home real-body texture hrefs');
+// Fail closed on a partial migration: no retired blue-clone texture may remain anywhere in the scene.
+if (scene.includes('/mountains/ow-')) throw new Error('mountain-scene.html: a retired /mountains/ow- texture is still referenced');
+// Hidden Home images must stay inert off-Home, whatever attribute names they carry.
+if (/data-home-src="\/mountains\/real-/.test(scene)) throw new Error('mountain-scene.html: the source already carries inert Home texture attributes');
+const emitted = mode === 'home' ? layered : layered.replaceAll(homeTexture, 'data-home-src="/mountains/real-');
 ---
 <Fragment set:html={emitted} />

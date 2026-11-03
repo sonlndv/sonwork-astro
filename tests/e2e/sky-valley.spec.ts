@@ -1,6 +1,7 @@
 import { expect, test, type Browser, type BrowserContextOptions, type Page } from '@playwright/test';
 import { Buffer } from 'node:buffer';
 import { inflateSync } from 'node:zlib';
+import { compareRaster, settledFrame } from '../helpers/stable-paint';
 
 // Real application integration. Chromium touch input is emulation, never physical-phone evidence.
 const desktop: BrowserContextOptions = {
@@ -56,14 +57,7 @@ function paintControls(first: Buffer, hidden: Buffer, restored: Buffer) {
   const difference = (png: Buffer) => {
     const other = raster(png);
     expect([other.width, other.height, other.channels]).toEqual([base.width, base.height, base.channels]);
-    let maximumChannel = 0, materialPixels = 0;
-    for (let i = 0; i < base.data.length; i += base.channels) {
-      let delta = 0;
-      for (let channel = 0; channel < base.channels; channel++) delta = Math.max(delta, Math.abs(base.data[i + channel] - other.data[i + channel]));
-      maximumChannel = Math.max(maximumChannel, delta);
-      if (delta > 2) materialPixels += 1;
-    }
-    return { maximumChannel, materialPixels };
+    return compareRaster(base, other); // the unchanged 2/255 per-channel comparison, now shared with the unit regressions
   };
   // Same measured bound as the shared-scene control: every restored channel <=2/255.
   // A real plane must change >2 levels in >=0.1% of pixels (minimum 64); tiny/no paint fails.
@@ -557,7 +551,17 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
       const set = window.setTimeout;
       const clearT = window.clearTimeout;
       const work = { frames: 0, timers: 0, pending: new Set<number>(), timerPending: new Map<number, number>(), delays: [] as number[] };
-      const owned = () => /\/(?:mountains\/mountains|atmosphere)\.js/.test(new Error().stack || '');
+      // Owners: the original literal URLs (atmosphere, and the legacy public landscape path), plus the ACTUAL generated
+      // landscape asset every route now loads. That URL is read from the real marked classic script element
+      // (data-landscape-runtime="mountains") at observation time, never guessed from a pattern, so no unrelated script can
+      // be attributed to the landscape.
+      const generated = () => document.querySelector<HTMLScriptElement>('script[data-landscape-runtime="mountains"][src]')?.getAttribute('src') || '';
+      const owned = () => {
+        const stack = new Error().stack || '';
+        if (/\/(?:mountains\/mountains|atmosphere)\.js/.test(stack)) return true;
+        const url = generated();
+        return !!url && stack.includes(url);
+      };
       (window as any).__landscapeWork = work;
       window.requestAnimationFrame = function (this: Window, callback: FrameRequestCallback) {
         if (!owned()) return request.call(this, callback);
@@ -811,11 +815,28 @@ async function quiet<T>(page: Page, run: () => Promise<T>) {
 const shot = (page: Page, clip?: { x: number; y: number; width: number; height: number }) =>
   page.screenshot({ ...(clip ? { clip } : {}), animations: 'allow' });
 
+// Initial-paint readiness, established BEFORE any hide operation and outside every sky/star/restoration assertion: successive
+// rendered PNGs are captured (driver side, so it works with JavaScript disabled and adds no sleep or page timer) until two
+// consecutive captures agree within the same <=2/255 per-channel comparison the restoration control uses. The later of the pair is
+// the baseline. Agreement is convergence BETWEEN those two samples only: a first frame that differs from its successor (for
+// example a body not yet painted) is not chosen, but two equal still-incomplete frames would be accepted, and nothing here
+// proves that a delayed image cannot appear later. If the page never settles within the fixed bound the case fails clearly.
+// The restoration assertion below is never retried or resampled.
+async function settledBaseline(page: Page, label: string) {
+  const { frame, captures } = await settledFrame<Buffer>(
+    () => shot(page),
+    (previous, current) => compareRaster(raster(previous), raster(current)).maximumChannel <= 2,
+    { maxFrames: 8, label },
+  );
+  await test.info().attach('sky-paint-baseline-captures', { body: JSON.stringify({ label, captures }), contentType: 'application/json' });
+  return frame;
+}
+
 // Pixel control: hiding the whole sky, then only its stars, must change real pixels; restoring must not.
 async function skyPaint(page: Page, label: string) {
   await quiet(page, async () => {
     try {
-      const first = await shot(page);
+      const first = await settledBaseline(page, label);
       expect(await setSky(page, 'sky', true), label + ' selects the one visible .sv-home-sky').toBe(1);
       const noSky = await shot(page);
       await setSky(page, 'sky', false);

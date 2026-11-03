@@ -21,17 +21,6 @@
   const list = section && section.querySelector('.build-list');
   const mount = document.querySelector('.companion');
   const rims = scene.querySelectorAll('.mtn-rim');
-  // Home only: the two skyline-masked celestial groups (wide, tall). The only art that answers the mouse.
-  const skies = scene.querySelectorAll('.sv-home-sky');
-  // CSS px per SVG user unit for the visible variant (0 when hidden), so a rendered cap converts to user units.
-  const skyScale = sky => {
-    const svg = sky.closest('svg');
-    if (!svg || !svg.getClientRects().length || !svg.viewBox.baseVal.width) return 0;
-    const r = svg.getBoundingClientRect();
-    const sx = r.width / svg.viewBox.baseVal.width;
-    const sy = r.height / svg.viewBox.baseVal.height;
-    return svg.classList.contains('mtn-wide') ? Math.max(sx, sy) : Math.min(sx, sy);
-  };
   // The last ten are the Home sky layers (dust, mid stars/far clouds, bright stars, sun, near clouds).
   const cameraKeys = ['fx', 'fy', 'nx', 'ny', 'ax', 'ay', 'ak', 'sx', 'sy', 'dx', 'dy', 'mx', 'my', 'bx', 'by', 'ux', 'uy', 'kx', 'ky'];
   // Stable references: the scene box is the LARGE viewport tall, the far layer is the SMALL viewport
@@ -217,13 +206,7 @@
     if (!camera) return;
     camera = false;
     scene.removeAttribute('data-cam');
-    skies.forEach(sky => {
-      sky.removeAttribute('data-look');
-      sky.style.removeProperty('--ow-x');
-      sky.style.removeProperty('--ow-y');
-    });
     starOff();
-    relightOff();
     cameraKeys.forEach(key => scene.style.removeProperty('--mtn-' + key));
   };
   const solidRims = () => rims.forEach(rim => rim.removeAttribute('pathLength'));
@@ -308,9 +291,8 @@
     }
     const big = parseFloat(getComputedStyle(doc).fontSize) > 20;
     const sig = [span, height, width, big, ...knots.map(k => Math.round(k.y))].join('|');
-    const scales = mode === 'home' ? Array.from(skies, skyScale) : [];
-    const bodies = mode === 'home' ? collectBodies() : [];
-    geometry = { span, height, width, reader, knots, projectTop, projectLeft, big, sig, scales, bodies, generation: ++generation };
+    const sky = mode === 'home' ? collectSky() : null;
+    geometry = { span, height, width, reader, knots, projectTop, projectLeft, big, sig, sky, generation: ++generation };
     dirty = false;
   }
   function position(y) {
@@ -361,128 +343,20 @@
     if (!eligible() || section.contains(document.activeElement)) return;
     section.dataset.mtn = 'go';
   }
-  // ---- Home pointer as a weak secondary star (fine mouse only; same eligibility and cancellation as the sky offset) ----
-  // 1. A small drawn four-ray star at the cursor (decorative, inert, no footprint). 2. A gentle secondary light on the
-  // visible bodies: per-pixel diffuse light from the pointer direction on the sphere's own orthographic normals, drawn
-  // from the unlit albedo maps into a small canvas that is screen-blended over the pre-shaded image (the fixed sun's
-  // phase and the dark hemisphere stay as they are). Work happens only inside the existing coalesced pointer frame;
-  // bodies are measured in measure(); every cancel path runs clearCamera(), which hides both and clears the canvases.
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-  const XHTML_NS = 'http://www.w3.org/1999/xhtml';
-  const BODY_SELECTORS = [
-    ['planet', 'planet', '.sv-hs-planet > .sv-ow-pimg image'], ['rock', 'rock', '.sv-ow-a image'],
-    ['moon-b', 'moon', '.sv-ow-b image'], ['moon-c', 'moon', '.sv-ow-c image'],
-  ];
-  // Canvas side in px (a coarse grid is enough for a soft secondary light) and the albedo asset's own size.
-  const KINDS = {
-    planet: { src: '/mountains/ow-planet-albedo.webp', asset: 512, side: 160 },
-    rock: { src: '/mountains/ow-rock-albedo.webp', asset: 256, side: 96 },
-    moon: { src: '/mountains/ow-moon-albedo.webp', asset: 96, side: 48 },
-  };
-  const kindState = {};
-  const layers = new WeakMap();
-  const lit = new Set();
+  // ---- Home pointer: only a small decorative star (fine mouse only). The celestial bodies are fixed art: no relight, no sky
+  // offset, no scenic scroll work. The star is inert, shown strictly over open sky (collectSky measures glyphs, controls,
+  // header, footer, bodies, sun and terrain once per invalidation; the hot path only compares numbers), gated by a scroll-idle
+  // moment and a fresh-travel distance, and hidden at once by every cancel path via clearCamera().
   let star = null;
-  function collectBodies() {
-    const list = [];
-    BODY_SELECTORS.forEach(([label, kind, selector]) => {
-      scene.querySelectorAll(selector).forEach(img => {
-        if (!img.getClientRects().length) return;
-        const r = img.getBoundingClientRect();
-        list.push({ img, label, kind, x: r.left + r.width / 2, y: r.top + r.height / 2 });
-      });
-    });
-    return list;
-  }
-  function loadKind(kind) {
-    const spec = KINDS[kind];
-    const state = { state: 'loading' };
-    kindState[kind] = state;
-    const img = new Image();
-    img.onload = () => {
-      try {
-        const s = spec.side, canvas = document.createElement('canvas');
-        canvas.width = canvas.height = s;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, s, s);
-        const px = ctx.getImageData(0, 0, s, s).data, n = s * s;
-        const radius = s * (0.5 - 2 / spec.asset);
-        Object.assign(state, { n, nx: new Float32Array(n), ny: new Float32Array(n), nz: new Float32Array(n),
-          r: new Float32Array(n), g: new Float32Array(n), b: new Float32Array(n), cov: new Float32Array(n) });
-        for (let j = 0; j < s; j++) for (let i = 0; i < s; i++) {
-          const k = j * s + i, x = (i + 0.5 - s / 2) / radius, y = (j + 0.5 - s / 2) / radius, d2 = x * x + y * y;
-          const cov = px[k * 4 + 3] / 255;
-          if (!cov || d2 > 1.02) continue;
-          state.cov[k] = cov;
-          state.nx[k] = x; state.ny[k] = y; state.nz[k] = Math.sqrt(Math.max(0, 1 - Math.min(1, d2)));
-          state.r[k] = (px[k * 4] / 255) ** 2.2; state.g[k] = (px[k * 4 + 1] / 255) ** 2.2; state.b[k] = (px[k * 4 + 2] / 255) ** 2.2;
-        }
-        state.state = 'ready';
-      } catch { state.state = 'failed'; }
-    };
-    img.onerror = () => { state.state = 'failed'; }; // the pre-shaded images stay: no relight, nothing blank
-    img.src = spec.src;
-    return state;
-  }
-  function layerFor(body, state, side) {
-    let layer = layers.get(body.img);
-    if (layer && layer.dead) return null; // no 2D context: a clean static fallback, never an exception
-    if (layer && layer.img.isConnected) return layer;
-    const fo = document.createElementNS(SVG_NS, 'foreignObject');
-    ['x', 'y', 'width', 'height'].forEach(name => fo.setAttribute(name, body.img.getAttribute(name)));
-    fo.setAttribute('class', (body.img.getAttribute('class') || '') + ' sv-ow-relight'); // theme classes hide a stale one
-    fo.setAttribute('data-body', body.label);
-    fo.setAttribute('aria-hidden', 'true');
-    const canvas = document.createElementNS(XHTML_NS, 'canvas');
-    canvas.width = canvas.height = side;
-    canvas.style.cssText = 'display:block;width:100%;height:100%';
-    fo.appendChild(canvas);
-    body.img.after(fo);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) { fo.remove(); layers.set(body.img, { dead: true }); return null; }
-    layer = { img: body.img, fo, canvas, ctx, data: ctx.createImageData(side, side) };
-    layers.set(body.img, layer);
-    return layer;
-  }
-  function relight(px, py) {
-    const bodies = geometry.bodies;
-    if (!bodies || !bodies.length) return;
-    const night = isNight();
-    const base = night ? 0.08 : 0.14; // weak secondary star: at most 14% of the albedo by day, less at night
-    const tint = night ? [0.78, 0.9, 1] : [1, 0.93, 0.8];
-    const hz = 0.5, flat = Math.sqrt(1 - hz * hz);
-    bodies.forEach(body => {
-      const state = kindState[body.kind] || loadKind(body.kind);
-      if (state.state !== 'ready') return;
-      const layer = layerFor(body, state, KINDS[body.kind].side);
-      if (!layer) return;
-      const dx = px - body.x, dy = py - body.y, d = Math.hypot(dx, dy) || 1;
-      const lx = (dx / d) * flat, ly = (dy / d) * flat;
-      const k = base / (1 + (d / 700) * (d / 700));
-      const out = layer.data.data;
-      for (let i = 0; i < state.n; i++) {
-        const cov = state.cov[i];
-        if (!cov) { out[i * 4 + 3] = 0; continue; }
-        const dot = state.nx[i] * lx + state.ny[i] * ly + state.nz[i] * hz;
-        const e = dot > 0 ? dot * k * 255 : 0;
-        out[i * 4] = Math.min(255, state.r[i] * e * tint[0]);
-        out[i * 4 + 1] = Math.min(255, state.g[i] * e * tint[1]);
-        out[i * 4 + 2] = Math.min(255, state.b[i] * e * tint[2]);
-        out[i * 4 + 3] = cov * 255;
-      }
-      layer.ctx.putImageData(layer.data, 0, 0);
-      layer.fo.setAttribute('data-on', '');
-      lit.add(layer);
-    });
-  }
-  function relightOff() {
-    lit.forEach(layer => {
-      layer.fo.removeAttribute('data-on');
-      layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
-    });
-    lit.clear();
-  }
+  let starQuietUntil = 0; // scroll-idle gate: after any scroll the star stays off for a moment
+  let starAnchor = null; // where fresh travel is measured from after a cancel or scroll
   function placeStar(px, py) {
+    if (performance.now() < starQuietUntil) return; // scroll-idle gate
+    if (!starAnchor) starAnchor = [px, py];
+    // Fresh travel: after a cancel or a scroll the star needs a real (>= 6px) move before it can appear, so one-pixel
+    // wheel jitter cannot flash it back on; once shown it follows without that requirement (hysteresis).
+    if (!(star && star.hasAttribute('data-on')) && Math.hypot(px - starAnchor[0], py - starAnchor[1]) < 6) return;
+    if (!openSky(px, py)) { starHide(); return; }
     if (!star) {
       star = document.createElement('div');
       star.className = 'ow-star';
@@ -494,24 +368,60 @@
     star.style.transform = 'translate(' + (px - 5).toFixed(1) + 'px,' + (py - 5).toFixed(1) + 'px)';
     star.setAttribute('data-on', '');
   }
-  function starOff() { if (star) star.removeAttribute('data-on'); }
+  function starHide() { if (star) star.removeAttribute('data-on'); }
+  function starOff() { starAnchor = null; starHide(); } // every cancel path: hide and require fresh travel again
+  // Strictly open sky: not over text glyphs, links or controls, the header, footer, a planet or its rings, or terrain.
+  // Everything is measured once per invalidation (collectSky, called from measure); this hot path only compares numbers.
+  function openSky(px, py) {
+    const sky = geometry && geometry.sky;
+    if (!sky || py >= sky.skylineTop - 6) return false;
+    const sy = scrollY;
+    for (const [l, t, r, b] of sky.boxes) if (px >= l && px <= r && py >= t - sy && py <= b - sy) return false;
+    for (const s of sky.shapes) {
+      if (s.r) { if (Math.hypot(px - s.x, py - s.y) <= s.r + 8) return false; }
+      else if (px >= s.l - 8 && px <= s.rr + 8 && py >= s.t - 8 && py <= s.b + 8) return false;
+    }
+    return true;
+  }
+  function collectSky() {
+    const sy = scrollY, boxes = [], shapes = [];
+    const addBox = r => { if (r.width > 0 && r.height > 0) boxes.push([r.left - 8, r.top + sy - 8, r.right + 8, r.bottom + sy + 8]); };
+    const header = document.querySelector('.site-header');
+    if (header) { const r = header.getBoundingClientRect(); shapes.push({ l: r.left, t: r.top, rr: r.right, b: r.bottom }); }
+    document.querySelectorAll('main a, main button, main summary, main input, .site-footer').forEach(el => addBox(el.getBoundingClientRect()));
+    const main = document.querySelector('main');
+    if (main) {
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!node.textContent.trim() || !node.parentElement.getClientRects().length) continue;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        Array.from(range.getClientRects()).forEach(addBox);
+      }
+    }
+    // The bodies are fixed with the scene: circles for the round ones, the image rectangle for Saturn's rings.
+    [['.sv-ow-pimg image', true], ['.sv-ow-a image', true], ['.sv-ow-b image', true], ['.sv-ow-c image', false]].forEach(([selector, round]) => {
+      scene.querySelectorAll(selector).forEach(img => {
+        if (!img.getClientRects().length) return;
+        const r = img.getBoundingClientRect();
+        shapes.push(round ? { x: r.left + r.width / 2, y: r.top + r.height / 2, r: (r.width / 2) * 0.99 } : { l: r.left, t: r.top, rr: r.right, b: r.bottom });
+      });
+    });
+    // The visible sun disc (the smaller of its glow and disc circles) is a celestial surface too.
+    const sun = Array.from(scene.querySelectorAll('.sv-hs-sun circle')).filter(c => c.getClientRects().length)
+      .map(c => c.getBoundingClientRect()).sort((a, b) => a.width - b.width)[0];
+    if (sun) shapes.push({ x: sun.left + sun.width / 2, y: sun.top + sun.height / 2, r: sun.width / 2 });
+    const far = Array.from(scene.querySelectorAll('.mtn-far svg.mtn-ridge .mtn-lit')).find(path => path.getClientRects().length);
+    return { boxes, shapes, skylineTop: far ? far.getBoundingClientRect().top : innerHeight };
+  }
   // Home: celestial artwork only, at most 2 CSS px across and 1 down (opposite the pointer). Terrain, the skyline
   // masks, content and controls never move; the offsets live on the two sky groups, not on the whole scene.
   function paintSky() {
-    const x = clamp(pointer[0] / geometry.width * 2 - 1, -1, 1);
-    const y = clamp(pointer[1] / geometry.height * 2 - 1, -1, 1);
+    // The celestial bodies are static: nothing but the decorative star answers the pointer (no sky offset, no relight).
     const px = pointer[0], py = pointer[1];
     pointer = null;
     camera = true;
     placeStar(px, py);
-    relight(px, py);
-    skies.forEach((sky, i) => {
-      const scale = geometry.scales[i];
-      if (!scale) return;
-      sky.setAttribute('data-look', '');
-      sky.style.setProperty('--ow-x', (-x * 2 / scale).toFixed(3));
-      sky.style.setProperty('--ow-y', (-y / scale).toFixed(3));
-    });
   }
   function frame(now = performance.now()) {
     raf = 0;
@@ -666,6 +576,7 @@
   fine.addEventListener('change', clearCamera);
   addEventListener('scroll', () => {
     interrupt();
+    if (mode === 'home') { starQuietUntil = performance.now() + 300; starAnchor = null; } // scroll-idle gate for the star
     if (mode !== 'home') ask(); // Home's landscape does not follow scroll: no frame, no scenic write
   }, { passive: true });
   const viewportGeometry = () => {

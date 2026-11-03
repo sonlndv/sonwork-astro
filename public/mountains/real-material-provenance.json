@@ -1,0 +1,265 @@
+{
+  "generator": "render-real-planets.mjs",
+  "deterministic": true,
+  "sharedKey": {
+    "u_right_v_up_w_toward_viewer": [
+      -0.60036,
+      0.42025,
+      0.68041
+    ]
+  },
+  "grades": {
+    "morning": {
+      "sky": [
+        0.05,
+        0.07,
+        0.1
+      ],
+      "gain": 0.94
+    },
+    "night": {
+      "sky": [
+        0.01,
+        0.014,
+        0.028
+      ],
+      "gain": 1
+    }
+  },
+  "neptune": {
+    "input": {
+      "file": "neptune.jpg",
+      "sha256": "a1cac100aa0b367b9f223809b9a3006a307fb4dedf034a56b3167aecc5c48ee5"
+    },
+    "output": {
+      "file": "real-neptune.webp",
+      "width": 579,
+      "height": 579,
+      "bytes": 23552,
+      "sha256": "cb6af9b16efbec686e29c6132fb21cbb2902819bc43ec4b55e40105f58e37c4c"
+    },
+    "morningOutput": {
+      "file": "real-neptune-morning.webp",
+      "width": 579,
+      "height": 579,
+      "bytes": 15990,
+      "sha256": "f5dc7dab57102077fae29903755d87863b006e44836cfc96a58150242a781eff"
+    },
+    "parameters": {
+      "limbThreshold": 30,
+      "fittedCircle": {
+        "cx": 480.91,
+        "cy": 491.62,
+        "radius": 286.22
+      },
+      "matteRadius": 286.22,
+      "darkLimbOutsetPx": 0.5,
+      "litLimbTrimPx": 2.2,
+      "edgeFeatherPx": 1,
+      "crop": {
+        "left": 191,
+        "top": 202,
+        "side": 579
+      },
+      "diskRadiusFractionOfSide": 0.49434,
+      "lighting": "photograph unchanged (no re-lighting, no mirroring); native source resolution"
+    }
+  },
+  "saturn": {
+    "input": {
+      "file": "saturn-source.png",
+      "sha256": "59446ba3a290343fdcabb996cdd0cb1ba937f9c137145b5b2e34af0e548be820"
+    },
+    "output": {
+      "file": "real-saturn.webp",
+      "width": 648,
+      "height": 256,
+      "bytes": 20064,
+      "sha256": "a1de468feeecb25f5d0bf7469173ad3c0b0991b13eaac187aed4cf203086f987"
+    },
+    "morningOutput": {
+      "file": "real-saturn-morning.webp",
+      "width": 648,
+      "height": 256,
+      "bytes": 14574,
+      "sha256": "d5fda1fe169fe900ea34213c684722b90b34a32f14ea99a9c8fe89d542b03b33"
+    },
+    "parameters": {
+      "crop": {
+        "x": 24,
+        "y": 316,
+        "w": 972,
+        "h": 384
+      },
+      "rotation": "180 degrees, whole photograph, not mirrored",
+      "matte": "smoothstep(max(r,g,b), 6, 28) union the feathered ring ANNULUS (outer ring-plane ellipse minus the measured inner edge) union the oblate globe ellipse; connected component only. Empty space inside the inner edge and outside the globe is transparent.",
+      "ringInnerEdge": {
+        "normalisedRadius": 0.566,
+        "approxSemiAxesSourcePx": {
+          "rx": 271,
+          "ry": 72
+        },
+        "derivation": "median over 90 lit sectors (|theta| < 60 degrees, outside the globe) of the smallest normalised radius with max(r,g,b) > 24, x 0.985",
+        "measurementOnlyGlobeExclusion": {
+          "marginPxAddedToBothSemiAxes": 8,
+          "globeEllipseSourcePx": {
+            "cx": 514,
+            "cy": 507,
+            "rx": 207,
+            "ry": 186
+          },
+          "reason": "globe-limb fringe contaminated the minimum (SATURN-ESTIMATOR-CONTAMINATION.json); the alpha globe silhouette is not dilated",
+          "plausibleRange": [
+            0.5,
+            0.9
+          ]
+        },
+        "sectorsMeasured": 90
+      },
+      "ellipsesSourcePx": {
+        "ringPlane": {
+          "cx": 509,
+          "cy": 497,
+          "rx": 478,
+          "ry": 128
+        },
+        "globe": {
+          "cx": 514,
+          "cy": 507,
+          "rx": 207,
+          "ry": 186
+        }
+      },
+      "edgeFeatherPx": 1.4,
+      "downscaledTo": {
+        "width": 648,
+        "height": 256
+      },
+      "aspect": 2.53125,
+      "lighting": "photograph unchanged apart from the rotation"
+    }
+  },
+  "maps": {
+    "earth": {
+      "input": {
+        "file": "earth-map.png",
+        "sha256": "ae6214b078ed0864c96f74bcb10ae3021f6eb116f8059797efe0fa9ea8b89d35"
+      },
+      "view": {
+        "size": 320,
+        "lon0": 85,
+        "lat0": 18
+      },
+      "law": "Lambert, terminator softening 0.06, no atmosphere or cloud invention"
+    },
+    "moon": {
+      "input": {
+        "file": "moon-map.jpg",
+        "sha256": "f7130a1822681fa7512d7dcfd40db8c10b9ba4f06777910348698260ed7a2170"
+      },
+      "view": {
+        "size": 384,
+        "lon0": 0,
+        "lat0": 6
+      },
+      "law": "Lommel-Seeliger, albedo 0.78 x (0.75 luminance + 0.25 map colour)"
+    },
+    "outputs": {
+      "earth-morning": {
+        "file": "real-earth-morning.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 15296,
+        "sha256": "07618c9f7dc7144747c38545c9bad69f845d2a8b9339eedd4ca9fbf984c9a9a2"
+      },
+      "moon-morning": {
+        "file": "real-moon-morning.webp",
+        "width": 384,
+        "height": 384,
+        "bytes": 15958,
+        "sha256": "803ef542bfeb2ce653f761ef4c93e1532e36c85f9535c0b436d51acba50ca013"
+      },
+      "earth-night": {
+        "file": "real-earth-night.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 17714,
+        "sha256": "6d41f3d0a61f177b7a33627868cd60ff39447f4b50532355baf6039642cac810"
+      },
+      "moon-night": {
+        "file": "real-moon-night.webp",
+        "width": 384,
+        "height": 384,
+        "bytes": 27320,
+        "sha256": "7a5f4ac0d9abe7cb05a2f5e90a36a86c8b5ac633557eae813bb0b3e77d473c44"
+      }
+    },
+    "diskRadiusFractionOfSide": {
+      "earth": 0.49375,
+      "moon": 0.49479
+    }
+  },
+  "derived": {
+    "saturnVisibility": {
+      "constantAlpha": 0.2,
+      "source": "alpha of the rendered real-saturn image",
+      "output": {
+        "file": "real-saturn-visibility.webp",
+        "width": 648,
+        "height": 256,
+        "bytes": 5958,
+        "sha256": "68b845e77f0d4ed7f72e9ae2d77b4620cb7ed9657f200cc2bfefc430367914c7"
+      }
+    },
+    "earthVisibility": {
+      "constantAlpha": 0.35,
+      "source": "alpha of the rendered real-earth image (identical in both themes)",
+      "output": {
+        "file": "real-earth-visibility.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 1824,
+        "sha256": "3c8b5b038d84167e887bacb5051930878bf8f3e6ed36694f19119572e915c300"
+      }
+    },
+    "earthDisplayTone": {
+      "night": "out = round(185 * (in / 255) ^ 0.72) per colour channel, interior and edge pixels with alpha > 0",
+      "morning": "retired: the former out = round(26 + 0.86 * in) curve is no longer applied; the day aerial-perspective mix below replaces it"
+    },
+    "dayAerialPerspective": {
+      "skyRgb": [
+        229,
+        233,
+        238
+      ],
+      "transfer": "standard sRGB (IEC 61966-2-1) decode and encode, linear-light mix",
+      "perBody": {
+        "neptune": {
+          "k": 0.22,
+          "chromaGain": 2.4
+        },
+        "saturn": {
+          "k": 0.3,
+          "chromaGain": 1
+        },
+        "earth": {
+          "k": 0.16,
+          "chromaGain": 3.6
+        },
+        "moon": {
+          "k": 0.3,
+          "chromaGain": 1
+        }
+      },
+      "formula": "m = (1 - k_body) * source_linear + k_body * sky_linear per channel; then chroma about the Rec. 709 linear luminance Y of m: out = Y + t * (m - Y), t = min(chromaGain_body, largest value keeping every channel within [0, 1]) (t >= 1), so luminance is unchanged",
+      "appliesTo": "every pixel with alpha > 0 of real-neptune-morning, real-saturn-morning, real-earth-morning, real-moon-morning; alpha untouched, alpha 0 stays black",
+      "unchanged": "real-neptune, real-saturn, real-earth-night, real-moon-night and both visibility masks",
+      "note": "A fixed display grade toward the existing day sky colour; not true colour, not a different light, phase or source."
+    },
+    "note": "Two alpha-only visibility masks are derived from the rendered Earth and Saturn alphas. Earth night display tone is a fixed grade applied after physical shading; day textures receive the aerial-perspective mix."
+  },
+  "legacyNote": {
+    "note": "Two alpha-only visibility masks are derived from the rendered Earth and Saturn alphas. Earth display tone is a fixed grade applied after physical shading."
+  },
+  "note": "Illustrative off-world valley: real bodies, not a claim of an observer position. Neptune is feature-enhanced and not exact true colour; Earth and the Moon are map renders, not photographs."
+}

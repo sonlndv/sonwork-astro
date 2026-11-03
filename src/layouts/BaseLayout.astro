@@ -4,6 +4,12 @@ import homeSceneCss from '../styles/home-scene.css?inline';
 import fontsCss from '../styles/fonts.css?inline';
 import globalCss from '../styles/global.css?inline';
 import companionCss from '../styles/companion.css?inline';
+// BUILD-ONLY asset mechanism: `?worker&url` asks Vite to compile the unchanged public landscape script into a minified classic
+// (IIFE) asset and return its hashed URL. No Web Worker is ever created or instantiated; EVERY route loads that URL through the
+// same ordinary classic deferred <script> element below. All routes carry the generic data-landscape-runtime marker; the
+// Home-only data-home-runtime marker keeps its meaning and stays absent off Home. The public /mountains/mountains.js file itself
+// is unchanged and still served, it is just no longer referenced by any page.
+import homeLandscapeUrl from '../../public/mountains/mountains.js?worker&url';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import MountCompanion from '../components/MountCompanion.astro';
 import MountainScene from '../components/MountainScene.astro';
@@ -113,7 +119,9 @@ function isCurrent(href: string): boolean {
     <!-- Mount: native button, focus, touch and motion behaviour (styles come from companion.css above). -->
     <script is:inline src="/companion.js" defer></script>
     <!-- One shared scene. Defer order: native Mount producer, landscape frame, atmosphere eligibility. -->
-    <script is:inline src="/mountains/mountains.js?v=impeccable-1" defer></script>
+    {isHome
+      ? <script is:inline src={homeLandscapeUrl} defer data-landscape-runtime="mountains" data-home-runtime="mountains"></script>
+      : <script is:inline src={homeLandscapeUrl} defer data-landscape-runtime="mountains"></script>}
     <!-- Atmosphere connects the existing Pause/hello policy; finite effects never schedule idle recurrence. -->
     <script is:inline src="/atmosphere.js" defer></script>
   </head>
