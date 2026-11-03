@@ -2,7 +2,7 @@
   "generator": "render-real-planets.mjs",
   "deterministic": true,
   "gradedDisplay": {
-    "approved": "2026-11-03 (Son, private preview)",
+    "approved": "2026-11-03 (Son)",
     "generator": "scripts/grade-planets.mjs",
     "inputs": "src/assets/planet-sources/ (byte-identical copies of the previously served textures; not referenced by any page)",
     "outputs": "real-neptune.webp, real-neptune-morning.webp, real-earth-night.webp, real-earth-morning.webp, real-moon-night.webp, real-moon-morning.webp, real-saturn.webp, real-saturn-morning.webp (same pixel size, alpha unchanged)",
