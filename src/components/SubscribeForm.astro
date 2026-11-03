@@ -5,6 +5,8 @@
 // Until both are set, the form renders with submit disabled. When they are,
 // submit still starts disabled and the script below enables it, so a reader
 // without JS (or a click before the script runs) never posts to the page.
+import { signupOpen } from '../lib/signup';
+
 interface Props {
   id?: string;
 }
@@ -13,7 +15,7 @@ const { id = 'subscribe' } = Astro.props;
 const signupUrl = import.meta.env.PUBLIC_SIGNUP_URL;
 const signupKey = import.meta.env.PUBLIC_SIGNUP_KEY;
 const newsletter = import.meta.env.PUBLIC_SIGNUP_NEWSLETTER;
-const enabled = Boolean(signupUrl && signupKey);
+const enabled = signupOpen;
 const describedBy = enabled ? `${id}-note ${id}-status` : `${id}-note`;
 ---
 <form

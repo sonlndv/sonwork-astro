@@ -17,7 +17,7 @@ const Heading = `h${headingLevel}` as 'h2' | 'h3';
 const items = posts.map((post, i) => ({ post, n: String(start + i).padStart(2, '0') }));
 ---
 {posts.length === 0 ? (
-  bare ? null : <p class="empty">No posts yet.</p>
+  bare ? null : <p class="empty">No posts yet. Meanwhile, see <a href="/work">what I've built</a>.</p>
 ) : bare ? (
   items.map(({ post, n }) => (
     <li>
