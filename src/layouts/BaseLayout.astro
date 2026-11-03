@@ -1,5 +1,4 @@
 ---
-import sceneCss from '../styles/scene.css?inline';
 import homeSceneCss from '../styles/home-scene.css?inline';
 import fontsCss from '../styles/fonts.css?inline';
 import globalCss from '../styles/global.css?inline';
@@ -24,9 +23,9 @@ interface Props {
 
 // The processed (bundled, minified) shared cascade in its original order: scene, fonts, global, companion.
 // Delivered in the document itself so the first paint does not wait on a separate render-blocking stylesheet request.
-// Home inlines the scene cascade that includes its Home-only world CSS; every other route inlines the original scene CSS only.
+// Every route inlines the same Home scene stylesheet (one sky on every page).
 const isHome = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1') === '/';
-const sharedCss = [isHome ? homeSceneCss : sceneCss, fontsCss, globalCss, companionCss].join('\n');
+const sharedCss = [homeSceneCss, fontsCss, globalCss, companionCss].join('\n');
 
 const { title, description, type = 'website', noIndex = false } = Astro.props;
 const siteName = 'Son';
@@ -65,18 +64,6 @@ function isCurrent(href: string): boolean {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <!-- Native page-navigation opt-in, first in the head: the incoming reveal must know it before stylesheets load.
-         The only @view-transition rule; animation and naming selectors stay in global.css. -->
-    <style is:inline>
-      @supports selector(:active-view-transition-type(sonwork-page)) {
-        @media (prefers-reduced-motion: no-preference) and (not (forced-colors: active)) {
-          @view-transition {
-            navigation: auto;
-            types: sonwork-page;
-          }
-        }
-      }
-    </style>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noIndex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
@@ -127,7 +114,7 @@ function isCurrent(href: string): boolean {
     {isHome
       ? <script is:inline src={homeLandscapeUrl} defer data-landscape-runtime="mountains" data-home-runtime="mountains"></script>
       : <script is:inline src={homeLandscapeUrl} defer data-landscape-runtime="mountains"></script>}
-    <!-- Atmosphere connects the existing Pause/hello policy; finite effects never schedule idle recurrence. -->
+    <!-- Atmosphere connects the arrival mist and hello policy; there is no Pause control, and finite effects never schedule idle recurrence. -->
     <script is:inline src="/atmosphere.js" defer></script>
     <script type="speculationrules" is:inline set:html={speculationRules}></script>
   </head>
@@ -162,8 +149,6 @@ function isCurrent(href: string): boolean {
         <ul class="contact-links">
           {contact.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
         </ul>
-        <button class="atmosphere-toggle" type="button" aria-describedby="atmosphere-status" hidden>Pause atmosphere</button>
-        <span class="atmosphere-status" id="atmosphere-status" role="status"></span>
       </div>
     </footer>
     <script>

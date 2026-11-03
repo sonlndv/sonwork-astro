@@ -1,6 +1,6 @@
 /* Passing valley mist. One soft ribbon between the far and near ridges: a single finite
    transform/opacity pass that atmosphere.js starts (data-run) and removes. At rest it is invisible,
-   so noJS, reduced motion, forced colours and paused states show only the solid scenery. */
+   so noJS, reduced motion and forced colours show only the solid scenery. The pass ends within 5 seconds; there is no Pause control. */
 .mtn-mist {
   --mist: light-dark(rgba(96, 124, 176, 0.2), rgba(150, 176, 238, 0.2));
   position: absolute;
@@ -26,7 +26,7 @@
 
   .mtn-mist[data-run] .mtn-mist-ribbon {
     will-change: transform, opacity;
-    animation: mtn-mist-pass 7000ms cubic-bezier(0.45, 0, 0.25, 1) 1 both;
+    animation: mtn-mist-pass 5000ms cubic-bezier(0.45, 0, 0.25, 1) 1 both;
   }
 }
 
@@ -40,7 +40,7 @@
 /* Mount's hello earns a visibly different answer than the ambient pass: the original ridge edges
    (.mtn-rim) are re-traced, far then near over about 900ms, and settle back to their exact solid rest
    stroke. Only the dash offset animates; the stroke colour and alpha are unchanged. mountains.js sets data-trace
-   (plus a temporary pathLength) only when atmosphere.js admits the hello, so every pause, hidden,
+   (plus a temporary pathLength) only when atmosphere.js admits the hello, so every hidden,
    scrolled, reduced and forced guard applies, and it clears both on animationend or any snap. */
 @media (prefers-reduced-motion: no-preference) and (not (forced-colors: active)) {
   .mtn-scene[data-trace] .mtn-rim {
@@ -59,67 +59,6 @@
   .mtn-mist { display: none !important; }
 }
 
-/* Footer control: native button, shown only once atmosphere.js is running. */
-.atmosphere-toggle {
-  min-height: var(--hit, 44px);
-  min-width: 44px;
-  grid-column: 1 / -1; /* the footer frame may be a grid */
-  justify-self: start;
-  margin-top: var(--s3);
-  padding: 0 var(--s3);
-  border: 1px solid var(--line);
-  background: var(--void);
-  color: var(--lume);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.atmosphere-toggle[hidden] {
-  display: none;
-}
-
-/* Fixed box (same for Pause and Resume) so the label swap never shifts the footer. */
-.atmosphere-toggle {
-  box-sizing: border-box;
-  width: min(11.5rem, 100%);
-  height: var(--hit, 44px);
-  line-height: 1;
-  text-align: center;
-}
-
-/* With script and motion allowed, the slot is reserved before first paint: laid out but
-   invisible (visibility:hidden also removes it from focus and the accessibility tree) until
-   atmosphere.js removes `hidden`. noJS, reduced motion and forced colours keep display:none. */
-@media (prefers-reduced-motion: no-preference) and (not (forced-colors: active)) {
-  .js .atmosphere-toggle[hidden] {
-    display: inline-block;
-    visibility: hidden;
-  }
-}
-
-.atmosphere-toggle:hover {
-  border-color: var(--lume);
-}
-
-.atmosphere-toggle:focus-visible {
-  outline: 2px solid var(--lume);
-  outline-offset: 3px;
-}
-
-/* Visually hidden live status that describes the toggle ("Atmosphere paused / running"). */
-.atmosphere-status {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 /* One real mist between the independent middle and near planes. Retain the existing finite
    data-run / data-trace responses until T04 connects their shared eligibility/progress owner. */
 .mtn-scene > .mtn-mist {
@@ -130,4 +69,4 @@
   top: calc(76% - 24% * var(--sv-depth));
   height: 11%;
 }
-.mtn-scene[data-mode='calm'] > .mtn-mist { display: none; }
+.mtn-scene[data-route='calm'] > .mtn-mist { display: none; }

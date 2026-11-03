@@ -15,7 +15,7 @@
   const slot = document.querySelector('.footer-slot');
   const topBtn = document.querySelector('.footer-top');
   // Home keeps Mount in the header seat (no scroll travel, no automatic stroll) and keeps Back to top native and instant.
-  const homeRoute = !!document.querySelector('.mtn-scene[data-mode="home"]');
+  const homeRoute = !!document.querySelector('.mtn-scene[data-route="home"]');
   const projects = (document.getElementById('home-projects') || document.getElementById('work-live'))?.closest('section') ?? null;
 
   // ---- pointer gaze (event-driven; one pending frame; fine hover mouse only) -----------------

@@ -33,7 +33,6 @@ async function open(browser: Browser, baseURL: string | undefined, options: Brow
 }
 
 const toBottom = (page: Page) => page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
-const camera = (page: Page) => page.locator('.mtn-scene').evaluate(el => ['fx', 'fy', 'nx', 'ny'].map(k => parseFloat(el.style.getPropertyValue(`--mtn-${k}`))));
 // Scroll so the Selected projects heading sits near the top, which is where Mount perches by the builds.
 const toBuilds = (page: Page) => page.evaluate(() => {
   const head = document.querySelector('.front-projects .section-head')!;
@@ -123,7 +122,7 @@ test('the landscape is on every built HTML page and the 404, in both themes, and
               active: !!carriers[0]?.sheet && !carriers[0].sheet.disabled && carriers[0].sheet.cssRules.length > 0,
               raw: links.filter(l => ['/mountains/mountains.css', '/atmosphere.css'].includes(new URL(l.href).pathname)).length,
               external: links.filter(l => textOf(l.sheet).includes('.mtn-scene')).length,
-              scenic: ['.mtn-scene', '.mtn-layer', '.mtn-mist', '.atmosphere-toggle', '.sv-home-sky', '.sv-hs-night'].filter(s => at(s) < 0),
+              scenic: ['.mtn-scene', '.mtn-layer', '.mtn-mist', '.sv-home-sky', '.sv-hs-night'].filter(s => at(s) < 0),
               world: at('data-world') >= 0,
               order: at('.mtn-scene') >= 0 && at('.mtn-scene') < at('@font-face') && at('@font-face') < at('.skip-link') && at('.skip-link') < at('.personal-brand'),
             };
@@ -131,8 +130,10 @@ test('the landscape is on every built HTML page and the 404, in both themes, and
           expect(sheet, `${path} inline shared stylesheet`).toEqual({ carriers: 1, active: true, raw: 0, external: 0, scenic: [], world: true, order: true });
           // Every route (Home, index, calm and the 404) loads the build-processed landscape asset through one marked ordinary
           // classic deferred <script>: no legacy duplicate, the companion -> landscape -> atmosphere order unchanged, and a real
-          // same-origin hashed JS body. The Home-only marker distinguishes Home and must stay absent everywhere else.
-          const isHomePage = (await scene.getAttribute('data-mode')) === 'home';
+          // same-origin hashed JS body. The Home-only marker distinguishes Home and must stay absent everywhere else (every
+          // route's scene is data-mode="home" now, so Home itself is told apart by the scene's data-route).
+          await expect(scene, `${path} every route emits Home's scene`).toHaveAttribute('data-mode', 'home');
+          const isHomePage = (await scene.getAttribute('data-route')) === 'home';
           expect(await resources('script[src]', 'src', '/mountains/mountains.js'), `${path} no legacy landscape URL`).toEqual([]);
           const scripts = await page.evaluate(() => [...document.querySelectorAll<HTMLScriptElement>('head script[src]')].map(s => ({
             src: s.getAttribute('src')!, runtime: s.getAttribute('data-landscape-runtime'), home: s.getAttribute('data-home-runtime'),
@@ -258,8 +259,9 @@ test('Mount looks toward a fine pointer with real signed eye and tilt values', a
   });
 });
 
-test('mouse depth is signed to the viewport corner, bounded, and cleans up to neutral', async ({ browser, baseURL }) => {
-  // The whole-scene mouse depth belongs to the index route /work; Home's own sky-only response is the next test.
+test('the index route draws its rim in once, then takes no mouse depth: its sky is Home\'s, so terrain never follows the pointer', async ({ browser, baseURL }) => {
+  // The whole-scene mouse depth of the old index route is retired (one sky, Son-approved 2026-11-03); the first-arrival rim
+  // draw-in stays on index routes, and Home's own sky-only response is the next test.
   await open(browser, baseURL, desktop, async page => {
     await page.goto('/work');
     const scene = page.locator('.mtn-scene');
@@ -268,27 +270,21 @@ test('mouse depth is signed to the viewport corner, bounded, and cleans up to ne
     await expect(scene).not.toHaveAttribute('data-intro', /.*/, { timeout: 3000 });
     expect(await scene.locator('.mtn-rim').first().getAttribute('pathLength')).toBeNull();
 
-    await page.mouse.move(1439, 899);
-    await expect.poll(async () => (await camera(page))[0], { timeout: 3000 }).toBeLessThan(-2.5);
-    await expect(scene).toHaveAttribute('data-cam', '');
-    const [fx, fy, nx, ny] = await camera(page);
-    expect(fx).toBeCloseTo(-3, 0);
-    expect(fy).toBeCloseTo(-1, 0);
-    expect(nx).toBeCloseTo(-9, 0);
-    expect(ny).toBeCloseTo(-3, 0);
-
-    await page.mouse.move(1, 1);
-    await expect.poll(async () => (await camera(page))[0], { timeout: 3000 }).toBeGreaterThan(2.5);
-    const [ax, ay, bx, by] = await camera(page);
-    expect(ax).toBeCloseTo(3, 0);
-    expect(ay).toBeCloseTo(1, 0);
-    expect(bx).toBeCloseTo(9, 0);
-    expect(by).toBeCloseTo(3, 0);
-    for (const [value, max] of [[ax, 3], [ay, 1], [bx, 9], [by, 3]]) expect(Math.abs(value)).toBeLessThanOrEqual(max);
+    const layers = () => scene.evaluate(el => ['.mtn-far', '.mtn-middle', '.mtn-near'].map(sel => getComputedStyle(el.querySelector(`:scope > ${sel}`)!).transform));
+    const cameraKeys = () => scene.evaluate(el => ['fx', 'fy', 'nx', 'ny'].map(k => el.style.getPropertyValue(`--mtn-${k}`)));
+    const rest = await layers();
+    const frames = () => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+    for (const [x, y] of [[1439, 899], [1, 1], [720, 450]]) {
+      await page.mouse.move(x, y);
+      await frames();
+      await expect(scene).not.toHaveAttribute('data-cam', /.*/);
+      expect(await cameraKeys(), `no terrain camera at (${x}, ${y})`).toEqual(['', '', '', '']);
+      expect(await layers(), `terrain stays put at (${x}, ${y})`).toEqual(rest);
+    }
 
     await page.mouse.wheel(0, 120);
     await expect(scene).not.toHaveAttribute('data-cam', /.*/);
-    for (const k of ['fx', 'fy', 'nx', 'ny']) expect(await scene.evaluate((el, k) => el.style.getPropertyValue(`--mtn-${k}`), k)).toBe('');
+    expect(await cameraKeys()).toEqual(['', '', '', '']);
   });
 });
 

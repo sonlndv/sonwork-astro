@@ -276,7 +276,7 @@ test('Mount fits its 68x44 target at 44px, keeps the header height and Back to t
   await about.context.close();
 });
 
-test('no-JS Home is clear and fixed; other routes keep their incumbent day sky', async ({ browser }) => {
+test('no-JS Home is clear and fixed; other routes show Home\'s clear day sky', async ({ browser }) => {
   const plain = await browser.newContext({ ...base, javaScriptEnabled: false });
   const page = await plain.newPage();
   await page.goto('/');
@@ -288,39 +288,28 @@ test('no-JS Home is clear and fixed; other routes keep their incumbent day sky',
   await normal.context.close();
   await plain.close();
 
-  // Graded sky: other routes keep their incumbent day clouds and now carry Home's graded Neptune as a cropped limb (both themes,
-  // with and without script); the small bodies stay Home-only.
+  // One sky (Son-approved 2026-11-03): other routes show Home's clear day sky and the same bodies (both themes, with and without
+  // script); no daytime clouds, and no separate no-script planet copy.
   for (const route of ['/about', '/work']) {
     for (const theme of ['light', 'dark'] as const) {
       const { context, page: other } = await open(browser, base, route, theme);
-      if (theme === 'light') expect(await shown(other, '.sv-hs-clouds'), route).toBe(true);
+      expect(await shown(other, '.sv-hs-clouds'), `${route} ${theme} shows no clouds`).toBe(false);
       expect(await shown(other, '.sv-hs-planet'), `${route} ${theme}`).toBe(true);
-      expect(await shown(other, '.sv-ow-bodies'), `${route} ${theme}`).toBe(false);
+      expect(await shown(other, '.sv-ow-bodies'), `${route} ${theme}`).toBe(true);
       await context.close();
     }
     const bare = await browser.newContext({ ...base, javaScriptEnabled: false });
     const noScript = await bare.newPage();
     await noScript.goto(route);
-    expect(await shown(noScript, '.sv-hs-planet'), `${route} no JS`).toBe(true);
-    // Speed pass: the painted planet is the <noscript> fallback copy; the real sky SVG's href-less group does not paint.
-    expect(await shown(noScript, 'svg.sv-np-fallback .sv-hs-planet > .sv-ow-pimg image'), `${route} no JS fallback image is painted`).toBe(true);
-    expect(await shown(noScript, 'svg.mtn-ridge:not(.sv-np-fallback) .sv-hs-planet'), `${route} no JS real sky planet group is hidden`).toBe(false);
-    expect(await shown(noScript, '.sv-ow-bodies'), `${route} no JS`).toBe(false);
+    expect(await shown(noScript, '.sv-hs-clouds'), `${route} no JS shows no clouds`).toBe(false);
+    expect(await shown(noScript, '.sv-hs-planet > .sv-ow-pimg image'), `${route} no JS paints the real Neptune`).toBe(true);
+    expect(await shown(noScript, '.sv-ow-bodies'), `${route} no JS`).toBe(true);
+    expect(await noScript.locator('svg.sv-np-fallback').count(), `${route} no JS needs no fallback copy`).toBe(0);
     await bare.close();
-    // Follow-up: without script the OS preference is the theme. In dark the fallback copy is lifted above the far sky SVG,
-    // so the real sky's stars stay behind the planet; in light it stays underneath.
-    for (const [scheme, zIndex] of [['dark', '1'], ['light', 'auto']] as const) {
-      const stacked = await browser.newContext({ ...base, colorScheme: scheme, javaScriptEnabled: false });
-      const stackPage = await stacked.newPage();
-      await stackPage.goto(route);
-      const order = await stackPage.locator('.mtn-far svg.sv-np-fallback').evaluateAll((els) => els.map((el) => getComputedStyle(el).zIndex));
-      expect(order, `${route} no JS ${scheme} fallback stacking`).toEqual([zIndex, zIndex]);
-      await stacked.close();
-    }
   }
 });
 
-test('Home night catalogue is visibly fuller than the incumbent route and other routes keep their math', async ({ browser }) => {
+test('Home night catalogue is the fine field and other routes carry exactly the same star sizes and opacities', async ({ browser }) => {
   const stars = async (path: string) => {
     const { context, page } = await open(browser, base, path, 'dark');
     await page.waitForSelector('.mtn-scene[data-sky="full"]');
@@ -334,8 +323,8 @@ test('Home night catalogue is visibly fuller than the incumbent route and other 
   expect(Math.min(...home.map(v => v[0]))).toBeGreaterThanOrEqual(0.85);
   expect(Math.min(...home.map(v => v[1]))).toBeGreaterThanOrEqual(0.3);
   expect(Math.max(...home.map(v => v[0]))).toBeLessThanOrEqual(2.6);
-  expect(Math.min(...about.map(v => v[0]))).toBeLessThan(0.85);
-  expect(Math.min(...about.map(v => v[1]))).toBeLessThan(0.2);
+  expect(about.length, 'the same star count').toBe(home.length);
+  expect(about, 'the same sizes and opacities').toEqual(home);
 });
 
 // ---- Real bodies over the valley (DESIGN.md "Current private contract: four real bodies") ----
@@ -895,16 +884,19 @@ for (const [width, height] of [[375, 812], [390, 844], [768, 1024]] as const) {
   }
 }
 
-test('Saturn is omitted where no sky gap exists, outside Home and at 200% text', async ({ browser }) => {
+test('Saturn is omitted where no sky gap exists and at 200% text, and every route follows Home', async ({ browser }) => {
   for (const [width, height] of [[375, 812], [768, 1024], [899, 1000], [900, 700], [1280, 1280], [1359, 900], [1440, 500]] as const) {
     const touch = width < 900;
     const { context, page } = await open(browser, { ...base, viewport: { width, height }, isMobile: touch, hasTouch: touch, colorScheme: 'light' }, '/', 'light');
     expect(await shown(page, '.sv-ow-c'), `hidden at ${width}x${height}`).toBe(false);
     await context.close();
   }
-  const about = await open(browser, base, '/about', 'light');
-  expect(await shown(about.page, '.sv-ow-c')).toBe(false);
-  await about.context.close();
+  // One sky: other routes show Saturn exactly where Home does (1440x900 has room for it).
+  for (const route of ['/', '/about']) {
+    const wide = await open(browser, base, route, 'light');
+    expect(await shown(wide.page, '.sv-ow-c'), `Saturn shows on ${route} at 1440x900`).toBe(true);
+    await wide.context.close();
+  }
   const { context, page } = await open(browser, { ...base, colorScheme: 'light' }, '/', 'light');
   await page.addStyleTag({ content: 'html { font-size: 200%; }' });
   await page.waitForFunction(() => document.querySelector('.mtn-scene')!.hasAttribute('data-big'));
@@ -1052,125 +1044,48 @@ test('every cancellation path removes the star at once and needs fresh mouse inp
   // The window changed size, so the open-sky target is measured again before re-arming.
   const resized = await skyPoints(page);
   await establish(page, ...resized.a);
-  await page.locator('.atmosphere-toggle').click(); // the real native Pause control (Playwright scrolls it into view)
-  await gone('Pause');
-  await page.mouse.move(resized.a[0] + 10, resized.a[1] + 5);
-  await page.mouse.move(resized.a[0] + 16, resized.a[1] + 9);
-  await page.waitForTimeout(300);
-  expect((await starState(page)).on, 'Pause stays static under fresh mouse input').toBe(false);
   expect(errors).toEqual([]);
   await context.close();
 });
 
-// Graded sky: the only Home texture other routes may carry is Neptune's pair (dark and light), shared with Home's cache.
-const NEPTUNE_PAIR = ['/mountains/real-neptune-morning.webp', '/mountains/real-neptune.webp'];
-const OFF_HOME_INERT = HOME_HREFS.filter(href => !href.includes('real-neptune'));
-
-test('Home-only real textures and visibility masks are not fetched on other routes (only the Neptune pair is); Home keeps its 16 real hrefs with or without JS', async ({ browser }) => {
-  for (const route of ['/work', '/about']) {
-    const context = await browser.newContext(base);
-    const page = await context.newPage();
-    const requests = new Set<string>();
-    page.on('request', request => { if (/\/mountains\/(real-|ow-)/.test(request.url())) requests.add(new URL(request.url()).pathname); });
-    await page.goto(route);
-    await page.waitForLoadState('load');
-    // Speed pass: with JS only the current theme's Neptune texture is requested (base is system light, so the day file).
-    expect(Array.from(requests).sort(), `${route} requests exactly the current theme's Neptune texture and no other Home texture or visibility mask`).toEqual([NEPTUNE_PAIR[0]]);
-    const facts = await page.evaluate(() => ({
-      npSrc: Array.from(document.querySelectorAll('image[data-np-src]')).map(node => node.getAttribute('data-np-src')!).sort(),
-      inert: Array.from(document.querySelectorAll('image[data-home-src]')).map(node => node.hasAttribute('href')),
-      homeSrc: Array.from(document.querySelectorAll('image[data-home-src]')).map(node => node.getAttribute('data-home-src')!).sort(),
-      withHref: document.querySelectorAll('image[href*="/mountains/real-"], image[href*="/mountains/ow-"]').length,
-      hrefs: Array.from(document.querySelectorAll('image[href*="/mountains/real-"]')).map(node => node.getAttribute('href')!).sort(),
-      blue: document.querySelectorAll('image[href*="blue-planet.webp"]').length,
-      landscape: document.querySelectorAll('.mtn-scene .mtn-lit').length,
-      css: Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\n'),
-    }));
-    expect(facts.inert.length, 'the 12 non-Neptune hidden texture nodes remain, inert').toBe(12);
-    expect(facts.inert.every(has => !has)).toBe(true);
-    expect(facts.homeSrc, 'the inert sources are exactly the current non-Neptune real files').toEqual(OFF_HOME_INERT);
-    expect(facts.npSrc, 'all 4 Neptune nodes (dark and light, wide and tall) carry their source as data-np-src').toEqual([NEPTUNE_PAIR[0], NEPTUNE_PAIR[0], NEPTUNE_PAIR[1], NEPTUNE_PAIR[1]]);
-    expect(facts.withHref, 'only the current theme\'s 2 Neptune nodes (wide and tall) are live').toBe(2);
-    expect(facts.hrefs, 'the live hrefs are the current theme\'s Neptune file').toEqual([NEPTUNE_PAIR[0], NEPTUNE_PAIR[0]]);
-    expect(facts.blue, 'the retired blue-planet.webp is not referenced').toBe(0);
-    expect(facts.css, `${route} carries no visibility-mask URL`).not.toMatch(/real-(earth|saturn)-visibility/);
-    expect(facts.landscape, 'original landscape paths are intact').toBeGreaterThan(0);
-    await expect(page.locator('main')).toBeVisible();
-    await context.close();
+test('every route keeps the 16 real hrefs with or without JS and fetches the same visibility masks as Home', async ({ browser }) => {
+  // One sky (Son-approved 2026-11-03): every route emits Home's scene as authored; no texture is inert or deferred.
+  // At a size where both optional masks apply, every route fetches exactly the two fixed visibility masks, and no retired ow- file.
+  for (const route of ['/', '/work', '/about']) {
+    const wide = await browser.newContext(base);
+    const widePage = await wide.newPage();
+    const wideRequests = new Set<string>();
+    widePage.on('request', request => { if (/\/mountains\/(real-.*-visibility|ow-)/.test(request.url())) wideRequests.add(new URL(request.url()).pathname); });
+    await widePage.goto(route);
+    await widePage.waitForLoadState('load');
+    expect(Array.from(wideRequests).sort(), `${route}: two fixed visibility masks, nothing retired`).toEqual(['/mountains/real-earth-visibility.webp', '/mountains/real-saturn-visibility.webp']);
+    await wide.close();
   }
-  // Without JS, other routes request the Neptune pair through the <noscript> fallback and nothing else.
-  for (const route of ['/work', '/about']) {
-    const context = await browser.newContext({ ...base, javaScriptEnabled: false });
-    const page = await context.newPage();
-    const requests = new Set<string>();
-    page.on('request', request => { if (/\/mountains\/(real-|ow-)/.test(request.url())) requests.add(new URL(request.url()).pathname); });
-    await page.goto(route);
-    await page.waitForLoadState('load');
-    expect(Array.from(requests).sort(), `${route} without JS requests the Neptune pair through the fallback and nothing else`).toEqual(NEPTUNE_PAIR);
-    await context.close();
-  }
-  // Home at a size where both optional masks apply fetches exactly the two fixed visibility masks, and no retired ow- file.
-  const wide = await browser.newContext(base);
-  const widePage = await wide.newPage();
-  const wideRequests = new Set<string>();
-  widePage.on('request', request => { if (/\/mountains\/(real-.*-visibility|ow-)/.test(request.url())) wideRequests.add(new URL(request.url()).pathname); });
-  await widePage.goto('/');
-  await widePage.waitForLoadState('load');
-  expect(Array.from(wideRequests).sort(), 'two fixed visibility masks, nothing retired').toEqual(['/mountains/real-earth-visibility.webp', '/mountains/real-saturn-visibility.webp']);
-  await wide.close();
-  for (const javaScriptEnabled of [true, false]) {
+  for (const [route, javaScriptEnabled] of [['/', true], ['/', false], ['/work', true], ['/work', false], ['/about', true], ['/about', false]] as const) {
     const context = await browser.newContext({ ...base, javaScriptEnabled });
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto(route);
     const facts = await page.evaluate(() => ({
       withHref: document.querySelectorAll('image[href*="/mountains/real-"]').length,
       hrefs: Array.from(document.querySelectorAll('image[href*="/mountains/real-"]')).map(node => node.getAttribute('href')!).sort(),
       retired: document.querySelectorAll('image[href*="/mountains/ow-"]').length,
       blue: document.querySelectorAll('image[href*="blue-planet.webp"]').length,
-      inert: document.querySelectorAll('image[data-home-src]').length,
+      inert: document.querySelectorAll('image[data-home-src], image[data-np-src]').length,
     }));
-    expect(facts.withHref, `Home keeps its real hrefs (JS ${javaScriptEnabled})`).toBe(16);
-    expect(facts.hrefs, `Home hrefs are the current real files (JS ${javaScriptEnabled})`).toEqual(HOME_HREFS);
+    expect(facts.withHref, `${route} keeps the real hrefs (JS ${javaScriptEnabled})`).toBe(16);
+    expect(facts.hrefs, `${route} hrefs are the current real files (JS ${javaScriptEnabled})`).toEqual(HOME_HREFS);
     expect(facts.retired).toBe(0);
     expect(facts.blue, 'the retired blue-planet.webp is not referenced').toBe(0);
-    expect(facts.inert).toBe(0);
-    expect(await shown(page, '.sv-hs-planet > .sv-ow-pimg image'), `Home shows its real Neptune (JS ${javaScriptEnabled})`).toBe(true);
+    expect(facts.inert, 'no inert texture attribute remains').toBe(0);
+    expect(await shown(page, '.sv-hs-planet > .sv-ow-pimg image'), `${route} shows its real Neptune (JS ${javaScriptEnabled})`).toBe(true);
     await context.close();
   }
 });
 
-// Speed pass: inner pages (calm /about, index /work) load only the current theme's Neptune texture, set by an inline script;
-// a real theme toggle click then loads the other theme's texture.
-for (const route of ['/about', '/work']) {
-  for (const theme of ['light', 'dark'] as const) {
-    test(`${route} in ${theme} requests only its own Neptune texture until the theme is toggled`, async ({ browser }) => {
-      const other = theme === 'light' ? 'dark' : 'light';
-      const context = await browser.newContext({ ...base, colorScheme: theme });
-      const page = await context.newPage();
-      await page.addInitScript(value => localStorage.setItem('theme', value), theme);
-      const requests = new Set<string>();
-      page.on('request', request => { if (/\/mountains\/(real-|ow-)/.test(request.url())) requests.add(new URL(request.url()).pathname); });
-      await page.goto(route);
-      await page.waitForFunction(() => !!(window as any).sonworkLandscape?.isActive);
-      await page.waitForLoadState('load');
-      const nodes = (which: 'light' | 'dark') => page.evaluate(sel => Array.from(document.querySelectorAll(sel)).map(node => node.getAttribute('href')), `.mtn-scene .sv-hs-planet .${which === 'light' ? 'sv-ow-pm' : 'sv-ow-pn'}`);
-      expect(Array.from(requests), `${route} ${theme}: exactly the current theme's Neptune texture`).toEqual([BODY_HREFS.planet[theme]]);
-      expect(await nodes(theme), `${route} ${theme}: the current theme's nodes (wide and tall) have href`).toEqual([BODY_HREFS.planet[theme], BODY_HREFS.planet[theme]]);
-      expect(await nodes(other), `${route} ${theme}: the other theme's nodes stay inert`).toEqual([null, null]);
-      await page.locator('.theme-toggle').click();
-      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe(other);
-      await expect.poll(() => Array.from(requests).sort(), { message: `${route}: the other theme's texture is requested after the toggle` })
-        .toEqual(NEPTUNE_PAIR);
-      expect(await nodes(other), `${route} ${other}: the new theme's nodes have href`).toEqual([BODY_HREFS.planet[other], BODY_HREFS.planet[other]]);
-      await context.close();
-    });
-  }
-}
-
-test('only Home inlines the Home-only world CSS; other routes still hide the new small bodies and carry only the graded Neptune limb', async ({ browser }) => {
+test('every route inlines the same world CSS, hides the small bodies by default and paints Home\'s bodies and graded Neptune', async ({ browser }) => {
   const css = (page: Page) => page.evaluate(() => Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\n'));
-  // The Home-only nested-image guard, emitted only by the Home world CSS. The off-Home carry-through names its own identity
-  // tokens (--np-identity-scale/shift/turn), so none of the three Home tokens may appear on another route.
+  // The nested-image guard comes from the world CSS, which every route inlines now. The retired off-Home carry-through tokens
+  // (--np-identity-scale/shift/turn) must not come back.
   const homeRule = /ow-identity-(scale|shift|turn)/;
   // The minifier legitimately merges identical adjacent declarations into one selector list
   // (e.g. `.mtn-scene[data-mode=calm]>.mtn-mist,.sv-ow-bodies,.sv-ow-pimg,.sv-ow-pm,.sv-ow-pn{display:none}`), so the
@@ -1210,19 +1125,16 @@ test('only Home inlines the Home-only world CSS; other routes still hide the new
     expect(hiding.rulesSeen, `${route} CSSOM is readable (nonempty)`).toBeGreaterThan(0);
     expect(hiding.missing, `${route} hides the new art by default`).toEqual([]);
     expect(text, `${route} keeps the planet group rules`).toMatch(/\.sv-hs-planet/);
-    if (route === '/') expect(text, 'Home carries its world CSS').toMatch(homeRule);
-    else {
-      expect(text, `${route} omits the Home-only world CSS`).not.toMatch(homeRule);
-      expect(text, `${route} carries its own identity tokens for the graded Neptune`).toMatch(/np-identity-scale/);
-    }
+    expect(text, `${route} carries the world CSS`).toMatch(homeRule);
+    expect(text, `${route} carries no retired off-Home identity tokens`).not.toMatch(/np-identity/);
     await context.close();
   }
   for (const route of ['/work', '/about']) {
     const context = await browser.newContext({ ...base, colorScheme: 'dark' });
     const page = await context.newPage();
     await page.goto(route);
-    expect(await shown(page, '.sv-ow-bodies'), `${route} paints none of the new bodies`).toBe(false);
-    expect(await shown(page, '.sv-hs-planet > .sv-ow-pimg image'), `${route} night paints the graded Neptune limb`).toBe(true);
+    expect(await shown(page, '.sv-ow-bodies'), `${route} paints Home's small bodies`).toBe(true);
+    expect(await shown(page, '.sv-hs-planet > .sv-ow-pimg image'), `${route} night paints the graded Neptune`).toBe(true);
     expect(await shown(page, '.sv-hs-planet > image'), `${route} no longer paints the retired crescent raster`).toBe(false);
     await context.close();
   }
@@ -1252,7 +1164,7 @@ test('a real control with keyboard-visible focus keeps the pointer star off unti
   await context.close();
 });
 
-test('the pointer star is absent for reduced motion, coarse input, other routes and no JS', async ({ browser }) => {
+test('the pointer star is absent for reduced motion, coarse input and no JS, and answers a fine mouse on other routes too', async ({ browser }) => {
   const reduced = await open(browser, { ...base, reducedMotion: 'reduce' }, '/', 'light');
   await reduced.page.mouse.move(600, 400);
   await reduced.page.mouse.move(640, 430);
@@ -1268,11 +1180,12 @@ test('the pointer star is absent for reduced motion, coarse input, other routes 
   expect((await starState(coarse.page)).on).toBe(false);
   await coarse.context.close();
 
+  // One sky: every route runs Home's pointer code, so a fine mouse over open sky draws the same decorative star on /about.
   const about = await open(browser, base, '/about', 'light');
-  await about.page.mouse.move(600, 400);
-  await about.page.mouse.move(640, 430);
-  await about.page.waitForTimeout(300);
-  expect((await starState(about.page)).present, 'no star on other routes').toBe(false);
+  await about.page.waitForSelector('.mtn-scene[data-sky="full"]');
+  const aboutSky = await skyPoints(about.page);
+  await establish(about.page, ...aboutSky.a);
+  expect((await starState(about.page)).on, 'the star answers on other routes').toBe(true);
   expect(await about.page.evaluate(() => document.querySelectorAll('.sv-ow-relight, foreignObject, .mtn-scene canvas').length)).toBe(0);
   await about.context.close();
 
@@ -1415,23 +1328,17 @@ for (const [width, height, touch] of [[1280, 800, false], [1024, 768, false], [9
   });
 }
 
-// Inner pages on phones: the graded Neptune's lowest point is 140px under the header (both themes), clear of the page title,
-// and at night every route takes the index exposure 0.75 (calm routes keep 0.55 by day).
+// Inner pages on phones show Home's Neptune: the same box (to 2px) at full opacity as Home at the same size and theme, with the
+// first heading clear of the disc. The old inner-page limb (140px under the header, exposure 0.55/0.75) is retired.
 for (const [width, height] of [[390, 844], [375, 812], [719, 1000]] as const) {
   for (const route of ['/about', '/work']) {
     for (const theme of ['light', 'dark'] as const) {
-      test(`phone ${route} Neptune: lowest point 140px under the header, clear of the title, exposure by theme at ${width}x${height} (${theme})`, async ({ browser }) => {
-        const { context, page } = await open(browser, { ...phone, viewport: { width, height }, colorScheme: theme }, route, theme);
-        await untilStable(page, () => page.evaluate(() => {
-          const image = Array.from(document.querySelectorAll('.mtn-scene .sv-hs-planet > .sv-ow-pimg image')).find(node => node.getClientRects().length > 0);
-          const r = image ? image.getBoundingClientRect() : null;
-          return r ? r.top + r.height / 2 + 0.495 * r.width : null; // the lowest point of the disc
-        }));
-        const f = await page.evaluate(() => {
+      test(`phone ${route} Neptune matches Home's, clear of the title, at ${width}x${height} (${theme})`, async ({ browser }) => {
+        const neptune = (page: Page) => page.evaluate(() => {
           const image = Array.from(document.querySelectorAll('.mtn-scene .sv-hs-planet > .sv-ow-pimg image')).find(node => node.getClientRects().length > 0);
           const r = image ? image.getBoundingClientRect() : null;
           const title = document.querySelector('main h1');
-          const glyphs: Rect[] = [];
+          const glyphs: { left: number; top: number; right: number; bottom: number }[] = [];
           if (title) {
             const walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT);
             for (let node = walker.nextNode(); node; node = walker.nextNode()) {
@@ -1441,23 +1348,31 @@ for (const [width, height] of [[390, 844], [375, 812], [719, 1000]] as const) {
             }
           }
           return {
-            box: r ? { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width } : null,
+            box: r ? { x: r.left, y: r.top, w: r.width, h: r.height } : null,
             opacity: image ? getComputedStyle(image).opacity : null,
-            header: document.querySelector('.site-header')!.getBoundingClientRect().bottom,
             glyphs,
           };
         });
-        expect(f.box, 'the graded Neptune limb shows').not.toBeNull();
-        const radius = 0.495 * f.box!.w; // disc radius is 0.495 of the square image box
-        expect(Math.abs(f.box!.cy + radius - (f.header + 140)), 'lowest point 140px under the header').toBeLessThanOrEqual(3);
-        expect(f.glyphs.length, 'page title was measured').toBeGreaterThan(0);
-        for (const g of f.glyphs) {
-          const nearX = Math.min(Math.max(f.box!.cx, g.left), g.right), nearY = Math.min(Math.max(f.box!.cy, g.top), g.bottom);
-          expect(Math.hypot(nearX - f.box!.cx, nearY - f.box!.cy), 'the page title stays outside the disc').toBeGreaterThanOrEqual(radius);
+        const options = { ...phone, viewport: { width, height }, colorScheme: theme };
+        const homeSide = await open(browser, options, '/', theme);
+        const home = await neptune(homeSide.page);
+        await homeSide.context.close();
+        const { context, page } = await open(browser, options, route, theme);
+        // The index route plays its first-arrival rise; wait until the disc has settled before comparing.
+        await untilStable(page, async () => (await neptune(page)).box?.y ?? null);
+        const f = await neptune(page);
+        expect(home.box, 'Home shows Neptune').not.toBeNull();
+        expect(f.box, `${route} shows Neptune`).not.toBeNull();
+        for (const key of ['x', 'y', 'w', 'h'] as const) {
+          expect(Math.abs(f.box![key] - home.box![key]), `${route} Neptune ${key} equals Home's`).toBeLessThanOrEqual(2);
         }
-        // Dark: 0.75 on every route. Light: 0.75 on index routes (/work), 0.55 on calm routes (/about).
-        const expected = theme === 'dark' || route === '/work' ? '0.75' : '0.55';
-        expect(f.opacity, `exposure on ${route} (${theme})`).toBe(expected);
+        expect(f.opacity, `${route} Neptune paints at full opacity`).toBe('1');
+        expect(f.glyphs.length, 'page title was measured').toBeGreaterThan(0);
+        const cx = f.box!.x + f.box!.w / 2, cy = f.box!.y + f.box!.h / 2, radius = 0.495 * f.box!.w;
+        for (const g of f.glyphs) {
+          const nearX = Math.min(Math.max(cx, g.left), g.right), nearY = Math.min(Math.max(cy, g.top), g.bottom);
+          expect(Math.hypot(nearX - cx, nearY - cy), 'the page title stays outside the disc').toBeGreaterThanOrEqual(radius);
+        }
         await context.close();
       });
     }

@@ -133,7 +133,7 @@ async function settled(page: Page) {
 
 async function geometry(page: Page) {
   return scene(page).evaluate(el => ({
-    mode: (el as HTMLElement).dataset.mode, // the scene's own route mode (home|index|calm), read from its producer
+    mode: (el as HTMLElement).dataset.mode, // the scene's own mode (home on every route since the one sky), read from its producer
     width: innerWidth, height: innerHeight, y: scrollY,
     overflow: document.documentElement.scrollWidth - innerWidth,
     layers: [...el.querySelectorAll<HTMLElement>(':scope > .mtn-layer')].map(layer => {
@@ -322,7 +322,7 @@ for (const profile of [
       expectPose(ending, 0); // the ending is the same static pose on Home
       // Controlled paint diagnostic: freeze other decoration, then hide ONE actual outer plane.
       // Compare reproducible pixels, not CSS presence. Never alter progress or application state.
-      // The shared helper also uses the real public Pause owner, so future recurring meteors cannot start; prior state is restored.
+      // The shared helper also blurs the window through the page's own blur path, so the page's one shooting star cannot start; focus is restored.
       await quiet(page, async () => {
         const baseline = await page.screenshot({ animations: 'disabled' });
         // Static Home composition at the 375x812 phone profile: the near landmass sits below the 812px viewport
@@ -375,55 +375,26 @@ for (const profile of [
   });
 }
 
-test('built file-format routes emit Home/index/calm modes and absent-Home routes start safely', async ({ browser, baseURL }) => {
+// One sky (Son-approved 2026-11-03): every route emits Home's scene (data-mode="home"); data-route keeps today's per-route value.
+test('built file-format routes emit Home\'s scene on every route with the per-route value in data-route, and absent-Home routes start safely', async ({ browser, baseURL }) => {
   await open(browser, baseURL, {}, async page => {
-    for (const [route, mode] of [
+    for (const [route, kind] of [
       ['/index.html', 'home'], ['/work.html', 'index'], ['/writing.html', 'index'],
       ['/about.html', 'calm'], ['/work/trivia-hub.html', 'calm'], ['/subscribe.html', 'calm'], ['/missing-sky-valley-page', 'calm'],
     ] as const) {
       const response = await page.goto(route);
       expect(response?.status()).toBe(route.startsWith('/missing-') ? 404 : 200);
       await expect(scene(page)).toHaveCount(1);
-      await expect(scene(page)).toHaveAttribute('data-mode', mode);
+      await expect(scene(page)).toHaveAttribute('data-mode', 'home');
+      await expect(scene(page)).toHaveAttribute('data-route', kind);
       await expect(page.locator('main')).toBeVisible();
       await expect(scene(page).locator(':scope > .mtn-layer')).toHaveCount(3);
-      if (mode === 'calm') {
+      if (kind === 'calm') {
         await expect(scene(page)).toHaveAttribute('data-arrival', 'static');
         await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', '0');
-        expectPose(await geometry(page), 0.44);
+        expectPose(await geometry(page), 0); // Home's static entry pose
       }
     }
-  });
-});
-
-test('Pause freezes painted progress while native scroll works; keyboard Resume aligns without replay', async ({ browser, baseURL }) => {
-  await open(browser, baseURL, {}, async page => {
-    await page.goto('/');
-    await settled(page);
-    await toHomeEdge(page, true, false); // Home's scene progress stays 0 under native scroll
-    const toggle = page.locator('.atmosphere-toggle');
-    await toggle.click();
-    await expect(toggle).toHaveText('Resume atmosphere');
-    expect(await page.evaluate(() => localStorage.getItem('sonwork-atmosphere'))).toBe('paused');
-    const frozen = await geometry(page);
-    const passes = await page.locator('.mtn-mist').getAttribute('data-passes');
-    await page.keyboard.press('Control+Home');
-    await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
-    expect(await progress(page)).toBe(0);
-    expect((await geometry(page)).layers).toEqual(frozen.layers);
-    await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
-    await expect(scene(page)).not.toHaveAttribute('data-trace', /.*/);
-    await expect(scene(page).locator('.mtn-rim[pathLength]')).toHaveCount(0);
-    // Native keyboard activation with preventScroll focus preserves the position being resumed.
-    await page.keyboard.press('Tab');
-    await toggle.evaluate(el => (el as HTMLElement).focus({ preventScroll: true }));
-    await page.keyboard.press('Enter');
-    await expect(toggle).toHaveText('Pause atmosphere');
-    await expect.poll(() => progress(page)).toBe(0);
-    expectPose(await geometry(page), 0);
-    await expect(page.locator('.mtn-mist')).toHaveAttribute('data-passes', passes!);
-    await expect(page.locator('.mtn-mist')).not.toHaveAttribute('data-run', /.*/);
-    await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
   });
 });
 
@@ -505,22 +476,21 @@ test('live reduced/forced changes and no-JS keep complete static scenery and con
     await expect(scene(page).locator('.mtn-rim[pathLength]')).toHaveCount(0);
     expectPose(await geometry(page), 0); // Home's reduced pose is the same static entry pose
     expect(await scene(page).evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
-    await expect(page.locator('.atmosphere-toggle')).toBeHidden();
-    for (const [route, mode] of [['/work.html', 'index'], ['/about.html', 'calm'], ['/index.html', 'home']] as const) {
+    for (const [route, kind] of [['/work.html', 'index'], ['/about.html', 'calm'], ['/index.html', 'home']] as const) {
       await page.goto(route);
-      await expect(scene(page)).toHaveAttribute('data-mode', mode);
+      await expect(scene(page)).toHaveAttribute('data-mode', 'home'); // one sky: every route is Home's scene
+      await expect(scene(page)).toHaveAttribute('data-route', kind);
       await expect(page.locator('main')).toBeVisible();
       await expect(scene(page)).toBeVisible();
-      expectPose(await geometry(page), mode === 'home' ? 0 : 0.38); // index/calm keep the reduced rest; Home is static at entry
+      expectPose(await geometry(page), 0); // every route is static at Home's entry pose
       await expect(scene(page).locator('.mtn-rim[pathLength]')).toHaveCount(0);
       await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
       await expect(scene(page)).not.toHaveAttribute('data-trace', /.*/);
       expect(await scene(page).evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
-      await expect(page.locator('.atmosphere-toggle')).toBeHidden();
       // Each reduced-mode route retains actual paint in all three independently measured planes.
       const baseline = await page.screenshot({ animations: 'disabled' });
       for (const role of ['far', 'middle', 'near']) {
-        await paintedPlane(page, role, baseline, mode + ' reduced ' + role);
+        await paintedPlane(page, role, baseline, kind + ' reduced ' + role);
       }
     }
     await page.emulateMedia({ forcedColors: 'active' });
@@ -534,7 +504,6 @@ test('live reduced/forced changes and no-JS keep complete static scenery and con
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('.home-intro')).toBeVisible();
     await expect(page.locator('.companion')).toBeDisabled();
-    await expect(page.locator('.atmosphere-toggle')).toBeHidden();
     expectPose(await geometry(page), 0);
     expect(await scene(page).evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
     await expect(page.locator('.build-entry')).toHaveCount(3);
@@ -617,7 +586,7 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
     expect(await work()).toEqual(idle);
     expect(idle.frames).toBeGreaterThan(0);
     // Zero idle RAF recurrence stays. The only approved owned timer is the ONE sparse night-meteor scheduler
-    // (Home/index, dark, focused, visible, not Paused): at most one pending, never a short ambient loop.
+    // (Home/index, dark, focused, visible): at most one pending, never a short ambient loop, and none once the page's one star has fired.
     expect(idle.timerPending).toBeLessThanOrEqual(1);
     expect(Math.min(...idle.delays, Infinity)).toBeGreaterThanOrEqual(1800);
     const p = await progress(page);
@@ -642,7 +611,7 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
     expect(await progress(page), 'Home scene progress stays 0 after the simulated restore').toBe(0);
     await expect(scene(page)).not.toHaveAttribute('data-intro', /.*/);
     await expect(page.locator('.mtn-mist')).not.toHaveAttribute('data-run', /.*/);
-    // A persisted pageshow may rearm the one sparse scheduler (>=1.8s idle); nothing else, and no RAF.
+    // A persisted pageshow never adds a shooting star; at most the one sparse scheduler may remain pending, and no RAF.
     expect((await work()).timerPending).toBeLessThanOrEqual(1);
     await testInfo.attach('observed-owner-work', { body: JSON.stringify({ idle, restored: await work() }, null, 2), contentType: 'application/json' });
   });
@@ -786,14 +755,12 @@ async function quiet<T>(page: Page, run: () => Promise<T>) {
     document.head.append(s);
     return s;
   }, quietCss);
-  // The approved finite meteor scheduler can create FUTURE shots, which pausing current WAAPI cannot stop. When scripts run,
-  // use the REAL public Pause owner (the footer button) and restore its prior state afterwards; with JavaScript disabled
-  // there is no scheduler and nothing is clicked.
+  // The approved single-shot meteor scheduler can create a FUTURE shot, which pausing current WAAPI cannot stop. When scripts
+  // run, take the page's own blur path (it clears every pending timer and shot and blocks a new one until focus returns) and
+  // restore focus afterwards; with JavaScript disabled there is no scheduler and nothing is dispatched.
   const pauseState = await page.evaluate(() => {
-    const button = document.querySelector<HTMLButtonElement>('.atmosphere-toggle');
-    if (!button || button.hidden || !document.documentElement.classList.contains('js')) return 'none';
-    if (button.textContent === 'Resume atmosphere') return 'already';
-    button.click();
+    if (!document.documentElement.classList.contains('js')) return 'none';
+    window.dispatchEvent(new Event('blur'));
     return 'paused';
   });
   // Bounded parent-side settle (no page frame/timer promise, so it is safe with JavaScript disabled).
@@ -805,7 +772,7 @@ async function quiet<T>(page: Page, run: () => Promise<T>) {
     return running;
   });
   try { return await run(); } finally {
-    if (pauseState === 'paused') await page.evaluate(() => document.querySelector<HTMLButtonElement>('.atmosphere-toggle')?.click()).catch(() => undefined);
+    if (pauseState === 'paused') await page.evaluate(() => window.dispatchEvent(new Event('focus'))).catch(() => undefined);
     await held.evaluate(list => list.forEach(a => { if (a.playState === 'paused') a.play(); })).catch(() => undefined);
     await held.dispose().catch(() => undefined);
     await style.evaluate(el => el.remove());
@@ -1070,7 +1037,7 @@ test('night sky is a painted far-SVG background: variants, sparse points, curved
   }
 });
 
-test('Home night sky holds still under native scroll and shares Pause/theme state; the static Home day paints no cloud or shadow', async ({ browser, baseURL }) => {
+test('Home night sky holds still under native scroll and shares theme state; the static Home day paints no cloud or shadow', async ({ browser, baseURL }) => {
   await open(browser, baseURL, { viewport: { width: 375, height: 812 } }, async page => {
     await page.goto('/');
     await settled(page);
@@ -1101,8 +1068,7 @@ test('Home night sky holds still under native scroll and shares Pause/theme stat
     expect((await skyFacts(page)).shown).toBe(false);
     await expect.poll(() => progress(page)).toBeCloseTo(beforeTheme, 4);
     // Home's day is a CLEAR sky: no cloud shadow surface, wisp or bank paints, and native scroll does not move any of it.
-    // (The original cloud-shadow day paint and its causal pixel comparison belong to the index/calm routes, whose
-    // pose and cloud-travel cases stay in this suite.)
+    // (Every route now shows this same clear day sky; the old cloud-shadow day paint is retired.)
     await expect(page.locator('.sv-cloud-surface')).toHaveCount(6);
     expect(await page.locator('.sv-cloud-surface').evaluateAll(nodes => nodes.every(el => getComputedStyle(el).display === 'none'))).toBe(true);
     // The six retained surface nodes (three per variant) must not paint: every shadow descendant is nonempty in markup
@@ -1127,13 +1093,10 @@ test('Home night sky holds still under native scroll and shares Pause/theme stat
     expect(await progress(page)).toBe(0);
     expect(await page.locator('.sv-cloud-shadow').evaluateAll(nodes => nodes.filter(el => el.getClientRects().length > 0).length),
       'no cloud shadow gains a rendered box after native scroll').toBe(0);
-    await page.locator('.atmosphere-toggle').click();
     const frozen = await skySignature(page);
     await page.keyboard.press('Control+Home');
     await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
     expect(await skySignature(page)).toEqual(frozen);
-    await page.locator('.atmosphere-toggle').evaluate(el => (el as HTMLElement).focus({ preventScroll: true }));
-    await page.keyboard.press('Enter');
     await expect.poll(() => progress(page)).toBe(0);
     // Home cloud travel is declared as 0.2 + 0.32 x arrive; at the entry arrive is 0, so the exact literal is 0.2.
     expect(Number((await skySignature(page)).cloud)).toBe(0.2);
@@ -1214,12 +1177,13 @@ for (const size of [
   });
 }
 
-test('paused and reduced static sky holds its pose through scroll and text enlargement', async ({ browser, baseURL }) => {
+test('static sky holds its pose through scroll and text enlargement, with and without reduced motion', async ({ browser, baseURL }) => {
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     await open(browser, baseURL, { viewport: { width: 375, height: 812 }, reducedMotion }, async page => {
       await page.goto('/');
       await settled(page);
-      if (reducedMotion === 'no-preference') await page.locator('.atmosphere-toggle').click();
+      // Home's sky is still under scroll without any control; wait for the catalogue field so the signature is complete.
+      await expect(scene(page)).toHaveAttribute('data-sky', 'full', { timeout: 5000 });
       const rest = await skySignature(page);
       for (const y of [90, 180, 330]) {
         await page.evaluate(top => scrollTo(0, top), y);
@@ -1347,3 +1311,38 @@ for (const [size, variant] of [
     });
   });
 }
+
+// One shooting star per page load (Son-approved 2026-11-03). At night on Home (dark, motion allowed, page focused) exactly one
+// `.sv-hs-shot` is added about 2.6s after arrival and none follows over the next 60 seconds of fast-forwarded time; /about
+// (a calm route) gets none. A finished shot removes itself, so shots are counted by a MutationObserver installed before the
+// page runs (each added node increments a counter), never by sampling the DOM.
+test('night Home plays exactly one shooting star after arrival and never another; /about plays none', async ({ browser, baseURL }) => {
+  const shotsOn = async (route: string, expected: 'one' | 'none') => {
+    await open(browser, baseURL, { colorScheme: 'dark', reducedMotion: 'no-preference' }, async page => {
+      await page.addInitScript(() => {
+        (window as any).__shotsAdded = 0;
+        new MutationObserver(records => {
+          for (const record of records) {
+            record.addedNodes.forEach(node => {
+              if (node instanceof Element && node.matches('.sv-hs-shot')) (window as any).__shotsAdded += 1;
+            });
+          }
+        }).observe(document, { childList: true, subtree: true });
+      });
+      const added = () => page.evaluate(() => (window as any).__shotsAdded as number);
+      await page.clock.install();
+      await page.bringToFront();
+      await page.goto(route);
+      await page.waitForFunction(() => !!(window as any).sonworkLandscape?.isActive());
+      expect(await page.evaluate(() => document.hasFocus()), 'the page is focused').toBe(true);
+      await page.clock.runFor(5_000); // past the 2.6s arrival delay
+      if (expected === 'one') await expect.poll(added, { message: `${route} plays its one shooting star` }).toBe(1);
+      else expect(await added(), `${route} plays no shooting star`).toBe(0);
+      await page.clock.runFor(60_000);
+      await page.waitForTimeout(200);
+      expect(await added(), `${route} adds no further shooting star over the next 60 seconds`).toBe(expected === 'one' ? 1 : 0);
+    });
+  };
+  await shotsOn('/', 'one');
+  await shotsOn('/about', 'none');
+});

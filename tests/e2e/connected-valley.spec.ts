@@ -7,9 +7,7 @@ test.setTimeout(45_000);
 const mist = (page: Page) => page.locator('.mtn-mist');
 const ribbon = (page: Page) => page.locator('.mtn-mist-ribbon');
 const mount = (page: Page) => page.locator('.companion');
-const toggle = (page: Page) => page.locator('.atmosphere-toggle');
 const nativeClick = (loc: ReturnType<Page['locator']>) => loc.evaluate((el) => (el as HTMLElement).click());
-const attr = (page: Page, name: string) => mist(page).getAttribute(name);
 
 
 // Controlled CSS finish; natural moving/finite evidence remains a separate test contract.
@@ -99,28 +97,7 @@ test.describe('hello answered by the valley', () => {
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
   });
 
-  test('Pause atmosphere stops the greeting pass immediately (index route /work)', async ({ page }) => {
-    await page.clock.install();
-    await page.goto('/work');
-    await quietArrival(page);
-    await nativeClick(mount(page));
-    await expect(mist(page)).toHaveAttribute('data-state', 'running');
-    await nativeClick(toggle(page));
-    await expect(mist(page)).toHaveAttribute('data-state', 'paused');
-    await expect(mist(page)).not.toHaveAttribute('data-run', '');
-  });
-
-  test('guards: paused, prose, scrolled and forced colours start nothing and queue nothing', async ({ page, browser }) => {
-    // Paused (persisted preference).
-    await page.addInitScript(() => localStorage.setItem('sonwork-atmosphere', 'paused'));
-    await page.clock.install();
-    await page.goto('/');
-    await page.clock.runFor(400);
-    await nativeClick(mount(page));
-    await page.clock.runFor(60_000);
-    await expect(mist(page)).toHaveAttribute('data-passes', '0');
-    await expect(mist(page)).toHaveAttribute('data-state', 'paused');
-
+  test('guards: prose, scrolled and forced colours start nothing and queue nothing', async ({ browser }) => {
     // Prose page: hello never starts the mist.
     const prose = await browser.newPage();
     await prose.clock.install();
@@ -204,7 +181,7 @@ test.describe('same valley navigation', () => {
   });
 });
 
-test.describe('footer slot is reserved before the script arrives', () => {
+test.describe('late atmosphere script', () => {
   test('delayed atmosphere.js releases without moving the footer or shifting layout', async ({ page }) => {
     let release!: () => void;
     const gate = new Promise<void>((resolve) => (release = resolve));
@@ -220,32 +197,22 @@ test.describe('footer slot is reserved before the script arrives', () => {
       }).observe({ type: 'layout-shift', buffered: true });
     });
     await page.goto('/', { waitUntil: 'commit' });
-    await page.locator('.site-footer .atmosphere-toggle').waitFor({ state: 'attached' });
+    await page.locator('.site-footer').waitFor({ state: 'attached' });
     const measure = () =>
       page.evaluate(() => {
         const f = document.querySelector('.site-footer')!.getBoundingClientRect();
-        const t = document.querySelector('.atmosphere-toggle') as HTMLElement;
-        const r = t.getBoundingClientRect();
         return {
           footerTop: f.top + scrollY, footerHeight: f.height, docHeight: document.documentElement.scrollHeight,
-          toggleHeight: r.height, toggleWidth: r.width, hidden: t.hidden, visibility: getComputedStyle(t).visibility,
           shifts: ((window as any).__shifts as number[]).reduce((a, b) => a + b, 0),
         };
       });
     await page.waitForFunction(() => document.readyState !== 'loading' || !!document.querySelector('.site-footer'));
     await page.waitForTimeout(400);
     const before = await measure();
-    // The observation is real: the reserved, still-hidden control already occupies its 44px box.
-    expect(before.hidden).toBe(true);
-    expect(before.visibility).toBe('hidden');
-    expect(before.toggleHeight).toBeGreaterThanOrEqual(44);
-    expect(before.toggleWidth).toBeGreaterThan(44);
     release();
     await expect(mist(page)).toHaveAttribute('data-state', /idle|running/, { timeout: 5_000 });
     await page.waitForTimeout(400);
     const after = await measure();
-    expect(after.hidden).toBe(false);
-    expect(after.visibility).toBe('visible');
     expect(await page.evaluate(() => (window as any).__shiftSupported)).toBe(true);
     expect(Math.abs(after.footerTop - before.footerTop)).toBeLessThanOrEqual(0.5);
     expect(Math.abs(after.footerHeight - before.footerHeight)).toBeLessThanOrEqual(0.5);
@@ -254,26 +221,4 @@ test.describe('footer slot is reserved before the script arrives', () => {
     expect(after.shifts - before.shifts).toBe(0);
   });
 
-  test('noJS, reduced motion and forced colours reserve no empty control', async ({ browser }) => {
-    for (const options of [{ javaScriptEnabled: false }, { reducedMotion: 'reduce' as const }, { forcedColors: 'active' as const }]) {
-      const context = await browser.newContext(options);
-      const page = await context.newPage();
-      await page.goto('/');
-      await page.waitForTimeout(300);
-      expect(await toggle(page).evaluate((el) => getComputedStyle(el).display)).toBe('none');
-      await context.close();
-    }
-  });
-
-  test('label swap keeps the control box identical', async ({ page }) => {
-    await page.goto('/');
-    await expect(toggle(page)).toBeVisible();
-    const a = await toggle(page).boundingBox();
-    await nativeClick(toggle(page));
-    await expect(toggle(page)).toHaveText('Resume atmosphere');
-    const b = await toggle(page).boundingBox();
-    expect(b!.width).toBe(a!.width);
-    expect(b!.height).toBe(a!.height);
-    expect(await attr(page, 'data-state')).toBe('paused');
-  });
 });
