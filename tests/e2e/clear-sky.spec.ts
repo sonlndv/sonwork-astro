@@ -302,6 +302,9 @@ test('no-JS Home is clear and fixed; other routes keep their incumbent day sky',
     const noScript = await bare.newPage();
     await noScript.goto(route);
     expect(await shown(noScript, '.sv-hs-planet'), `${route} no JS`).toBe(true);
+    // Speed pass: the painted planet is the <noscript> fallback copy; the real sky SVG's href-less group does not paint.
+    expect(await shown(noScript, 'svg.sv-np-fallback .sv-hs-planet > .sv-ow-pimg image'), `${route} no JS fallback image is painted`).toBe(true);
+    expect(await shown(noScript, 'svg.mtn-ridge:not(.sv-np-fallback) .sv-hs-planet'), `${route} no JS real sky planet group is hidden`).toBe(false);
     expect(await shown(noScript, '.sv-ow-bodies'), `${route} no JS`).toBe(false);
     await bare.close();
   }
@@ -1061,8 +1064,10 @@ test('Home-only real textures and visibility masks are not fetched on other rout
     page.on('request', request => { if (/\/mountains\/(real-|ow-)/.test(request.url())) requests.add(new URL(request.url()).pathname); });
     await page.goto(route);
     await page.waitForLoadState('load');
-    expect(Array.from(requests).sort(), `${route} requests exactly the Neptune pair and no other Home texture or visibility mask`).toEqual(NEPTUNE_PAIR);
+    // Speed pass: with JS only the current theme's Neptune texture is requested (base is system light, so the day file).
+    expect(Array.from(requests).sort(), `${route} requests exactly the current theme's Neptune texture and no other Home texture or visibility mask`).toEqual([NEPTUNE_PAIR[0]]);
     const facts = await page.evaluate(() => ({
+      npSrc: Array.from(document.querySelectorAll('image[data-np-src]')).map(node => node.getAttribute('data-np-src')!).sort(),
       inert: Array.from(document.querySelectorAll('image[data-home-src]')).map(node => node.hasAttribute('href')),
       homeSrc: Array.from(document.querySelectorAll('image[data-home-src]')).map(node => node.getAttribute('data-home-src')!).sort(),
       withHref: document.querySelectorAll('image[href*="/mountains/real-"], image[href*="/mountains/ow-"]').length,
@@ -1074,12 +1079,24 @@ test('Home-only real textures and visibility masks are not fetched on other rout
     expect(facts.inert.length, 'the 12 non-Neptune hidden texture nodes remain, inert').toBe(12);
     expect(facts.inert.every(has => !has)).toBe(true);
     expect(facts.homeSrc, 'the inert sources are exactly the current non-Neptune real files').toEqual(OFF_HOME_INERT);
-    expect(facts.withHref, 'only the 4 Neptune nodes (dark and light, wide and tall) are live').toBe(4);
-    expect(facts.hrefs, 'the live hrefs are the Neptune pair').toEqual([NEPTUNE_PAIR[0], NEPTUNE_PAIR[0], NEPTUNE_PAIR[1], NEPTUNE_PAIR[1]]);
+    expect(facts.npSrc, 'all 4 Neptune nodes (dark and light, wide and tall) carry their source as data-np-src').toEqual([NEPTUNE_PAIR[0], NEPTUNE_PAIR[0], NEPTUNE_PAIR[1], NEPTUNE_PAIR[1]]);
+    expect(facts.withHref, 'only the current theme\'s 2 Neptune nodes (wide and tall) are live').toBe(2);
+    expect(facts.hrefs, 'the live hrefs are the current theme\'s Neptune file').toEqual([NEPTUNE_PAIR[0], NEPTUNE_PAIR[0]]);
     expect(facts.blue, 'the retired blue-planet.webp is not referenced').toBe(0);
     expect(facts.css, `${route} carries no visibility-mask URL`).not.toMatch(/real-(earth|saturn)-visibility/);
     expect(facts.landscape, 'original landscape paths are intact').toBeGreaterThan(0);
     await expect(page.locator('main')).toBeVisible();
+    await context.close();
+  }
+  // Without JS, other routes request the Neptune pair through the <noscript> fallback and nothing else.
+  for (const route of ['/work', '/about']) {
+    const context = await browser.newContext({ ...base, javaScriptEnabled: false });
+    const page = await context.newPage();
+    const requests = new Set<string>();
+    page.on('request', request => { if (/\/mountains\/(real-|ow-)/.test(request.url())) requests.add(new URL(request.url()).pathname); });
+    await page.goto(route);
+    await page.waitForLoadState('load');
+    expect(Array.from(requests).sort(), `${route} without JS requests the Neptune pair through the fallback and nothing else`).toEqual(NEPTUNE_PAIR);
     await context.close();
   }
   // Home at a size where both optional masks apply fetches exactly the two fixed visibility masks, and no retired ow- file.
@@ -1112,7 +1129,35 @@ test('Home-only real textures and visibility masks are not fetched on other rout
   }
 });
 
-test('only Home inlines the Home-only world CSS; other routes still hide the new small bodies and carry only the graded Neptune limb', async ({ browser }) => {
+// Speed pass: inner pages (calm /about, index /work) load only the current theme's Neptune texture, set by an inline script;
+// a real theme toggle click then loads the other theme's texture.
+for (const route of ['/about', '/work']) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`${route} in ${theme} requests only its own Neptune texture until the theme is toggled`, async ({ browser }) => {
+      const other = theme === 'light' ? 'dark' : 'light';
+      const context = await browser.newContext({ ...base, colorScheme: theme });
+      const page = await context.newPage();
+      await page.addInitScript(value => localStorage.setItem('theme', value), theme);
+      const requests = new Set<string>();
+      page.on('request', request => { if (/\/mountains\/(real-|ow-)/.test(request.url())) requests.add(new URL(request.url()).pathname); });
+      await page.goto(route);
+      await page.waitForFunction(() => !!(window as any).sonworkLandscape?.isActive);
+      await page.waitForLoadState('load');
+      const nodes = (which: 'light' | 'dark') => page.evaluate(sel => Array.from(document.querySelectorAll(sel)).map(node => node.getAttribute('href')), `.mtn-scene .sv-hs-planet .${which === 'light' ? 'sv-ow-pm' : 'sv-ow-pn'}`);
+      expect(Array.from(requests), `${route} ${theme}: exactly the current theme's Neptune texture`).toEqual([BODY_HREFS.planet[theme]]);
+      expect(await nodes(theme), `${route} ${theme}: the current theme's nodes (wide and tall) have href`).toEqual([BODY_HREFS.planet[theme], BODY_HREFS.planet[theme]]);
+      expect(await nodes(other), `${route} ${theme}: the other theme's nodes stay inert`).toEqual([null, null]);
+      await page.locator('.theme-toggle').click();
+      await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe(other);
+      await expect.poll(() => Array.from(requests).sort(), { message: `${route}: the other theme's texture is requested after the toggle` })
+        .toEqual(NEPTUNE_PAIR);
+      expect(await nodes(other), `${route} ${other}: the new theme's nodes have href`).toEqual([BODY_HREFS.planet[other], BODY_HREFS.planet[other]]);
+      await context.close();
+    });
+  }
+}
+
+test('only Home inlines the Home-only world CSS;other routes still hide the new small bodies and carry only the graded Neptune limb', async ({ browser }) => {
   const css = (page: Page) => page.evaluate(() => Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\n'));
   // The Home-only nested-image guard, emitted only by the Home world CSS. The off-Home carry-through names its own identity
   // tokens (--np-identity-scale/shift/turn), so none of the three Home tokens may appear on another route.

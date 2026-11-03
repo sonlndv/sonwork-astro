@@ -28,8 +28,38 @@ if (scene.includes('/mountains/ow-')) throw new Error('mountain-scene.html: a re
 // Hidden Home images must stay inert off-Home, whatever attribute names they carry.
 if (/data-home-src="\/mountains\/real-/.test(scene)) throw new Error('mountain-scene.html: the source already carries inert Home texture attributes');
 const inert = 'data-home-src="/mountains/real-';
-const emitted = mode === 'home'
-  ? layered
-  : layered.replaceAll(homeTexture, inert).replaceAll(`${inert}neptune`, neptuneTexture);
+// Speed pass (Son-approved 2026-11-03): off-Home, the 4 Neptune nodes are inert too (`data-np-src`), so the parser never
+// requests both textures at Medium priority ahead of the text. A tiny inline script right after the scene sets `href` on the
+// current theme's nodes only (Low priority). Without script, a <noscript> copy of the planet sits under each far-ridge sky SVG.
+const npInert = 'data-np-src="/mountains/real-neptune';
+const planetOpen = '<g class="sv-hs-night sv-hs-planet">';
+const planetClose = '<g class="sv-hs-clouds">';
+const planets = layered.split(planetOpen).slice(1).map((part) => part.slice(0, part.indexOf(planetClose)));
+if (planets.length !== 2 || planets.some((part) => !part.includes('sv-ow-pimg'))) throw new Error('mountain-scene.html: expected exactly 2 Neptune planet groups');
+const fallback = (shape: 'wide' | 'tall', box: string, planet: string) =>
+  `<svg class="mtn-ridge mtn-${shape} sv-np-fallback" viewBox="${box}" preserveAspectRatio="xMidYMax ${shape === 'wide' ? 'slice' : 'meet'}" focusable="false" aria-hidden="true">` +
+  `<g class="sv-home-sky" mask="url(#sv-sky-mask-${shape})">${planetOpen}${planet}</g></svg>`;
+// Hides the real sky SVG's own (href-less) planet group when script is off; it cannot match the fallback.
+const noscriptHide = '<style>.mtn-scene svg.mtn-ridge:not(.sv-np-fallback) .sv-hs-planet{display:none!important}</style>';
+const npScript = '<script>(() => {' +
+  'const root = document.documentElement;' +
+  "const light = () => root.dataset.theme ? root.dataset.theme === 'light' : matchMedia('(prefers-color-scheme: light)').matches;" +
+  "const show = () => document.querySelectorAll(light() ? '.mtn-scene .sv-ow-pm[data-np-src]' : '.mtn-scene .sv-ow-pn[data-np-src]')" +
+  ".forEach((n) => { if (!n.hasAttribute('href')) n.setAttribute('href', n.getAttribute('data-np-src')); });" +
+  'show();' +
+  "new MutationObserver(show).observe(root, { attributes: true, attributeFilter: ['data-theme'] });" +
+  "matchMedia('(prefers-color-scheme: light)').addEventListener('change', show);" +
+  '})();</script>';
+const wideAnchor = '<div class="mtn-layer mtn-far"><svg class="mtn-ridge mtn-wide"';
+const tallAnchor = '<svg class="mtn-ridge mtn-tall"';
+if (layered.split(wideAnchor).length !== 2) throw new Error('mountain-scene.html: far wide sky anchor is missing or not unique');
+let emitted = layered;
+if (mode !== 'home') {
+  emitted = layered.replaceAll(homeTexture, inert).replaceAll(`${inert}neptune`, npInert);
+  emitted = emitted.replace(wideAnchor, `<div class="mtn-layer mtn-far"><noscript>${noscriptHide}${fallback('wide', '0 0 1600 900', planets[0])}</noscript><svg class="mtn-ridge mtn-wide"`);
+  // The first tall ridge SVG in the document is the far layer's.
+  emitted = emitted.replace(tallAnchor, `<noscript>${fallback('tall', '0 0 400 800', planets[1])}</noscript>${tallAnchor}`);
+  emitted += npScript;
+}
 ---
 <Fragment set:html={emitted} />

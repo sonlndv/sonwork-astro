@@ -108,6 +108,7 @@ This section supersedes, where they differ, the planet, sun and off-Home-planet 
 - **Phone inner-page Neptune.** At 719px and narrower (portrait) the corner limb's lowest point is 140px under the header in both themes (it stays off the page title), and in the dark theme every route takes the index exposure 0.75. Text over the planet keeps 4.5:1, verified by measurement.
 - **Day Earth, no haze.** The day Earth takes no far-tier haze (`earth.themes.light = { haze: 0 }` in `scripts/grade-planets.mjs`, beside the night override), so the one upper-left light reads on it by day.
 - **Tablet portrait Earth.** On tablet portrait (720-899px wide, aspect 5/4 or narrower), Earth's radius is 10px so the Moon stays clearly larger; its placement rule is unchanged.
+- **Neptune loads by theme (speed pass).** Pages other than Home load only the current theme's Neptune texture: an inline script sets it at low priority, so the decorative limb never competes with the text. No-JS gets a `<noscript>` copy of the planet under the far ridge.
 
 Historical (superseded by the section above, kept for the record): the per-body daylight haze and chroma gains below (Neptune 22% and 2.4, Earth 16% and 3.6, Moon and Saturn 30% and 1); the masked thin crescent of the older `blue-planet.webp` on every non-Home route at night and no planet by day; and the day sun's feathered halo and radial-gradient disc, including the sun poses opposite the key light (top right on tall and short-landscape windows).
 
