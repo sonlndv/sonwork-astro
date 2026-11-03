@@ -129,33 +129,31 @@ test('the landscape is on every built HTML page and the 404, in both themes, and
             };
           });
           expect(sheet, `${path} inline shared stylesheet`).toEqual({ carriers: 1, active: true, raw: 0, external: 0, scenic: [], world: true, order: true });
-          if ((await scene.getAttribute('data-mode')) === 'home') {
-            // Home loads the build-processed landscape asset through one marked ordinary classic deferred <script>: no
-            // original duplicate, the companion -> landscape -> atmosphere order unchanged, and a real same-origin hashed JS body.
-            expect(await resources('script[src]', 'src', '/mountains/mountains.js'), `${path} no original landscape URL on Home`).toEqual([]);
-            const scripts = await page.evaluate(() => [...document.querySelectorAll<HTMLScriptElement>('head script[src]')].map(s => ({
-              src: s.getAttribute('src')!, runtime: s.getAttribute('data-home-runtime'), defer: s.hasAttribute('defer'),
-              async: s.hasAttribute('async'), type: s.getAttribute('type'), origin: new URL(s.src, location.href).origin === location.origin,
-            })));
-            expect(scripts.map(s => s.runtime), `${path} exactly one marked landscape script`).toEqual([null, 'mountains', null]);
-            expect(scripts.map(s => s.src)[0], `${path} companion`).toBe('/companion.js');
-            expect(scripts.map(s => s.src)[2], `${path} atmosphere`).toBe('/atmosphere.js');
-            const generated = scripts[1];
-            expect(generated.src, `${path} generated hashed landscape asset`).toMatch(/^\/[^?#]*[-.][A-Za-z0-9_-]{6,}\.js$/);
-            expect(generated.origin, `${path} same origin`).toBe(true);
-            expect([generated.defer, generated.async, generated.type], `${path} ordinary classic deferred script`).toEqual([true, false, null]);
-            const response = await page.request.get(generated.src);
-            expect(response.status(), `${path} generated asset is served`).toBe(200);
-            const body = await response.text();
-            expect(body.length, `${path} generated asset is the processed (smaller) build`).toBeGreaterThan(1000);
-            expect(body.length, `${path} generated asset is not the original public script`).toBeLessThan(30000);
-            expect(body, `${path} never instantiates a Web Worker`).not.toMatch(/new\s+Worker\s*\(/);
-            expect(await page.evaluate(() => typeof (window as any).sonworkLandscape?.isActive), `${path} the landscape runtime connected`).toBe('function');
-          } else {
-            expect(await resources('script[src]', 'src', '/mountains/mountains.js'), `${path} js`)
-              .toEqual(['/mountains/mountains.js?v=impeccable-1']);
-            expect(await page.locator('script[data-home-runtime]').count(), `${path} no Home marker off Home`).toBe(0);
-          }
+          // Every route (Home, index, calm and the 404) loads the build-processed landscape asset through one marked ordinary
+          // classic deferred <script>: no legacy duplicate, the companion -> landscape -> atmosphere order unchanged, and a real
+          // same-origin hashed JS body. The Home-only marker distinguishes Home and must stay absent everywhere else.
+          const isHomePage = (await scene.getAttribute('data-mode')) === 'home';
+          expect(await resources('script[src]', 'src', '/mountains/mountains.js'), `${path} no legacy landscape URL`).toEqual([]);
+          const scripts = await page.evaluate(() => [...document.querySelectorAll<HTMLScriptElement>('head script[src]')].map(s => ({
+            src: s.getAttribute('src')!, runtime: s.getAttribute('data-landscape-runtime'), home: s.getAttribute('data-home-runtime'),
+            defer: s.hasAttribute('defer'), async: s.hasAttribute('async'), type: s.getAttribute('type'),
+            origin: new URL(s.src, location.href).origin === location.origin,
+          })));
+          expect(scripts.map(s => s.runtime), `${path} exactly one marked landscape script`).toEqual([null, 'mountains', null]);
+          expect(scripts.map(s => s.home), `${path} Home-only marker only on Home`).toEqual([null, isHomePage ? 'mountains' : null, null]);
+          expect(scripts.map(s => s.src)[0], `${path} companion`).toBe('/companion.js');
+          expect(scripts.map(s => s.src)[2], `${path} atmosphere`).toBe('/atmosphere.js');
+          const generated = scripts[1];
+          expect(generated.src, `${path} generated hashed landscape asset`).toMatch(/^\/[^?#]*[-.][A-Za-z0-9_-]{6,}\.js$/);
+          expect(generated.origin, `${path} same origin`).toBe(true);
+          expect([generated.defer, generated.async, generated.type], `${path} ordinary classic deferred script`).toEqual([true, false, null]);
+          const response = await page.request.get(generated.src);
+          expect(response.status(), `${path} generated asset is served`).toBe(200);
+          const body = await response.text();
+          expect(body.length, `${path} generated asset is the processed (smaller) build`).toBeGreaterThan(1000);
+          expect(body.length, `${path} generated asset is not the original public script`).toBeLessThan(30000);
+          expect(body, `${path} never instantiates a Web Worker`).not.toMatch(/new\s+Worker\s*\(/);
+          expect(await page.evaluate(() => typeof (window as any).sonworkLandscape?.isActive), `${path} the landscape runtime connected`).toBe('function');
           await expect(scene).toHaveAttribute('aria-hidden', 'true');
           await expect(scene).toHaveAttribute('inert', '');
           expect(await scene.evaluate(el => ({ z: getComputedStyle(el).zIndex, p: getComputedStyle(el).pointerEvents, pos: getComputedStyle(el).position }))).toEqual({ z: '-1', p: 'none', pos: 'fixed' });

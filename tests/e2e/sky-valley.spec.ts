@@ -551,10 +551,11 @@ test('landscape owns no idle timer/frame recurrence and clears work across simul
       const set = window.setTimeout;
       const clearT = window.clearTimeout;
       const work = { frames: 0, timers: 0, pending: new Set<number>(), timerPending: new Map<number, number>(), delays: [] as number[] };
-      // Owners: the two original literal URLs, plus the ACTUAL generated Home landscape asset. That URL is read from the real
-      // marked classic script element (data-home-runtime="mountains", Home only) at observation time, never guessed from a
-      // pattern, so no unrelated script can be attributed to the landscape.
-      const generated = () => document.querySelector<HTMLScriptElement>('script[data-home-runtime="mountains"][src]')?.getAttribute('src') || '';
+      // Owners: the original literal URLs (atmosphere, and the legacy public landscape path), plus the ACTUAL generated
+      // landscape asset every route now loads. That URL is read from the real marked classic script element
+      // (data-landscape-runtime="mountains") at observation time, never guessed from a pattern, so no unrelated script can
+      // be attributed to the landscape.
+      const generated = () => document.querySelector<HTMLScriptElement>('script[data-landscape-runtime="mountains"][src]')?.getAttribute('src') || '';
       const owned = () => {
         const stack = new Error().stack || '';
         if (/\/(?:mountains\/mountains|atmosphere)\.js/.test(stack)) return true;
