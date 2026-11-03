@@ -1,6 +1,24 @@
 {
   "generator": "render-real-planets.mjs",
   "deterministic": true,
+  "gradedDisplay": {
+    "approved": "2026-11-03 (Son)",
+    "generator": "scripts/grade-planets.mjs",
+    "inputs": "src/assets/planet-sources/ (byte-identical copies of the previously served textures; not referenced by any page)",
+    "outputs": "real-neptune.webp, real-neptune-morning.webp, real-earth-night.webp, real-earth-morning.webp, real-moon-night.webp, real-moon-morning.webp, real-saturn.webp, real-saturn-morning.webp (same pixel size, alpha unchanged)",
+    "note": "The displayed textures are graded display versions of the same sources recorded below; the output sizes and hashes below describe the pre-grade source textures, and the current hashes are printed by the generator's manifest. The per-body daylight haze and chroma gains below are superseded by this grade.",
+    "luminance": "Y = 0.2126 R + 0.7152 G + 0.0722 B on 0..1 sRGB",
+    "percentiles": [0.02, 0.995],
+    "blurSigma": "max(1, 0.012 * max(width, height))",
+    "ramp": {
+      "dark": ["#050912@0", "#152549@0.30", "#26375d@0.55", "#586e9b@0.80", "#b2c4e2@1"],
+      "light": ["#6a85b2@0", "#98b2d4@0.40", "#c3d7ee@0.70", "#eef1f6@1"]
+    },
+    "keep": { "neptune": 0.25, "earth": 0.35, "moon": 0.15, "saturn": 0.3 },
+    "lightSourcePreStep": "chroma halved about each pixel's own luminance (removes the baked daytime chroma boost)",
+    "distanceHaze": { "sky": { "dark": "#03050e", "light": "#dbe0e8" }, "near": 0, "mid": 0.1, "far": 0.2, "tiers": { "neptune": "near", "moon": "mid", "earth": "far", "saturn": "far" } },
+    "rim": { "colour": { "dark": "#96acd2", "light": "#5a73a0" }, "light": "upper left, normalize(-1,-1)", "weight": "clamp(dot(n, L), 0, 1)^0.8 * 0.85", "widthPx": "k = max(1, round(textureWidth / desktopDisplayedWidth))" }
+  },
   "sharedKey": {
     "u_right_v_up_w_toward_viewer": [
       -0.60036,

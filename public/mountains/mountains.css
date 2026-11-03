@@ -477,13 +477,18 @@ body.home-study .mtn-scene[data-world] > div.mtn-near {
 body.home-study .mtn-scene[data-world] .mtn-ridge > .sv-home-sky > .sv-hs-night,
 body.home-study .mtn-scene[data-world] .mtn-ridge > .sv-home-sky > .sv-hs-day,
 body.home-study .mtn-scene[data-world] .mtn-ridge > .sv-home-sky > .sv-hs-clouds { translate: 0 var(--hs-ty, 0px); }
-/* Sun only (independent individual translate; stars, clouds and original art stay put): short landscape moves it
-   into the open right sky clear of the H1; tablet portrait lifts it so its glow clears the first paragraph. */
+/* Sun only (independent individual translate; stars, clouds and original art stay put). Graded sky (Son-approved 2026-11-03):
+   a flat disc, no halo, always on the side of the shared key light (upper left). Fix pass 2026-11-03: wherever the day sun
+   shows (every route) it sits wholly in the left margin beside the content column, 32px under the header, and is omitted
+   where that margin cannot hold it (the placement block after the tall-desktop rule below). Omitted: short landscape, the
+   tall composition (tablet portrait and phones), enlarged text (data-big) and windows narrower than 1268px. */
 @media (max-height: 560px) {
-  body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun { translate: 1090px 0; }
+  body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun { display: none; }
 }
-@media (min-width: 720px) {
-  body.home-study .mtn-scene[data-world] .mtn-tall .sv-hs-sun { translate: 90px -22px; }
+body.home-study .mtn-scene[data-world] .mtn-tall .sv-hs-sun,
+body.home-study .mtn-scene[data-world][data-big] .sv-hs-sun { display: none; }
+@media (max-width: 1267px) {
+  body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun { display: none; }
 }
 body.home-study .mtn-scene[data-world] .sv-hs-dust {
   transform: translate(calc(var(--mtn-dx, 0) * 1px), calc(var(--mtn-dy, 0) * 1px));
@@ -536,10 +541,35 @@ body.home-study .mtn-scene[data-world] .sv-hs-cloud-near {
   }
 }
 
-/* Tall desktop (>=900px and aspect <= 5/4, e.g. 1280x1280, 1440x1200; Home only): the outer middle/near layers rest
-   higher with smaller travel so terrain structure is visible below the first screen, and ONLY the sun moves into the
-   open upper-right sky (+734.06, +95.48 SVG units puts its centre near (900,160) at 1280x1280, clear of the H1).
-   Far plane, stars, meteor, clouds, SVG geometry and every other width/aspect are unchanged. */
+/* Sun placement (every route, wide composition, day). The sun is anchored to a SCREEN position through the inverse projection
+   the Home planets use (--sun-S is the wide slice scale, --sun-F the far plane's rest offset, which falls by 5svh * depth, and
+   --hs-ty the sky group's own shift), so it holds at every size, route mode and scroll depth:
+     L  = the content column's left edge: max(0, (100vw - 1180px) / 2) + 32px (gutter 32px from 900px wide)
+     d  = min(its art size 56 * S, L - 40px)   (the art disc is r 28 in a 1600x900 slice)
+     right edge = L - 32px, top = header + 32px, so the left edge is at least 8px inside the viewport.
+   Below 1268px wide d would be under 36px, so the sun is omitted there (above). --sun-k is the scale about the disc centre;
+   the transform's own -sv-hs * 6 shift (scaled by k) is cancelled so non-Home routes sit exactly on the anchor. */
+body.home-study .mtn-scene[data-world] {
+  --sun-S: max(100vw / 1600, (100svh + 96px) / 900);
+  --sun-F: 34svh;
+  --sun-L: calc(max(0px, (100vw - 1180px) / 2) + 32px);
+  --sun-d: min(var(--sun-S) * 56, var(--sun-L) - 40px);
+  --sun-k: calc(var(--sun-d) / (var(--sun-S) * 56));
+  --sun-cx: calc(var(--sun-L) - 32px - var(--sun-d) / 2);
+  --sun-cy: calc(57px + (1rem - 16px) * 2.8 + 32px + var(--sun-d) / 2);
+}
+body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun {
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: var(--sun-k);
+  translate: calc(564px + (var(--sun-cx) - 50vw) / var(--sun-S) * 1px)
+    calc(1028px + (var(--sun-cy) - 100svh - var(--sun-F) + 5svh * var(--sv-depth) - 48px) / var(--sun-S) * 1px - var(--hs-ty) + var(--sv-hs, 0) * var(--sun-k) * 6px);
+}
+
+/* Tall desktop (>=900px and aspect <= 5/4, e.g. 1280x1280, 1440x1200): the outer middle/near layers rest
+   higher with smaller travel so terrain structure is visible below the first screen, and the far plane rests 12svh
+   higher (--sun-F follows it, so the sun placement above holds). Stars, meteor, clouds, SVG geometry and every
+   other width/aspect are unchanged. */
 @media (min-width: 900px) and (max-aspect-ratio: 5/4) {
   body.home-study .mtn-scene[data-world] > .mtn-layer.mtn-middle {
     transform: translate3d(0, calc(20svh - 18svh * var(--sv-depth)), 0);
@@ -547,7 +577,7 @@ body.home-study .mtn-scene[data-world] .sv-hs-cloud-near {
   body.home-study .mtn-scene[data-world] > .mtn-layer.mtn-near {
     transform: translate3d(0, calc(26svh - 34svh * var(--sv-depth) + var(--mtn-near-y, 0px)), 0);
   }
-  body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun { translate: 734.06px 95.48px; }
+  body.home-study .mtn-scene[data-world] { --sun-F: 22svh; }
   /* Planet: centre about (830,490), diameter about 550px at 1280x1280 (landscape art is sized for 1440x900). */
   body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-planet image,
   body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-planet circle {
@@ -625,14 +655,8 @@ body.home-study .mtn-scene[data-world] .sv-hs-bank-c {
   transform: translate(calc(var(--mtn-kx, 0) * 0.45px + var(--sv-hs) * var(--hs-rc) * 1px), calc(var(--mtn-ky, 0) * 0.45px));
 }
 body.home-study .mtn-scene[data-world] .sv-hs-meteor { opacity: 0; }
-/* The planet is one stable authored raster (no spin, loop or filter); it is only shown inside .sv-hs-night (Home, dark). */
-/* A glimpsed planet: only a thin lit crescent on the upper-left limb remains (a circle offset toward the lower right
-   is cut away), the rest of the body falls into the night. */
-body.home-study .mtn-scene[data-world] .sv-hs-planet image {
-  opacity: 0.92;
-  -webkit-mask-image: radial-gradient(ellipse 58% 58% at 62% 64%, transparent 0, transparent 95%, #000 100%);
-  mask-image: radial-gradient(ellipse 58% 58% at 62% 64%, transparent 0, transparent 95%, #000 100%);
-}
+/* The planet is the graded Neptune raster (no spin, loop or filter; the grade is baked offline). Graded sky: the old
+   off-Home crescent (a masked blue-planet.webp) is retired; scene.css carries the graded Neptune onto the other routes. */
 /* Shared world: routes without the Home journey rest in a composed, readable pose (Home's JS drives --sv-scene). */
 body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --sv-scene: 0.8; }
 /* Moment end pose: held after the drift finishes or is yielded; reduced motion shows it directly. */

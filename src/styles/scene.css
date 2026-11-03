@@ -9,3 +9,120 @@
    same two rules from home-world.css.) The original night planet and every other original paint are untouched. */
 .sv-ow-bodies { display: none; }
 .sv-ow-pimg, .sv-ow-pm, .sv-ow-pn { display: none; }
+
+/* ---- Graded sky carry-through (Son-approved 2026-11-03). Every route except Home shows Home's primary,
+   the graded Neptune, as a cropped limb in the same top-right corner and the same upper-left light, in both themes, using the
+   same real-neptune.webp (dark) and real-neptune-morning.webp (light) files so the cache is shared. It is quieter than Home:
+   the images take --np-exposure (0.75 on index routes, 0.55 on calm routes) over an opaque body disc filled with the theme sky,
+   so the planet dims toward the sky and never turns see-through to stars or mountains. It sits in the masked far sky (behind
+   every ridge) inside the scene, so the reading veil still applies. Geometry reuses Home's inverse projection: the body is
+   anchored to a screen centre (--ow-gx, --ow-gy) and radius --ow-gr, whatever the art scale. No runtime filters, no motion. ---- */
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) {
+  --ow-h: calc(57px + (1rem - 16px) * 2.8);
+  --ow-f: calc(0.34 - 0.05 * var(--sv-depth));
+  --ow-gk: 1;
+  --ow-St: min(100vw / 400, (100svh + 96px) / 800);
+  --ow-Sw: max(100vw / 1600, (100svh + 96px) / 900);
+  --ow-gr: calc(min(25vw, 420px) * var(--ow-gk));
+  --ow-gx: calc(100vw - 60px);
+  --ow-gy: calc(var(--ow-h) + 73px);
+  --np-exposure: 0.55;
+}
+body.home-study .mtn-scene[data-world][data-mode='index'] { --np-exposure: 0.75; }
+body.home-study .mtn-scene[data-world]:not([data-mode='home'])[data-big] { --ow-gk: 0.55; }
+@media (min-width: 900px) and (max-aspect-ratio: 5/4) {
+  body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --ow-f: calc(0.22 - 0.05 * var(--sv-depth)); }
+}
+@media (max-width: 1199px) {
+  body.home-study .mtn-scene[data-world]:not([data-mode='home']) {
+    --ow-gr: calc(clamp(110px, 16.5vw, 200px) * var(--ow-gk));
+    --ow-gx: calc(100vw - 30px);
+    --ow-gy: calc(var(--ow-h) + 135px - var(--ow-gr));
+  }
+}
+@media (max-height: 560px) and (min-aspect-ratio: 5/4) {
+  body.home-study .mtn-scene[data-world]:not([data-mode='home']) {
+    --ow-gr: calc(clamp(60px, 18vh, 90px) * var(--ow-gk));
+    --ow-gy: calc(var(--ow-h) + 85px - var(--ow-gr));
+  }
+}
+/* Tall art (portrait phones and tablets): a smaller corner limb whose lowest point stays about 110px under the header. */
+@media (max-aspect-ratio: 5/4) and (max-width: 899px) {
+  body.home-study .mtn-scene[data-world]:not([data-mode='home']) {
+    --ow-gr: calc(clamp(110px, 32vw, 150px) * var(--ow-gk));
+    --ow-gx: calc(100vw + 28px);
+    --ow-gy: calc(var(--ow-h) + 110px - var(--ow-gr));
+  }
+}
+@media (max-width: 719px) {
+  body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --ow-h: calc(98px + (1rem - 16px) * 2.75); }
+}
+/* Phones (fix pass 2026-11-03): more of the limb shows under the header (lowest point 140px under it, still clear of the page
+   title, which ends by about x 240), and at night every route takes the index exposure 0.75 (calm routes keep 0.55 by day). */
+@media (max-aspect-ratio: 5/4) and (max-width: 719px) {
+  body.home-study .mtn-scene[data-world]:not([data-mode='home']) {
+    --ow-gy: calc(var(--ow-h) + 140px - var(--ow-gr));
+  }
+  :root[data-theme='dark'] body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --np-exposure: 0.75; }
+}
+@media (max-aspect-ratio: 5/4) and (max-width: 719px) and (not (prefers-color-scheme: light)) {
+  :root:not([data-theme='light']) body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --np-exposure: 0.75; }
+}
+
+/* Shown in both themes (the older rules show the night planet group only in dark and only the crescent image). */
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv-ow-pimg,
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv-ow-pn { display: inline; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-night.sv-hs-planet { display: inline; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv-ow-pn { display: none; }
+:root[data-theme='light'] body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv-ow-pm { display: inline; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-night.sv-hs-planet { display: inline; }
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv-ow-pn { display: none; }
+  :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv-ow-pm { display: inline; }
+}
+
+/* No-script fallback (speed pass): inner pages load Neptune's texture from an inline script, so without script a <noscript> copy of
+   the planet (a sky-less SVG, first in the far layer, under the real far SVG) takes the real far SVG's box. It sits in <noscript>,
+   so the direct-child box rule above cannot match it; everything else (projection, exposure, theme) already selects by .mtn-wide /
+   .mtn-tall and the group structure, which the copy shares. */
+.mtn-scene > .mtn-layer > noscript > .mtn-ridge.sv-np-fallback {
+  position: absolute;
+  inset: 312px auto auto 0;
+  width: 100%;
+  height: calc(100% - 624px);
+  overflow: visible;
+}
+
+/* Opaque body disc in the theme sky; the graded raster dims over it. */
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv-hs-body { fill: light-dark(#dbe0e8, #03050e); }
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .mtn-wide .sv-hs-planet .sv-hs-body { r: 186px; }
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .mtn-tall .sv-hs-planet .sv-hs-body { r: 111px; }
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet > .sv-ow-pimg > image {
+  opacity: var(--np-exposure);
+  /* Explicit identities beat the older tall-desktop planet rule that selects every descendant image. */
+  scale: var(--np-identity-scale, 1) !important;
+  translate: var(--np-identity-shift, 0px) var(--np-identity-shift, 0px) !important;
+  rotate: var(--np-identity-turn, 0deg) !important;
+  transform: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+/* Projection (same construction as Home): the body disc and the image group take one scale and translate each. */
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet > .sv-hs-body,
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet > .sv-ow-pimg {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .mtn-wide .sv-hs-planet > .sv-hs-body,
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .mtn-wide .sv-hs-planet > .sv-ow-pimg {
+  scale: calc(var(--ow-gr) / var(--ow-Sw) / 189.8);
+  translate: calc(800px + (var(--ow-gx) - 50vw) / var(--ow-Sw) * 1px - 1214.5px)
+    calc(900px + (var(--ow-gy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-Sw) * 1px - var(--hs-ty) + 51.5px);
+}
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .mtn-tall .sv-hs-planet > .sv-hs-body,
+body.home-study .mtn-scene[data-world]:not([data-mode='home']) .mtn-tall .sv-hs-planet > .sv-ow-pimg {
+  scale: calc(var(--ow-gr) / var(--ow-St) / 113);
+  translate: calc(200px + (var(--ow-gx) - 50vw) / var(--ow-St) * 1px - 353.5px)
+    calc(800px + (var(--ow-gy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-St) * 1px - var(--hs-ty) + 8px);
+}
