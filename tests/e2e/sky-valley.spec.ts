@@ -1277,8 +1277,9 @@ for (const [size, variant] of [
         intercepted.push({ status: response.status(), bytes, replaced });
         await route.fulfill({ response, body });
       });
-      // Every affected navigation must have actually passed a nonempty scenic stylesheet with real @supports blocks
-      // through the route, with the expected document status; an empty or missed interception fails.
+      // Every affected navigation must have actually passed a nonempty scenic stylesheet through the route, with the
+      // expected document status; an empty or missed interception fails. Any @supports block it carries is made inert
+      // (since the page crossfade was removed on 2026-11-03 the scenic stylesheet carries none).
       const visit = async (target: string) => {
         const seen = intercepted.length;
         await page.goto(target);
@@ -1286,8 +1287,8 @@ for (const [size, variant] of [
         const fresh = intercepted.slice(seen);
         expect(fresh.length, `${target} document intercepted`).toBeGreaterThan(0);
         const expected = target.startsWith('/missing-') ? 404 : 200;
-        expect(fresh.some(r => r.status === expected && r.bytes > 0 && r.replaced > 0),
-          `${target} intercepted a nonempty scenic stylesheet with @supports blocks made inert`).toBe(true);
+        expect(fresh.some(r => r.status === expected && r.bytes > 0),
+          `${target} intercepted a nonempty scenic stylesheet (any @supports blocks made inert)`).toBe(true);
       };
       for (const route of ['/', '/about', '/work', '/writing', '/subscribe', '/work/trivia-hub', '/missing-sky-valley-page']) {
         for (const zoom of ['100%', '200%']) {
