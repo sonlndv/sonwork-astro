@@ -1267,12 +1267,26 @@ const sunFacts = (page: Page) => page.evaluate(() => {
   };
 });
 
+// Index routes play an arrival (about 1.1s) in which the sky rises into place: wait until a measured value is stable (two reads
+// 250ms apart agree within 0.5px, bounded at 4s) before measuring. A value that is absent on both reads counts as stable, so the
+// assertions after the wait report a missing body themselves.
+async function untilStable(page: Page, read: () => Promise<number | null>) {
+  await expect.poll(async () => {
+    const first = await read();
+    await page.waitForTimeout(250);
+    const second = await read();
+    if (first === null || second === null) return first === second;
+    return Math.abs(first - second) <= 0.5;
+  }, { timeout: 4000, intervals: [0], message: 'the sky has settled' }).toBe(true);
+}
+
 // The day sun on every route: wholly in the left margin beside the content column, 32px under the header, at the smaller of its
 // art size and the margin it fits in; omitted where the margin is under 36px, at 200% text, in short landscape, on tablets and phones.
 for (const [width, height] of [[1920, 1080], [1440, 900], [1366, 768], [1280, 800], [1440, 1200], [1280, 1280]] as const) {
   for (const route of ['/', '/about', '/work']) {
     test(`the day sun sits in the left margin, 32px under the header, on ${route} at ${width}x${height}`, async ({ browser }) => {
       const { context, page } = await open(browser, { ...base, viewport: { width, height } }, route, 'light');
+      await untilStable(page, async () => (await sunFacts(page)).sun?.top ?? null);
       const f = await sunFacts(page);
       expect(f.sun, 'the sun shows').not.toBeNull();
       const s = f.sun!;
@@ -1353,6 +1367,11 @@ for (const [width, height] of [[390, 844], [375, 812], [719, 1000]] as const) {
     for (const theme of ['light', 'dark'] as const) {
       test(`phone ${route} Neptune: lowest point 140px under the header, clear of the title, exposure by theme at ${width}x${height} (${theme})`, async ({ browser }) => {
         const { context, page } = await open(browser, { ...phone, viewport: { width, height }, colorScheme: theme }, route, theme);
+        await untilStable(page, () => page.evaluate(() => {
+          const image = Array.from(document.querySelectorAll('.mtn-scene .sv-hs-planet > .sv-ow-pimg image')).find(node => node.getClientRects().length > 0);
+          const r = image ? image.getBoundingClientRect() : null;
+          return r ? r.top + r.height / 2 + 0.495 * r.width : null; // the lowest point of the disc
+        }));
         const f = await page.evaluate(() => {
           const image = Array.from(document.querySelectorAll('.mtn-scene .sv-hs-planet > .sv-ow-pimg image')).find(node => node.getClientRects().length > 0);
           const r = image ? image.getBoundingClientRect() : null;

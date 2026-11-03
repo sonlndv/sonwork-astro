@@ -30,9 +30,10 @@ const RIM = { dark: hex('#96acd2'), light: hex('#5a73a0') };
 // themes.<theme> overrides a body's settings for that theme only: haze replaces the body haze, lift is the exponent applied
 // to the tone before the ramp (below 1 lifts the shadows; absent means 1, no change).
 // Fix pass 2026-11-03: the night Earth read too dark, so its dark texture takes no haze and a 0.55 tone lift.
+// Final pass: the day Earth takes no haze either, so the one upper-left light still reads on it by day.
 const BODIES = {
   neptune: { keep: 0.25, haze: 0, shown: 727, quality: 68 },
-  earth: { keep: 0.35, haze: 0.2, shown: 56, quality: 80, themes: { dark: { haze: 0, lift: 0.55 } } },
+  earth: { keep: 0.35, haze: 0.2, shown: 56, quality: 80, themes: { dark: { haze: 0, lift: 0.55 }, light: { haze: 0 } } },
   moon: { keep: 0.15, haze: 0.1, shown: 164, quality: 80 },
   saturn: { keep: 0.3, haze: 0.2, shown: 104, quality: 80 },
 };

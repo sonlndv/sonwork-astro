@@ -505,7 +505,7 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] { --ow-vm-ear
     --ow-ar: calc(22px * var(--ow-gk));
     --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - 20px);
     --ow-ay: calc(var(--ow-h) + 16px + var(--ow-ar));
-    --ow-br: calc(12px * var(--ow-gk));
+    --ow-br: calc(10px * var(--ow-gk));
     --ow-bx: calc(var(--ow-ax) - var(--ow-ar) - var(--ow-br) - 50px);
     --ow-by: calc(var(--ow-h) + 60px);
   }
