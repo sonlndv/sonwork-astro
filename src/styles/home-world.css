@@ -105,8 +105,10 @@ body.home-study .mtn-scene[data-world][data-mode='home'] {
   --ow-gr: calc(min(25vw, 420px) * var(--ow-gk));
   --ow-gx: calc(100vw - 60px);
   --ow-gy: calc(var(--ow-h) + 73px);
-  --ow-ar: calc(7.5vw * var(--ow-gk));
-  --ow-ax: calc((100vw - 1116px) / 2 - var(--ow-ar) - 14px);
+  /* Graded sky, mid tier: the Moon is 0.75x its former size and sits at least 48px clear of the prose column (it may stay
+     cropped by the left edge). */
+  --ow-ar: calc(5.625vw * var(--ow-gk));
+  --ow-ax: calc((100vw - 1116px) / 2 - 50px - var(--ow-ar) * 1.02);
   --ow-ay: calc(var(--ow-h) + 255px);
   --ow-br: 14px;
   --ow-bx: calc(var(--ow-gx) - var(--ow-gr) * 0.9);
@@ -179,7 +181,7 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] :is(.sv-ow-a,
    band above the first paragraph; the rocky body sits left of it in the same band. */
 @media (max-width: 1359px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
-    --ow-ar: 38px;
+    --ow-ar: 28px;
     --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - 100px);
     --ow-ay: calc(var(--ow-h) + 18px + var(--ow-ar));
   }
@@ -189,7 +191,7 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] :is(.sv-ow-a,
     --ow-gr: calc(clamp(110px, 16.5vw, 200px) * var(--ow-gk));
     --ow-gx: calc(100vw - 30px);
     --ow-gy: calc(var(--ow-h) + 135px - var(--ow-gr));
-    --ow-ar: calc(var(--ow-gr) * 0.3);
+    --ow-ar: calc(var(--ow-gr) * 0.225);
     --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - var(--ow-ar) - 40px);
     --ow-ay: calc(var(--ow-h) + 20px + var(--ow-ar));
     --ow-br: 9px;
@@ -202,7 +204,7 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] :is(.sv-ow-a,
   body.home-study .mtn-scene[data-world][data-mode='home'] {
     --ow-gr: calc(clamp(60px, 18vh, 90px) * var(--ow-gk));
     --ow-gy: calc(var(--ow-h) + 85px - var(--ow-gr));
-    --ow-ar: max(10px, calc(var(--ow-gr) * 0.2));
+    --ow-ar: max(8px, calc(var(--ow-gr) * 0.15));
     --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - var(--ow-ar) - 24px);
     --ow-ay: calc(var(--ow-h) + 14px + var(--ow-ar));
     --ow-br: 6px;
@@ -216,7 +218,7 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] :is(.sv-ow-a,
     --ow-gr: calc(clamp(90px, 17vw, 140px) * var(--ow-gk));
     --ow-gx: calc(100vw - 20px);
     --ow-gy: calc(var(--ow-h) + 95px - var(--ow-gr));
-    --ow-ar: 20px;
+    --ow-ar: 15px;
     --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - 60px);
     --ow-ay: calc(var(--ow-h) + 12px + var(--ow-ar));
     --ow-br: 7px;
@@ -371,24 +373,32 @@ body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet > .sv-ow-
    Saturn (C); Neptune (the primary) and the Moon (A) keep their established anchors. */
 @media (min-width: 1360px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
-    --ow-br: calc(clamp(34px, 3.1vw, 50px) * var(--ow-gk)); /* Earth: 44px radius at 1440, in the open sky right of the H1 */
-    --ow-bx: calc(var(--ow-gx) - var(--ow-gr) - 140px);
-    --ow-by: calc(var(--ow-h) + 70px);
-    --ow-cr: calc(clamp(70px, 6.6vw, 110px) * var(--ow-gk)); /* Saturn: half the ring width, below-left of Neptune, full rings */
-    --ow-cx: calc(var(--ow-gx) - var(--ow-gr) * 0.95);
-    --ow-cy: calc(var(--ow-gy) + var(--ow-gr) * 0.82);
+    /* Graded sky, far tier (0.6x of the former sizes): Earth is a small point lower in the sky right of the prose column
+       (set in the 960px-and-up block below); Saturn is high in the sky, 32px under the header and above the H1 band. */
+    --ow-br: calc(clamp(20px, 1.86vw, 30px) * var(--ow-gk));
+    --ow-cr: calc(clamp(40px, 3.6vw, 60px) * var(--ow-gk));
+    --ow-cx: calc(max(40px, (100vw - 1116px) / 2) + 480px);
+    --ow-cy: calc(var(--ow-h) + 32px + var(--ow-cr) * 0.395);
   }
 }
 @media (max-width: 1359px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
-    --ow-br: calc(clamp(28px, 3.6vw, 40px) * var(--ow-gk));
-    --ow-bx: calc(var(--ow-ax) - var(--ow-ar) - var(--ow-br) - 30px); /* Earth sits beside the Moon in the top band */
+    --ow-br: calc(clamp(17px, 2.16vw, 24px) * var(--ow-gk));
+    --ow-bx: calc(var(--ow-ax) - var(--ow-ar) - var(--ow-br) - 30px); /* used by the 720-959px regimes only (see below) */
     --ow-by: var(--ow-ay);
+  }
+}
+/* Earth, 960px and wider: a far point right of the prose column (column right edge = left edge + 798px, plus 32px of clear sky),
+   below Neptune's lower-left limb and above the far ridge. It hides in short windows where that sky is crowded (see below). */
+@media (min-width: 960px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] {
+    --ow-bx: calc(max(40px, (100vw - 1116px) / 2) + 842px + var(--ow-br));
+    --ow-by: calc(var(--ow-h) + min(373px, 50svh));
   }
 }
 @media (max-aspect-ratio: 5/4) and (max-width: 899px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
-    --ow-br: calc(24px * var(--ow-gk));
+    --ow-br: calc(14px * var(--ow-gk));
     --ow-bx: calc(var(--ow-ax) - var(--ow-ar) - var(--ow-br) - 24px);
     --ow-by: calc(var(--ow-h) + 58px);
   }
@@ -397,7 +407,7 @@ body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet > .sv-ow-
    heading, above the first paragraph, left of Neptune's lower-left limb). The Moon is omitted so nothing competes with reading. */
 @media (max-aspect-ratio: 5/4) and (max-width: 719px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
-    --ow-br: calc(24px * var(--ow-gk));
+    --ow-br: calc(14px * var(--ow-gk));
     --ow-bx: 62vw;
     --ow-by: calc(var(--ow-h) + 138px);
   }
@@ -442,12 +452,22 @@ body.home-study .mtn-scene[data-world][data-mode='home'] {
   body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-vm-saturn: none; }
 }
 body.home-study .mtn-scene[data-world][data-mode='home'][data-big] { --ow-vm-earth: none; --ow-vm-saturn: none; }
+/* Earth also hides where its far-tier sky is crowded: windows under 680px tall (the ridge rises into its pocket) and widths of
+   720-959px outside portrait tablets (no clear sky right of the prose column). */
+@media (min-width: 960px) and (max-height: 679px),
+  (min-width: 900px) and (max-width: 959px),
+  (min-width: 720px) and (max-width: 899px) and (min-aspect-ratio: 5/4) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-vm-earth: none; }
+  body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-b { display: none; }
+}
 
-/* Desktop: Saturn takes the empty top-sky pocket left of Earth (same row), clear of the H1, the prose and the terrain. */
+/* Desktop (graded sky, far tier): Saturn rides high in the open sky between the H1 column and Neptune's limb. Its box starts 32px
+   under the header and ends at the H1's top, so it shares no horizontal band with the H1 or with Earth (which sits far lower,
+   right of the prose column), and it is well over 32px from every text box. */
 @media (min-width: 1360px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
-    --ow-cx: calc(var(--ow-bx) - var(--ow-br) - var(--ow-cr) - 60px);
-    --ow-cy: var(--ow-by);
+    --ow-cx: calc(max(40px, (100vw - 1116px) / 2) + 480px);
+    --ow-cy: calc(var(--ow-h) + 32px + var(--ow-cr) * 0.395);
   }
 }
 /* Tablet portrait: an immense cropped Neptune curve in the top-right corner; Earth keeps the remaining top band. */
@@ -463,9 +483,11 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] { --ow-vm-ear
   body.home-study .mtn-scene[data-world][data-mode='home'] {
     --ow-gx: calc(100vw + 45px);
     --ow-gy: calc(var(--ow-h) + 127px - var(--ow-gr));
-    --ow-br: calc(22px * var(--ow-gk));
-    --ow-bx: calc(100vw - 95px);
-    --ow-by: calc(var(--ow-h) + 112px);
+    /* Far tier (about 0.6x of the former 22px radius), moved right and slightly down so it sits at least 32px from the
+       heading box (the heading's right edge is about 256px on a 390px phone) and clear of Neptune's lower-left limb. */
+    --ow-br: calc(13px * var(--ow-gk));
+    --ow-bx: 308px;
+    --ow-by: calc(var(--ow-h) + 128px);
   }
 }
 /* Tablet portrait (720-899px), static in both themes: a larger Neptune that reads as a real curved quarter-body (radius 36vw,
@@ -479,18 +501,18 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] { --ow-vm-ear
     --ow-gr: calc(36vw * var(--ow-gk));
     --ow-gx: calc(100vw - 4px);
     --ow-gy: calc(var(--ow-h) + 175px - var(--ow-gr));
-    --ow-ar: calc(30px * var(--ow-gk));
+    --ow-ar: calc(22px * var(--ow-gk));
     --ow-ax: calc(var(--ow-gx) - var(--ow-gr) - 20px);
     --ow-ay: calc(var(--ow-h) + 16px + var(--ow-ar));
-    --ow-br: calc(20px * var(--ow-gk));
+    --ow-br: calc(12px * var(--ow-gk));
     --ow-bx: calc(var(--ow-ax) - var(--ow-ar) - var(--ow-br) - 50px);
     --ow-by: calc(var(--ow-h) + 60px);
   }
 }
 @media (max-aspect-ratio: 5/4) and (max-width: 359px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
-    --ow-br: calc(15px * var(--ow-gk));
-    --ow-bx: calc(100vw - 80px);
-    --ow-by: calc(var(--ow-h) + 119px);
+    --ow-br: calc(9px * var(--ow-gk));
+    --ow-bx: calc(100vw - 14px);
+    --ow-by: calc(var(--ow-h) + 132px);
   }
 }
