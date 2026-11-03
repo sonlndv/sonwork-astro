@@ -30,7 +30,9 @@ if (/data-home-src="\/mountains\/real-/.test(scene)) throw new Error('mountain-s
 const inert = 'data-home-src="/mountains/real-';
 // Speed pass (Son-approved 2026-11-03): off-Home, the 4 Neptune nodes are inert too (`data-np-src`), so the parser never
 // requests both textures at Medium priority ahead of the text. A tiny inline script right after the scene sets `href` on the
-// current theme's nodes only (Low priority). Without script, a <noscript> copy of the planet sits under each far-ridge sky SVG.
+// current theme's nodes only (Low priority). Without script, a <noscript> copy of the planet sits under each far-ridge sky SVG;
+// in dark (the OS preference, as there is no toggle without script) the copy is lifted above that SVG so the stars stay behind
+// the planet as before, and the sky mask still keeps the ridges in front.
 const npInert = 'data-np-src="/mountains/real-neptune';
 const planetOpen = '<g class="sv-hs-night sv-hs-planet">';
 const planetClose = '<g class="sv-hs-clouds">';
@@ -39,8 +41,10 @@ if (planets.length !== 2 || planets.some((part) => !part.includes('sv-ow-pimg'))
 const fallback = (shape: 'wide' | 'tall', box: string, planet: string) =>
   `<svg class="mtn-ridge mtn-${shape} sv-np-fallback" viewBox="${box}" preserveAspectRatio="xMidYMax ${shape === 'wide' ? 'slice' : 'meet'}" focusable="false" aria-hidden="true">` +
   `<g class="sv-home-sky" mask="url(#sv-sky-mask-${shape})">${planetOpen}${planet}</g></svg>`;
-// Hides the real sky SVG's own (href-less) planet group when script is off; it cannot match the fallback.
-const noscriptHide = '<style>.mtn-scene svg.mtn-ridge:not(.sv-np-fallback) .sv-hs-planet{display:none!important}</style>';
+// Hides the real sky SVG's own (href-less) planet group when script is off; it cannot match the fallback. In dark it also
+// lifts the fallback copy above the far sky SVG (z-index) so that SVG's stars stay behind the planet.
+const noscriptHide = '<style>.mtn-scene svg.mtn-ridge:not(.sv-np-fallback) .sv-hs-planet{display:none!important}' +
+  '@media (prefers-color-scheme:dark){.mtn-scene>.mtn-layer>noscript>.mtn-ridge.sv-np-fallback{z-index:1}}</style>';
 const npScript = '<script>(() => {' +
   'const root = document.documentElement;' +
   "const light = () => root.dataset.theme ? root.dataset.theme === 'light' : matchMedia('(prefers-color-scheme: light)').matches;" +

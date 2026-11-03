@@ -4,9 +4,9 @@
 
 /* Terrain material: broad tonal roles only; the original faces, planes, rims and masks carry the relief. */
 body.home-study .mtn-scene[data-world][data-mode='home'] {
-  --mtn-c-far: light-dark(#cbd7e4, #34496b);
-  --mtn-c-mid: light-dark(#a8b9ce, #253c5b);
-  --mtn-c-near: light-dark(#8197b0, #182d49);
+  --mtn-c-far: light-dark(#b5c0cd, #34496b);
+  --mtn-c-mid: light-dark(#92a3b8, #253c5b);
+  --mtn-c-near: light-dark(#6c829a, #182d49);
   --mtn-plane: light-dark(rgba(39, 60, 87, 0.28), rgba(2, 5, 14, 0.55));
   --mtn-rim: light-dark(rgba(75, 97, 126, 0.38), rgba(154, 181, 211, 0.55));
 }

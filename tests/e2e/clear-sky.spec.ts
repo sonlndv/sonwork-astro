@@ -307,6 +307,16 @@ test('no-JS Home is clear and fixed; other routes keep their incumbent day sky',
     expect(await shown(noScript, 'svg.mtn-ridge:not(.sv-np-fallback) .sv-hs-planet'), `${route} no JS real sky planet group is hidden`).toBe(false);
     expect(await shown(noScript, '.sv-ow-bodies'), `${route} no JS`).toBe(false);
     await bare.close();
+    // Follow-up: without script the OS preference is the theme. In dark the fallback copy is lifted above the far sky SVG,
+    // so the real sky's stars stay behind the planet; in light it stays underneath.
+    for (const [scheme, zIndex] of [['dark', '1'], ['light', 'auto']] as const) {
+      const stacked = await browser.newContext({ ...base, colorScheme: scheme, javaScriptEnabled: false });
+      const stackPage = await stacked.newPage();
+      await stackPage.goto(route);
+      const order = await stackPage.locator('.mtn-far svg.sv-np-fallback').evaluateAll((els) => els.map((el) => getComputedStyle(el).zIndex));
+      expect(order, `${route} no JS ${scheme} fallback stacking`).toEqual([zIndex, zIndex]);
+      await stacked.close();
+    }
   }
 });
 
