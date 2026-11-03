@@ -57,6 +57,17 @@ body.home-study .mtn-scene[data-world]:not([data-mode='home'])[data-big] { --ow-
 @media (max-width: 719px) {
   body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --ow-h: calc(98px + (1rem - 16px) * 2.75); }
 }
+/* Phones (fix pass 2026-11-03): more of the limb shows under the header (lowest point 140px under it, still clear of the page
+   title, which ends by about x 240), and at night every route takes the index exposure 0.75 (calm routes keep 0.55 by day). */
+@media (max-aspect-ratio: 5/4) and (max-width: 719px) {
+  body.home-study .mtn-scene[data-world]:not([data-mode='home']) {
+    --ow-gy: calc(var(--ow-h) + 140px - var(--ow-gr));
+  }
+  :root[data-theme='dark'] body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --np-exposure: 0.75; }
+}
+@media (max-aspect-ratio: 5/4) and (max-width: 719px) and (not (prefers-color-scheme: light)) {
+  :root:not([data-theme='light']) body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --np-exposure: 0.75; }
+}
 
 /* Shown in both themes (the older rules show the night planet group only in dark and only the crescent image). */
 body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet .sv-ow-pimg,
@@ -77,9 +88,9 @@ body.home-study .mtn-scene[data-world]:not([data-mode='home']) .mtn-tall .sv-hs-
 body.home-study .mtn-scene[data-world]:not([data-mode='home']) .sv-hs-planet > .sv-ow-pimg > image {
   opacity: var(--np-exposure);
   /* Explicit identities beat the older tall-desktop planet rule that selects every descendant image. */
-  scale: var(--ow-identity-scale, 1) !important;
-  translate: var(--ow-identity-shift, 0px) var(--ow-identity-shift, 0px) !important;
-  rotate: var(--ow-identity-turn, 0deg) !important;
+  scale: var(--np-identity-scale, 1) !important;
+  translate: var(--np-identity-shift, 0px) var(--np-identity-shift, 0px) !important;
+  rotate: var(--np-identity-turn, 0deg) !important;
   transform: none;
   -webkit-mask-image: none;
   mask-image: none;

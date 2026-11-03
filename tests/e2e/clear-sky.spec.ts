@@ -288,12 +288,22 @@ test('no-JS Home is clear and fixed; other routes keep their incumbent day sky',
   await normal.context.close();
   await plain.close();
 
+  // Graded sky: other routes keep their incumbent day clouds and now carry Home's graded Neptune as a cropped limb (both themes,
+  // with and without script); the small bodies stay Home-only.
   for (const route of ['/about', '/work']) {
-    const { context, page: other } = await open(browser, base, route, 'light');
-    expect(await shown(other, '.sv-hs-clouds'), route).toBe(true);
-    expect(await shown(other, '.sv-hs-planet'), route).toBe(false);
-    expect(await shown(other, '.sv-ow-bodies'), route).toBe(false);
-    await context.close();
+    for (const theme of ['light', 'dark'] as const) {
+      const { context, page: other } = await open(browser, base, route, theme);
+      if (theme === 'light') expect(await shown(other, '.sv-hs-clouds'), route).toBe(true);
+      expect(await shown(other, '.sv-hs-planet'), `${route} ${theme}`).toBe(true);
+      expect(await shown(other, '.sv-ow-bodies'), `${route} ${theme}`).toBe(false);
+      await context.close();
+    }
+    const bare = await browser.newContext({ ...base, javaScriptEnabled: false });
+    const noScript = await bare.newPage();
+    await noScript.goto(route);
+    expect(await shown(noScript, '.sv-hs-planet'), `${route} no JS`).toBe(true);
+    expect(await shown(noScript, '.sv-ow-bodies'), `${route} no JS`).toBe(false);
+    await bare.close();
   }
 });
 
@@ -444,19 +454,22 @@ for (const [width, height] of sizes) {
       const r = await skies(page, light);
       const material = light ? 'sv-ow-pm' : 'sv-ow-pn';
       const key = light ? 'light' : 'dark';
-      // Source CSS conditions decide presence: Moon A is dropped on portrait phones (<720 wide), Earth B is shown everywhere
-      // here (only short landscape and enlarged text drop it), Saturn C needs 1360x600 or more at normal text.
+      // Source CSS conditions decide presence: Moon A is dropped on portrait phones (<720 wide), Earth B (a far-tier point right of
+      // the prose column) is shown on phones and tall windows but dropped where that sky is crowded (windows under 680px tall from
+      // 960px wide, 900-959px wide, 720-899px wide landscape; short landscape and enlarged text also drop it), Saturn C needs
+      // 1360x600 or more at normal text.
       const portraitPhone = width < 720 && height > width;
       const saturn = width >= 1360 && height >= 600;
+      const earth = !((width >= 960 && height <= 679) || (width >= 900 && width <= 959) || (width >= 720 && width <= 899 && width / height >= 5 / 4));
       expect(r.planet.classes, 'Neptune material').toEqual([material]);
       expect(r.a.classes, portraitPhone ? 'Moon is omitted on phones' : 'Moon material').toEqual(portraitPhone ? [] : [material]);
-      expect(r.b.classes, 'Earth is shown (also on phones)').toEqual([material]);
+      expect(r.b.classes, earth ? 'Earth is shown (also on phones)' : 'Earth is omitted where its sky is crowded').toEqual(earth ? [material] : []);
       expect(r.c.classes, saturn ? 'Saturn material' : 'Saturn is omitted below 1360x600').toEqual(saturn ? [material] : []);
       expect(r.original, 'original blue raster hidden on Home').toBe(0);
       // Source identity: exactly the declared real file for the theme, with no CSS filter grade on any body.
       expect(r.planet.href).toBe(BODY_HREFS.planet[key]);
       if (r.a.box) expect(r.a.href).toBe(BODY_HREFS.a[key]);
-      expect(r.b.href).toBe(BODY_HREFS.b[key]);
+      if (r.b.box) expect(r.b.href).toBe(BODY_HREFS.b[key]);
       if (r.c.box) expect(r.c.href).toBe(BODY_HREFS.c[key]);
       for (const [name, body] of [['Neptune', r.planet], ['Moon', r.a], ['Earth', r.b], ['Saturn', r.c]] as const) {
         if (!body.box) continue;
@@ -465,7 +478,7 @@ for (const [width, height] of sizes) {
         expect(body.core!.w, `${name} decoded`).toBeGreaterThan(0);
       }
       expect(r.hrefCount, 'the Home scene keeps its 16 real hrefs').toBe(16);
-      expect(r.blueCount, 'the 2 protected original blue refs are untouched').toBe(2);
+      expect(r.blueCount, 'the retired blue-planet.webp is no longer referenced').toBe(0);
       expect(r.foreign, 'no relight canvas or foreignObject exists').toBe(0);
       // Real assets are fetched and decode without failure.
       expect(failed, 'no failed real-asset request').toEqual([]);
@@ -660,7 +673,21 @@ for (const [width, height] of [[1440, 900], [1360, 900]] as const) {
             for (const g of Array.from(range.getClientRects())) glyphs.push({ left: g.left, top: g.top, right: g.right, bottom: g.bottom });
           }
         }
+        // Every text box on the page and every header control, for the 32px clearance of the far-tier rule.
+        const texts: { left: number; top: number; right: number; bottom: number }[] = [];
+        for (const scope of [document.querySelector('main'), document.querySelector('.site-header')]) {
+          if (!scope) continue;
+          const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+          for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            if (!node.textContent!.trim()) continue;
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            for (const g of Array.from(range.getClientRects())) texts.push({ left: g.left, top: g.top, right: g.right, bottom: g.bottom });
+          }
+        }
+        const controls = Array.from(document.querySelectorAll('.site-header a, .site-header button')).map(rect);
         return {
+          texts, controls,
           total: root.querySelectorAll('.sv-ow-c image').length, classes: c.map(node => node.getAttribute('class')), href: c.length ? c[0].getAttribute('href') : null,
           box: c.length ? rect(c[0]) : null,
           header: document.querySelector('.site-header')!.getBoundingClientRect().bottom,
@@ -674,14 +701,26 @@ for (const [width, height] of [[1440, 900], [1360, 900]] as const) {
       expect(r.classes, 'one active material').toEqual([theme === 'light' ? 'sv-ow-pm' : 'sv-ow-pn']);
       expect(r.href).toBe(BODY_HREFS.c[theme]);
       const b = r.box!;
-      expect(b.width, 'ring width is twice the radius clamp(70px, 6.6vw, 110px)').toBeGreaterThan(165);
-      expect(b.width, 'ring width is twice the radius clamp(70px, 6.6vw, 110px)').toBeLessThan(235);
+      // Graded sky, far tier: about 0.55-0.6x of the former ring width (twice the radius clamp(70px, 6.6vw, 110px)).
+      const formerWidth = 2 * Math.min(110, Math.max(70, 0.066 * width));
+      expect(b.width / formerWidth, 'ring width is about 0.55-0.6x of the former width').toBeGreaterThanOrEqual(0.5);
+      expect(b.width / formerWidth, 'ring width is about 0.55-0.6x of the former width').toBeLessThanOrEqual(0.62);
       expect(b.right, 'left of Earth with clear sky between').toBeLessThanOrEqual(r.earth.left - 20);
-      expect(b.top, 'clear of the header').toBeGreaterThanOrEqual(r.header + 8);
+      // The box starts 32px under the header and sits in the top sky band, well above the first prose and above Earth's band.
+      expect(b.top, 'starts 32px under the header').toBeGreaterThanOrEqual(r.header + 31);
+      expect(b.top, 'starts 32px under the header').toBeLessThanOrEqual(r.header + 34);
       expect(b.bottom, 'clear of the first prose').toBeLessThanOrEqual(r.intro - 16);
+      expect(b.bottom, 'not in the same band as Earth').toBeLessThanOrEqual(r.earth.top - 32);
       expect(r.glyphs.length, 'heading text was measured').toBeGreaterThan(0);
       const apart = (x: { left: number; top: number; right: number; bottom: number }) => x.right <= b.left || x.left >= b.right || x.bottom <= b.top || x.top >= b.bottom;
       for (const g of r.glyphs) expect(apart(g), 'clear of the heading glyphs').toBe(true);
+      // At least 32px from every text box and every header control.
+      const gap = (x: { left: number; top: number; right: number; bottom: number }) =>
+        Math.hypot(Math.max(0, b.left - x.right, x.left - b.right), Math.max(0, b.top - x.bottom, x.top - b.bottom));
+      expect(r.texts.length, 'page text was measured').toBeGreaterThan(0);
+      for (const t of r.texts) expect(gap(t), 'at least 32px from text').toBeGreaterThanOrEqual(32);
+      expect(r.controls.length, 'header controls were measured').toBeGreaterThan(0);
+      for (const c of r.controls) expect(gap(c), 'at least 32px from the nav and controls').toBeGreaterThanOrEqual(32);
       expect(r.others.length, 'Neptune, the Moon and Earth are visible').toBeGreaterThanOrEqual(3);
       for (const o of r.others) expect(apart(o), 'separate from the other bodies').toBe(true);
       expect(r.overflow).toBeLessThanOrEqual(0);
@@ -814,22 +853,29 @@ for (const [width, height] of [[375, 812], [390, 844], [768, 1024]] as const) {
         ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(el, 0, 0, size, size);
         const data = ctx.getImageData(0, 0, size, size).data;
-        let n = 0, blue = 0, land = 0, sum = 0, sum2 = 0;
+        let n = 0, blue = 0, sum = 0, sum2 = 0;
+        const lumas: number[] = [];
         for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
           const dx = (x + 0.5 - size / 2) / (size / 2), dy = (y + 0.5 - size / 2) / (size / 2);
           if (Math.hypot(dx, dy) > 0.8) continue;
           const o = (y * size + x) * 4, R = data[o], G = data[o + 1], B = data[o + 2];
           const luma = 0.2126 * R + 0.7152 * G + 0.0722 * B;
           n += 1; sum += luma; sum2 += luma * luma;
-          if (B > R + 12 && B >= G) blue += 1; else if (G > B + 4 || R > B) land += 1;
+          lumas.push(luma);
+          if (B > R + 12 && B >= G) blue += 1;
         }
         const mean = sum / n;
-        return { size, n, blue: blue / n, land: land / n, std: Math.sqrt(Math.max(0, sum2 / n - mean * mean)) };
+        // The graded palette has no green or brown land, so surface detail is palette-neutral: the share of disc pixels at least
+        // 25 luma above the disc's median luma (a flat grey haze has none).
+        const sorted = lumas.slice().sort((p, q) => p - q);
+        const median = sorted[Math.floor(sorted.length / 2)];
+        const bright = lumas.filter(v => v >= median + 25).length;
+        return { size, n, blue: blue / n, bright: bright / n, std: Math.sqrt(Math.max(0, sum2 / n - mean * mean)) };
       });
       expect(r, 'Earth is painted').not.toBeNull();
       expect(r!.size, 'Earth renders small here').toBeLessThan(110);
       expect(r!.blue, 'ocean reads blue').toBeGreaterThanOrEqual(0.15);
-      expect(r!.land, 'land reads as land').toBeGreaterThanOrEqual(0.06);
+      expect(r!.bright, 'surface detail: at least 6% of the disc is 25+ luma above its median').toBeGreaterThanOrEqual(0.06);
       expect(r!.std, 'visible luminance detail across the disc').toBeGreaterThanOrEqual(10);
       await context.close();
     });
@@ -1003,28 +1049,34 @@ test('every cancellation path removes the star at once and needs fresh mouse inp
   await context.close();
 });
 
-test('Home-only real textures and visibility masks are not fetched on other routes; Home keeps its 16 real hrefs with or without JS', async ({ browser }) => {
+// Graded sky: the only Home texture other routes may carry is Neptune's pair (dark and light), shared with Home's cache.
+const NEPTUNE_PAIR = ['/mountains/real-neptune-morning.webp', '/mountains/real-neptune.webp'];
+const OFF_HOME_INERT = HOME_HREFS.filter(href => !href.includes('real-neptune'));
+
+test('Home-only real textures and visibility masks are not fetched on other routes (only the Neptune pair is); Home keeps its 16 real hrefs with or without JS', async ({ browser }) => {
   for (const route of ['/work', '/about']) {
     const context = await browser.newContext(base);
     const page = await context.newPage();
-    const requests: string[] = [];
-    page.on('request', request => { if (/\/mountains\/(real-|ow-)/.test(request.url())) requests.push(request.url()); });
+    const requests = new Set<string>();
+    page.on('request', request => { if (/\/mountains\/(real-|ow-)/.test(request.url())) requests.add(new URL(request.url()).pathname); });
     await page.goto(route);
     await page.waitForLoadState('load');
-    expect(requests, `${route} requests no Home texture or visibility mask`).toEqual([]);
+    expect(Array.from(requests).sort(), `${route} requests exactly the Neptune pair and no other Home texture or visibility mask`).toEqual(NEPTUNE_PAIR);
     const facts = await page.evaluate(() => ({
       inert: Array.from(document.querySelectorAll('image[data-home-src]')).map(node => node.hasAttribute('href')),
       homeSrc: Array.from(document.querySelectorAll('image[data-home-src]')).map(node => node.getAttribute('data-home-src')!).sort(),
       withHref: document.querySelectorAll('image[href*="/mountains/real-"], image[href*="/mountains/ow-"]').length,
+      hrefs: Array.from(document.querySelectorAll('image[href*="/mountains/real-"]')).map(node => node.getAttribute('href')!).sort(),
       blue: document.querySelectorAll('image[href*="blue-planet.webp"]').length,
       landscape: document.querySelectorAll('.mtn-scene .mtn-lit').length,
       css: Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\n'),
     }));
-    expect(facts.inert.length, 'all 16 hidden texture nodes remain, inert').toBe(16);
+    expect(facts.inert.length, 'the 12 non-Neptune hidden texture nodes remain, inert').toBe(12);
     expect(facts.inert.every(has => !has)).toBe(true);
-    expect(facts.homeSrc, 'the inert sources are exactly the current real files').toEqual(HOME_HREFS);
-    expect(facts.withHref).toBe(0);
-    expect(facts.blue, 'both protected blue-planet refs stay live').toBe(2);
+    expect(facts.homeSrc, 'the inert sources are exactly the current non-Neptune real files').toEqual(OFF_HOME_INERT);
+    expect(facts.withHref, 'only the 4 Neptune nodes (dark and light, wide and tall) are live').toBe(4);
+    expect(facts.hrefs, 'the live hrefs are the Neptune pair').toEqual([NEPTUNE_PAIR[0], NEPTUNE_PAIR[0], NEPTUNE_PAIR[1], NEPTUNE_PAIR[1]]);
+    expect(facts.blue, 'the retired blue-planet.webp is not referenced').toBe(0);
     expect(facts.css, `${route} carries no visibility-mask URL`).not.toMatch(/real-(earth|saturn)-visibility/);
     expect(facts.landscape, 'original landscape paths are intact').toBeGreaterThan(0);
     await expect(page.locator('main')).toBeVisible();
@@ -1053,16 +1105,18 @@ test('Home-only real textures and visibility masks are not fetched on other rout
     expect(facts.withHref, `Home keeps its real hrefs (JS ${javaScriptEnabled})`).toBe(16);
     expect(facts.hrefs, `Home hrefs are the current real files (JS ${javaScriptEnabled})`).toEqual(HOME_HREFS);
     expect(facts.retired).toBe(0);
-    expect(facts.blue).toBe(2);
+    expect(facts.blue, 'the retired blue-planet.webp is not referenced').toBe(0);
     expect(facts.inert).toBe(0);
     expect(await shown(page, '.sv-hs-planet > .sv-ow-pimg image'), `Home shows its real Neptune (JS ${javaScriptEnabled})`).toBe(true);
     await context.close();
   }
 });
 
-test('only Home inlines the Home-only world CSS; other routes still hide the new art and keep the original night planet', async ({ browser }) => {
+test('only Home inlines the Home-only world CSS; other routes still hide the new small bodies and carry only the graded Neptune limb', async ({ browser }) => {
   const css = (page: Page) => page.evaluate(() => Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\n'));
-  const homeRule = /ow-identity-scale/; // the Home-only nested-image guard, emitted only by the Home world CSS
+  // The Home-only nested-image guard, emitted only by the Home world CSS. The off-Home carry-through names its own identity
+  // tokens (--np-identity-scale/shift/turn), so none of the three Home tokens may appear on another route.
+  const homeRule = /ow-identity-(scale|shift|turn)/;
   // The minifier legitimately merges identical adjacent declarations into one selector list
   // (e.g. `.mtn-scene[data-mode=calm]>.mtn-mist,.sv-ow-bodies,.sv-ow-pimg,.sv-ow-pm,.sv-ow-pn{display:none}`), so the
   // default-hide guard inspects the real CSSOM: every wanted selector must be an entry of some display:none rule's selector list
@@ -1100,9 +1154,12 @@ test('only Home inlines the Home-only world CSS; other routes still hide the new
     const hiding = await notHiddenByDefault(page);
     expect(hiding.rulesSeen, `${route} CSSOM is readable (nonempty)`).toBeGreaterThan(0);
     expect(hiding.missing, `${route} hides the new art by default`).toEqual([]);
-    expect(text, `${route} keeps the original night planet rule`).toMatch(/\.sv-hs-planet/);
+    expect(text, `${route} keeps the planet group rules`).toMatch(/\.sv-hs-planet/);
     if (route === '/') expect(text, 'Home carries its world CSS').toMatch(homeRule);
-    else expect(text, `${route} omits the Home-only world CSS`).not.toMatch(homeRule);
+    else {
+      expect(text, `${route} omits the Home-only world CSS`).not.toMatch(homeRule);
+      expect(text, `${route} carries its own identity tokens for the graded Neptune`).toMatch(/np-identity-scale/);
+    }
     await context.close();
   }
   for (const route of ['/work', '/about']) {
@@ -1110,8 +1167,8 @@ test('only Home inlines the Home-only world CSS; other routes still hide the new
     const page = await context.newPage();
     await page.goto(route);
     expect(await shown(page, '.sv-ow-bodies'), `${route} paints none of the new bodies`).toBe(false);
-    expect(await shown(page, '.sv-ow-pimg'), `${route} paints no real planet layer`).toBe(false);
-    expect(await shown(page, '.sv-hs-planet > image'), `${route} night still paints the original planet`).toBe(true);
+    expect(await shown(page, '.sv-hs-planet > .sv-ow-pimg image'), `${route} night paints the graded Neptune limb`).toBe(true);
+    expect(await shown(page, '.sv-hs-planet > image'), `${route} no longer paints the retired crescent raster`).toBe(false);
     await context.close();
   }
 });
@@ -1171,6 +1228,167 @@ test('the pointer star is absent for reduced motion, coarse input, other routes 
   expect(await shown(plainPage, '.sv-hs-planet > .sv-ow-pimg image')).toBe(true);
   await plain.close();
 });
+
+// ---- Graded sky fix pass (2026-11-03): sun placement, Moon in the top band, phone inner-page Neptune ----
+type Rect = { left: number; top: number; right: number; bottom: number };
+const rectGap = (a: Rect, b: Rect) =>
+  Math.hypot(Math.max(0, a.left - b.right, b.left - a.right), Math.max(0, a.top - b.bottom, b.top - a.bottom));
+
+// Every text box (main and header) and every header control, as plain rects.
+const textAndControls = (page: Page) => page.evaluate(() => {
+  const texts: { left: number; top: number; right: number; bottom: number }[] = [];
+  for (const scope of [document.querySelector('main'), document.querySelector('.site-header')]) {
+    if (!scope) continue;
+    const walker = document.createTreeWalker(scope, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!node.textContent!.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      for (const g of Array.from(range.getClientRects())) texts.push({ left: g.left, top: g.top, right: g.right, bottom: g.bottom });
+    }
+  }
+  const controls = Array.from(document.querySelectorAll('.site-header a, .site-header button')).map(el => {
+    const r = el.getBoundingClientRect();
+    return { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+  });
+  return { texts, controls };
+});
+
+const sunFacts = (page: Page) => page.evaluate(() => {
+  const circle = Array.from(document.querySelectorAll('.mtn-scene .sv-hs-sun circle')).find(node => node.getClientRects().length > 0);
+  const r = circle ? circle.getBoundingClientRect() : null;
+  const h1 = document.querySelector('main h1')!.getBoundingClientRect();
+  return {
+    sun: r ? { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height } : null,
+    header: document.querySelector('.site-header')!.getBoundingClientRect().bottom,
+    column: h1.left, // the content column's left edge
+    h1: { left: h1.left, top: h1.top, right: h1.right, bottom: h1.bottom },
+    width: innerWidth, height: innerHeight,
+  };
+});
+
+// The day sun on every route: wholly in the left margin beside the content column, 32px under the header, at the smaller of its
+// art size and the margin it fits in; omitted where the margin is under 36px, at 200% text, in short landscape, on tablets and phones.
+for (const [width, height] of [[1920, 1080], [1440, 900], [1366, 768], [1280, 800], [1440, 1200], [1280, 1280]] as const) {
+  for (const route of ['/', '/about', '/work']) {
+    test(`the day sun sits in the left margin, 32px under the header, on ${route} at ${width}x${height}`, async ({ browser }) => {
+      const { context, page } = await open(browser, { ...base, viewport: { width, height } }, route, 'light');
+      const f = await sunFacts(page);
+      expect(f.sun, 'the sun shows').not.toBeNull();
+      const s = f.sun!;
+      const column = Math.max(0, (width - 1180) / 2) + 32;
+      expect(Math.abs(f.column - column), 'the content column starts where the margin rule assumes').toBeLessThanOrEqual(1);
+      const art = 56 * Math.max(width / 1600, (height + 96) / 900);
+      const diameter = Math.min(art, column - 40);
+      expect(Math.abs(s.width - diameter), 'diameter = min(art size, margin - 40px)').toBeLessThanOrEqual(1.5);
+      expect(s.left, 'whole disc inside the viewport, 8px from the edge').toBeGreaterThanOrEqual(7);
+      expect(s.top, 'top at least 32px below the header').toBeGreaterThanOrEqual(f.header + 31);
+      expect(s.right, 'right edge at least 32px left of the content column').toBeLessThanOrEqual(f.column - 31);
+      // Anchored exactly: top 32px under the header, right edge 32px left of the column.
+      expect(Math.abs(s.top - (f.header + 32)), 'top anchor').toBeLessThanOrEqual(1.5);
+      expect(Math.abs(s.right - (f.column - 32)), 'right anchor').toBeLessThanOrEqual(1.5);
+      const { texts, controls } = await textAndControls(page);
+      for (const box of [...texts, ...controls]) expect(rectGap(s, box), 'at least 32px from every text box and control').toBeGreaterThanOrEqual(31);
+      await context.close();
+    });
+  }
+}
+
+test('the day sun is omitted where its margin cannot hold it, at 200% text, in short landscape, on tablets and phones', async ({ browser }) => {
+  for (const [width, height] of [[1024, 768], [960, 700], [1024, 1024], [1200, 800], [900, 500], [820, 1180], [390, 844]] as const) {
+    const touch = width < 900;
+    for (const route of ['/', '/about']) {
+      const { context, page } = await open(browser, { ...base, viewport: { width, height }, isMobile: touch, hasTouch: touch }, route, 'light');
+      expect(await shown(page, '.mtn-scene .sv-hs-sun'), `no sun on ${route} at ${width}x${height}`).toBe(false);
+      await context.close();
+    }
+  }
+  for (const route of ['/', '/about']) {
+    const { context, page } = await open(browser, base, route, 'light');
+    await page.addStyleTag({ content: 'html { font-size: 200%; }' });
+    await page.waitForFunction(() => document.querySelector('.mtn-scene')!.hasAttribute('data-big'));
+    expect(await shown(page, '.mtn-scene .sv-hs-sun'), `no sun on ${route} at 200% text`).toBe(false);
+    await context.close();
+  }
+});
+
+// The Moon in the top band: 32px under the header, 48px above the first paragraph, 32px from every other text box and control;
+// its x position is unchanged (1200-1359px wide: right of the Neptune limb by the existing formula).
+for (const [width, height, touch] of [[1280, 800, false], [1024, 768, false], [960, 700, false], [820, 1180, true], [900, 500, false]] as const) {
+  test(`the Moon keeps clear of the nav and text in the top band at ${width}x${height}`, async ({ browser }) => {
+    const { context, page } = await open(browser, { ...base, viewport: { width, height }, isMobile: touch, hasTouch: touch }, '/', 'light');
+    const f = await page.evaluate(() => {
+      const image = Array.from(document.querySelectorAll('.mtn-scene[data-mode="home"] .sv-ow-a image')).find(node => node.getClientRects().length > 0);
+      const r = image ? image.getBoundingClientRect() : null;
+      return {
+        moon: r ? { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width } : null,
+        header: document.querySelector('.site-header')!.getBoundingClientRect().bottom,
+        intro: document.querySelector('.home-intro')!.getBoundingClientRect().top,
+      };
+    });
+    expect(f.moon, 'the Moon shows in the top band').not.toBeNull();
+    const m = f.moon!;
+    expect(m.top, 'top at least 32px below the header').toBeGreaterThanOrEqual(f.header + 31);
+    expect(m.bottom, 'at least 48px above the first paragraph').toBeLessThanOrEqual(f.intro - 47);
+    const { texts, controls } = await textAndControls(page);
+    for (const box of [...texts, ...controls]) {
+      // The first paragraph is held to 48px (above); every other text box and control to 32px.
+      expect(rectGap(m, box), 'at least 32px from every other text box and control').toBeGreaterThanOrEqual(31);
+    }
+    if (width === 1280) {
+      const expectedCentre = (width - 60) - Math.min(0.25 * width, 420) - 100;
+      expect(Math.abs((m.left + m.right) / 2 - expectedCentre), 'x position unchanged').toBeLessThanOrEqual(1.5);
+      expect(m.width, 'full mid-tier size (about 56px) where it fits').toBeGreaterThanOrEqual(54);
+    } else {
+      expect(m.width, 'shrunk by at most to 0.6x of its mid-tier size').toBeGreaterThanOrEqual(0.6 * (width === 820 ? 44 : width === 900 ? 27 : 70));
+    }
+    await context.close();
+  });
+}
+
+// Inner pages on phones: the graded Neptune's lowest point is 140px under the header (both themes), clear of the page title,
+// and at night every route takes the index exposure 0.75 (calm routes keep 0.55 by day).
+for (const [width, height] of [[390, 844], [375, 812], [719, 1000]] as const) {
+  for (const route of ['/about', '/work']) {
+    for (const theme of ['light', 'dark'] as const) {
+      test(`phone ${route} Neptune: lowest point 140px under the header, clear of the title, exposure by theme at ${width}x${height} (${theme})`, async ({ browser }) => {
+        const { context, page } = await open(browser, { ...phone, viewport: { width, height }, colorScheme: theme }, route, theme);
+        const f = await page.evaluate(() => {
+          const image = Array.from(document.querySelectorAll('.mtn-scene .sv-hs-planet > .sv-ow-pimg image')).find(node => node.getClientRects().length > 0);
+          const r = image ? image.getBoundingClientRect() : null;
+          const title = document.querySelector('main h1');
+          const glyphs: Rect[] = [];
+          if (title) {
+            const walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT);
+            for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+              const range = document.createRange();
+              range.selectNodeContents(node);
+              for (const g of Array.from(range.getClientRects())) glyphs.push({ left: g.left, top: g.top, right: g.right, bottom: g.bottom });
+            }
+          }
+          return {
+            box: r ? { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width } : null,
+            opacity: image ? getComputedStyle(image).opacity : null,
+            header: document.querySelector('.site-header')!.getBoundingClientRect().bottom,
+            glyphs,
+          };
+        });
+        expect(f.box, 'the graded Neptune limb shows').not.toBeNull();
+        const radius = 0.495 * f.box!.w; // disc radius is 0.495 of the square image box
+        expect(Math.abs(f.box!.cy + radius - (f.header + 140)), 'lowest point 140px under the header').toBeLessThanOrEqual(3);
+        expect(f.glyphs.length, 'page title was measured').toBeGreaterThan(0);
+        for (const g of f.glyphs) {
+          const nearX = Math.min(Math.max(f.box!.cx, g.left), g.right), nearY = Math.min(Math.max(f.box!.cy, g.top), g.bottom);
+          expect(Math.hypot(nearX - f.box!.cx, nearY - f.box!.cy), 'the page title stays outside the disc').toBeGreaterThanOrEqual(radius);
+        }
+        // Dark: 0.75 on every route. Light: 0.75 on index routes (/work), 0.55 on calm routes (/about).
+        const expected = theme === 'dark' || route === '/work' ? '0.75' : '0.55';
+        expect(f.opacity, `exposure on ${route} (${theme})`).toBe(expected);
+        await context.close();
+      });
+    }
+  }
+}
 
 test('a failed real-material request leaves readable content, controls and the static scene intact', async ({ browser }) => {
   const broken = await browser.newContext({ ...base, colorScheme: 'light' });

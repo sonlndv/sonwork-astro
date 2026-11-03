@@ -52,9 +52,6 @@ body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-ridge > .sv-home-s
 
 /* Ordinary portrait Home: key light stays upper-left (sun moves left/up), the hero planet rests smaller at the right
    edge, and the middle/near ranges rise from a slightly different pose. Other aspects keep their incumbent geometry. */
-@media (max-aspect-ratio: 5/4) and (max-width: 899px) {
-  body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-hs-sun { translate: -255px -80px; }
-}
 @media (max-aspect-ratio: 5/4) and (max-width: 719px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] > .mtn-layer.mtn-middle {
     transform: translate3d(0, calc(38svh - 44svh * var(--sv-depth)), 0);
@@ -110,6 +107,10 @@ body.home-study .mtn-scene[data-world][data-mode='home'] {
   --ow-ar: calc(5.625vw * var(--ow-gk));
   --ow-ax: calc((100vw - 1116px) / 2 - 50px - var(--ow-ar) * 1.02);
   --ow-ay: calc(var(--ow-h) + 255px);
+  /* Fix pass: the Moon's drawn radius and centre height. Equal to --ow-ar / --ow-ay (1360px and wider); the top-band regimes
+     override them at the end of this file (32px under the header, 48px above the first paragraph). --ow-ax is untouched. */
+  --ow-am: var(--ow-ar);
+  --ow-amy: var(--ow-ay);
   --ow-br: 14px;
   --ow-bx: calc(var(--ow-gx) - var(--ow-gr) * 0.9);
   --ow-by: calc(var(--ow-gy) + var(--ow-gr) * 0.75);
@@ -151,14 +152,14 @@ body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-hs-planet
     calc(800px + (var(--ow-gy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-St) * 1px - var(--hs-ty) + 8px);
 }
 body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-ow-a {
-  scale: calc(var(--ow-ar) / var(--ow-Sw) / 30);
+  scale: calc(var(--ow-am) / var(--ow-Sw) / 30);
   translate: calc(800px + (var(--ow-ax) - 50vw) / var(--ow-Sw) * 1px - 236px)
-    calc(900px + (var(--ow-ay) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-Sw) * 1px - var(--hs-ty) - 38px);
+    calc(900px + (var(--ow-amy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-Sw) * 1px - var(--hs-ty) - 38px);
 }
 body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-tall .sv-ow-a {
-  scale: calc(var(--ow-ar) / var(--ow-St) / 10);
+  scale: calc(var(--ow-am) / var(--ow-St) / 10);
   translate: calc(200px + (var(--ow-ax) - 50vw) / var(--ow-St) * 1px - 237px)
-    calc(800px + (var(--ow-ay) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-St) * 1px - var(--hs-ty) + 73px);
+    calc(800px + (var(--ow-amy) - (1 + var(--ow-f)) * 100svh - 48px) / var(--ow-St) * 1px - var(--hs-ty) + 73px);
 }
 body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-wide .sv-ow-b {
   scale: calc(var(--ow-br) / var(--ow-Sw) / 20);
@@ -515,4 +516,20 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] { --ow-vm-ear
     --ow-bx: calc(100vw - 14px);
     --ow-by: calc(var(--ow-h) + 132px);
   }
+}
+
+/* ---- Graded sky fix pass (2026-11-03): the Moon in the top band (1359px and narrower: 960-1359px wide, tablet portrait,
+   short landscape) keeps clear of the nav. Its top is 32px under the header; its bottom stays 48px above the first paragraph,
+   whose top --ow-ae estimates (measured 203px at 900, 211 at 1024, 223 at 1280, 166 on tablet portrait; the line errs high by
+   under 2px between). The radius shrinks just enough, never below 0.6x in this range (tablet portrait is the tightest at
+   0.63x), so nothing needs hiding. The x position (--ow-ax) is unchanged. ---- */
+@media (max-width: 1359px) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] {
+    --ow-ae: calc(203px + max(0px, 100vw - 900px) * 0.0526 + var(--ow-h) - 57px);
+    --ow-am: min(var(--ow-ar), (var(--ow-ae) - 49px - var(--ow-h) - 32px) / 2); /* 49 = 48 plus 1px for the image box's margin */
+    --ow-amy: calc(var(--ow-h) + 32px + var(--ow-am));
+  }
+}
+@media (min-width: 720px) and (max-width: 899px) and (max-aspect-ratio: 5/4) {
+  body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-ae: calc(166px + var(--ow-h) - 57px); }
 }

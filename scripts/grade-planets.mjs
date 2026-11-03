@@ -27,9 +27,12 @@ const RIM = { dark: hex('#96acd2'), light: hex('#5a73a0') };
 
 // keep = share of the blurred source colour kept in the mix; haze = distance tier mix toward the theme sky;
 // shown = desktop (1440x900) displayed width in CSS px of the texture box, used for the rim width.
+// themes.<theme> overrides a body's settings for that theme only: haze replaces the body haze, lift is the exponent applied
+// to the tone before the ramp (below 1 lifts the shadows; absent means 1, no change).
+// Fix pass 2026-11-03: the night Earth read too dark, so its dark texture takes no haze and a 0.55 tone lift.
 const BODIES = {
   neptune: { keep: 0.25, haze: 0, shown: 727, quality: 68 },
-  earth: { keep: 0.35, haze: 0.2, shown: 56, quality: 80 },
+  earth: { keep: 0.35, haze: 0.2, shown: 56, quality: 80, themes: { dark: { haze: 0, lift: 0.55 } } },
   moon: { keep: 0.15, haze: 0.1, shown: 164, quality: 80 },
   saturn: { keep: 0.3, haze: 0.2, shown: 104, quality: 80 },
 };
@@ -115,7 +118,7 @@ function percentile(sorted, p) {
 }
 
 function grade(rgba, w, h, body, theme) {
-  const cfg = BODIES[body];
+  const cfg = { ...BODIES[body], ...(BODIES[body].themes && BODIES[body].themes[theme]) };
   const n = w * h;
   const R = new Float32Array(n), G = new Float32Array(n), B = new Float32Array(n), A = new Float32Array(n);
   for (let i = 0; i < n; i++) {
@@ -173,7 +176,8 @@ function grade(rgba, w, h, body, theme) {
       if (A[i] === 0 && rgba[i * 4 + 3] === 0) {
         c = [0, 0, 0];
       } else {
-        const t = clamp01((bY[i] - lo) / (hi - lo));
+        let t = clamp01((bY[i] - lo) / (hi - lo));
+        if (cfg.lift !== undefined) t = Math.pow(t, cfg.lift);
         const rc = ramp(stops, t);
         const bc = [bR[i], bG[i], bB[i]];
         c = [0, 1, 2].map((j) => rc[j] * (1 - cfg.keep) + bc[j] * cfg.keep);
