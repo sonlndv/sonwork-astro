@@ -6,7 +6,6 @@ test.setTimeout(45_000);
 const routes = ['/', '/work', '/writing', '/about', '/subscribe', '/this-route-does-not-exist'];
 const mist = (page: Page) => page.locator('.mtn-mist');
 const ribbon = (page: Page) => page.locator('.mtn-mist-ribbon');
-const toggle = (page: Page) => page.locator('.atmosphere-toggle');
 const ribbonStyle = (page: Page) =>
   ribbon(page).evaluate((el) => {
     const s = getComputedStyle(el);
@@ -133,7 +132,7 @@ test.describe('shared scene', () => {
       await expect(page.locator('.mtn-scene .mtn-sky')).toHaveCount(0);
       await expect(page.locator('.mtn-scene > .mtn-far > svg.mtn-ridge > g.sv-sky')).toHaveCount(2);
       await expect(page.locator('.mtn-scene g.sv-sky')).toHaveCount(2);
-      await expect(page.locator('.atmosphere-toggle')).toHaveCount(1);
+      await expect(page.locator('.atmosphere-toggle')).toHaveCount(0); // no Pause control since 2026-11-03
       await expect(mist(page)).toHaveAttribute('aria-hidden', 'true');
       expect(errors).toEqual([]);
     });
@@ -244,64 +243,14 @@ test.describe('mist pass', () => {
   });
 });
 
-test.describe('pause control', () => {
-  const status = (page: Page) => page.locator('#atmosphere-status');
-
-  test('native click while the pass is active pauses at once, with a described state (index route /work)', async ({ page }) => {
-    await page.goto('/work');
-    await expect(toggle(page)).toHaveText('Pause atmosphere');
-    expect(await toggle(page).evaluate((el) => el.tagName)).toBe('BUTTON');
-    await expect(toggle(page)).toHaveAttribute('aria-describedby', 'atmosphere-status');
-    await expect(toggle(page)).not.toHaveAttribute('aria-pressed', /.*/);
-    await expect(status(page)).toHaveText('Atmosphere running');
-    await expect(mist(page)).toHaveAttribute('data-state', 'running', { timeout: 3_000 });
-    // The footer is below the fold on a live page, so activate the native button through the DOM.
-    await toggle(page).evaluate((el) => (el as HTMLButtonElement).click());
-    await expect(mist(page)).toHaveAttribute('data-state', 'paused');
-    await expect(mist(page)).not.toHaveAttribute('data-run', '');
-    await expect(toggle(page)).toHaveText('Resume atmosphere');
-    await expect(status(page)).toHaveText('Atmosphere paused');
-    await page.waitForTimeout(300);
-    expect(Number((await ribbonStyle(page)).opacity)).toBe(0);
-  });
-
-  test('footer keyboard activation is 44px, shows focus, and persists across routes', async ({ page }) => {
-    await page.goto('/');
-    await toggle(page).scrollIntoViewIfNeeded();
-    const box = await toggle(page).boundingBox();
-    expect(box!.height).toBeGreaterThanOrEqual(44);
-    expect(box!.width).toBeGreaterThanOrEqual(44);
-    await page.keyboard.press('Tab'); // real keyboard modality so :focus-visible applies
-    await toggle(page).focus();
-    expect(await toggle(page).evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe('none');
-    await page.keyboard.press('Enter');
-    await expect(toggle(page)).toHaveText('Resume atmosphere');
-    await expect(mist(page)).toHaveAttribute('data-state', 'paused');
-    await page.goto('/work');
-    await expect(mist(page)).toHaveAttribute('data-state', 'paused');
-    await expect(toggle(page)).toHaveText('Resume atmosphere');
-    await page.waitForTimeout(2_000);
-    await expect(mist(page)).toHaveAttribute('data-passes', '0');
-    // Resume from the footer: unpaused and idle (the reading/scroll guard keeps it still down here).
-    await toggle(page).scrollIntoViewIfNeeded();
-    await toggle(page).click();
-    await expect(toggle(page)).toHaveText('Pause atmosphere');
-    await expect(status(page)).toHaveText('Atmosphere running');
-    await expect(mist(page)).toHaveAttribute('data-state', 'idle');
-    await page.waitForTimeout(1_000);
-    await expect(mist(page)).toHaveAttribute('data-passes', '0');
-  });
-
-  test('resume and returning to top align scenery without queuing a missed pass (index route /work)', async ({ page }) => {
+test.describe('no Pause control, finite mist only', () => {
+  test('returning to top after a cancelled pass queues no missed pass (index route /work)', async ({ page }) => {
     await page.clock.install();
     await page.goto('/work');
     await finishArrival(page); // controlled admission; natural arrival timing is tested separately
     await expect(mist(page)).toHaveAttribute('data-state', 'running');
-    await toggle(page).evaluate((el) => (el as HTMLButtonElement).click());
-    await expect(mist(page)).toHaveAttribute('data-state', 'paused');
     await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
     await page.waitForTimeout(150);
-    await toggle(page).evaluate((el) => (el as HTMLButtonElement).click());
     await expect(mist(page)).toHaveAttribute('data-state', 'idle');
     await page.clock.runFor(60_000);
     await expect(mist(page)).toHaveAttribute('data-passes', '1'); // nothing queued while scrolled
@@ -346,7 +295,7 @@ test.describe('pause control', () => {
     await expect(mist(page)).toHaveAttribute('data-passes', '1');
   });
 
-  test('works with storage denied (in-memory only)', async ({ page }) => {
+  test('works with storage denied (no page error)', async ({ page }) => {
     await page.addInitScript(() => {
       const deny = () => {
         throw new DOMException('denied', 'SecurityError');
@@ -355,10 +304,16 @@ test.describe('pause control', () => {
     });
     const errors = watchErrors(page);
     await page.goto('/');
-    await toggle(page).click();
-    await expect(mist(page)).toHaveAttribute('data-state', 'paused');
-    await expect(toggle(page)).toHaveText('Resume atmosphere');
+    await expect(mist(page)).toHaveAttribute('data-state', 'idle');
     expect(errors).toEqual([]);
+  });
+
+  test('the stale stored Pause preference is removed once on load', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => localStorage.setItem('sonwork-atmosphere', 'paused'));
+    await page.reload();
+    expect(await page.evaluate(() => localStorage.getItem('sonwork-atmosphere'))).toBeNull();
+    await expect(mist(page)).toHaveAttribute('data-state', 'idle');
   });
 
   test('hello and Back to top are intact', async ({ page }) => {
@@ -374,13 +329,12 @@ test.describe('pause control', () => {
 });
 
 test.describe('reduced motion, noJS, forced colours', () => {
-  test('reduced motion never runs and hides the control', async ({ browser }) => {
+  test('reduced motion never runs', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
     await page.goto('/');
     await page.waitForTimeout(2_500);
     await expect(mist(page)).toHaveAttribute('data-passes', '0');
-    await expect(toggle(page)).toBeHidden();
     expect(await mist(page).evaluate((el) => getComputedStyle(el).display)).toBe('none');
     await context.close();
   });
@@ -391,27 +345,24 @@ test.describe('reduced motion, noJS, forced colours', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await expect(mist(page)).toHaveAttribute('data-state', 'idle');
     await expect(mist(page)).not.toHaveAttribute('data-run', '');
-    await expect(toggle(page)).toBeHidden();
   });
 
-  test('noJS: scenery is static, mist and control are hidden', async ({ browser }) => {
+  test('noJS: scenery is static, mist is hidden', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
     await page.goto('/');
     await expect(page.locator('.mtn-scene > .mtn-far')).toHaveCount(1);
     expect(await mist(page).evaluate((el) => getComputedStyle(el).display)).toBe('none');
-    await expect(toggle(page)).toBeHidden();
     await expect(page.locator('main')).toBeVisible();
     await context.close();
   });
 
-  test('forced colours: no decoration, no control', async ({ page }) => {
+  test('forced colours: no decoration', async ({ page }) => {
     await page.emulateMedia({ forcedColors: 'active' });
     await page.goto('/');
     await page.waitForTimeout(2_000);
     expect(await mist(page).evaluate((el) => getComputedStyle(el).display)).toBe('none');
     await expect(mist(page)).toHaveAttribute('data-passes', '0');
-    await expect(toggle(page)).toBeHidden();
   });
 });
 

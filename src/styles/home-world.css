@@ -73,12 +73,14 @@ body.home-study .mtn-scene[data-world][data-mode='home'] { --sv-hs: 0; }
 body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-flank-art { opacity: 0.55; }
 body.home-study .mtn-scene[data-world][data-mode='home'] .mtn-rim { stroke-width: 1.4; }
 
-/* Clear day: no cloud banks, wisps, cloud-cast shadows or mist, in manual and system light and every fallback. */
+/* Clear day: no cloud banks, wisps or cloud-cast shadows, in manual and system light and every fallback. Every route is in
+   home mode now, so the mist part is keyed on the route: Home keeps its clear sky with no mist, while Build and Writing
+   keep their arrival and hello mist. */
 :root body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-clouds,
 :root body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-cloud-far,
 :root body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-cloud-near,
 :root body.home-study .mtn-scene[data-world][data-mode='home'] .sv-cloud-surface { display: none; }
-:root body.home-study .mtn-scene[data-mode='home'] .mtn-mist { display: none !important; }
+:root body.home-study .mtn-scene[data-route='home'] .mtn-mist { display: none !important; }
 
 /* (The old pointer sky-offset rules lived here; the Home sky no longer answers the pointer, so they are removed.) */
 

@@ -1,5 +1,5 @@
 (() => {
-  // Existing preference/eligibility owner, connected to the one mountains.js progress frame.
+  // Existing eligibility owner, connected to the one mountains.js progress frame.
   // Mist has a genuine finite CSS completion. No interval, recurring delay, polling or rAF.
   const scene = document.querySelector('.mtn-scene');
   const mist = scene && scene.querySelector('.mtn-mist');
@@ -8,32 +8,23 @@
   if (!scene || !mist || !ribbon || !landscape) return;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const forced = matchMedia('(forced-colors: active)');
-  const button = document.querySelector('.atmosphere-toggle');
-  const status = document.getElementById('atmosphere-status');
-  const KEY = 'sonwork-atmosphere';
-  // Home carries no arrival or greeting mist (clear sky); Pause/eligibility still connect to the landscape.
-  const expressive = scene.dataset.mode === 'index';
-  let paused = false;
+  // The Pause control is gone (Son-approved 2026-11-03); drop the stale stored preference once.
+  try { localStorage.removeItem('sonwork-atmosphere'); }
+  catch { /* Storage may be denied; nothing depends on it. */ }
+  // Only Build and Writing carry the arrival and greeting mist; Home and the calm routes keep a clear sky.
+  const expressive = scene.dataset.route === 'index';
   let running = false;
   let passes = 0;
   let active = null;
-  try { paused = localStorage.getItem(KEY) === 'paused'; }
-  catch { /* Denied storage keeps this preference in page memory. */ }
-  const canRun = () => !paused && !reduce.matches && !forced.matches && !document.hidden;
+  const canRun = () => !reduce.matches && !forced.matches && !document.hidden;
   const reading = () => {
     const focus = document.activeElement;
     return !!focus && !!focus.closest('main') && focus.matches(':focus-visible');
   };
   const canAnswer = () => expressive && canRun() && landscape.isActive() && scrollY <= 8 && !reading();
   function paint() {
-    mist.dataset.state = running ? 'running' : paused ? 'paused' : 'idle';
+    mist.dataset.state = running ? 'running' : 'idle';
     mist.dataset.passes = String(passes);
-    const off = reduce.matches || forced.matches;
-    if (status) status.textContent = off ? '' : paused ? 'Atmosphere paused' : 'Atmosphere running';
-    if (button) {
-      button.hidden = off;
-      button.textContent = paused ? 'Resume atmosphere' : 'Pause atmosphere';
-    }
   }
   function cancel() {
     if (!running && !active) return;
@@ -72,17 +63,6 @@
     if (!canAnswer()) return;
     document.dispatchEvent(new CustomEvent('sonwork:ridge-answer'));
     if (!running) start('greeting'); // an active pass is neither restarted nor recounted
-  });
-  button?.addEventListener('click', () => {
-    paused = !paused;
-    try {
-      if (paused) localStorage.setItem(KEY, 'paused');
-      else localStorage.removeItem(KEY);
-    } catch { /* Memory still carries the chosen state. */ }
-    cancel();
-    paint();
-    document.dispatchEvent(new CustomEvent('sonwork:atmosphere', { detail: { paused } }));
-    // Resume aligns the existing frame to actual geometry, without replaying an entrance/pass.
   });
   paint();
 })();

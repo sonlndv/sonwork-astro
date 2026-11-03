@@ -1,5 +1,5 @@
 (() => {
-  // One event-driven landscape frame. atmosphere.js supplies the sole eligibility/preference
+  // One event-driven landscape frame. atmosphere.js supplies the sole eligibility
   // policy after this deferred renderer loads; finite effects never schedule another scroll driver.
   // The night sky lives inside the far-ridge SVGs (see mountain-scene.html) and is posed purely by
   // CSS from --sv-progress, so this frame has no sky geometry of its own.
@@ -9,7 +9,9 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const forced = matchMedia('(forced-colors: active)');
   const fine = matchMedia('(hover: hover) and (pointer: fine)');
+  // Every route paints Home's scene (data-mode="home"); data-route keeps the per-route, non-scenery behaviour.
   const mode = scene.dataset.mode || 'calm';
+  const route = scene.dataset.route || mode;
   const main = document.querySelector('main');
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
@@ -51,7 +53,7 @@
     scene.style.setProperty(name, value);
   };
   let meteorTimer = 0;
-  let meteorCycle = 0;
+  let meteorFired = false; // at most one shooting star per page load
   let blurred = false;
   let touches = 0;
   const heldPointers = new Set();
@@ -133,8 +135,9 @@
     scene.dataset.moment = 'done';
     frozen.forEach(([bank, value]) => { if (value && value !== 'none') bank.style.translate = value; });
   };
-  // Recurring night meteors (Son-requested): one shot every ~7-11s of quiet, every third cycle a short 3-shot shower.
-  // Sparse timer + finite WAAPI clones of the original trail; nothing is pending or alive while ineligible.
+  // One night meteor per page load (Son-approved 2026-11-03): a single shot about 2.6s after arrival, with no recurrence and
+  // no shower, so all automatic motion ends within 5s. Sparse timer + one finite WAAPI clone of the original trail; nothing is
+  // pending or alive while ineligible, and nothing schedules another star once one has fired.
   const visibleMeteor = () => Array.from(scene.querySelectorAll('.sv-hs-meteor')).find(m => m.parentNode.getClientRects().length);
   // Input-hot-path predicate: theme, policy, held input and focus only; no layout/geometry reads here.
   const lightQuery = matchMedia('(prefers-color-scheme: light)');
@@ -146,12 +149,12 @@
     if (!el || el === document.body || el === main || !el.matches) return false;
     return el.matches(':focus-visible') && el.matches('a[href], button, input, select, textarea, summary, [contenteditable], [tabindex]:not([tabindex="-1"])');
   };
-  const meteorOk = () => (mode === 'home' || mode === 'index') && !!policy && eligible() && !blurred && document.hasFocus() && !isHeld() && isNight() && !document.hidden &&
+  const meteorOk = () => (route === 'home' || route === 'index') && !!policy && eligible() && !blurred && document.hasFocus() && !isHeld() && isNight() && !document.hidden &&
     !forced.matches && !reduce.matches && typeof Element.prototype.animate === 'function' && !meaningfulFocus();
   function scheduleMeteor(ms) {
     clearTimeout(meteorTimer);
     meteorTimer = 0;
-    if (meteorOk()) meteorTimer = setTimeout(fireMeteor, ms);
+    if (!meteorFired && meteorOk()) meteorTimer = setTimeout(fireMeteor, ms);
   }
   function meteorStop(rearm = true) {
     clearTimeout(meteorTimer);
@@ -171,33 +174,29 @@
     const mx = parseFloat(style.getPropertyValue('--hs-mx')) || -320;
     const my = parseFloat(style.getPropertyValue('--hs-my')) || 120;
     const wide = !!base.closest('.mtn-wide');
-    meteorCycle += 1;
-    const count = meteorCycle % 3 === 0 ? 3 : 1;
-    for (let i = 0; i < count; i++) {
-      const el = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      el.setAttribute('class', 'sv-hs-shot');
-      const clone = tpl.cloneNode(true);
-      // Safe open-sky lanes only: start shifts stay in the upper-right pocket, away from the H1 and prose.
-      const jx = -Math.random() * (wide ? 220 : 55);
-      const jy = Math.random() * (wide ? 40 : 8);
-      clone.setAttribute('transform', `translate(${(Number(at[1]) + jx).toFixed(1)} ${(Number(at[2]) + jy).toFixed(1)})`);
-      el.appendChild(clone);
-      base.parentNode.appendChild(el);
-      const k = 0.8 + Math.random() * 0.4;
-      let anim;
-      try {
-        anim = el.animate([
-          { opacity: 0, translate: '0px 0px' },
-          { opacity: 1, offset: 0.12 },
-          { opacity: 1, offset: 0.72 },
-          { opacity: 0, translate: `${(mx * k).toFixed(1)}px ${(my * k).toFixed(1)}px` },
-        ], { duration: 1100 + Math.random() * 400, delay: i * 330 + Math.random() * 120, easing: 'cubic-bezier(0.3, 0, 0.5, 1)', fill: 'both' });
-      } catch { el.remove(); return; } // unsupported: the static sky stays, nothing pending
-      const shot = { el, anim };
-      shots.push(shot);
-      anim.onfinish = () => { el.remove(); const at2 = shots.indexOf(shot); if (at2 >= 0) shots.splice(at2, 1); };
-    }
-    scheduleMeteor(7000 + Math.random() * 4000);
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    el.setAttribute('class', 'sv-hs-shot');
+    const clone = tpl.cloneNode(true);
+    // Safe open-sky lanes only: start shifts stay in the upper-right pocket, away from the H1 and prose.
+    const jx = -Math.random() * (wide ? 220 : 55);
+    const jy = Math.random() * (wide ? 40 : 8);
+    clone.setAttribute('transform', `translate(${(Number(at[1]) + jx).toFixed(1)} ${(Number(at[2]) + jy).toFixed(1)})`);
+    el.appendChild(clone);
+    base.parentNode.appendChild(el);
+    meteorFired = true;
+    const k = 0.8 + Math.random() * 0.4;
+    let anim;
+    try {
+      anim = el.animate([
+        { opacity: 0, translate: '0px 0px' },
+        { opacity: 1, offset: 0.12 },
+        { opacity: 1, offset: 0.72 },
+        { opacity: 0, translate: `${(mx * k).toFixed(1)}px ${(my * k).toFixed(1)}px` },
+      ], { duration: 1100 + Math.random() * 400, delay: Math.random() * 120, easing: 'cubic-bezier(0.3, 0, 0.5, 1)', fill: 'both' });
+    } catch { el.remove(); return; } // unsupported: the static sky stays, nothing pending
+    const shot = { el, anim };
+    shots.push(shot);
+    anim.onfinish = () => { el.remove(); const at2 = shots.indexOf(shot); if (at2 >= 0) shots.splice(at2, 1); };
   }
   const eligible = () => !!policy && !away && policy.canRun();
   const clearPhrase = () => section && section.removeAttribute('data-mtn');
@@ -239,7 +238,7 @@
     if (raf) cancelAnimationFrame(raf);
     raf = 0;
     cancelEffects();
-    // Deliberately retain --sv-progress: Pause freezes the painted journey composition.
+    // Deliberately retain --sv-progress: the painted journey composition stays as last painted.
   };
 
   // Geometry reads are confined to invalidation. The artwork has no influence on page height.
@@ -338,7 +337,7 @@
       mode === 'index' ? 0.32 + 0.2 * progress : 0.2 + 0.32 * arrive).toFixed(5));
   }
   function phrase() {
-    if (mode === 'home' || phraseDone || !section) return; // Home has no Build entrance
+    if (route === 'home' || phraseDone || !section) return; // Home has no Build entrance
     phraseDone = true;
     if (!eligible() || section.contains(document.activeElement)) return;
     section.dataset.mtn = 'go';
@@ -425,7 +424,7 @@
   }
   function frame(now = performance.now()) {
     raf = 0;
-    // Paused/reduced/hidden: nothing moves or replays; the composition stays as last painted.
+    // Reduced/hidden/away: nothing moves or replays; the composition stays as last painted.
     if (!eligible()) return;
     const wasDirty = dirty || !geometry;
     if (wasDirty) measure();
@@ -497,8 +496,8 @@
         continuous = !!document.referrer && new URL(document.referrer).origin === location.origin && nav?.type === 'navigate';
       } catch { /* An unavailable referrer simply has no continuity evidence. */ }
       loadSky();
-      scheduleMeteor(9000); // after the original arrival shot (2.6s + 1.3s) has finished
-      if (mode === 'calm' || mode === 'home' || !eligible() || scrollY > 8 || nav?.type === 'back_forward') {
+      scheduleMeteor(2600); // the page's one shooting star, about 2.6s after arrival
+      if (route === 'calm' || route === 'home' || !eligible() || scrollY > 8 || nav?.type === 'back_forward') {
         scene.dataset.arrival = 'static';
         scene.dataset.moment = 'done';
       } else if (continuous) {
@@ -506,7 +505,7 @@
         scene.dataset.moment = 'done';
       } else {
         scene.dataset.arrival = 'first';
-        scene.dataset.moment = mode === 'home' ? 'run' : 'done'; // only Home plays the finite opening, once; never restarted by resume, restore or theme
+        scene.dataset.moment = route === 'home' ? 'run' : 'done'; // only Home plays the finite opening, once; never restarted by resume, restore or theme
         intro = true;
         rims.forEach(rim => rim.setAttribute('pathLength', 1));
         scene.setAttribute('data-intro', '');
@@ -534,7 +533,6 @@
     else if (trace && event.animationName === 'mtn-rim-hello' && event.target.closest('.mtn-near')) clearTrace();
   });
   document.addEventListener('sonwork:ridge-answer', answer);
-  document.addEventListener('sonwork:atmosphere', refresh);
   const passive = { passive: true, capture: true };
   // Held-input membership (pointer ids, remaining touches, keys); each release rearms once idle and eligible.
   addEventListener('touchstart', event => { touches = event.touches.length; }, passive);
@@ -553,9 +551,8 @@
     if (!(event.target instanceof Element) || !event.target.closest('.companion')) policy?.cancel();
   });
   addEventListener('pointermove', event => {
-    // Home uses the same fence as the meteors: only a control with visible keyboard focus counts (meaningfulFocus() ignores
-    // the focused BODY/MAIN reading container), and held input, a blurred or unfocused window never re-enable the star or the
-    // relight. Other routes keep the incumbent broad :focus-visible rule.
+    // Every route uses the same fence as the meteors: only a control with visible keyboard focus counts (meaningfulFocus()
+    // ignores the focused BODY/MAIN reading container), and held input, a blurred or unfocused window never re-enable the star.
     const blocked = mode === 'home'
       ? isHeld() || blurred || !document.hasFocus() || meaningfulFocus()
       : !!document.activeElement?.matches(':focus-visible');
@@ -577,7 +574,8 @@
   addEventListener('scroll', () => {
     interrupt();
     if (mode === 'home') { starQuietUntil = performance.now() + 300; starAnchor = null; } // scroll-idle gate for the star
-    if (mode !== 'home') ask(); // Home's landscape does not follow scroll: no frame, no scenic write
+    // The landscape does not follow scroll on any route: no scenic write. Only a Build entrance still pending may ask for a frame.
+    if (route === 'index' && !phraseDone) ask();
   }, { passive: true });
   const viewportGeometry = () => {
     const viewport = window.visualViewport;
@@ -608,12 +606,12 @@
   matchMedia('(prefers-color-scheme: light)').addEventListener('change', recolor);
   reduce.addEventListener('change', refresh);
   forced.addEventListener('change', refresh);
-  document.addEventListener('visibilitychange', refresh);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else refresh(); });
   addEventListener('pagehide', () => { away = true; heldKeys.clear(); heldPointers.clear(); touches = 0; stop(); meteorStop(false); });
   addEventListener('pageshow', event => {
     away = false;
     blurred = false;
-    if (event.persisted) scheduleMeteor(1800); // initial load keeps the already-armed first sequence
+    if (event.persisted) meteorFired = true; // a back/forward restore never adds a shooting star
     if (event.persisted || scrollY > 8) cancelEffects();
     invalidate();
   });

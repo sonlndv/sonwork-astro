@@ -20,37 +20,11 @@ const test = base.extend({
 
 test.use({ colorScheme: 'light', javaScriptEnabled: true, reducedMotion: 'no-preference', forcedColors: 'none' });
 
-// Approved sitewide world (independent literals from the v7 contract, not read back from production):
-// phone/narrow light #bfc6d0/#a6b1bf/#8593a8 (deepened 2026-11-03), plane rgba(46,60,86,.2), rim rgba(52,66,96,.3);
-// phone dark #26375d/#1e2f53/#152549, plane rgba(2,5,14,.4), rim rgba(140,168,250,.42);
-// desktop (>=900px) light #bac2cf/#9eaabb/#7a8aa0 (deepened 2026-11-03; rim .36), dark #2c4068/#243a64/#1c3060 (rim rgba(150,178,255,.5)).
-const paintByWidth = {
-  narrow: {
-    light: {
-      far: 'rgb(191, 198, 208)', mid: 'rgb(166, 177, 191)', near: 'rgb(133, 147, 168)',
-      plane: 'rgba(46, 60, 86, 0.2)', rim: 'rgba(52, 66, 96, 0.3)', lume: 'oklch(0.36 0.12 258)',
-    },
-    dark: {
-      far: 'rgb(38, 55, 93)', mid: 'rgb(30, 47, 83)', near: 'rgb(21, 37, 73)',
-      plane: 'rgba(2, 5, 14, 0.4)', rim: 'rgba(140, 168, 250, 0.42)', lume: 'oklch(0.8 0.11 254)',
-    },
-  },
-  wide: {
-    light: {
-      far: 'rgb(186, 194, 207)', mid: 'rgb(158, 170, 187)', near: 'rgb(122, 138, 160)',
-      plane: 'rgba(46, 60, 86, 0.2)', rim: 'rgba(52, 66, 96, 0.36)', lume: 'oklch(0.36 0.12 258)',
-    },
-    dark: {
-      far: 'rgb(44, 64, 104)', mid: 'rgb(36, 58, 100)', near: 'rgb(28, 48, 96)',
-      plane: 'rgba(2, 5, 14, 0.4)', rim: 'rgba(150, 178, 255, 0.5)', lume: 'oklch(0.8 0.11 254)',
-    },
-  },
-} as const;
-
-// Home's own accepted celestial-world terrain palette (one palette at every width), independent literals from the
-// authored contract (DESIGN.md "Terrain material", with the tuned plane/rim alphas of the accepted C15 stylesheet):
+// Home's own accepted celestial-world terrain palette (one palette at every width and, since the one sky of 2026-11-03, on every
+// route), independent literals from the authored contract (DESIGN.md "Terrain material", with the tuned plane/rim alphas of the
+// accepted C15 stylesheet):
 // day far/mid/near #b5c0cd/#92a3b8/#6c829a (deepened 2026-11-03), plane rgba(39,60,87,.28), rim rgba(75,97,126,.38);
-// night #34496b/#253c5b/#182d49, plane rgba(2,5,14,.55), rim rgba(154,181,211,.55). Index/calm routes keep paintByWidth.
+// night #34496b/#253c5b/#182d49, plane rgba(2,5,14,.55), rim rgba(154,181,211,.55).
 const homePaint = {
   light: {
     far: 'rgb(181, 192, 205)', mid: 'rgb(146, 163, 184)', near: 'rgb(108, 130, 154)',
@@ -63,15 +37,8 @@ const homePaint = {
 } as const;
 
 async function expectPaint(page: Page, theme: 'light' | 'dark', route: 'home' | 'index' = 'home') {
-  const view = page.viewportSize()!;
-  // Index/calm routes: tall desktops (>=900px and aspect <= 5/4) firm the day mid/near faces: #96a3b6/#71829a (deepened 2026-11-03).
-  const tallDesktop = view.width >= 900 && view.width / view.height <= 1.25;
-  const base = paintByWidth[view.width >= 900 ? 'wide' : 'narrow'][theme];
-  const expected = route === 'home'
-    ? homePaint[theme]
-    : tallDesktop && theme === 'light'
-      ? { ...base, mid: 'rgb(150, 163, 182)', near: 'rgb(113, 130, 154)' }
-      : base;
+  // Every route paints Home's palette; `route` only says whether the Home-only action link is on the page.
+  const expected = homePaint[theme];
   const scene = page.locator('.mtn-scene');
   await expect(scene).toHaveCount(1);
   await expect(scene).toBeVisible();
@@ -127,8 +94,7 @@ async function expectInactiveScene(page: Page) {
   await expect(mist).toHaveCount(1);
   await expect(mist).toHaveCSS('display', 'none');
   await expect(mist).not.toHaveAttribute('data-run', /.*/);
-  await expect(page.locator('.atmosphere-toggle')).toHaveCount(1);
-  await expect(page.locator('.atmosphere-toggle')).toHaveCSS('display', 'none');
+  await expect(page.locator('.atmosphere-toggle')).toHaveCount(0); // the Pause control is gone
 }
 
 async function expectStaticScene(page: Page) {
@@ -178,9 +144,10 @@ for (const theme of ['light', 'dark'] as const) {
       await expect(page.getByRole('button', { name: `Switch to ${theme === 'light' ? 'dark' : 'light'} theme`, exact: true }))
         .toBeVisible();
       await expectPaint(page, theme);
-      // The retained index route keeps its original (pre-celestial) exact palette in the same system theme.
+      // The index route paints Home's exact palette in the same system theme (one sky).
       await page.goto('/work');
-      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'index');
+      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'home');
+      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-route', 'index');
       await expectPaint(page, theme, 'index');
     });
   });
@@ -209,9 +176,10 @@ test.describe('manual preference', () => {
     await expectManual('dark');
     await page.reload();
     await expectManual('dark');
-    // The manual preference carries to the retained index route, which keeps its original palette.
+    // The manual preference carries to the index route, which paints Home's palette.
     await page.goto('/work');
-    await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'index');
+    await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'home');
+    await expect(page.locator('.mtn-scene')).toHaveAttribute('data-route', 'index');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     await expectPaint(page, 'dark', 'index');
   });
@@ -241,9 +209,10 @@ for (const mode of [
       await page.evaluate(() => window.scrollTo(0, 320));
       await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
       await expectStaticScene(page);
-      // The retained index route keeps its original palette in the same fallback (static paint; its rest pose is covered in sky-valley).
+      // The index route paints Home's palette in the same fallback (static paint; its rest pose is covered in sky-valley).
       await page.goto('/work');
-      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'index');
+      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-mode', 'home');
+      await expect(page.locator('.mtn-scene')).toHaveAttribute('data-route', 'index');
       await expectPaint(page, 'light', 'index');
     });
   });
@@ -251,7 +220,7 @@ for (const mode of [
 
 test.describe('forced colours', () => {
   test.use({ forcedColors: 'active' });
-  test('hides the decorative scene and atmosphere control while retaining content', async ({ page }) => {
+  test('hides the decorative scene while retaining content', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('.mtn-scene')).toHaveCount(1);

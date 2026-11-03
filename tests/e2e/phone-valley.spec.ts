@@ -92,7 +92,7 @@ test.describe('valley paint in both themes', () => {
   // The old dark stops, kept here only as the "before" yardstick for the lift.
   const before = { far: [28, 41, 70], mid: [22, 35, 63], near: [16, 28, 56] };
   // Home's accepted light terrain stops (DESIGN.md "Terrain material"), deepened 2026-11-03: fixed RGB channels from #b5c0cd, #92a3b8 and #6c829a.
-  // (The sitewide light stops #bfc6d0/#a6b1bf/#8593a8 remain asserted for the retained index route in light-valley.spec.ts.)
+  // (Every route now resolves these same Home stops; the old index-route stops #bfc6d0/#a6b1bf/#8593a8 are retired.)
   const lightStops = { far: [181, 192, 205], mid: [146, 163, 184], near: [108, 130, 154] };
 
   test('dark stops stay lifted, accepted Home light stops resolve through the real manual toggle', async ({ page }) => {

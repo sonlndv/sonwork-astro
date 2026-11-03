@@ -348,21 +348,21 @@
   }
 }
 
-/* Home only (the scene's data-mode, not the shared body class): a 44px drawing inside the unchanged 68x44 target,
-   with clearer edge and eye strokes. Header height, perches and every other route keep the original 38px drawing. */
-body:has(.mtn-scene[data-mode='home']) .companion svg {
+/* Home only (the scene's data-route; every route's data-mode is home since the one sky): a 44px drawing inside the unchanged
+   68x44 target, with clearer edge and eye strokes. Header height, perches and every other route keep the original 38px drawing. */
+body:has(.mtn-scene[data-route='home']) .companion svg {
   left: 2px;
   top: 0;
   width: 44px;
   height: 44px;
 }
 
-body:has(.mtn-scene[data-mode='home']) .companion .edge {
+body:has(.mtn-scene[data-route='home']) .companion .edge {
   opacity: 1;
   stroke-width: 4.5;
 }
 
-body:has(.mtn-scene[data-mode='home']) .companion .eye path {
+body:has(.mtn-scene[data-route='home']) .companion .eye path {
   stroke: var(--art-eye);
   stroke-width: 1.4;
   stroke-linejoin: round;

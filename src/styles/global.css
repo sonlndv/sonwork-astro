@@ -502,16 +502,6 @@ body.home-study .site-header {
   flex-wrap: wrap;
 }
 
-.site-footer .atmosphere-toggle {
-  max-inline-size: 100%;
-  white-space: normal;
-  overflow-wrap: anywhere;
-}
-
-.atmosphere-status {
-  overflow-wrap: anywhere;
-}
-
 .footer-name {
   display: flex;
   flex-wrap: wrap;
@@ -1495,40 +1485,6 @@ body.home-study .site-header {
   @keyframes arrive { from { transform: translateY(4px); } to { transform: translateY(0); } }
   @keyframes fade-out { to { opacity: 0; } }
   @keyframes fade-in { from { opacity: 0; } }
-}
-
-/* Page-to-page continuity: optional, same-origin, native navigation (no router, no link interception).
-   Only browsers that understand transition types opt in, so everything else navigates exactly as before.
-   The @view-transition opt-in itself lives in an early inline <style> in BaseLayout's head: the incoming
-   document's native reveal needs it known while the head is parsed, before any stylesheet arrives.
-   The scenery, header and footer hold steady; only <main> crossfades. The names exist only while a
-   'sonwork-page' navigation is active, so theme changes (no type) keep their whole-scene snapshot. */
-@supports selector(:active-view-transition-type(sonwork-page)) {
-  @media (prefers-reduced-motion: no-preference) and (not (forced-colors: active)) {
-    :root:active-view-transition-type(sonwork-page) .mtn-scene { view-transition-name: sw-scene; }
-    :root:active-view-transition-type(sonwork-page) .site-header { view-transition-name: sw-header; }
-    :root:active-view-transition-type(sonwork-page) main { view-transition-name: sw-main; }
-    :root:active-view-transition-type(sonwork-page) .site-footer { view-transition-name: sw-footer; }
-
-    :root:active-view-transition-type(sonwork-page)::view-transition-group(*) { animation-duration: 1ms; }
-    :root:active-view-transition-type(sonwork-page)::view-transition-image-pair(*) { isolation: isolate; }
-    :root:active-view-transition-type(sonwork-page)::view-transition-old(*) { display: none; }
-    :root:active-view-transition-type(sonwork-page)::view-transition-new(*) { animation: none; mix-blend-mode: normal; }
-
-    :root:active-view-transition-type(sonwork-page)::view-transition-old(sw-main),
-    :root:active-view-transition-type(sonwork-page)::view-transition-old(sw-footer) {
-      display: block;
-      animation: sw-page-out 160ms linear both;
-      mix-blend-mode: normal;
-    }
-    :root:active-view-transition-type(sonwork-page)::view-transition-new(sw-main),
-    :root:active-view-transition-type(sonwork-page)::view-transition-new(sw-footer) {
-      animation: sw-page-in 200ms linear both;
-    }
-
-    @keyframes sw-page-out { to { opacity: 0; } }
-    @keyframes sw-page-in { from { opacity: 0; } }
-  }
 }
 
 /* Enlarged text: the contact list stacks label over value when its box is narrower than 17rem, a length

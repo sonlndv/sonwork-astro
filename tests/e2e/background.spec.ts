@@ -225,16 +225,19 @@ for (const [name, options] of [['desktop', desktop], ['phone', phone]] as const)
 
 test('a calm inner page keeps fixed depth and refuses pointer motion while native content scrolls', async ({ browser, baseURL }) => {
   await open(browser, baseURL, desktop, async page => {
-    await page.goto('/about/');
-    await settle(page);
     const scene = page.locator('.mtn-scene');
     const near = () => scene.locator(':scope > .mtn-layer.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).m42);
+    // One sky (Son-approved 2026-11-03): inner pages hold Home's pose, so the reference is Home's near plane at this viewport.
+    await page.goto('/');
+    await settle(page);
+    const home = await near();
+    await page.goto('/about/');
+    await settle(page);
     const before = await near();
     await page.mouse.wheel(0, 3000);
     await expect.poll(() => page.evaluate(() => scrollY), { timeout: 4000 }).toBeGreaterThan(0);
     expect(await near()).toBeCloseTo(before, 2);
-    // Approved sitewide calm rest at 1440x900: scene .8 x desktop max .6 = depth .48; near plane 38svh - 47svh x depth.
-    expect(before).toBeCloseTo(900 * (0.38 - 0.47 * (0.8 * 0.6)), 1);
+    expect(before).toBeCloseTo(home, 1);
     const g = await geometry(page);
     expect([g.top, g.left, g.width, g.height]).toEqual([0, 0, g.viewW, g.viewH]);
     // Calm prose refuses the fine-pointer camera while content and native scrolling remain usable.
@@ -247,6 +250,10 @@ test('a calm inner page keeps fixed depth and refuses pointer motion while nativ
 
 test('reduced motion keeps a still, painted scene on an inner page', async ({ browser, baseURL }) => {
   await open(browser, baseURL, { ...desktop, reducedMotion: 'reduce' }, async page => {
+    // One sky (Son-approved 2026-11-03): inner pages hold Home's pose; the reference is Home's reduced-motion near plane.
+    await page.goto('/');
+    await page.evaluate(() => document.fonts.ready);
+    const home = await page.locator('.mtn-scene div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f);
     await page.goto('/work/');
     await page.evaluate(() => document.fonts.ready);
     const scene = page.locator('.mtn-scene');
@@ -257,7 +264,7 @@ test('reduced motion keeps a still, painted scene on an inner page', async ({ br
     await page.waitForTimeout(250);
     await expect(scene).not.toHaveAttribute('data-cam', /.*/);
     expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
-    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo((await page.evaluate(() => innerHeight)) * (0.38 - 0.47 * (0.6 * 0.75)), 1); // reduced: desktop max .6 x .75 rest depth
+    expect(await scene.locator('div.mtn-near').evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).f)).toBeCloseTo(home, 1); // Home's pose
     expect((await geometry(page)).drawnRims).toBeGreaterThan(0);
     expect(await painted(page)).toBe(true);
   });

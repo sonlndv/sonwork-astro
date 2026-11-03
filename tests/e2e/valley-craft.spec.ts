@@ -433,7 +433,7 @@ test.describe('hello answers on the ridge edges', () => {
       return o > 0 && o < 1;
     }, undefined, { timeout: 2_000, polling: 50 });
     expect(await stroke(page)).toBe(rest);
-    // ... and is back to the exact solid rest rim (no dash, no temporary pathLength) while the 7s mist
+    // ... and is back to the exact solid rest rim (no dash, no temporary pathLength) while the 5s mist
     // pass is still running. Require the scene flag, animation and dash gone together (finite, not dropped).
     await page.waitForFunction((r) => {
       const el = Array.from(document.querySelectorAll('.mtn-far .mtn-rim')).find((n) => n.getClientRects().length > 0) as unknown as SVGElement;
@@ -493,37 +493,6 @@ test.describe('native navigation stays native', () => {
     await expect(page.locator('h1')).toHaveText("I'm Son");
   });
 
-  test('a real navigation carries the sonwork-page transition type', async ({ page }) => {
-    await page.addInitScript(() => {
-      const seen: string[][] = ((window as any).__types = []);
-      addEventListener('pagereveal', (e: any) => { seen.push(e.viewTransition ? [...e.viewTransition.types] : []); });
-      addEventListener('pageswap', (e: any) => { seen.push(e.viewTransition ? [...e.viewTransition.types] : []); });
-      try {
-        const prior = JSON.parse(sessionStorage.getItem('__types') ?? '[]');
-        addEventListener('pageswap', (e: any) => {
-          sessionStorage.setItem('__types', JSON.stringify([...prior, e.viewTransition ? [...e.viewTransition.types] : []]));
-        });
-      } catch {}
-    });
-    await page.goto('/');
-    test.skip(
-      !(await page.evaluate(() => CSS.supports('selector(:active-view-transition-type(sonwork-page))'))),
-      'Transition types unavailable in this browser',
-    );
-    await page.locator('.site-nav a[href="/about"]').click();
-    await page.waitForURL('**/about');
-    // URL commit is not the reveal event; wait for the real pagereveal/pageswap to be observed.
-    await page.waitForFunction(
-      () => ((window as any).__types as string[][]).some((t) => t.includes('sonwork-page')),
-      undefined,
-      { timeout: 3_000 },
-    );
-    const revealed = await page.evaluate(() => (window as any).__types as string[][]);
-    const swapped = await page.evaluate(() => JSON.parse(sessionStorage.getItem('__types') ?? '[]') as string[][]);
-    expect(revealed.some((t) => t.includes('sonwork-page'))).toBe(true);
-    expect(swapped.some((t) => t.includes('sonwork-page'))).toBe(true);
-  });
-
   test('a stored theme survives navigation and the aperture marker never leaks into it', async ({ page }) => {
     await startFrom(page, 'dark');
     await page.goto('/');
@@ -535,12 +504,12 @@ test.describe('native navigation stays native', () => {
   });
 
   for (const [label, size] of [['phone', { width: 390, height: 780 }], ['desktop', { width: 1280, height: 800 }]] as const) {
-    test(`${label}: theme change then repeated About, Build, Home navigation raises no errors`, async ({ page }) => {
+    test(`${label}: theme change then repeated About, Build, Home navigation is plain and raises no errors`, async ({ page }) => {
       const errors: string[] = [];
       page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
       page.on('console', (m) => { if (m.type() === 'error') errors.push(`console: ${m.text()}`); });
       await page.setViewportSize(size);
-      // Observe each document's native reveal. Rejections are recorded as failures, never swallowed.
+      // Observe each document's native reveal. Pages switch plainly (no view transition), and any rejection is a failure.
       await page.addInitScript(() => {
         const rec: { state: string; types: string[]; failure: string | null } = ((window as any).__reveal = { state: 'waiting', types: [], failure: null });
         addEventListener('pagereveal', (e: any) => {
@@ -557,7 +526,6 @@ test.describe('native navigation stays native', () => {
       await startFrom(page, 'light');
       await page.goto('/');
       test.skip(!(await page.evaluate(() => 'onpagereveal' in window)), 'Native pagereveal unavailable in this browser');
-      const typed = await page.evaluate(() => CSS.supports('selector(:active-view-transition-type(sonwork-page))'));
 
       // Native light -> dark settles with the marker gone.
       await nativeClick(page, '.theme-toggle');
@@ -581,24 +549,15 @@ test.describe('native navigation stays native', () => {
           }, undefined, { timeout: 3_000 });
           const reveal = await page.evaluate(() => (window as any).__reveal as { state: string; types: string[]; failure: string | null });
           expect(reveal.failure).toBeNull();
-          if (typed) expect(reveal.types).toContain('sonwork-page');
+          expect(reveal.state, 'a plain navigation: no view transition at reveal').toBe('none');
+          expect(reveal.types).toEqual([]);
         }
       }
       expect(await state(page)).toMatchObject({ theme: 'dark', stored: 'dark', marker: null });
       expect(errors).toEqual([]);
 
-      // The opt-in precedes every stylesheet, and is the only @view-transition rule in the CSSOM.
+      // No @view-transition rule exists anywhere in the CSSOM, and no inline style declares one.
       const head = await page.evaluate(() => {
-        const nodes = [...document.head.children];
-        const optIn = nodes.findIndex((n) => n.tagName === 'STYLE' && /@view-transition/.test(n.textContent ?? ''));
-        // Every stylesheet carrier: external links, and actual inline styles whose CSSOM sheet is enabled and nonempty
-        // (the opt-in style itself is excluded; it is the subject of the ordering check).
-        const active = (n: Element) => {
-          const sheet = (n as HTMLStyleElement).sheet;
-          try { return !!sheet && !sheet.disabled && sheet.cssRules.length > 0; } catch { return false; }
-        };
-        const sheets = nodes.flatMap((n, i) => (
-          n.matches('link[rel~="stylesheet"]') || (n.tagName === 'STYLE' && i !== optIn && active(n)) ? [i] : []));
         let rules = 0;
         const walk = (list: CSSRuleList) => {
           for (const rule of Array.from(list)) {
@@ -609,23 +568,21 @@ test.describe('native navigation stays native', () => {
         for (const sheet of Array.from(document.styleSheets)) {
           try { walk(sheet.cssRules); } catch {}
         }
-        return { optIn, sheets, rules };
+        return { rules, inline: [...document.querySelectorAll('style')].filter((n) => /@view-transition/.test(n.textContent ?? '')).length };
       });
-      expect(head.optIn).toBeGreaterThanOrEqual(0);
-      expect(head.sheets.length).toBeGreaterThan(0);
-      for (const index of head.sheets) expect(head.optIn).toBeLessThan(index);
-      expect(head.rules).toBe(typed ? 1 : 0);
+      expect(head).toEqual({ rules: 0, inline: 0 });
     });
   }
 
-  test('page transitions are opt-in by type and cover only navigation', async ({ page }) => {
+  test('page navigation is plain and only the theme change animates, and only with its marker', async ({ page }) => {
     await page.goto('/');
     const rules = await page.evaluate(() => {
-      const found = { navigation: false, themeAnimatesWithMarkerOnly: true };
+      const found = { navigation: false, themeAnimatesWithMarkerOnly: true, pageTypeRules: false };
       const walk = (list: CSSRuleList) => {
         for (const rule of Array.from(list)) {
           const text = rule.cssText;
-          if (/@view-transition/.test(text) && /navigation:\s*auto/.test(text) && /types:\s*sonwork-page/.test(text)) found.navigation = true;
+          if (/@view-transition/.test(text) && /navigation:\s*auto/.test(text)) found.navigation = true;
+          if (/sonwork-page|sw-page-(in|out)/.test(text)) found.pageTypeRules = true;
           if (/^::view-transition-(old|new|group)\(root\)/.test((rule as CSSStyleRule).selectorText ?? '')) found.themeAnimatesWithMarkerOnly = false;
           if ('cssRules' in rule) walk((rule as CSSGroupingRule).cssRules);
         }
@@ -637,10 +594,8 @@ test.describe('native navigation stays native', () => {
     });
     // Unprefixed root rules would hit every theme change; the aperture rules all carry the marker.
     expect(rules.themeAnimatesWithMarkerOnly).toBe(true);
-    // Browsers without transition types drop the whole at-rule, so only assert it where it parsed.
-    if (await page.evaluate(() => CSS.supports('selector(:active-view-transition-type(sonwork-page))'))) {
-      expect(rules.navigation).toBe(true);
-    }
+    expect(rules.navigation, 'no cross-document navigation opt-in').toBe(false);
+    expect(rules.pageTypeRules, 'no sonwork-page crossfade rules remain').toBe(false);
   });
 });
 

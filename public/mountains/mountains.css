@@ -154,7 +154,7 @@ body.mountains {
 }
 
 /* Sky-to-valley artwork interface. The controller owns --sv-progress (0..1, actual landmarks) and
-   data-mode=home|index|calm; optional data-stage=entry|range|valley gives static poses.
+   data-mode (always home: every route shows Home's sky; data-route=home|index|calm carries the per-route behaviour); optional data-stage=entry|range|valley gives static poses.
    No timer or independent animation is introduced here. Every layer is painted by default. */
 .mtn-scene {
   --sv-progress: 0;
@@ -162,7 +162,7 @@ body.mountains {
   --sv-span: 1;
   --sv-depth: clamp(0, calc(var(--sv-rest) + var(--sv-progress) * var(--sv-span)), 1);
   /* The valley opens around Selected projects (depth ~0.48): 0 before ~0.12, 1 from ~0.62, eased.
-     Reduced/calm poses reach it through --sv-rest, so static scenes are deliberately half open. */
+     Reduced-motion poses reach it through --sv-rest, so static scenes are deliberately half open. */
   --sv-open: clamp(0, calc((var(--sv-depth) - 0.12) / 0.5), 1);
   --sv-ease: calc(var(--sv-open) * var(--sv-open) * (3 - 2 * var(--sv-open)));
   --sv-aurora-ink: light-dark(transparent, #8298c5);
@@ -177,8 +177,6 @@ body.mountains {
   --sv-cloud-travel: 0.52;
   isolation: isolate;
 }
-.mtn-scene[data-mode='index'] { --sv-rest: 0.2; --sv-span: 0.32; }
-.mtn-scene[data-mode='calm'] { --sv-rest: 0.44; --sv-span: 0; }
 .mtn-scene[data-stage='entry'] { --sv-progress: 0; }
 .mtn-scene[data-stage='range'] { --sv-progress: 0.5; }
 .mtn-scene[data-stage='valley'] { --sv-progress: 1; }
@@ -274,7 +272,7 @@ body.mountains {
   transform: translate(calc(var(--mtn-sx, 0) * 1px), calc(var(--mtn-sy, 0) * 1px));
 }
 @media (prefers-reduced-motion: no-preference) {
-  /* Finite response only while the camera is live; Pause/blur/scroll/theme drop data-cam and every transition with it. */
+  /* Finite response only while the camera is live; blur/scroll/theme drop data-cam and every transition with it. */
   .mtn-scene[data-cam] .sv-aurora { transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1); }
   .mtn-scene[data-cam] .sv-stars { transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1); }
 }
@@ -359,8 +357,8 @@ body.mountains::before {
   .mtn-scene { --sv-cloud-travel: 0.52 !important; }
 }
 
-/* Home study (private T1). Everything below is scoped to body.home-study (BaseLayout adds it only on "/")
-   and the scene's data-mode='home', so About/Build/Writing/details/404 keep their incumbent paint.
+/* Home study (private T1). Everything below is scoped to body.home-study and the scene's data-mode='home'. Since the
+   one-sky change (Son-approved 2026-11-03) every route carries both, so every route paints Home's scene.
    The existing --sv-progress still advances for lifecycle consumers; the scenic composition instead
    follows --sv-scene (0..1 by the Projects landmark, then held) and --sv-settle (short ending settle),
    both written by the same event-driven frame in mountains.js. No timer, loop or second owner. */
@@ -432,8 +430,8 @@ body.mountains.home-study::before {
 }
 
 /* Home sky (art: .sv-home-sky inside each far-ridge SVG, already masked by the exact skyline).
-   Hidden by default so every other route keeps its incumbent paint; Home shows night stars in dark
-   and the pale sun with thin clouds in light, for manual data-theme and for the system preference. */
+   Hidden by default; every route shows night stars in dark and the pale sun with thin clouds in light,
+   for manual data-theme and for the system preference. */
 .sv-hs-night,
 .sv-hs-day { display: none; }
 body.home-study .mtn-scene[data-world] .sv-hs-night { display: inline; }
@@ -509,7 +507,7 @@ body.home-study .mtn-scene[data-world] .sv-hs-cloud-near {
   transform: translate(calc(var(--mtn-kx, 0) * 1px + var(--sv-hs) * var(--hs-run) * 1px), calc(var(--mtn-ky, 0) * 1px - var(--sv-hs) * 8px));
 }
 @media (prefers-reduced-motion: no-preference) {
-  /* Finite look-around only while the live camera is on; scroll, Pause, theme, blur and focus drop data-cam. */
+  /* Finite look-around only while the live camera is on; scroll, theme, blur and focus drop data-cam. */
   body.home-study .mtn-scene[data-cam] .sv-hs-dust,
   body.home-study .mtn-scene[data-cam] .sv-hs-mid,
   body.home-study .mtn-scene[data-cam] .sv-hs-bright,
@@ -622,7 +620,7 @@ body.home-study .mtn-scene[data-world] .sv-haze { display: none; }
   :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world] .sv-hs-clouds { display: inline; }
   :root:not([data-theme='dark']) body.home-study .mtn-scene[data-world] .sv-haze { display: inline; }
 }
-/* The invented dots and the legacy random stars are replaced on Home; every other route keeps them. */
+/* The invented dots and the legacy random stars are replaced on every route. */
 body.home-study .mtn-scene[data-world] .sv-stars,
 body.home-study .mtn-scene[data-world] .sv-hs-dust,
 body.home-study .mtn-scene[data-world] .sv-hs-mid,
@@ -655,10 +653,8 @@ body.home-study .mtn-scene[data-world] .sv-hs-bank-c {
   transform: translate(calc(var(--mtn-kx, 0) * 0.45px + var(--sv-hs) * var(--hs-rc) * 1px), calc(var(--mtn-ky, 0) * 0.45px));
 }
 body.home-study .mtn-scene[data-world] .sv-hs-meteor { opacity: 0; }
-/* The planet is the graded Neptune raster (no spin, loop or filter; the grade is baked offline). Graded sky: the old
-   off-Home crescent (a masked blue-planet.webp) is retired; scene.css carries the graded Neptune onto the other routes. */
-/* Shared world: routes without the Home journey rest in a composed, readable pose (Home's JS drives --sv-scene). */
-body.home-study .mtn-scene[data-world]:not([data-mode='home']) { --sv-scene: 0.8; }
+/* The planet is the graded Neptune raster (no spin, loop or filter; the grade is baked offline). The old off-Home
+   crescent (a masked blue-planet.webp) is retired; every route shows the same Neptune as Home. */
 /* Moment end pose: held after the drift finishes or is yielded; reduced motion shows it directly. */
 body.home-study .mtn-scene[data-world][data-moment='done'] .sv-hs-bank-a { translate: var(--hs-ma) 0; }
 body.home-study .mtn-scene[data-world][data-moment='done'] .sv-hs-bank-b { translate: var(--hs-mb) 0; }
@@ -670,9 +666,9 @@ body.home-study .mtn-scene[data-world][data-moment='done'] .sv-hs-bank-c { trans
 }
 @media (prefers-reduced-motion: no-preference) {
   /* Finite arrival only (mountains.js sets data-moment=run once on a first arrival, done on any yield). */
-  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-a { animation: sv-hs-drift-a 7s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
-  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-b { animation: sv-hs-drift-b 7s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
-  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-c { animation: sv-hs-drift-c 7s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
+  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-a { animation: sv-hs-drift-a 4.5s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
+  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-b { animation: sv-hs-drift-b 4.5s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
+  body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-bank-c { animation: sv-hs-drift-c 4.5s cubic-bezier(0.22, 0.7, 0.18, 1) 0.5s 1 both; }
   body.home-study .mtn-scene[data-world][data-moment='run'] .sv-hs-meteor { animation: sv-hs-meteor 1.3s cubic-bezier(0.3, 0, 0.5, 1) 2.6s 1 backwards; }
   body.home-study .mtn-scene[data-cam] .sv-hs-sky,
   body.home-study .mtn-scene[data-cam] .sv-hs-bank { transition: transform 260ms cubic-bezier(0.16, 1, 0.3, 1); }
