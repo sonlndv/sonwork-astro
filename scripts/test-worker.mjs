@@ -11,8 +11,9 @@ if (process.argv.includes('--from-preview')) {
   const code = await new Promise(resolve => preview.once('exit', resolve));
   assert.equal(code, 0, 'preview fixture build must succeed');
   assert.ok(existsSync('dist/writing/a-keyboard-plugin-is-done-when-it-types.html'));
-  assert.match(readFileSync('dist/rss.xml', 'utf8'), /<item>/);
-  console.log('Preview fixture: draft post and populated RSS present before Wrangler starts');
+  assert.ok(existsSync('dist/writing/the-joy-of-malleable-products.html'));
+  assert.ok((readFileSync('dist/rss.xml', 'utf8').match(/<item>/g) ?? []).length > 1, 'preview RSS must carry the drafts as well as the Note');
+  console.log('Preview fixture: draft posts, approved Note and populated RSS present before Wrangler starts');
 }
 
 const temporary = mkdtempSync(join(tmpdir(), 'sonwork-runtime-'));
@@ -30,8 +31,15 @@ try {
   }
   if (!ready) throw new Error('Local Wrangler did not start');
   assert.ok(!existsSync('dist/writing/a-keyboard-plugin-is-done-when-it-types.html'), 'Wrangler must rebuild production');
-  assert.doesNotMatch(readFileSync('dist/rss.xml', 'utf8'), /<item>/);
-  console.log('Wrangler production rebuild: draft post absent and RSS empty');
+  assert.ok(existsSync('dist/writing/the-joy-of-malleable-products.html'), 'approved Note must be in the production build');
+  for (const slug of ['a-new-default-must-not-break-the-old-one', 'no-answer-leaves-the-server']) {
+    assert.ok(!existsSync(`dist/writing/${slug}.html`), `Wrangler must rebuild production without draft ${slug}`);
+  }
+  const productionFeed = readFileSync('dist/rss.xml', 'utf8');
+  assert.equal(productionFeed.match(/<item>/g)?.length, 1, 'production RSS must contain exactly the approved Note');
+  assert.match(productionFeed, /the-joy-of-malleable-products/);
+  assert.doesNotMatch(productionFeed, /a-keyboard-plugin-is-done-when-it-types|a-new-default-must-not-break-the-old-one|no-answer-leaves-the-server/);
+  console.log('Wrangler production rebuild: three drafts absent, approved Note and its single RSS item present');
   const { gitSHA } = JSON.parse(readFileSync('dist/release.json', 'utf8'));
   await verifyRelease(base, gitSHA, process.env.WORKER_INVENTORY ?? join(temporary, 'http-inventory.json'));
   // Prove stale releases fail closed.

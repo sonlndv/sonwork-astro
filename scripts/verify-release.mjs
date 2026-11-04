@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
+import { createHash } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { readRedirectMap, samplePath } from './redirect-map.mjs';
@@ -73,8 +74,11 @@ export async function verifyRelease(base, expectedSha, output) {
     if (output) writeFileSync(output, JSON.stringify({ base, expectedSha, requests: inventory.length, errors, inventory }, null, 2) + '\n');
     throw new Error(`Release identity failed: ${errors.join('; ')}`);
   }
+  const hiddenDrafts = ['a-keyboard-plugin-is-done-when-it-types', 'a-new-default-must-not-break-the-old-one', 'no-answer-leaves-the-server'];
+  const noteImageSha256 = '84cbb4083e00a864acad623637edfb0d55afd46ecfaafa0360aaf368f86894ab';
   const html = [];
-  for (const path of ['/', '/about', '/work', '/work/trivia-hub', '/writing', '/subscribe']) {
+  const notePath = '/writing/the-joy-of-malleable-products';
+  for (const path of ['/', '/about', '/work', '/work/trivia-hub', '/writing', notePath, '/subscribe']) {
     await check(path, async () => {
       const response = await get(path);
       assert.equal(response.status, 200);
@@ -89,6 +93,18 @@ export async function verifyRelease(base, expectedSha, output) {
       if (path === '/about') assert.match(body, /business guy in Vietnam/);
       if (path === '/work' || path === '/work/trivia-hub') assert.match(body, /Trivia Hub/);
       if (path === '/subscribe') assert.match(body, /No subscription has been changed here/);
+      if (path === '/writing') {
+        assert.ok(body.includes(`href="${notePath}"`), 'Writing must link the approved Note');
+        assert.equal([...body.matchAll(/href="\/writing\/[^"]+"/g)].length, 1, 'Writing must list exactly one post');
+      }
+      if (path === notePath) {
+        assert.match(body, /<h1[^>]*>The joy of malleable products<\/h1>/);
+        assert.equal([...body.matchAll(/<h1[\s>]/g)].length, 1, 'article must have a single h1');
+        assert.match(body, /<figcaption>Mounty’s dark theme in a public demo vault with illustrative content\.<\/figcaption>/);
+        assert.match(body, /<img[^>]*src="\/images\/mounty-dark-demo\.png"/);
+        assert.match(body, /href="https:\/\/github\.com\/sonlndv\/Mounty"/);
+        assert.doesNotMatch(body, /<video\b|href="\/work\/mounty"/);
+      }
       if (path !== '/') {
         const variant = await get(`${path}/`);
         assert.ok([301, 307, 308].includes(variant.status));
@@ -97,7 +113,7 @@ export async function verifyRelease(base, expectedSha, output) {
       }
     });
   }
-  for (const slug of ['a-keyboard-plugin-is-done-when-it-types', 'a-new-default-must-not-break-the-old-one', 'no-answer-leaves-the-server']) {
+  for (const slug of hiddenDrafts) {
     await check(`hidden draft ${slug}`, async () => {
       assert.equal((await get(`/writing/${slug}`)).status, 404);
       assert.ok(html.every(body => !body.includes(`/writing/${slug}`)));
@@ -106,7 +122,18 @@ export async function verifyRelease(base, expectedSha, output) {
   await check('RSS', async () => {
     const response = await get('/rss.xml'); assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /xml/);
-    assert.doesNotMatch(await response.text(), /<item[\s>]/);
+    const feed = await response.text();
+    assert.equal([...feed.matchAll(/<item[\s>]/g)].length, 1, 'RSS must contain exactly the approved Note');
+    assert.match(feed, /<title>The joy of malleable products<\/title>/);
+    assert.ok(feed.includes('/writing/the-joy-of-malleable-products'));
+    for (const slug of hiddenDrafts) assert.ok(!feed.includes(slug), `RSS must not include ${slug}`);
+  });
+  await check('Note image bytes', async () => {
+    const response = await get('/images/mounty-dark-demo.png'); assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type'), /image\/png/);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), noteImageSha256);
+    assert.equal(bytes.readUInt32BE(16), 800); assert.equal(bytes.readUInt32BE(20), 604);
   });
   await check('unknown', async () => {
     const response = await get('/release-unknown-path-404'); assert.equal(response.status, 404);
