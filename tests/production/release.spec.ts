@@ -6,7 +6,7 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     const context = await browser.newContext({ javaScriptEnabled, colorScheme: theme, viewport: { width, height: 900 } });
     await context.addInitScript(theme => localStorage.setItem('theme', theme), theme);
     const page = await context.newPage();
-    for (const path of ['/', '/about', '/work', '/work/trivia-hub', '/writing', '/subscribe']) {
+    for (const path of ['/', '/about', '/work', '/work/trivia-hub', '/writing', '/writing/the-joy-of-malleable-products', '/subscribe']) {
       expect((await page.goto(`${baseURL}${path}`))?.status()).toBe(200);
       await expect(page.locator('h1')).toBeVisible();
       await expect(page.locator('.draft-label')).toHaveCount(0);
@@ -21,22 +21,44 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
         await expect(page.locator('.front-projects h3')).toHaveText(['Trivia Hub', 'Keymarchy', 'Perfeat']);
       }
       if (path === '/writing') {
-        await expect(page.locator('main a[href^="/writing/"]')).toHaveCount(0);
-        await expect(page.locator('main .empty')).toHaveText("No posts yet. Meanwhile, see what I've built.");
-        await expect(page.locator('main .empty a')).toHaveAttribute('href', '/work');
+        await expect(page.locator('main a[href^="/writing/"]')).toHaveCount(1);
+        await expect(page.locator('main a[href="/writing/the-joy-of-malleable-products"]')).toHaveText('The joy of malleable products');
+        await expect(page.locator('main .empty')).toHaveCount(0);
+      }
+      if (path === '/writing/the-joy-of-malleable-products') {
+        await expect(page.locator('h1')).toHaveText('The joy of malleable products');
+        await expect(page.locator('video')).toHaveCount(0);
+        const image = page.locator('article figure img');
+        await expect(image).toHaveAttribute('src', '/images/mounty-dark-demo.png');
+        await expect(image).toHaveAttribute('width', '800');
+        await expect(image).toHaveAttribute('height', '604');
+        await expect(image).toHaveAttribute('alt', 'Annotated Mounty dark-theme Obsidian demo vault showing the file sidebar, writing area and graph view.');
+        await expect(page.locator('article figure figcaption')).toHaveText('Mounty’s dark theme in a public demo vault with illustrative content.');
+        await expect(page.locator('article figure a')).toHaveAttribute('href', 'https://github.com/sonlndv/Mounty');
+        expect(await image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 800 && el.naturalHeight === 604)).toBe(true);
+        expect(await image.evaluate((el: HTMLImageElement) => el.getBoundingClientRect().right <= innerWidth)).toBe(true);
       }
     }
     await context.close();
   });
 }
-test('production excludes all three draft posts and RSS entries', async ({ request }) => {
-  const posts = readdirSync('src/content/posts').filter(f => f.endsWith('.mdx'));
-  expect(posts).toHaveLength(3);
-  for (const file of posts) {
+test('production excludes all three original draft posts and publishes exactly the approved Note in RSS', async ({ request }) => {
+  const note = 'the-joy-of-malleable-products.mdx';
+  const files = readdirSync('src/content/posts').filter(f => f.endsWith('.mdx'));
+  expect(files.sort()).toHaveLength(4);
+  expect(files).toContain(note);
+  expect(readFileSync(`src/content/posts/${note}`, 'utf8')).toMatch(/^draft: false$/m);
+  const drafts = files.filter(f => f !== note);
+  expect(drafts).toEqual(['a-keyboard-plugin-is-done-when-it-types.mdx', 'a-new-default-must-not-break-the-old-one.mdx', 'no-answer-leaves-the-server.mdx']);
+  for (const file of drafts) {
     expect(readFileSync(`src/content/posts/${file}`, 'utf8')).toMatch(/^draft: true$/m);
     expect((await request.get(`/writing/${file.replace(/\.mdx$/, '')}`)).status()).toBe(404);
   }
-  expect(await (await request.get('/rss.xml')).text()).not.toContain('<item>');
+  expect((await request.get(`/writing/${note.replace(/\.mdx$/, '')}`)).status()).toBe(200);
+  const feed = await (await request.get('/rss.xml')).text();
+  expect(feed.match(/<item>/g)).toHaveLength(1);
+  expect(feed).toContain('/writing/the-joy-of-malleable-products');
+  for (const file of drafts) expect(feed).not.toContain(file.replace(/\.mdx$/, ''));
 });
 
 
