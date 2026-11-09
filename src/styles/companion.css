@@ -175,13 +175,21 @@
   container-type: inline-size;
 }
 
+.front .section-head h2 {
+  font-size: 0.875rem;
+}
+
+.front .section-head a {
+  font-size: 0.75rem;
+}
+
 .front-projects .build-list {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--s6);
+  gap: var(--s5);
   margin: 0;
-  padding: var(--s5) 0 0;
+  padding: var(--s4) 0 0;
   list-style: none;
 }
 
@@ -195,7 +203,7 @@
   display: flex;
   align-items: center;
   min-height: var(--hit);
-  font-size: 1.375rem;
+  font-size: 1.5rem;
   line-height: 1.2;
   letter-spacing: -0.01em;
   color: var(--ink);
@@ -249,6 +257,10 @@
 
 .build-entry .build-action {
   margin: var(--s2) 0 0;
+}
+
+.build-entry .build-action a {
+  font-size: 0.875rem;
 }
 
 .build-entry .build-quiet {

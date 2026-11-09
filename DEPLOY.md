@@ -47,3 +47,7 @@ Rollback is a normal revert of the public release commit on the authorized main 
 ## Public export
 
 The public release candidate must start as a clean standalone clone on release/sonwork-rebuild at the old public main with its pre-rebuild branch. Run scripts/sanitized-release-export.mjs with explicit source, candidate and external proof paths. Optional --forbidden-file points to private terms outside both repositories; the scanner never records terms. After committing the candidate, --verify-only checks byte/hash equality again. Only public-specific document variants may differ and must be declared and reviewed. Generic credential scanning is not proof that unknown private names are absent; owner review is still required.
+
+## Local design checks
+
+Impeccable's project hook is enabled in `.impeccable/config.json`; local consent stays in the gitignored `.impeccable/config.local.json`. The native omp adapter is `.omp/hooks/post/impeccable.js` and requires the installed engine at `~/.impeccable/bin/0.1.17/impeccable`. Native hooks load when the assistant session starts or reloads; use `/reload` after adding the adapter. It runs the engine's configured post-edit checks after successful UI writes/edits and appends findings to the tool result without changing or blocking the edit. It does not run in the website. Edits made outside those tools still need a manual detector pass. Disable checks with `~/.impeccable/bin/0.1.17/impeccable hooks off`.

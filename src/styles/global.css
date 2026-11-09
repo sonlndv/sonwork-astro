@@ -1028,6 +1028,7 @@ body.home-study .site-header {
   align-items: center;
   min-height: var(--hit);
   justify-self: start;
+  font-size: 0.875rem;
 }
 
 .front-main {

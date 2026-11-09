@@ -44,6 +44,16 @@ typography:
     fontSize: "1.0625rem"
     fontWeight: 400
     lineHeight: 1.7
+  project-title:
+    fontFamily: "Space Mono, ui-monospace, monospace"
+    fontSize: "1.5rem"
+    fontWeight: 700
+    lineHeight: 1.2
+  compact-action:
+    fontFamily: "Space Mono, ui-monospace, monospace"
+    fontSize: "0.875rem"
+    fontWeight: 400
+    lineHeight: 1.6
   label:
     fontFamily: "Space Mono, ui-monospace, monospace"
     fontSize: "0.6875rem"
@@ -90,6 +100,14 @@ components:
 ---
 
 # Design System: Sonwork
+
+## Same-theme homepage polish (2026-11-10)
+
+Son selected same-theme polish, not a new composition. The existing About-first layout, fonts, palette, scenery, copy, routes, motion and signup state are retained.
+
+- Homepage project titles use 1.5rem Space Mono (previously 1.375rem); project actions use 0.875rem (previously 0.75rem). Section headings use 0.875rem and their secondary links use 0.75rem. The secondary full-About link uses 0.875rem Geist.
+- The project list starts 16px below its section rule rather than 24px. Stacked entries use the existing 24px spacing step rather than 32px. The desktop three-column subgrid, shared action alignment and 44px minimum targets are unchanged.
+- Rendered checks at 390px and 1440px in both themes retained identical visible copy and 44px action heights. Additional 320px/768px checks include enlarged text; these are Chromium emulation, not physical-phone or Safari evidence.
 
 ## Efficiency refactor (2026-11-09)
 
