@@ -59,72 +59,16 @@
   const heldPointers = new Set();
   const heldKeys = new Set();
   const shots = [];
-  // Home real sky: a fixed illustrative Orion/Taurus J2000 field (not the current sky, location or time),
-  // projected ONCE from the same-origin catalogue into each variant. `hush` rectangles are heading/prose
-  // areas where stars keep their true place but are quieted. Core fallback stars live in the markup.
-  const SKY = {
-    wide: { sel: '.mtn-wide', ra0: 335, dec0: -5, cx: 1130, cy: -50, scale: 850, x: [-100, 1700], y: [-280, 380], grow: 1,
-      hush: [[285, -118, 610, -55], [285, -32, 1020, 24], [285, 26, 760, 56], [285, 78, 870, 100], [285, 118, 930, 400], [285, 270, 1310, 700]] },
-    tall: { sel: '.mtn-tall', ra0: 335, dec0: -5, cx: 320, cy: -25, scale: 360, x: [-20, 420], y: [-125, 180], grow: 1.15,
-      hush: [[5, -55, 265, 3], [5, 30, 145, 50], [-20, 68, 420, 200]] },
-  };
-  // The seven true Aquarius core members read slightly clearer (point radius x1.18, base opacity x1.35 capped .90, before quieting).
-  const HINT = new Set([110395, 110960, 111497, 110672, 109074, 106278, 113136]);
-  const tint = bv => (bv < 0.15 ? '#cfe0ff' : bv < 0.55 ? '#f4f6ff' : bv < 0.9 ? '#ffeacf' : '#ffc99a');
-  function buildSky(rows) {
-    const rad = Math.PI / 180;
-    Object.values(SKY).forEach(p => {
-      const host = scene.querySelector(p.sel + ' .sv-hs-night');
-      if (!host) return;
-      const d0 = p.dec0 * rad;
-      const pts = [];
-      rows.forEach(r => {
-        const dec = r[2] * rad, dra = (r[1] - p.ra0) * rad;
-        const den = Math.sin(d0) * Math.sin(dec) + Math.cos(d0) * Math.cos(dec) * Math.cos(dra);
-        if (den <= 0.15) return;
-        const x = p.cx - p.scale * Math.cos(dec) * Math.sin(dra) / den;
-        const y = p.cy - p.scale * (Math.cos(d0) * Math.sin(dec) - Math.sin(d0) * Math.cos(dec) * Math.cos(dra)) / den;
-        if (x < p.x[0] || x > p.x[1] || y < p.y[0] || y > p.y[1]) return;
-        pts.push([x, y, r[3], r[4], r[0]]);
-      });
-      pts.sort((a, b) => a[2] - b[2]);
-      const NS = 'http://www.w3.org/2000/svg';
-      const group = document.createElementNS(NS, 'g');
-      group.setAttribute('class', 'sv-hs-sky sv-hs-full');
-      pts.slice(0, 600).forEach(([x, y, mag, bv, hip]) => {
-        const quiet = p.hush.some(h => x >= h[0] && x <= h[2] && y >= h[1] && y <= h[3]);
-        const lum = Math.max(0, 6 - mag);
-        const c = document.createElementNS(NS, 'circle');
-        c.setAttribute('data-hip', String(hip));
-        c.setAttribute('cx', x.toFixed(2));
-        c.setAttribute('cy', y.toFixed(2));
-        c.setAttribute('fill', tint(bv));
-        if (mode === 'home') {
-          // Home clear sky: a crisp fine field (point floor 0.7, opacity floor 0.7), magnitude hierarchy and Aquarius
-          // anchors kept; the reading hush only quiets to 0.4, so the corridor stays calmer than the open sky.
-          c.setAttribute('r', Math.min(2.6, Math.max(0.85, (0.8 + lum * 0.34 + Math.max(0, lum - 3) * 0.4) * p.grow * (HINT.has(hip) ? 1.5 : 1) * (quiet ? 0.85 : 1))).toFixed(2));
-          c.setAttribute('opacity', (Math.min(HINT.has(hip) ? 0.95 : 1, Math.max(0.82, 0.6 + lum * 0.14) * (HINT.has(hip) ? 1.3 : 1)) * (quiet ? 0.45 : 1)).toFixed(2));
-        } else {
-          // Every other route keeps the incumbent star sizes and opacities exactly.
-          c.setAttribute('r', (Math.max(0.4, (0.45 + (6 - mag) * 0.28) * p.grow) * (HINT.has(hip) ? 1.18 : 1) * (quiet ? 0.8 : 1)).toFixed(2));
-          c.setAttribute('opacity', (Math.min(HINT.has(hip) ? 0.9 : 1, Math.max(0.32, 0.3 + (6 - mag) * 0.14) * (HINT.has(hip) ? 1.35 : 1)) * (quiet ? 0.38 : 1)).toFixed(2));
-        }
-        group.appendChild(c);
-      });
-      host.appendChild(group);
-    });
-    scene.dataset.sky = 'full';
-  }
+  // The fixed field is baked into hashed SVG images at build time. Keep the authored core until
+  // both images load; blocked/failed art and no-JS retain the original static fallback.
   function loadSky() {
-    if (typeof fetch !== 'function') return; // the shared world carries the real catalogue field on every route
-    fetch('/mountains/home-star-catalog.json', { credentials: 'same-origin' })
-      .then(res => (res.ok ? res.json() : Promise.reject(new Error('catalog'))))
-      .then(data => {
-        const list = Array.isArray(data) ? data : Object.values(data || {}).find(v => Array.isArray(v) && Array.isArray(v[0]));
-        const rows = (list || []).filter(r => Array.isArray(r) && r.length >= 5 && r.slice(0, 5).every(Number.isFinite));
-        if (rows.length > 100) buildSky(rows);
-      })
-      .catch(() => { /* The static core stars in the markup remain. */ });
+    const images = Array.from(scene.querySelectorAll('.sv-hs-full image'));
+    Promise.all(images.map(image => new Promise((resolve, reject) => {
+      const probe = new Image();
+      probe.onload = resolve;
+      probe.onerror = reject;
+      probe.src = image.getAttribute('href');
+    }))).then(() => { scene.dataset.sky = 'full'; }).catch(() => {});
   }
   // One finite cloud-opening moment (CSS-driven, data-moment=run) that any yield settles into its end pose.
   // Yielding freezes each VISIBLE bank at its currently painted translate (read before the marker changes) and

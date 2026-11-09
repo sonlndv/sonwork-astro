@@ -608,8 +608,8 @@ body.home-study .mtn-scene[data-world] .mtn-wide .sv-hs-sun {
   body.home-study .mtn-scene[data-world] { display: none; }
 }
 
-/* ---- Real-sky v2 (Home only). Real catalogue stars (mountains.js appends .sv-hs-full; .sv-hs-core is the
-   static/failure fallback), larger lit cloud banks, one finite cloud-opening moment plus a night meteor. ---- */
+/* ---- Fixed real-sky artwork, larger lit cloud banks, one finite cloud-opening moment and night meteor.
+   The authored core remains the no-script/image-failure fallback until both external star fields load. ---- */
 .sv-hs-clouds { display: none; }
 /* Night is a clear sky: no cloud banks and no legacy haze (manual dark and default/system dark). Day shows them. */
 body.home-study .mtn-scene[data-world] .sv-hs-clouds,
@@ -627,6 +627,8 @@ body.home-study .mtn-scene[data-world] .sv-hs-mid,
 body.home-study .mtn-scene[data-world] .sv-hs-bright,
 body.home-study .mtn-scene[data-world] .sv-hs-cloud-far,
 body.home-study .mtn-scene[data-world] .sv-hs-cloud-near { display: none; }
+.sv-hs-full { display: none; }
+body.home-study .mtn-scene[data-world][data-sky='full'] .sv-hs-full { display: inline; }
 body.home-study .mtn-scene[data-world][data-sky='full'] .sv-hs-core { display: none; }
 /* Cloud material: warm upper-left top, cool shaded underside by day; dark ambient navy at night. */
 body.home-study .mtn-scene[data-world] {

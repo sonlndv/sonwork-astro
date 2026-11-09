@@ -2,12 +2,15 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    outputs:
+      wrangler-version: ${{ steps.metadata.outputs.wrangler-version }}
     env:
       ASTRO_TELEMETRY_DISABLED: '1'
       WRANGLER_SEND_METRICS: 'false'
@@ -22,11 +25,18 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run check
       - run: npm test
-      - name: Production build and real Worker verification
-        run: |
-          npm run build
-          npm run test:production
-          npx wrangler deploy --dry-run --outdir "$RUNNER_TEMP/sonwork-dry-run"
+      - name: Guard production rebuild and verify the exact deployment artifact
+        run: npm run test:production -- --use-preview --artifact-output "$RUNNER_TEMP/sonwork-production"
+      - name: Record verified toolchain
+        id: metadata
+        run: node --input-type=module -e 'import fs from "node:fs"; const artifact = JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP + "/sonwork-production/artifact.json")); fs.appendFileSync(process.env.GITHUB_OUTPUT, `wrangler-version=${artifact.wranglerVersion}\n`);'
+      - uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        with:
+          name: production-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/sonwork-production/
+          if-no-files-found: error
+          retention-days: 7
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -35,4 +45,67 @@ jobs:
             playwright-report/
             test-results/
             .lighthouseci/
+          retention-days: 7
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    env:
+      WRANGLER_SEND_METRICS: 'false'
+      CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: production-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/sonwork-production
+      - name: Reject stale or altered artifacts
+        run: node scripts/release-artifact.mjs "$RUNNER_TEMP/sonwork-production" "$GITHUB_SHA"
+      # Check under the deployment lock: a slower old validation must never roll back main.
+      - name: Require the current main commit
+        id: current
+        shell: bash
+        run: |
+          latest=$(git ls-remote --exit-code origin refs/heads/main)
+          latest=${latest%%$'\t'*}
+          if [[ "$latest" == "$GITHUB_SHA" ]]; then
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+            mkdir "$RUNNER_TEMP/wrangler-deploy"
+          else
+            echo '::notice::Skipping superseded release; main has advanced.'
+          fi
+      - name: Deploy the verified bundle without rebuilding
+        if: steps.current.outputs.deploy == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: ${{ needs.test.outputs.wrangler-version }}
+          workingDirectory: ${{ runner.temp }}/wrangler-deploy
+          packageManager: npm
+          command: deploy --no-bundle --config ${{ runner.temp }}/sonwork-production/wrangler.json
+      - name: Verify exact live release and approved content
+        if: steps.current.outputs.deploy == 'true'
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            if node scripts/verify-release.mjs https://sonwork.org "$GITHUB_SHA" "$RUNNER_TEMP/live-release-inventory.json"; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo '::error::The exact approved production release did not pass live verification.'
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: deploy-verification
+          path: ${{ runner.temp }}/live-release-inventory.json
           retention-days: 7

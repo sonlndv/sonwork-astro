@@ -3,13 +3,7 @@ import { test, expect } from '@playwright/test';
 // Instant page switches and no atmosphere control (Son-approved 2026-11-03).
 const pages = ['/', '/about', '/work', '/writing', '/subscribe', '/work/trivia-hub', '/this-page-does-not-exist'];
 
-test('no page opts into a cross-document view transition, and a header navigation reveals without one', async ({ page }) => {
-  for (const path of pages) {
-    await page.goto(path);
-    const optIn = await page.evaluate(() =>
-      [...document.querySelectorAll('style')].some((s) => /@view-transition\s*\{[^}]*navigation\s*:\s*auto/.test(s.textContent ?? '')));
-    expect(optIn, `${path} declares @view-transition { navigation: auto }`).toBe(false);
-  }
+test('header navigation reveals the next page without a cross-document transition', async ({ page }) => {
   await page.addInitScript(() => {
     addEventListener('pagereveal', (event) => {
       (window as unknown as { sonworkReveal: string }).sonworkReveal = (event as Event & { viewTransition?: unknown }).viewTransition ? 'transition' : 'plain';

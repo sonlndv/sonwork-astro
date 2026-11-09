@@ -150,7 +150,7 @@ export async function verifyRelease(base, expectedSha, output) {
       const path = match[1]; assert.ok(path.startsWith('/')); assets.set(path, path.endsWith('.css') ? /text\/css/ : /font\/woff2|application\/font/);
     }
   }
-  // Inline <style> contents (the shared cascade is delivered in the document) plus every external stylesheet below.
+  // Cover both inline styles and linked stylesheets, including their non-preloaded font subsets.
   const css = collectInlineStyles(html);
   for (const [path, type] of assets) await check(`asset ${path}`, async () => {
     const response = await get(path); assert.equal(response.status, 200); assert.match(response.headers.get('content-type'), type);

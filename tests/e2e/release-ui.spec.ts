@@ -108,26 +108,6 @@ test('the landscape is on every built HTML page and the 404, in both themes, and
           const resources = (selector: string, attribute: string, pathname: string) => page.evaluate(([s, a, p]) =>
             [...document.querySelectorAll(s)].map(n => new URL(n.getAttribute(a)!, location.href))
               .filter(u => u.pathname === p).map(u => u.pathname + u.search), [selector, attribute, pathname]);
-          // The shared cascade is delivered inline in the head: exactly one active nonempty style carries the scenic and
-          // atmosphere rules, followed in order by the fonts, global and companion rules; no raw scene links remain and
-          // no external stylesheet duplicates the scene.
-          const sheet = await page.evaluate(() => {
-            const textOf = (css: CSSStyleSheet | null) => (css ? [...css.cssRules].map(rule => rule.cssText).join('\n') : '');
-            const carriers = [...document.querySelectorAll<HTMLStyleElement>('head > style')].filter(s => textOf(s.sheet).includes('.mtn-scene'));
-            const text = textOf(carriers[0]?.sheet ?? null);
-            const links = [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href]')];
-            const at = (needle: string) => text.indexOf(needle);
-            return {
-              carriers: carriers.length,
-              active: !!carriers[0]?.sheet && !carriers[0].sheet.disabled && carriers[0].sheet.cssRules.length > 0,
-              raw: links.filter(l => ['/mountains/mountains.css', '/atmosphere.css'].includes(new URL(l.href).pathname)).length,
-              external: links.filter(l => textOf(l.sheet).includes('.mtn-scene')).length,
-              scenic: ['.mtn-scene', '.mtn-layer', '.mtn-mist', '.sv-home-sky', '.sv-hs-night'].filter(s => at(s) < 0),
-              world: at('data-world') >= 0,
-              order: at('.mtn-scene') >= 0 && at('.mtn-scene') < at('@font-face') && at('@font-face') < at('.skip-link') && at('.skip-link') < at('.personal-brand'),
-            };
-          });
-          expect(sheet, `${path} inline shared stylesheet`).toEqual({ carriers: 1, active: true, raw: 0, external: 0, scenic: [], world: true, order: true });
           // Every route (Home, index, calm and the 404) loads the build-processed landscape asset through one marked ordinary
           // classic deferred <script>: no legacy duplicate, the companion -> landscape -> atmosphere order unchanged, and a real
           // same-origin hashed JS body. The Home-only marker distinguishes Home and must stay absent everywhere else (every

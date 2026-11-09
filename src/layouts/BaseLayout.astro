@@ -21,9 +21,7 @@ interface Props {
   noIndex?: boolean;
 }
 
-// The processed (bundled, minified) shared cascade in its original order: scene, fonts, global, companion.
-// Delivered in the document itself so the first paint does not wait on a separate render-blocking stylesheet request.
-// Every route inlines the same Home scene stylesheet (one sky on every page).
+// Keep the shared cascade inline: measured cold first paint regressed with a separate stylesheet.
 const isHome = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1') === '/';
 const sharedCss = [homeSceneCss, fontsCss, globalCss, companionCss].join('\n');
 
@@ -106,9 +104,8 @@ function isCurrent(href: string): boolean {
     <link rel="preload" href="/fonts/space-mono-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/geist-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     {type === 'article' && <link rel="preload" href="/fonts/geist-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />}
-    <!-- The shared cascade follows the font preloads, so the browser discovers the same faces before it consumes the inline CSS. -->
     <style is:inline set:html={sharedCss}></style>
-    <!-- Mount: native button, focus, touch and motion behaviour (styles come from companion.css above). -->
+    <!-- Mount: native button, focus, touch and motion behaviour. -->
     <script is:inline src="/companion.js" defer></script>
     <!-- One shared scene. Defer order: native Mount producer, landscape frame, atmosphere eligibility. -->
     {isHome

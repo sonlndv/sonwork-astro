@@ -1,6 +1,4 @@
-/* Scene styles for EVERY route (one sky, Son-approved 2026-11-03): the original order (mountains, then atmosphere) with the
-   Home-world suffix of mountains.css (src/styles/home-world.css, split out byte-for-byte) restored exactly where it sat, between
-   them. BaseLayout inlines this file on every route; it is processed and delivered in the document head. */
+/* Shared scene cascade, in its original order, inlined by BaseLayout on every route. */
 @import '../../public/mountains/mountains.css';
 @import './home-world.css';
 @import '../../public/atmosphere.css';

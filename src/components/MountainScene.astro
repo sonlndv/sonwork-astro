@@ -1,6 +1,9 @@
 ---
 // Site-wide landscape, rendered once by BaseLayout: owned static art, rendered as authored markup.
 import scene from '../assets/mountain-scene.html?raw';
+import wideStars from '../assets/home-star-sky-wide.svg?url';
+import tallStars from '../assets/home-star-sky-tall.svg?url';
+import { starSkyBounds } from '../../scripts/generate-star-sky.mjs';
 
 // The owned asset has independent sky, far, middle and near planes. Insert mist once at its
 // explicit middle/near boundary; moving original SVG groups never changes their path data.
@@ -13,7 +16,18 @@ const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/
 const route = path === '/' ? 'home' : ['/work', '/writing'].includes(path) ? 'index' : 'calm';
 const modeAnchor = 'data-mode="calm"';
 if (scene.split(modeAnchor).length !== 2) throw new Error('mountain-scene.html: mode anchor is missing or not unique');
-const emitted = scene.replace(anchor, mist).replace(modeAnchor, `data-mode="home" data-route="${route}"`);
+// External SVGs keep the point field out of the document while retaining the existing sky transform,
+// skyline mask and stacking order. Vite fingerprints them; the authored core is still the load/no-JS fallback.
+const starUrls = [wideStars, tallStars];
+const variants = ['wide', 'tall'];
+let field = 0;
+const withStars = scene.replace(/<g class="sv-hs-sky sv-hs-core">[\s\S]*?<\/g>/g, core => {
+  const bounds = starSkyBounds[variants[field]];
+  const href = starUrls[field++];
+  return `${core}<g class="sv-hs-sky sv-hs-full"><image href="${href}" x="${bounds[0]}" y="${bounds[1]}" width="${bounds[2]}" height="${bounds[3]}" preserveAspectRatio="none"/></g>`;
+});
+if (field !== 2) throw new Error('mountain-scene.html: expected one star core per composition');
+const emitted = withStars.replace(anchor, mist).replace(modeAnchor, `data-mode="home" data-route="${route}"`);
 // The baked Home sky textures (/mountains/real-*.webp, 16 image nodes) are emitted as authored on every route.
 const homeTexture = 'href="/mountains/real-';
 const neptuneTexture = 'href="/mountains/real-neptune';

@@ -5,6 +5,7 @@ import mdx from '@astrojs/mdx';
 import { buildSha } from './scripts/build-release.mjs';
 import { writeRuntimeRoutes } from './scripts/runtime-routes.mjs';
 import { renderRedirects } from './scripts/redirects-file.mjs';
+import { writeStarSky } from './scripts/generate-star-sky.mjs';
 
 // Writes release routing and identity alongside public/_redirects from library/redirect-map.csv (git-ignored, generated),
 // File output and the host both use URLs without trailing slashes.
@@ -14,6 +15,7 @@ function redirectsFile() {
     name: 'sonwork:redirects-file',
     hooks: {
       'astro:config:setup': ({ config }) => {
+        writeStarSky();
         writeRuntimeRoutes();
         writeFileSync(new URL('_redirects', config.publicDir), renderRedirects());
         writeFileSync(new URL('release.json', config.publicDir), JSON.stringify({ gitSHA: buildSha() }) + '\n');

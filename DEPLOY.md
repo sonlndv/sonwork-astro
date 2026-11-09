@@ -6,7 +6,7 @@ This tree prepares a replacement of the existing sonlndv/sonwork-astro site. A p
 
 The Worker remains `sonwork`, compatibility date `2026-05-20`, workers.dev enabled, route `sonwork.org/*` in zone `sonwork.org`. Static assets in `dist` use the ASSETS binding. Existing Cloudflare variables are retained with keep_vars:true. The existing COMMENTS KV namespace binding is retained unchanged; the runtime performs no KV operations. No account, DNS, credential, secret or paid-service setup is required.
 
-The existing GitHub Deploy workflow triggers on main and workflow_dispatch and uses Node 22, npm ci, and cloudflare/wrangler-action@v3 with the existing CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secret references. Never copy secret values into source or logs. A separate existing Workers Builds integration may also deploy main; its settings remain unchanged. Both deployment paths must build plain production source without SHOW_DRAFTS or PUBLIC_SIGNUP variables. A nonempty NODE_ENV must equal production; other values fail closed without printing them. npm run dev remains unchanged. Local environment files are refused by release commands, without reading them.
+The GitHub CI workflow (`.github/workflows/ci.yml`) validates pushes, pull requests and manual runs using Node 22. Successful main push/manual runs upload a same-run production artifact; a dependent deployment job uses cloudflare/wrangler-action@v3 with the existing CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID repository secret references. Never copy secret values into source or logs. Pull-request artifacts cannot enter deployment. A separate existing Workers Builds integration may also deploy main; its settings remain unchanged. Release builds must not use SHOW_DRAFTS or PUBLIC_SIGNUP variables. A nonempty NODE_ENV must equal production; other values fail closed without printing them. npm run dev remains unchanged. Local environment files are refused by release commands, without reading them.
 
 ## Checks
 
@@ -18,11 +18,11 @@ npx playwright install --with-deps chromium
 npm run check
 npm test
 npm run build
-npm run test:production
-npx wrangler deploy --dry-run --outdir "${TMPDIR:-/tmp}/sonwork-dry-run"
+ARTIFACT_ROOT="$(mktemp -d)"
+npm run test:production -- --artifact-output "$ARTIFACT_ROOT/production"
 ```
 
-Preview tests retain draft coverage. Wrangler build.command runs npm run build before normal dev/deploy/dry-run commands, so a stale preview dist is rebuilt as guarded production. The production gate deliberately creates a preview with draft posts and populated RSS, then verifies Wrangler replaces it with production before HTTP/browser checks. Production HTTP checks run the actual Wrangler local Worker and classify every redirect-map row and wildcard sample. They also check private query removal, unknown 404, retained icons/robots, CSS/fonts, hidden drafts, empty RSS, disabled signup and the build SHA. A wrong-SHA negative control must fail. Browser checks cover 390/1440 widths, both themes and JavaScript on/off. No real signup or email flow is exercised.
+Preview tests retain draft coverage. Wrangler build.command runs npm run build before normal dev/deploy/dry-run commands, so a stale preview dist is rebuilt as guarded production. The production gate creates a preview with draft posts and populated RSS, then verifies Wrangler replaces it with production. In CI, `--use-preview` reuses the preview already produced by npm test without skipping the guarded production rebuild. `--artifact-output` packages the resulting dist, dry-run bundled Worker, no-build/no-bundle Wrangler configuration, source SHA, toolchain version and file hashes. HTTP/browser checks then run that exact artifact through local Wrangler, and its file integrity is checked again afterward. HTTP checks classify every redirect-map row and wildcard sample, private query removal, unknown 404, retained icons/robots, CSS/fonts, hidden drafts, the approved Note and its single RSS item, disabled signup and the build SHA. A wrong-SHA negative control must fail. Browser checks cover 390/1440 widths, both themes and JavaScript on/off. No real signup or email flow is exercised.
 
 Astro uses file output and trailingSlash:never. Canonicals and internal links omit trailing slashes. Cloudflare uses drop-trailing-slash HTML handling. The assets binding supports _redirects; the Worker strips private booking/unsubscribe queries before asset handling and returns actual 410 for missing retired assets/APIs. Matching static assets bypass the Worker by default; only API, booking and explicit /404 paths run it first. not_found_handling:none lets missing legacy paths fall back to the Worker; ordinary unknowns fetch the noindex error document through ASSETS and retain HTTP 404. No /_astro/* Worker-first rule is used. Current assets beat retirement patterns. /404, /404/ and /404.html deliberately return 410; ordinary unknown paths return the custom page with status 404. /api/unsubscribe redirects without its query to truthful legacy-contact information; it does not perform or claim removal.
 
@@ -30,7 +30,7 @@ References: [Cloudflare redirects](https://developers.cloudflare.com/workers/sta
 
 ## Release identity and live readback
 
-/release.json contains gitSHA from GITHUB_SHA or actual Git HEAD at build time. The deployment workflow queues complete deploy/readback jobs with cancel-in-progress:false and rebuilds production after preview gates and checks live identity, approved content, no draft badges, disabled signup, legacy 301/410 routes, unknown 404 and real CSS/fonts. It fails if any assertion or the exact SHA differs. Manual readback after an authorized deployment uses:
+/release.json contains gitSHA from GITHUB_SHA or actual Git HEAD at build time. CI runs full validation once, then the main-only deployment job downloads its own successful run's artifact and verifies the full source SHA and every packaged file hash. It retains the cancel-in-progress:false deployment/readback lock and skips superseded runs after checking current main under that lock. Deployment uses the artifact's matching Wrangler version and exact bundled Worker/assets with no site build or rebundling. Live readback checks identity, approved content, no draft badges, disabled signup, legacy 301/410 routes, unknown 404 and real CSS/fonts. It fails if any assertion or the exact SHA differs. Manual readback after an authorized deployment uses:
 
 ```
 node scripts/verify-release.mjs https://sonwork.org FULL_DEPLOYED_GIT_SHA "${TMPDIR:-/tmp}/live-release-inventory.json"

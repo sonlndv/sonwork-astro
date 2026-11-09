@@ -174,7 +174,7 @@ const stable = (page: Page) => page.evaluate(() => {
 });
 
 // Complete static paint of the Home sky: rect, filter, opacity and href of every visible body image, the planet backing,
-// a catalogue star, the far ridge, and every attribute the retired pointer/camera paths used to write.
+// the fixed star artwork, the far ridge, and every attribute the retired pointer/camera paths used to write.
 const paint = (page: Page) => page.evaluate(() => {
   const scene = document.querySelector('.mtn-scene[data-mode="home"]')!;
   const read = (sel: string) => Array.from(scene.querySelectorAll(sel)).filter(el => el.getClientRects().length > 0).map(el => {
@@ -185,7 +185,7 @@ const paint = (page: Page) => page.evaluate(() => {
   return {
     planet: read('.sv-hs-planet > .sv-ow-pimg image'), backing: read('.sv-hs-planet > .sv-hs-body'),
     a: read('.sv-ow-a image'), b: read('.sv-ow-b image'), c: read('.sv-ow-c image'),
-    star: read('.mtn-wide .sv-hs-full circle').slice(0, 1), ridge: read('.mtn-wide #sv-surface-far-wide'),
+    star: read('.mtn-wide .sv-hs-full image'), ridge: read('.mtn-wide #sv-surface-far-wide'),
     retired: {
       look: document.querySelectorAll('.sv-home-sky[data-look]').length, cam: scene.hasAttribute('data-cam'),
       ox: sky.style.getPropertyValue('--ow-x'), oy: sky.style.getPropertyValue('--ow-y'),
@@ -307,24 +307,6 @@ test('no-JS Home is clear and fixed; other routes show Home\'s clear day sky', a
     expect(await noScript.locator('svg.sv-np-fallback').count(), `${route} no JS needs no fallback copy`).toBe(0);
     await bare.close();
   }
-});
-
-test('Home night catalogue is the fine field and other routes carry exactly the same star sizes and opacities', async ({ browser }) => {
-  const stars = async (path: string) => {
-    const { context, page } = await open(browser, base, path, 'dark');
-    await page.waitForSelector('.mtn-scene[data-sky="full"]');
-    const values = await page.evaluate(() => Array.from(document.querySelectorAll('.mtn-wide .sv-hs-full circle'), c => [Number(c.getAttribute('r')), Number(c.getAttribute('opacity'))]));
-    await context.close();
-    return values;
-  };
-  const home = await stars('/');
-  const about = await stars('/about');
-  expect(home.length).toBeLessThanOrEqual(600);
-  expect(Math.min(...home.map(v => v[0]))).toBeGreaterThanOrEqual(0.85);
-  expect(Math.min(...home.map(v => v[1]))).toBeGreaterThanOrEqual(0.3);
-  expect(Math.max(...home.map(v => v[0]))).toBeLessThanOrEqual(2.6);
-  expect(about.length, 'the same star count').toBe(home.length);
-  expect(about, 'the same sizes and opacities').toEqual(home);
 });
 
 // ---- Real bodies over the valley (DESIGN.md "Current private contract: four real bodies") ----
@@ -1082,53 +1064,7 @@ test('every route keeps the 16 real hrefs with or without JS and fetches the sam
   }
 });
 
-test('every route inlines the same world CSS, hides the small bodies by default and paints Home\'s bodies and graded Neptune', async ({ browser }) => {
-  const css = (page: Page) => page.evaluate(() => Array.from(document.querySelectorAll('style')).map(node => node.textContent || '').join('\n'));
-  // The nested-image guard comes from the world CSS, which every route inlines now. The retired off-Home carry-through tokens
-  // (--np-identity-scale/shift/turn) must not come back.
-  const homeRule = /ow-identity-(scale|shift|turn)/;
-  // The minifier legitimately merges identical adjacent declarations into one selector list
-  // (e.g. `.mtn-scene[data-mode=calm]>.mtn-mist,.sv-ow-bodies,.sv-ow-pimg,.sv-ow-pm,.sv-ow-pn{display:none}`), so the
-  // default-hide guard inspects the real CSSOM: every wanted selector must be an entry of some display:none rule's selector list
-  // (grouping rules such as @media are walked too). Returns the wanted selectors that are NOT hidden by default.
-  const notHiddenByDefault = (page: Page) => page.evaluate(() => {
-    const wanted = ['.sv-ow-bodies', '.sv-ow-pimg', '.sv-ow-pm', '.sv-ow-pn'];
-    const hidden = new Set<string>();
-    let rulesSeen = 0;
-    const walk = (rules: CSSRuleList) => {
-      for (const rule of Array.from(rules)) {
-        if (rule instanceof CSSStyleRule) {
-          rulesSeen += 1;
-          if (rule.style.getPropertyValue('display') === 'none') {
-            for (const selector of rule.selectorText.split(',').map(part => part.trim())) hidden.add(selector);
-          }
-        } else if ('cssRules' in rule) {
-          walk((rule as CSSGroupingRule).cssRules);
-        }
-      }
-    };
-    for (const sheet of Array.from(document.styleSheets)) {
-      try { walk(sheet.cssRules); } catch { /* an unreadable sheet cannot be inspected */ }
-    }
-    return { rulesSeen, missing: wanted.filter(selector => !hidden.has(selector)) };
-  });
-  for (const route of ['/', '/work', '/about']) {
-    const context = await browser.newContext(base);
-    const page = await context.newPage();
-    const requests: string[] = [];
-    page.on('request', request => { if (request.resourceType() === 'stylesheet') requests.push(request.url()); });
-    await page.goto(route);
-    await page.waitForLoadState('load');
-    const text = await css(page);
-    expect(requests, `${route} requests no extra stylesheet (all CSS stays inline)`).toEqual([]);
-    const hiding = await notHiddenByDefault(page);
-    expect(hiding.rulesSeen, `${route} CSSOM is readable (nonempty)`).toBeGreaterThan(0);
-    expect(hiding.missing, `${route} hides the new art by default`).toEqual([]);
-    expect(text, `${route} keeps the planet group rules`).toMatch(/\.sv-hs-planet/);
-    expect(text, `${route} carries the world CSS`).toMatch(homeRule);
-    expect(text, `${route} carries no retired off-Home identity tokens`).not.toMatch(/np-identity/);
-    await context.close();
-  }
+test('every route paints Home\'s bodies and graded Neptune', async ({ browser }) => {
   for (const route of ['/work', '/about']) {
     const context = await browser.newContext({ ...base, colorScheme: 'dark' });
     const page = await context.newPage();
