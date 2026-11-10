@@ -8,7 +8,7 @@ colors:
   line-2: "oklch(0.245 0.007 254)"
   ink: "oklch(0.965 0.006 250)"
   ink-2: "oklch(0.88 0.014 250)"
-  ink-3: "oklch(0.66 0.02 252)"
+  ink-3: "oklch(0.7 0.02 252)"
   lume: "oklch(0.8 0.11 254)"
   human: "oklch(0.82 0.095 55)"
   light-void: "oklch(0.985 0.004 250)"
@@ -17,7 +17,7 @@ colors:
   light-line-2: "oklch(0.885 0.012 250)"
   light-ink: "oklch(0.19 0.03 256)"
   light-ink-2: "oklch(0.32 0.028 254)"
-  light-ink-3: "oklch(0.33 0.024 252)"
+  light-ink-3: "oklch(0.3 0.024 252)"
   light-lume: "oklch(0.36 0.12 258)"
   light-human: "oklch(0.5 0.13 48)"
 typography:
@@ -54,6 +54,11 @@ typography:
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.6
+  caption:
+    fontFamily: "Geist, system-ui, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 400
+    lineHeight: 1.6
   notice:
     fontFamily: "Geist, system-ui, sans-serif"
     fontSize: "1rem"
@@ -61,7 +66,7 @@ typography:
     lineHeight: 1.6
   label:
     fontFamily: "Space Mono, ui-monospace, monospace"
-    fontSize: "0.6875rem"
+    fontSize: "0.75rem"
     fontWeight: 400
     lineHeight: 1.5
     letterSpacing: "0.08em"
@@ -105,6 +110,16 @@ components:
 ---
 
 # Design System: Sonwork
+
+## Readability and project-proof refinement
+
+- Metadata, status labels, navigation and footer links use 0.75rem Space Mono. Secondary ink keeps its existing hue, with stronger small-text contrast in both themes. Figure captions use 0.875rem Geist.
+- Desktop introductory and article prose use a 54ch measure, checked against the actual copy. The wide project grid, heading sizes and body font sizes are unchanged.
+- The existing fixed scenery mask admits less terrain through its reading corridor. No page-attached scrim, new scene layer, animation, asset or scroll handler is added; the outer flanks and planet anchors are retained.
+- Footer links reflow below a 22rem container width so larger labels remain whole inside their 44px targets, rather than crossing cell dividers.
+- Trivia Hub begins with `/images/trivia-hub-october-2026.webp`: a genuine retained October development capture, not a mockup or a claim about today's live build. The stripped original is 1440x900, with descriptive alt text, an explicit development caption and reserved aspect ratio. Approved case-study prose remains unchanged.
+- Native responsive delivery selects 480px or 800px WebP variants on phones, retaining the original for larger displays. This first-screen image loads eagerly at high priority; lazy loading it regressed the existing Lighthouse paint budget. No image-loading JavaScript or relaxed performance threshold is used.
+- Chromium emulation covered 320/340/375/390/768/1440px in both themes, enlarged text and the image without JavaScript. Sampled rendered text contrast against the actual scenery remained above 4.5:1. Physical-device and Safari behavior is not verified.
 
 ## Project discovery and closed signup
 

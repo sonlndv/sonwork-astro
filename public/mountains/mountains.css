@@ -378,7 +378,7 @@ body.home-study .mtn-scene[data-world] {
   /* Open flanks, quiet reading corridor. */
   --mtn-veil-edge: light-dark(rgba(0, 0, 0, 0.85), #000);
   --mtn-veil-shoulder: light-dark(rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.5));
-  --mtn-veil-center: light-dark(rgba(0, 0, 0, calc(0.34 - 0.1 * var(--sv-ease))), rgba(0, 0, 0, calc(0.42 - 0.1 * var(--sv-ease))));
+  --mtn-veil-center: light-dark(rgba(0, 0, 0, calc(0.26 - 0.1 * var(--sv-ease))), rgba(0, 0, 0, calc(0.34 - 0.1 * var(--sv-ease))));
   opacity: 0.72; /* night; light overrides follow (light-dark() is not valid opacity grammar) */
 }
 body.home-study .mtn-scene[data-world][data-big] { opacity: 0.6; }
@@ -411,19 +411,19 @@ body.mountains.home-study::before {
     --sv-max: 0.36;
     --sv-tail: 0.04;
     --mtn-veil-edge: light-dark(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.92));
-    --mtn-veil-center: light-dark(rgba(0, 0, 0, calc(0.38 - 0.1 * var(--sv-ease))), rgba(0, 0, 0, calc(0.5 - 0.12 * var(--sv-ease))));
+    --mtn-veil-center: light-dark(rgba(0, 0, 0, calc(0.3 - 0.1 * var(--sv-ease))), rgba(0, 0, 0, calc(0.42 - 0.12 * var(--sv-ease))));
     --mtn-veil: linear-gradient(90deg, var(--mtn-veil-edge), var(--mtn-veil-center) 22%, var(--mtn-veil-center) 78%, var(--mtn-veil-edge));
   }
   /* Phone DARK only (manual dark, or no manual choice with a non-light system; never manual light): the quiet
      reading corridor starts at the reading gutter (~6%) with a darker centre, so dim labels over terrain keep
      contrast. Edges stay full strength; day, scene opacity, art and every other route are untouched. */
   :root[data-theme='dark'] body.home-study .mtn-scene[data-world] {
-    --mtn-veil-center: rgba(0, 0, 0, calc(0.28 - 0.04 * var(--sv-ease)));
+    --mtn-veil-center: rgba(0, 0, 0, calc(0.22 - 0.04 * var(--sv-ease)));
     --mtn-veil: linear-gradient(90deg, var(--mtn-veil-edge), var(--mtn-veil-center) 6%, var(--mtn-veil-center) 94%, var(--mtn-veil-edge));
   }
   @media not (prefers-color-scheme: light) {
     :root:not([data-theme='light']) body.home-study .mtn-scene[data-world] {
-      --mtn-veil-center: rgba(0, 0, 0, calc(0.28 - 0.04 * var(--sv-ease)));
+      --mtn-veil-center: rgba(0, 0, 0, calc(0.22 - 0.04 * var(--sv-ease)));
       --mtn-veil: linear-gradient(90deg, var(--mtn-veil-edge), var(--mtn-veil-center) 6%, var(--mtn-veil-center) 94%, var(--mtn-veil-edge));
     }
   }

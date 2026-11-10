@@ -659,24 +659,32 @@ test.describe('200% root text', () => {
     expect(await overflow(page)).toBeLessThanOrEqual(0);
   });
 
-  for (const width of [320, 375, 768, 1280]) {
-    test(`normal size keeps five equal footer cells on one row at ${width}px`, async ({ page }) => {
+  for (const width of [320, 340, 375, 768, 1280]) {
+    test(`footer labels stay whole inside their tap targets at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 700 });
       await page.goto('/');
       await page.evaluate(() => document.fonts.ready);
-      const cells = await page.evaluate(() =>
-        [...document.querySelectorAll('.contact-links li')].map((li) => {
-          const box = li.getBoundingClientRect();
-          const a = li.querySelector('a')!.getBoundingClientRect();
-          return { top: box.top, width: box.width, label: li.textContent!.trim(), anchorHeight: a.height };
-        }),
-      );
-      expect(cells.length).toBe(5);
-      expect(cells.map((cell) => cell.label)).toEqual(['Email', 'X', 'GitHub', 'LinkedIn', 'RSS']);
-      for (const cell of cells) {
-        expect(Math.abs(cell.top - cells[0].top)).toBeLessThanOrEqual(1);
-        expect(Math.abs(cell.width - cells[0].width)).toBeLessThanOrEqual(1);
-        expect(cell.anchorHeight).toBeGreaterThanOrEqual(44);
+      const footer = page.locator('.contact-links');
+      await footer.getByRole('link', { name: 'LinkedIn', exact: true }).scrollIntoViewIfNeeded();
+      const targets = await footer.locator('a').evaluateAll(links => links.map(link => {
+        const box = link.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(link);
+        const text = range.getBoundingClientRect();
+        return {
+          label: link.textContent!.trim(), height: box.height,
+          textLeft: text.left - box.left, textRight: box.right - text.right,
+          textTop: text.top - box.top, textBottom: box.bottom - text.bottom,
+          lines: range.getClientRects().length,
+        };
+      }));
+      for (const target of targets) {
+        expect(target.height, `${target.label} tap target`).toBeGreaterThanOrEqual(44);
+        expect(target.lines, `${target.label} stays a whole word`).toBe(1);
+        expect(target.textLeft, `${target.label} left edge`).toBeGreaterThanOrEqual(-0.5);
+        expect(target.textRight, `${target.label} right edge`).toBeGreaterThanOrEqual(-0.5);
+        expect(target.textTop, `${target.label} top edge`).toBeGreaterThanOrEqual(-0.5);
+        expect(target.textBottom, `${target.label} bottom edge`).toBeGreaterThanOrEqual(-0.5);
       }
       expect(await overflow(page)).toBeLessThanOrEqual(0);
     });
