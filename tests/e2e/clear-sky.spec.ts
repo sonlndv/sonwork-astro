@@ -1089,6 +1089,8 @@ test('a real control with keyboard-visible focus keeps the pointer star off unti
   await summary.click(); // native click on the actual "What I'm exploring" control
   await page.keyboard.press('Shift'); // native key press and release gives that control keyboard-visible focus
   expect(await focus(), 'the control now has keyboard-visible focus').toEqual({ tag: 'SUMMARY', visible: true });
+  // The secondary disclosure follows the projects; restore the original sky pocket without blurring it.
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
   await page.mouse.move(sx, sy);
   await page.mouse.move(sx + 12, sy + 8);
   await frames(page);

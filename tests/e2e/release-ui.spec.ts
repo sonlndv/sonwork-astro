@@ -533,7 +533,6 @@ for (const width of [375, 901]) {
           expect(item.now, `${path} grew x2`).toBeCloseTo(sizes[item.index] * 2, 1);
         }
         expect(grown.docWidth, `${path} document width`).toBe(grown.viewport);
-        expect(grown.nav.map(link => link.text)).toEqual(['Build', 'Writing', 'About', 'Subscribe']);
         for (const link of grown.nav) {
           expect(link.left, `${path} ${link.text} left`).toBeGreaterThanOrEqual(-0.5);
           expect(link.right, `${path} ${link.text} right`).toBeLessThanOrEqual(grown.viewport + 0.5);
@@ -544,7 +543,7 @@ for (const width of [375, 901]) {
   });
 }
 
-test('Home, Build and About load with no page errors, console errors or failed requests, and Subscribe stays disabled', async ({ browser, baseURL }) => {
+test('Home, Build and About load with no page errors, console errors or failed requests', async ({ browser, baseURL }) => {
   for (const options of [desktop, touch]) {
     await open(browser, baseURL, options, async page => {
       const problems: string[] = [];
@@ -559,29 +558,8 @@ test('Home, Build and About load with no page errors, console errors or failed r
         await page.waitForTimeout(300);
       }
       await page.goto('/');
-      await expect(page.locator('form.subscribe-form button[type="submit"]')).toBeDisabled();
       expect(problems).toEqual([]);
     });
   }
 });
 
-test('while signup is off, Subscribe is a plain nav item, and on its own page it is marked like any current item', async ({ browser, baseURL }) => {
-  for (const colorScheme of ['dark', 'light'] as const) {
-    await open(browser, baseURL, { ...desktop, colorScheme }, async page => {
-      const nav = () => page.locator('.site-nav li a').evaluateAll(links => links.map(a => ({
-        label: a.textContent?.trim(), current: a.getAttribute('aria-current') === 'page', color: getComputedStyle(a).color,
-      })));
-      await page.goto('/writing/');
-      const writing = await nav();
-      // Signup is off in every release build, so nothing carries the accent: Subscribe takes the same ink-2 as Build and About.
-      const plain = writing.filter(link => !link.current);
-      expect(plain.map(link => link.label), `${colorScheme} unmarked items on /writing`).toEqual(['Build', 'About', 'Subscribe']);
-      expect(new Set(plain.map(link => link.color)).size, `${colorScheme} one colour for unmarked items ${JSON.stringify(plain)}`).toBe(1);
-      await expect(page.locator('.site-nav li.nav-accent')).toHaveCount(0);
-      await page.goto('/subscribe/');
-      const current = (await nav()).filter(link => link.current);
-      expect(current.map(link => link.label), `${colorScheme} current item on /subscribe`).toEqual(['Subscribe']);
-      expect(current[0].color, `${colorScheme} Subscribe is marked like Writing on its own page`).toBe(writing.find(link => link.current)?.color);
-    });
-  }
-});

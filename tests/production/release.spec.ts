@@ -12,9 +12,17 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       await expect(page.locator('.draft-label')).toHaveCount(0);
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://sonwork.org${path}`);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      for (const form of await page.locator('.subscribe-form').all()) {
-        await expect(form.locator('button[type="submit"]')).toBeDisabled();
-        await expect(form).not.toHaveAttribute('data-signup-url');
+      await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
+      await expect(page.locator('[data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
+      await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', '/#home-contact');
+      if (path === '/' || path === '/subscribe') {
+        await expect(page.locator('.signup-closed')).toHaveText('Signup opens soon.');
+        await expect(page.locator('.signup-closed')).toBeVisible();
+      }
+      if (path === '/subscribe') {
+        await expect(page.locator('main')).toContainText('No subscription has been changed here.');
+        await expect(page.getByRole('link', { name: 'son@sonwork.org', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
+        await expect(page.getByRole('link', { name: 'All writing', exact: true })).toHaveAttribute('href', '/writing');
       }
       if (path === '/') {
         await expect(page.locator('.home-intro')).toContainText('Vietnam');
@@ -39,6 +47,11 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
         expect(await image.evaluate((el: HTMLImageElement) => el.getBoundingClientRect().right <= innerWidth)).toBe(true);
       }
     }
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Contact', exact: true }).click();
+    await expect(page).toHaveURL(`${baseURL}/#home-contact`);
+    await expect(page.getByRole('heading', { name: 'Contact', exact: true })).toBeInViewport();
+    await expect(page.locator('.wordmark')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('.site-nav li a[aria-current]')).toHaveCount(0);
     await context.close();
   });
 }

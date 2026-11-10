@@ -86,13 +86,22 @@ export async function verifyRelease(base, expectedSha, output) {
       const body = (await response.text()).replaceAll('&#39;', "'").replaceAll('&#x27;', "'"); html.push(body);
       assert.doesNotMatch(body, /class=["'][^"']*draft-label/);
       assert.ok(body.includes(`href="https://sonwork.org${path}"`), 'canonical must use the production URL');
-      assert.doesNotMatch(body, /data-signup-(url|key)=/);
-      if (path === '/' || path === '/subscribe') assert.match(body, /<form[^>]*class="subscribe-form"/);
-      for (const button of body.matchAll(/<button\b([^>]*)>Subscribe<\/button>/g)) assert.match(button[1], /disabled/);
+      assert.doesNotMatch(body, /\bdata-(?:signup-(?:url|key)|newsletter)=/);
+      assert.doesNotMatch(body, /<form\b|<input\b|<button\b[^>]*type="submit"/);
+      assert.match(body, /<a\b[^>]*href="\/#home-contact"[^>]*>Contact<\/a>/);
+      assert.doesNotMatch(body, /<a\b[^>]*href="\/subscribe"[^>]*>Subscribe<\/a>/);
+      if (path === '/' || path === '/subscribe') {
+        const notices = [...body.matchAll(/<p\b[^>]*class="signup-closed"[^>]*>Signup opens soon\.<\/p>/g)];
+        assert.equal(notices.length, 1, 'closed signup must show one noninteractive notice');
+      }
       if (path === '/') for (const text of ["I'm Son", 'Trivia Hub', 'Keymarchy', 'Perfeat']) assert.ok(body.includes(text), `missing ${text}`);
       if (path === '/about') assert.match(body, /business guy in Vietnam/);
       if (path === '/work' || path === '/work/trivia-hub') assert.match(body, /Trivia Hub/);
-      if (path === '/subscribe') assert.match(body, /No subscription has been changed here/);
+      if (path === '/subscribe') {
+        assert.match(body, /Legacy newsletter links are retired\. No subscription has been changed here\./);
+        assert.match(body, /href="mailto:son@sonwork\.org"/);
+        assert.match(body, /href="\/writing">All writing<\/a>/);
+      }
       if (path === '/writing') {
         assert.ok(body.includes(`href="${notePath}"`), 'Writing must link the approved Note');
         assert.equal([...body.matchAll(/href="\/writing\/[^"]+"/g)].length, 1, 'Writing must list exactly one post');

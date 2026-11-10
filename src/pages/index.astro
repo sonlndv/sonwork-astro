@@ -17,7 +17,10 @@ const builds = [
     href: '/work/trivia-hub',
     status: 'Live',
     desc: 'Daily games with one shared reset.',
-    links: [{ href: 'https://games.sonwork.org', label: 'Play' }],
+    links: [
+      { href: '/work/trivia-hub', label: 'Case study' },
+      { href: 'https://games.sonwork.org', label: 'Play' },
+    ],
   },
   {
     name: 'Keymarchy',
@@ -51,11 +54,6 @@ const contact = [
       </div>
       {intro && <p class="home-intro">{intro}</p>}
       <p class="hermes-note"><a href="https://hermes-agent.nousresearch.com/docs/">Hermes</a> is my main driver now. I use it to build things, try ideas, and learn as I go.</p>
-      {copy?.homeBuild && <details class="home-build">
-        <summary>What I'm exploring</summary>
-        <p>{copy.homeBuild}</p>
-      </details>}
-      <a class="home-more" href="/about">Full About and contributions</a>
     </section>
 
     <div class="front-main">
@@ -74,7 +72,7 @@ const contact = [
                 <ul class="links build-action">
                   {build.links.map((link) => (
                     <li>
-                      <a href={link.href}>{link.label}<svg class="arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 8L8 2M3.5 2H8v4.5" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg><span class="visually-hidden">: {build.name}</span></a>
+                      <a href={link.href}>{link.label}{link.href.startsWith('https://') && <svg class="arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 8L8 2M3.5 2H8v4.5" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg>}<span class="visually-hidden">: {build.name}</span></a>
                     </li>
                   ))}
                 </ul>
@@ -85,6 +83,14 @@ const contact = [
           ))}
         </ul>
       </section>
+
+      <div class="home-details">
+        {copy?.homeBuild && <details class="home-build">
+          <summary>What I'm exploring</summary>
+          <p>{copy.homeBuild}</p>
+        </details>}
+        <a class="home-more" href="/about">Full About and contributions</a>
+      </div>
 
       <section class="front-contact" aria-labelledby="home-contact" data-valley-landmark="contact">
         <div class="section-head">

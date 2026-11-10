@@ -2,9 +2,9 @@
 // Posts to the newsletter's signup API (mailcheap POST /api/v1/contacts) from
 // the browser. PUBLIC_SIGNUP_URL and PUBLIC_SIGNUP_KEY (a signups only key:
 // public by design, it can only add contacts) come from the build's env.
-// Until both are set, the form renders with submit disabled. When they are,
-// submit still starts disabled and the script below enables it, so a reader
-// without JS (or a click before the script runs) never posts to the page.
+// Without both values, render only the closed notice. Configured signup starts
+// with submit disabled until the script runs, so a reader without JS (or a
+// click before setup) never posts to the page.
 import { signupOpen } from '../lib/signup';
 
 interface Props {
@@ -15,34 +15,34 @@ const { id = 'subscribe' } = Astro.props;
 const signupUrl = import.meta.env.PUBLIC_SIGNUP_URL;
 const signupKey = import.meta.env.PUBLIC_SIGNUP_KEY;
 const newsletter = import.meta.env.PUBLIC_SIGNUP_NEWSLETTER;
-const enabled = signupOpen;
-const describedBy = enabled ? `${id}-note ${id}-status` : `${id}-note`;
 ---
+{signupOpen ? (
 <form
   class="subscribe-form"
   method="post"
-  action={enabled ? undefined : signupUrl}
-  aria-describedby={describedBy}
-  data-signup-url={enabled ? signupUrl : undefined}
-  data-signup-key={enabled ? signupKey : undefined}
-  data-newsletter={enabled ? newsletter : undefined}
+  aria-describedby={`${id}-note ${id}-status`}
+  data-signup-url={signupUrl}
+  data-signup-key={signupKey}
+  data-newsletter={newsletter}
 >
   <label for={`${id}-email`}>Email address</label>
   <div class="field-row">
-    <input id={`${id}-email`} name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby={enabled ? `${id}-status` : undefined} />
+    <input id={`${id}-email`} name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby={`${id}-status`} />
     <button type="submit" disabled>Subscribe</button>
   </div>
   <div class="honeypot" aria-hidden="true">
     <label for={`${id}-website`}>Leave this field empty</label>
     <input id={`${id}-website`} name="website" type="text" tabindex="-1" autocomplete="off" />
   </div>
-  {enabled && <p id={`${id}-status`} class="form-status" role="status" aria-live="polite"></p>}
+  <p id={`${id}-status`} class="form-status" role="status" aria-live="polite"></p>
   <p id={`${id}-note`} class="form-note">
     New posts by email. Confirm once, unsubscribe any time.{' '}
-    {!enabled && <span class="soon">Signup opens soon.</span>}
-    {enabled && <noscript><span class="soon">Signup needs JavaScript.</span></noscript>}
+    <noscript><span class="soon">Signup needs JavaScript.</span></noscript>
   </p>
 </form>
+) : (
+  <p id={`${id}-note`} class="signup-closed">Signup opens soon.</p>
+)}
 
 <script>
   type Signup = { status?: string; created?: boolean; inbox?: { name: string; url: string } | null };

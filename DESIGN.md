@@ -54,6 +54,11 @@ typography:
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.6
+  notice:
+    fontFamily: "Geist, system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.6
   label:
     fontFamily: "Space Mono, ui-monospace, monospace"
     fontSize: "0.6875rem"
@@ -100,6 +105,15 @@ components:
 ---
 
 # Design System: Sonwork
+
+## Project discovery and closed signup
+
+- The introduction and Hermes note remain first. Selected projects follow immediately; the exploration disclosure and full-About link sit below projects, before Contact. Visual, keyboard and screen-reader order use the same DOM at every width. Desktop retains the three-column project list.
+- Trivia Hub has separate Case study and Play actions. Only outbound links carry an outbound arrow. Both actions retain 44px targets.
+- While signup is closed, Home and `/subscribe` show a readable 1rem Geist notice instead of an email field and disabled button. The fourth header link is Contact, a native `/#home-contact` anchor with space below the sticky header. `/subscribe` retains its legacy removal information and Writing exit.
+- Build's live-game link has its own 44px-high target above the case-study row overlay, including its top and bottom padding. No JavaScript is needed.
+- Revealing Copy email does not change the email-row or footer geometry; the button aligns to the existing 44px row rather than a font-dependent baseline.
+- Chromium checks at 375x812 and 390x844 show the complete first-project actions in the opening viewport. Both themes also fit at 320px, 768px and 1440px without horizontal overflow. These are emulated viewports, not physical-phone or Safari evidence.
 
 ## Same-theme homepage polish (2026-11-10)
 

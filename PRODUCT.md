@@ -22,7 +22,7 @@ Son builds software with coding agents. He decides what gets built and how it sh
 
 - Static Astro 7 site, MDX content collections in `src/content/` (posts, work, side-projects, pages). Pages: home, work (with case studies), writing (with posts), about, subscribe, plus RSS and 404.
 - Content is written first and flipped from `draft: true` by Son once he approves it. Preview builds use `SHOW_DRAFTS=true`.
-- The launch keeps signup disabled with no PUBLIC_SIGNUP configuration. Retired newsletter links lead to truthful contact information and never claim an unsubscribe succeeded.
+- The launch keeps signup disabled with no PUBLIC_SIGNUP configuration. Closed signup is a notice, not an editable form; the header links to Contact. Retired newsletter links retain truthful contact information at `/subscribe` and never claim an unsubscribe succeeded.
 - About, Trivia Hub, Keymarchy and Perfeat are approved for publication. All three posts remain drafts and production RSS is empty.
 - Static file output uses canonical URLs without trailing slashes. The existing Cloudflare Worker serves current assets, redirects mapped old pages, returns 410 for retired APIs/assets, and keeps ordinary unknown paths at 404. Legacy readings remain preserved in the public Git parent history.
 
@@ -50,7 +50,7 @@ Son builds software with coding agents. He decides what gets built and how it sh
 ## Product Principles
 
 1. Prove, don't claim: show the shipped thing and its numbers before any adjective.
-2. About-first entrance: identity and a short first-person summary lead the home page. Projects support that introduction; Contact is reachable and the newsletter stays secondary.
+2. About-first entrance: identity and a short first-person summary lead the home page, followed by projects and their actions. Secondary About details follow projects; Contact is reachable and the newsletter stays secondary.
 3. Son's words only: copy comes from the content collections, never invented.
 4. Honest status: drafts, pre-alpha and disabled states are labelled as what they are.
 

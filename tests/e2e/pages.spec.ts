@@ -19,12 +19,18 @@ for (const path of builtPages()) {
       expect(rules).toEqual([{ prefetch: [{ where: { href_matches: '/*' }, eagerness: 'moderate' }] }]);
     });
 
-    test('marks its section in the main nav', async ({ page }) => {
+    test('marks its section without marking a Contact destination as the current page', async ({ page }) => {
       await page.goto(path);
       const nav = page.getByRole('navigation', { name: 'Main' });
       const current = nav.locator('a[aria-current="page"]');
-      await expect(current).toHaveCount(1);
-      await expect(current).toHaveAttribute('href', navSection(path));
+      if (navSection(path) === '/subscribe') {
+        await expect(current).toHaveCount(0);
+      } else {
+        await expect(current).toHaveCount(1);
+        await expect(current).toHaveAttribute('href', navSection(path));
+      }
+      await expect(nav.getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', '/#home-contact');
+      await expect(nav.getByRole('link', { name: 'Subscribe', exact: true })).toHaveCount(0);
     });
 
     test('has no horizontal scroll', async ({ page }) => {

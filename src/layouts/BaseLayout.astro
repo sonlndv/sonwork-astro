@@ -33,12 +33,14 @@ const canonical = new URL(path, Astro.site);
 // Shared world: every route carries the same mist ground, header scrim and browser-chrome tone.
 const lightTone = '#dfe4ea';
 
-// Home is the wordmark; the strip holds the four sections. Subscribe carries the accent only while signup is open.
+// Home is the wordmark; Contact replaces Subscribe while signup is closed.
 const nav = [
   { href: '/work', label: 'Build', accent: false },
   { href: '/writing', label: 'Writing', accent: false },
   { href: '/about', label: 'About', accent: false },
-  { href: '/subscribe', label: 'Subscribe', accent: signupOpen },
+  signupOpen
+    ? { href: '/subscribe', label: 'Subscribe', accent: true }
+    : { href: '/#home-contact', label: 'Contact', accent: false },
 ];
 
 // Same-site prefetch (speculation rules): Chromium starts loading a page when the pointer rests on its link or on press.

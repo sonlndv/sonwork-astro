@@ -21,7 +21,7 @@ const sum = (c: number[] | null) => c!.reduce((a, b) => a + b, 0);
 
 for (const [width, height] of [[375, 812], [390, 812], [390, 844]] as const) {
   for (const theme of ['dark', 'light'] as const) {
-    test(`phone ${width}x${height} ${theme}: opening is content-height and projects begin in view`, async ({ page }) => {
+    test(`phone ${width}x${height} ${theme}: opening is content-height and first project actions fit in view`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await seed(page, theme);
       await page.goto('/');
@@ -48,6 +48,11 @@ for (const [width, height] of [[375, 812], [390, 812], [390, 844]] as const) {
       expect(titleBox.y + titleBox.height).toBeLessThanOrEqual(height);
       expect(titleBox.height).toBeGreaterThanOrEqual(44);
       expect(titleBox.width).toBeGreaterThanOrEqual(44);
+      const actions = page.locator('.build-entry').first().locator('.build-action');
+      const actionsBox = (await actions.boundingBox())!;
+      expect(actionsBox.y + actionsBox.height).toBeLessThanOrEqual(height);
+      await expect(actions.getByRole('link', { name: /^Case study\b/ })).toBeInViewport();
+      await expect(actions.getByRole('link', { name: /^Play\b/ })).toBeInViewport();
       await expect(page.locator('.home-intro')).toBeVisible();
       await expect(page.locator('summary')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

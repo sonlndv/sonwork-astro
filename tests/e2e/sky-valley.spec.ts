@@ -442,8 +442,6 @@ test('native anchors/history/theme and disclosure/text/viewport changes retain u
     expect(await page.evaluate(() => innerWidth)).toBe(320);
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-    await expect(page.locator('.front-newsletter button')).toHaveCount(1);
-    await expect(page.locator('.front-newsletter button')).toBeDisabled();
     await note('reload-after-disclosure-and-text-resize');
     } finally {
       await testInfo.attach('native-scroll-and-settled-theme-history', { body: JSON.stringify(journey, null, 2), contentType: 'application/json' });
@@ -496,8 +494,6 @@ test('live reduced/forced changes and no-JS keep complete static scenery and con
     expectPose(await geometry(page), 0);
     expect(await scene(page).evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
     await expect(page.locator('.build-entry')).toHaveCount(3);
-    await expect(page.locator('.front-newsletter button')).toHaveCount(1);
-    await expect(page.locator('.front-newsletter button')).toBeDisabled();
   });
 });
 
@@ -996,7 +992,6 @@ test('night sky has finished reduced, constrained, denied-storage and no-JS alte
     await expect(page.locator('.mtn-ridge:visible .sv-cloud-shadow')).toHaveCount(3);
     expect(await scene(page).evaluate(el => Number(getComputedStyle(el).getPropertyValue('--sv-cloud-travel')))).toBe(0.52);
     await expect(page.locator('.home-intro')).toBeVisible();
-    await expect(page.locator('.front-newsletter button')).toBeDisabled();
   });
 });
 

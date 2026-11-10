@@ -48,8 +48,12 @@ for (const width of [375, 390]) for (const theme of ['dark', 'light'] as const) 
     expect(await noOverflow(page)).toBe(true);
     const intro = (await page.locator('.home-intro').boundingBox())!;
     expect(intro.y + intro.height).toBeLessThan(844);
-    const summary = (await page.locator('summary').boundingBox())!;
-    expect(summary.y + summary.height).toBeLessThan(844);
+    const firstProject = page.locator('.build-entry').first();
+    const actions = firstProject.locator('.build-action');
+    const actionsBox = (await actions.boundingBox())!;
+    expect(actionsBox.y + actionsBox.height).toBeLessThanOrEqual(844);
+    await expect(firstProject.getByRole('link', { name: /^Case study\b/ })).toBeInViewport();
+    await expect(firstProject.getByRole('link', { name: /^Play\b/ })).toBeInViewport();
 
     await link.click();
     await expect(page).toHaveURL(/#home-projects$/);
@@ -112,7 +116,7 @@ async function tabTo(page: Page, selector: string) {
 }
 
 const firstTitle = '.build-entry:first-child h3 a';
-const firstAction = '.build-entry:first-child .build-action a';
+const playAction = '.build-entry:first-child .build-action a[href="https://games.sonwork.org"]';
 
 for (const width of [375, 1440]) {
   test(`project title keyboard focus turns lume and keeps the native outline at ${width}`, async ({ page }) => {
@@ -141,6 +145,16 @@ for (const width of [375, 1440]) {
     });
     expect(outline.style).not.toBe('none');
     expect(outline.width).toBeGreaterThan(0);
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: /^Case study\b/ })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: /^Play\b/ })).toBeFocused();
+    await tabTo(page, '.home-build summary');
+    await page.keyboard.press('Enter');
+    await expect(page.locator('.home-build')).toHaveAttribute('open', '');
+    await expect(page.locator('.home-build p')).toBeVisible();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'Full About and contributions', exact: true })).toBeFocused();
   });
 }
 
@@ -153,9 +167,9 @@ test('project arrow nudges 2px on focus and fine-pointer hover only when motion 
     await page.goto(baseURL!);
     await page.evaluate(() => document.fonts.ready);
     expect(await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)).toBe(true);
-    const arrow = page.locator(`${firstAction} .arrow`).first();
+    const arrow = page.locator(`${playAction} .arrow`);
     await expect(arrow).toHaveCSS('transform', 'none');
-    await tabTo(page, firstAction);
+    await tabTo(page, playAction);
     if (reducedMotion === 'no-preference') {
       await expect(arrow).toHaveCSS('transition-duration', '0.16s');
       await expect(arrow).toHaveCSS('transform', nudged);
@@ -166,7 +180,7 @@ test('project arrow nudges 2px on focus and fine-pointer hover only when motion 
     await page.mouse.move(0, 0);
     await page.keyboard.press('Shift+Tab');
     await expect(arrow).toHaveCSS('transform', 'none');
-    await page.locator(firstAction).first().hover();
+    await page.locator(playAction).hover();
     await expect(arrow).toHaveCSS('transform', reducedMotion === 'no-preference' ? nudged : 'none');
     await context.close();
   }
