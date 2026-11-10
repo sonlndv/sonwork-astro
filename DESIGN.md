@@ -130,7 +130,7 @@ components:
 
 ## Project discovery and closed signup
 
-- The name and complete introduction lead directly into Selected projects, without a duplicate jump link. The Hermes note, exploration disclosure and full-About link follow projects, before Contact. Visual, keyboard and screen-reader order use the same DOM at every width. Desktop retains the three-column project list.
+- The name and complete introduction lead directly into Selected projects, without a duplicate jump link. A separate, named About section follows projects and precedes Contact; its heading and hairline divider use the same section style as Contact. The Hermes note, exploration disclosure and full-About link belong to this section, not Perfeat. Visual, keyboard and screen-reader order use the same DOM at every width. Desktop retains the three-column project list.
 - Trivia Hub puts Play before Case study. On phones, Play and Keymarchy's Live page use square outlined primary actions; Case study and Source remain secondary links. Hairline rules separate stacked projects. Outbound arrows and 44px minimum targets are retained.
 - Home has no closed newsletter section. Contact keeps the email address and Copy email; social destinations remain once in the shared footer. `/subscribe` keeps the noninteractive closed-signup notice, legacy removal information and Writing exit; existing article-footer notices are unchanged. The fourth header link remains a native `/#home-contact` anchor with space below the sticky header.
 - Build's live-game link has its own 44px-high target above the case-study row overlay, including its top and bottom padding. No JavaScript is needed.

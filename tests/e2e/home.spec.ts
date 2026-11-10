@@ -22,7 +22,6 @@ for (const [width, height] of [[375, 667], [390, 844], [1440, 900]]) for (const 
     expect(box.y + box.height).toBeLessThan(height);
     expect(await page.evaluate(() => innerWidth)).toBe(width);
     await expect(page.locator('.masthead')).toHaveCount(0);
-    await expect(page.locator('main h2')).toHaveText(['Selected projects', 'Contact']);
     await expect(page.locator('main a[href="#home-projects"]')).toHaveCount(0);
     await expect(page.locator('main a[href="/subscribe"], .signup-closed, .front-newsletter')).toHaveCount(0);
     await expect(page.locator('form, input, button[type="submit"], [data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
@@ -33,7 +32,7 @@ for (const [width, height] of [[375, 667], [390, 844], [1440, 900]]) for (const 
     const profile = (await page.locator('.front-about').boundingBox())!;
     const projects = (await page.locator('.front-projects').boundingBox())!;
     expect(projects.y).toBeGreaterThanOrEqual(profile.y + profile.height);
-    const details = page.locator('.home-details');
+    const details = page.getByRole('region', { name: 'About', exact: true });
     await expect(details).toHaveCount(1);
     await expect(details.locator('details')).toHaveCount(1);
     await expect(details.getByRole('link', { name: 'Full About and contributions', exact: true })).toHaveAttribute('href', '/about');

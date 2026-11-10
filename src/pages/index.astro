@@ -73,14 +73,17 @@ const builds = [
         </ul>
       </section>
 
-      <div class="home-details">
+      <section class="home-details" aria-labelledby="home-about">
+        <div class="section-head">
+          <h2 id="home-about">About</h2>
+        </div>
         <p class="hermes-note"><a href="https://hermes-agent.nousresearch.com/docs/">Hermes</a> is my main driver now. I use it to build things, try ideas, and learn as I go.</p>
         {copy?.homeBuild && <details class="home-build">
           <summary>What I'm exploring</summary>
           <p>{copy.homeBuild}</p>
         </details>}
         <a class="home-more" href="/about">Full About and contributions</a>
-      </div>
+      </section>
 
       <section class="front-contact" aria-labelledby="home-contact" data-valley-landmark="contact">
         <div class="section-head">
