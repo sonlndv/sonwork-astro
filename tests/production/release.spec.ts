@@ -15,9 +15,11 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
       await expect(page.locator('[data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
       await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', '/#home-contact');
-      if (path === '/' || path === '/subscribe') {
+      if (path === '/subscribe') {
         await expect(page.locator('.signup-closed')).toHaveText('Signup opens soon.');
         await expect(page.locator('.signup-closed')).toBeVisible();
+      } else if (path === '/') {
+        await expect(page.locator('.signup-closed')).toHaveCount(0);
       }
       if (path === '/subscribe') {
         await expect(page.locator('main')).toContainText('No subscription has been changed here.');
@@ -27,6 +29,11 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       if (path === '/') {
         await expect(page.locator('.home-intro')).toContainText('Vietnam');
         await expect(page.locator('.front-projects h3')).toHaveText(['Trivia Hub', 'Keymarchy', 'Perfeat']);
+        await expect(page.locator('main a[href="/subscribe"], .front-newsletter')).toHaveCount(0);
+        await expect(page.locator('.front-contact a')).toHaveCount(1);
+        await expect(page.locator('.home-details .hermes-note')).toHaveText('Hermes is my main driver now. I use it to build things, try ideas, and learn as I go.');
+        await expect(page.getByRole('link', { name: /^Play\b.*Trivia Hub$/ })).toHaveAttribute('href', 'https://games.sonwork.org');
+        await expect(page.getByRole('link', { name: /^Live page\b.*Keymarchy$/ })).toHaveAttribute('href', 'https://plugins.omarchy.org/plugin.html?id=sonlndv.vietkey');
       }
       if (path === '/writing') {
         await expect(page.locator('main a[href^="/writing/"]')).toHaveCount(1);

@@ -8,9 +8,7 @@
   flex: none;
 }
 
-/* Safety reflow, only when enlarged type no longer fits the original desktop masthead
-   (width < 45rem, i.e. 720px at default size). Default 768/1440 never match. Mirrors the
-   source's own mobile masthead: wordmark row above four equal nav columns. */
+/* Enlarged text reflows the desktop masthead to the same native phone navigation. */
 .bar {
   container-type: inline-size;
 }
@@ -19,6 +17,22 @@
   @container (width < 45rem) {
     .site-nav {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    .site-nav .nav-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: stretch;
+      justify-self: stretch;
+      gap: 0;
+      margin-right: 0;
+    }
+
+    .site-nav .theme-toggle {
+      height: auto;
+      border: 0;
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line-2);
     }
 
     .site-nav ul {
@@ -41,7 +55,6 @@
       height: auto;
       min-height: var(--hit);
       padding: 0 var(--s1);
-      font-size: 0.6875rem;
     }
   }
 }
@@ -145,7 +158,7 @@
   padding-inline-end: 4px;
 }
 
-.front-lead .hermes-note {
+.home-details .hermes-note {
   max-width: 65ch;
   margin: 0;
   color: var(--ink-2);
@@ -169,8 +182,8 @@
 .companion .eye { transform-box: fill-box; transform-origin: 50% 50%; --sy: 1; transform: scaleY(var(--sy)); }
 .companion .eye-r { --sy: 0.82; }
 
-/* Homepage builds: three equal, unboxed entries on one shared title / status / summary / action
-   rhythm. Proximity and whitespace do the grouping; the section head's rule is the only boundary. */
+/* Homepage builds share unboxed title / status / summary / action tracks on desktop.
+   Phone-specific separation and action hierarchy live in the Home stylesheet. */
 .front-projects {
   container-type: inline-size;
 }

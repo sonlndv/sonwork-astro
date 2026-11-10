@@ -10,19 +10,35 @@ draft: false
 ---
 
 <figure style={{ margin: '0 0 2rem' }}>
-  <img
-    src="/images/trivia-hub-october-2026.webp"
-    srcset="/images/trivia-hub-october-2026-480.webp 480w, /images/trivia-hub-october-2026-800.webp 800w, /images/trivia-hub-october-2026.webp 1440w"
-    sizes="(max-width: 640px) calc(100vw - 32px), 640px"
-    width="1440"
-    height="900"
-    loading="eager"
-    fetchpriority="high"
-    decoding="async"
-    alt="Trivia Hub's navy game hub with Lock, Word, Scale, Fermi and Answers."
-    style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
-  />
-  <figcaption>Trivia Hub, October 2026 development capture.</figcaption>
+  <picture>
+    <source
+      media="(max-width: 640px)"
+      type="image/webp"
+      srcset="/images/trivia-hub-lock-phone-october-2026-420.webp 420w, /images/trivia-hub-lock-phone-october-2026-700.webp 700w"
+      sizes="calc(100vw - 32px)"
+      width="700"
+      height="800"
+    />
+    <img
+      src="/images/trivia-hub-october-2026.webp"
+      srcset="/images/trivia-hub-october-2026-480.webp 480w, /images/trivia-hub-october-2026-800.webp 800w, /images/trivia-hub-october-2026.webp 1440w"
+      sizes="(max-width: 640px) calc(100vw - 32px), 640px"
+      width="1440"
+      height="900"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      alt="Trivia Hub's navy-and-gold interface for its daily games."
+      style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
+    />
+  </picture>
+  <figcaption>
+    Trivia Hub, October 2026 development imagery. Phone preview: Lock detail; desktop preview: hub overview.
+    <ul class="links capture-links">
+      <li><a href="/images/trivia-hub-phone-october-2026.webp">Phone screenshot (full size)</a></li>
+      <li><a href="/images/trivia-hub-october-2026.webp">Desktop screenshot (full size)</a></li>
+    </ul>
+  </figcaption>
 </figure>
 
 I like daily trivia games. The trouble is that each one lives on its own site, and every game has its own tab, its own reset time and its own streak to remember. So I built one hub for the games I want to play every day.

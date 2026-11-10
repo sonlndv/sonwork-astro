@@ -274,7 +274,7 @@ main > * {
   text-transform: uppercase;
 }
 
-/* Header: a ruled bar. Phone: wordmark and toggle, then a 4-cell strip. */
+/* Header: branding scrolls away on phones; native navigation and theme control remain. */
 
 .site-header {
   position: sticky;
@@ -335,9 +335,7 @@ body.home-study .site-header {
 }
 
 .theme-toggle {
-  position: absolute;
-  top: 4px;
-  right: calc(var(--gutter) - 4px);
+  position: static;
   display: none;
   place-items: center;
   width: var(--hit);
@@ -385,6 +383,40 @@ body.home-study .site-header {
 .site-nav {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+}
+
+.nav-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+}
+
+.nav-controls .theme-toggle {
+  height: auto;
+  min-height: var(--hit);
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line-2);
+}
+
+@media (max-width: 719px), (hover: none) and (pointer: coarse) {
+  body.home-study .site-header {
+    background: light-dark(#e5e9ee, #04070e);
+  }
+
+  .site-header::after {
+    content: none;
+  }
+}
+
+@media (max-width: 719px) {
+  .site-header {
+    top: -52px;
+  }
+
+  .site-header:has(:focus-visible) {
+    top: 0;
+  }
 }
 
 /* Narrow: four equal columns at normal size; whole labels wrap onto a new row (never clip or shrink)
@@ -441,11 +473,19 @@ body.home-study .site-header {
     align-items: stretch;
   }
 
+  .nav-controls {
+    display: flex;
+    align-items: center;
+    justify-self: end;
+    gap: var(--s2);
+    margin-right: var(--gutter);
+  }
+
   .site-nav ul {
     display: grid;
     grid-template-columns: repeat(4, auto);
-    justify-self: end;
-    margin-right: calc(var(--hit) + var(--gutter) + 8px);
+    min-height: 56px;
+    margin-right: 0;
     border-top: 0;
     border-left: 1px solid var(--line-2);
   }
@@ -472,8 +512,9 @@ body.home-study .site-header {
     letter-spacing: 0.06em;
   }
 
-  .theme-toggle {
-    top: 6px;
+  .nav-controls .theme-toggle {
+    height: var(--hit);
+    border: 1px solid var(--line);
   }
 }
 
@@ -1134,9 +1175,6 @@ body.home-study .site-header {
   display: none;
 }
 
-.front-newsletter .subscribe-form {
-  margin: 0;
-}
 
 @media (min-width: 900px) {
   .front {
@@ -1163,8 +1201,7 @@ body.home-study .site-header {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .front-contact,
-  .front-newsletter {
+  .front-contact {
     max-width: 48rem;
     width: 100%;
   }
@@ -1323,6 +1360,24 @@ body.home-study .site-header {
   color: var(--ink-3);
   font-size: 0.875rem;
   line-height: 1.6;
+}
+
+.prose .capture-links {
+  margin: var(--s2) 0 0;
+  padding: 0;
+}
+
+.prose .capture-links li {
+  margin: 0;
+  padding: 0;
+}
+
+.prose .capture-links li::marker {
+  content: none;
+}
+
+.prose .capture-links a {
+  font-size: 0.875rem;
 }
 
 .prose > :first-child {

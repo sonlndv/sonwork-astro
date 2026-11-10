@@ -90,9 +90,11 @@ export async function verifyRelease(base, expectedSha, output) {
       assert.doesNotMatch(body, /<form\b|<input\b|<button\b[^>]*type="submit"/);
       assert.match(body, /<a\b[^>]*href="\/#home-contact"[^>]*>Contact<\/a>/);
       assert.doesNotMatch(body, /<a\b[^>]*href="\/subscribe"[^>]*>Subscribe<\/a>/);
-      if (path === '/' || path === '/subscribe') {
+      if (path === '/subscribe') {
         const notices = [...body.matchAll(/<p\b[^>]*class="signup-closed"[^>]*>Signup opens soon\.<\/p>/g)];
-        assert.equal(notices.length, 1, 'closed signup must show one noninteractive notice');
+        assert.equal(notices.length, 1, 'legacy Subscribe must show one noninteractive notice');
+      } else if (path === '/') {
+        assert.doesNotMatch(body, /<p\b[^>]*class=["'][^"']*\bsignup-closed\b/);
       }
       if (path === '/') for (const text of ["I'm Son", 'Trivia Hub', 'Keymarchy', 'Perfeat']) assert.ok(body.includes(text), `missing ${text}`);
       if (path === '/about') assert.match(body, /business guy in Vietnam/);

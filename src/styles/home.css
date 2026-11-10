@@ -1,0 +1,30 @@
+@media (max-width: 719px) {
+  .front-about.front-lead { gap: var(--s4); }
+  .front:has(> .front-about) {
+    gap: var(--s5);
+    padding-top: var(--s5);
+  }
+  .front-about h1 {
+    justify-self: start;
+    font-size: clamp(3.25rem, 15vw, 4rem);
+    line-height: 1.04;
+  }
+
+  .front-projects .build-list { gap: var(--s5); }
+  .front-projects .build-entry + .build-entry {
+    border-top: 1px solid var(--line);
+    padding-top: var(--s5);
+  }
+  .build-entry .build-action {
+    align-items: center;
+    gap: var(--s2) var(--s4);
+  }
+  .build-entry .build-action .primary-action {
+    min-height: var(--hit);
+    padding-inline: var(--s4);
+    border: 1px solid var(--lume);
+    border-radius: 0;
+    background: var(--void);
+    color: var(--lume);
+  }
+}

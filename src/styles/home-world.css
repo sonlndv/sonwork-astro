@@ -247,7 +247,7 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] :is(.sv-ow-a,
   body.home-study .mtn-scene[data-world][data-mode='home'] .sv-ow-b { display: none; }
 }
 @media (max-width: 719px) {
-  body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-h: calc(98px + (1rem - 16px) * 2.75); }
+  body.home-study .mtn-scene[data-world][data-mode='home'] { --ow-h: calc(98px + env(safe-area-inset-top, 0px) + (1rem - 16px) * 2.75); }
 }
 
 /* Orthographic phase. Each .sv-ow-shade holds three nested copies of the unlit region of a sphere (unit-disk paths
@@ -424,7 +424,7 @@ body.home-study .mtn-scene[data-world][data-mode='home'] .sv-hs-planet > .sv-ow-
 /* The old page-attached veil and its per-paragraph predecessors are retired: nothing scrolls over the fixed bodies. This one
    explicit guard keeps every such pseudo-element absent on Home. */
 body:has(.mtn-scene[data-mode='home']) .front::before,
-body:has(.mtn-scene[data-mode='home']) :is(.home-intro, .hermes-note, .home-build, .home-more, .front-projects, .front-contact, .front-newsletter)::before { content: none; display: none; }
+body:has(.mtn-scene[data-mode='home']) :is(.home-intro, .hermes-note, .home-build, .home-more, .front-projects, .front-contact)::before { content: none; display: none; }
 /* The decorative cursor star fades rather than snapping (its gating lives in mountains.js). */
 body.home-study:has(.mtn-scene[data-mode='home']) .ow-star[data-on] { transition: opacity 140ms linear; } /* fade in only: every hide is immediate */
 
@@ -481,16 +481,15 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] { --ow-vm-ear
     --ow-gy: calc(var(--ow-h) + 120px - var(--ow-gr));
   }
 }
-/* Phone: Neptune moves up and right to free the clear pocket; Earth keeps real breathing room from the link and hairline. */
+/* Phone: keep Neptune overhead and Earth beside the title, clear of the earlier introduction. */
 @media (max-aspect-ratio: 5/4) and (max-width: 719px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
-    --ow-gx: calc(100vw + 45px);
-    --ow-gy: calc(var(--ow-h) + 127px - var(--ow-gr));
-    /* Far tier (about 0.6x of the former 22px radius), moved right and slightly down so it sits at least 32px from the
-       heading box (the heading's right edge is about 256px on a 390px phone) and clear of Neptune's lower-left limb. */
+    --ow-gx: calc(100vw + 80px);
+    --ow-gy: calc(var(--ow-h) + 88px - var(--ow-gr));
+    /* The title uses its intrinsic width, leaving a clear right-hand sky pocket. */
     --ow-br: calc(13px * var(--ow-gk));
     --ow-bx: 308px;
-    --ow-by: calc(var(--ow-h) + 128px);
+    --ow-by: calc(var(--ow-h) + 53px);
   }
 }
 /* Tablet portrait (720-899px), static in both themes: a larger Neptune that reads as a real curved quarter-body (radius 36vw,
@@ -515,8 +514,8 @@ body.home-study .mtn-scene[data-world][data-mode='home'][data-big] { --ow-vm-ear
 @media (max-aspect-ratio: 5/4) and (max-width: 359px) {
   body.home-study .mtn-scene[data-world][data-mode='home'] {
     --ow-br: calc(9px * var(--ow-gk));
-    --ow-bx: calc(100vw - 14px);
-    --ow-by: calc(var(--ow-h) + 132px);
+    --ow-bx: calc(100vw - 56px);
+    --ow-by: calc(var(--ow-h) + 53px);
   }
 }
 

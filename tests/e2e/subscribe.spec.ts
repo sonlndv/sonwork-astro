@@ -4,13 +4,19 @@ for (const javaScriptEnabled of [true, false]) for (const colorScheme of ['dark'
   test.describe(`closed signup JS=${javaScriptEnabled} ${colorScheme}`, () => {
     test.use({ javaScriptEnabled, colorScheme });
 
-    test('Home and the legacy Subscribe page show a notice, not an editable signup', async ({ page }) => {
+    test('only legacy Subscribe shows a closed notice; Home has no signup affordance', async ({ page }) => {
       for (const path of ['/', '/subscribe/']) {
         await page.goto(path);
         const notice = page.locator('.signup-closed');
-        await expect(notice).toHaveCount(1);
-        await expect(notice).toHaveText('Signup opens soon.');
-        await expect(notice).toBeVisible();
+        if (path === '/subscribe/') {
+          await expect(notice).toHaveCount(1);
+          await expect(notice).toHaveText('Signup opens soon.');
+          await expect(notice).toBeVisible();
+        } else {
+          await expect(notice).toHaveCount(0);
+          await expect(page.locator('main a[href="/subscribe"], .front-newsletter')).toHaveCount(0);
+          await expect(page.getByRole('heading', { name: 'Newsletter', exact: true })).toHaveCount(0);
+        }
         await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
         await expect(page.locator('[data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
         await expect(page.locator('.form-status')).toHaveCount(0);

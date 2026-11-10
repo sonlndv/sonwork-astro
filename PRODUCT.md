@@ -12,7 +12,7 @@ People who come across Son's work: developers, people in the Omarchy and coding-
 
 ## Product Purpose
 
-Sonwork (sonwork.org) is Son's portfolio and writing site, with a disabled newsletter signup. The entrance is an About page: visitors first understand who Son is and how he builds, then explore real projects or contact him. The newsletter is secondary near the bottom.
+Sonwork (sonwork.org) is Son's portfolio and writing site, with newsletter signup disabled. The entrance is About-first: visitors understand who Son is and how he builds, then explore real projects or contact him. Closed newsletter information remains at `/subscribe`, not on the homepage.
 
 ## Positioning
 
@@ -22,8 +22,8 @@ Son builds software with coding agents. He decides what gets built and how it sh
 
 - Static Astro 7 site, MDX content collections in `src/content/` (posts, work, side-projects, pages). Pages: home, work (with case studies), writing (with posts), about, subscribe, plus RSS and 404.
 - Content is written first and flipped from `draft: true` by Son once he approves it. Preview builds use `SHOW_DRAFTS=true`.
-- The launch keeps signup disabled with no PUBLIC_SIGNUP configuration. Closed signup is a notice, not an editable form; the header links to Contact. Retired newsletter links retain truthful contact information at `/subscribe` and never claim an unsubscribe succeeded.
-- About, Trivia Hub, Keymarchy and Perfeat are approved for publication. All three posts remain drafts and production RSS is empty.
+- The launch keeps signup disabled with no PUBLIC_SIGNUP configuration. `/subscribe` shows a notice, not an editable form; Home omits the closed-signup section and the header links to Contact. Retired newsletter links retain truthful contact information at `/subscribe` and never claim an unsubscribe succeeded.
+- About, Trivia Hub, Keymarchy and Perfeat are approved for publication. The three original posts remain drafts; the separately approved Note is published and supplies the single production RSS item.
 - Static file output uses canonical URLs without trailing slashes. The existing Cloudflare Worker serves current assets, redirects mapped old pages, returns 410 for retired APIs/assets, and keeps ordinary unknown paths at 404. Legacy readings remain preserved in the public Git parent history.
 
 ## Capabilities and Constraints
@@ -50,7 +50,7 @@ Son builds software with coding agents. He decides what gets built and how it sh
 ## Product Principles
 
 1. Prove, don't claim: show the shipped thing and its numbers before any adjective.
-2. About-first entrance: identity and a short first-person summary lead the home page, followed by projects and their actions. Secondary About details follow projects; Contact is reachable and the newsletter stays secondary.
+2. About-first entrance: identity and the complete first-person summary lead directly into projects and their actions. Secondary About details follow projects; Contact is reachable and social links stay in the shared footer.
 3. Son's words only: copy comes from the content collections, never invented.
 4. Honest status: drafts, pre-alpha and disabled states are labelled as what they are.
 

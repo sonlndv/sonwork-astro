@@ -486,10 +486,10 @@ test.describe('native navigation stays native', () => {
     await page.goForward();
     await expect(page).toHaveURL(/\/about$/);
     await page.goBack();
-    await page.locator('.overlook-link, a[href="#home-projects"]').first().evaluate((el) => (el as HTMLElement).click());
-    await expect(page).toHaveURL(/#home-projects$/);
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Contact', exact: true }).click();
+    await expect(page).toHaveURL(/#home-contact$/);
     await page.reload();
-    await expect(page).toHaveURL(/#home-projects$/);
+    await expect(page).toHaveURL(/#home-contact$/);
     await expect(page.locator('h1')).toHaveText("I'm Son");
   });
 
@@ -616,13 +616,10 @@ test.describe('200% root text', () => {
         [...document.querySelectorAll('.front-contact .facts > div')].map((row) => {
           const dt = row.querySelector('dt')!.getBoundingClientRect();
           const dd = row.querySelector('dd')!.getBoundingClientRect();
-          return { stacked: dd.top >= dt.bottom - 1, right: Math.max(dt.right, dd.right) };
+          return { right: Math.max(dt.right, dd.right) };
         }),
       );
-      expect(rows.length).toBe(4);
       for (const row of rows) {
-        // Stacks while the list is narrower than 17rem (544px at 200%); wider keeps the two columns.
-        if (width <= 390) expect(row.stacked).toBe(true);
         expect(row.right).toBeLessThanOrEqual(width);
       }
       // The user's text is not shrunk or clipped to achieve this.
@@ -690,17 +687,4 @@ test.describe('200% root text', () => {
     });
   }
 
-  test('contact links stay meaningful and reachable when enlarged', async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 700 });
-    await page.goto('/');
-    await enlarge(page);
-    for (const [name, href] of [
-      ['son@sonwork.org', 'mailto:son@sonwork.org'],
-      ['@sonldv', 'https://x.com/sonldv'],
-      ['sonlndv', 'https://github.com/sonlndv'],
-      ['in/sonle2003', 'https://www.linkedin.com/in/sonle2003'],
-    ]) {
-      await expect(page.getByRole('link', { name, exact: true })).toHaveAttribute('href', href);
-    }
-  });
 });

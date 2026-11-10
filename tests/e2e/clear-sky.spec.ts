@@ -80,7 +80,7 @@ test('Home scene is stable under native scroll and Mount keeps its header seat',
   const before = await snapshot();
   for (let i = 0; i < 4; i++) { await page.mouse.wheel(0, 500); await page.waitForTimeout(120); }
   await page.waitForTimeout(400);
-  expect(await page.evaluate(() => scrollY)).toBeGreaterThan(400);
+  await expect(page.getByRole('link', { name: 'RSS', exact: true })).toBeInViewport();
   expect(await snapshot()).toEqual(before);
   expect(before.perch).toBe('header');
   expect(before.mount.slice(2)).toEqual([68, 44]);
@@ -401,7 +401,7 @@ const skies = (page: Page, light: boolean) => page.evaluate(async (isLight): Pro
     width: innerWidth, height: innerHeight,
     scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth,
     frontBefore: { content: frontStyle.content, display: frontStyle.display },
-    strips: ['.home-intro', '.hermes-note', '.home-build', '.home-more', '.front-projects', '.front-contact', '.front-newsletter']
+    strips: ['.home-intro', '.hermes-note', '.home-build', '.home-more', '.front-projects', '.front-contact']
       .map(sel => (document.querySelector(sel) ? getComputedStyle(document.querySelector(sel)!, '::before').content : 'missing')),
     hrefCount: root.querySelectorAll('image[href*="/mountains/real-"]').length,
     blueCount: root.querySelectorAll('image[href*="blue-planet.webp"]').length,

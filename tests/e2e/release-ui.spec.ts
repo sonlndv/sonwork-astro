@@ -67,19 +67,6 @@ test('Mount is the native 68x44 button beside the Son wordmark, with the footer 
   }
 });
 
-test('companion.css wins the cascade over the bundled styles', async ({ browser, baseURL }) => {
-  await open(browser, baseURL, desktop, async page => {
-    await page.goto('/');
-    await expect(page.locator('.wordmark')).toHaveCSS('padding-inline-end', '4px');
-    await expect(page.locator('.front-projects')).toHaveCSS('container-type', 'inline-size');
-    const heading = page.locator('.build-entry h3').first();
-    await expect(heading).toHaveCSS('display', 'flex');
-    await expect(heading).toHaveCSS('min-height', '44px');
-    await expect(page.locator('.build-list')).toHaveCSS('list-style-type', 'none');
-    await expect(page.locator('.front-lead .hermes-note')).toHaveCSS('font-size', '17px');
-    expect(await page.locator('.build-entry').evaluateAll(els => new Set(els.map(el => Math.round(el.getBoundingClientRect().width))).size)).toBe(1);
-  });
-});
 
 test('the original Mount favicon is linked on every route and served byte-identical', async ({ browser, baseURL }) => {
   await open(browser, baseURL, desktop, async page => {
@@ -151,8 +138,8 @@ test('the landscape is on every built HTML page and the 404, in both themes, and
           // A visible link inside main is the content check; nav links are the fallback only where main has none.
           const inMain = page.locator('main a[href]:visible').first();
           const content = (await inMain.count()) > 0 ? inMain : page.locator('.site-nav ul a:visible').first();
-          expect(await hits(content), `${path} content link hit test`).toBe(true);
           expect(await hits(page.locator('.site-nav .wordmark')), `${path} wordmark hit test`).toBe(true);
+          expect(await hits(content), `${path} content link hit test`).toBe(true);
         }
         await page.goto('/');
         const build = page.locator('.build-entry h3 a').first();

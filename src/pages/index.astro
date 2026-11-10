@@ -2,15 +2,14 @@
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CopyEmail from '../components/CopyEmail.astro';
-import SubscribeForm from '../components/SubscribeForm.astro';
 import { isVisible } from '../lib/content';
-import '../styles/overlook.css';
+import '../styles/home.css';
 
 const about = await getEntry('pages', 'about');
 const copy = about && isVisible(about) ? about.data : undefined;
 const intro = copy?.homeIntro;
 
-// Three equally weighted, unboxed entries. Summaries are fixed copy; destinations are the published ones.
+// Unboxed entries. Summaries are fixed copy; destinations are the published ones.
 const builds = [
   {
     name: 'Trivia Hub',
@@ -18,8 +17,8 @@ const builds = [
     status: 'Live',
     desc: 'Daily games with one shared reset.',
     links: [
-      { href: '/work/trivia-hub', label: 'Case study' },
-      { href: 'https://games.sonwork.org', label: 'Play' },
+      { href: 'https://games.sonwork.org', label: 'Play', primary: true },
+      { href: '/work/trivia-hub', label: 'Case study', primary: false },
     ],
   },
   {
@@ -27,8 +26,8 @@ const builds = [
     status: 'Listed',
     desc: 'Type in English and Vietnamese on Omarchy.',
     links: [
-      { href: 'https://plugins.omarchy.org/plugin.html?id=sonlndv.vietkey', label: 'Live page' },
-      { href: 'https://github.com/sonlndv/omarchy-vietkey', label: 'Source' },
+      { href: 'https://plugins.omarchy.org/plugin.html?id=sonlndv.vietkey', label: 'Live page', primary: true },
+      { href: 'https://github.com/sonlndv/omarchy-vietkey', label: 'Source', primary: false },
     ],
   },
   {
@@ -38,22 +37,12 @@ const builds = [
     links: [],
   },
 ];
-const contact = [
-  { label: 'Email', value: 'son@sonwork.org', href: 'mailto:son@sonwork.org' },
-  { label: 'X', value: '@sonldv', href: 'https://x.com/sonldv' },
-  { label: 'GitHub', value: 'sonlndv', href: 'https://github.com/sonlndv' },
-  { label: 'LinkedIn', value: 'in/sonle2003', href: 'https://www.linkedin.com/in/sonle2003' },
-];
 ---
 <BaseLayout title="Son" description={copy?.description ?? 'Software, writing and a newsletter from Son.'}>
   <div class="front">
     <section class="front-lead front-about" aria-labelledby="home-title" data-valley-landmark="entry">
-      <div class="home-overlook" data-home-direction="valley-overlook-r4">
-        <h1 id="home-title">{copy?.homeTitle ?? 'About'}</h1>
-        <a class="overlook-link" href="#home-projects">Selected projects<svg class="overlook-arrow" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2v8M2.5 6.5L6 10l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg></a>
-      </div>
+      <h1 id="home-title">{copy?.homeTitle ?? 'About'}</h1>
       {intro && <p class="home-intro">{intro}</p>}
-      <p class="hermes-note"><a href="https://hermes-agent.nousresearch.com/docs/">Hermes</a> is my main driver now. I use it to build things, try ideas, and learn as I go.</p>
     </section>
 
     <div class="front-main">
@@ -72,7 +61,7 @@ const contact = [
                 <ul class="links build-action">
                   {build.links.map((link) => (
                     <li>
-                      <a href={link.href}>{link.label}{link.href.startsWith('https://') && <svg class="arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 8L8 2M3.5 2H8v4.5" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg>}<span class="visually-hidden">: {build.name}</span></a>
+                      <a class:list={{ 'primary-action': link.primary }} href={link.href}>{link.label}{link.href.startsWith('https://') && <svg class="arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 8L8 2M3.5 2H8v4.5" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg>}<span class="visually-hidden">: {build.name}</span></a>
                     </li>
                   ))}
                 </ul>
@@ -85,6 +74,7 @@ const contact = [
       </section>
 
       <div class="home-details">
+        <p class="hermes-note"><a href="https://hermes-agent.nousresearch.com/docs/">Hermes</a> is my main driver now. I use it to build things, try ideas, and learn as I go.</p>
         {copy?.homeBuild && <details class="home-build">
           <summary>What I'm exploring</summary>
           <p>{copy.homeBuild}</p>
@@ -97,15 +87,11 @@ const contact = [
           <h2 id="home-contact">Contact</h2>
         </div>
         <dl class="facts">
-          {contact.map((link) => <div>
-            <dt>{link.label}</dt>
-            <dd><a href={link.href}>{link.value}</a>{link.label === 'Email' && <CopyEmail />}</dd>
-          </div>)}
+          <div>
+            <dt>Email</dt>
+            <dd><a href="mailto:son@sonwork.org">son@sonwork.org</a><CopyEmail /></dd>
+          </div>
         </dl>
-      </section>
-      <section class="front-newsletter" aria-labelledby="home-newsletter" data-valley-landmark="ending">
-        <div class="section-head"><h2 id="home-newsletter">Newsletter</h2></div>
-        <SubscribeForm id="home-subscribe" />
       </section>
     </div>
   </div>

@@ -19,27 +19,19 @@ const stops = (page: Page) =>
   });
 const sum = (c: number[] | null) => c!.reduce((a, b) => a + b, 0);
 
-for (const [width, height] of [[375, 812], [390, 812], [390, 844]] as const) {
+for (const [width, height] of [[375, 667], [375, 812], [390, 812], [390, 844]] as const) {
   for (const theme of ['dark', 'light'] as const) {
-    test(`phone ${width}x${height} ${theme}: opening is content-height and first project actions fit in view`, async ({ page }) => {
+    test(`phone ${width}x${height} ${theme}: opening and primary action fit in view`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await seed(page, theme);
       await page.goto('/');
       await page.evaluate(() => document.fonts.ready);
       const h1 = (await page.locator('h1').boundingBox())!;
-      const jump = (await page.locator('.overlook-link').boundingBox())!;
-      const wrapper = (await page.locator('.home-overlook').boundingBox())!;
-      const gap = jump.y - (h1.y + h1.height);
-      expect(gap).toBeGreaterThanOrEqual(8);
-      expect(gap).toBeLessThanOrEqual(24);
-      expect(wrapper.height).toBeLessThanOrEqual(h1.height + 24 + jump.height + 2);
-      expect(jump.height).toBeGreaterThanOrEqual(44);
       const lineHeight = parseFloat(await page.locator('h1').evaluate((el) => getComputedStyle(el).lineHeight));
       // R7: the unchanged-size name is a single line at ordinary phone sizes.
       expect(h1.height).toBeGreaterThanOrEqual(lineHeight * 0.9);
       expect(h1.height).toBeLessThanOrEqual(lineHeight * 1.1);
       expect(h1.x + h1.width).toBeLessThanOrEqual(width);
-      expect(parseFloat(await page.locator('h1').evaluate((el) => getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(52);
       const head = (await page.locator('#home-projects').boundingBox())!;
       expect(head.y).toBeLessThan(height);
       // The whole genuine 44px native Trivia Hub title target is inside the first viewport.
@@ -48,11 +40,12 @@ for (const [width, height] of [[375, 812], [390, 812], [390, 844]] as const) {
       expect(titleBox.y + titleBox.height).toBeLessThanOrEqual(height);
       expect(titleBox.height).toBeGreaterThanOrEqual(44);
       expect(titleBox.width).toBeGreaterThanOrEqual(44);
-      const actions = page.locator('.build-entry').first().locator('.build-action');
-      const actionsBox = (await actions.boundingBox())!;
-      expect(actionsBox.y + actionsBox.height).toBeLessThanOrEqual(height);
-      await expect(actions.getByRole('link', { name: /^Case study\b/ })).toBeInViewport();
-      await expect(actions.getByRole('link', { name: /^Play\b/ })).toBeInViewport();
+      const primary = page.locator('.build-entry').first().getByRole('link', { name: /^Play\b/ });
+      const actionBox = (await primary.boundingBox())!;
+      expect(actionBox.y).toBeGreaterThanOrEqual(0);
+      expect(actionBox.y + actionBox.height).toBeLessThanOrEqual(height);
+      expect(actionBox.height).toBeGreaterThanOrEqual(44);
+      expect(await page.evaluate(() => scrollY)).toBe(0);
       await expect(page.locator('.home-intro')).toBeVisible();
       await expect(page.locator('summary')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -74,23 +67,19 @@ test('phone: a real touch tap on the in-fold Trivia Hub title navigates', async 
   await context.close();
 });
 
-test('static fallback without JS keeps the same compact opening', async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 812 } });
+test('static fallback without JS keeps the primary action and full introduction', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 375, height: 667 } });
   const page = await context.newPage();
   await page.goto('/');
-  const h1 = (await page.locator('h1').boundingBox())!;
-  const jump = (await page.locator('.overlook-link').boundingBox())!;
-  const gap = jump.y - (h1.y + h1.height);
-  expect(gap).toBeGreaterThanOrEqual(8);
-  expect(gap).toBeLessThanOrEqual(24);
+  await page.evaluate(() => document.fonts.ready);
+  const primary = page.locator('.build-entry').first().getByRole('link', { name: /^Play\b/ });
+  await expect(primary).toHaveAttribute('href', 'https://games.sonwork.org');
+  const action = (await primary.boundingBox())!;
+  expect(action.y + action.height).toBeLessThanOrEqual(667);
+  await expect(page.locator('.home-intro')).toContainText("I'm curious how far this can go as AI gets smarter.");
+  await expect(page.locator('.home-details .hermes-note')).toHaveCount(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await context.close();
-});
-
-test('at 720px and wider the opening keeps its default geometry', async ({ page }) => {
-  await page.setViewportSize({ width: 720, height: 900 });
-  await page.goto('/');
-  await expect(page.locator('.home-overlook')).toHaveCSS('display', 'contents');
-  await expect(page.locator('.overlook-link')).toBeHidden();
 });
 
 test.describe('valley paint in both themes', () => {

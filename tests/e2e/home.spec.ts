@@ -4,9 +4,9 @@ import AxeBuilder from '@axe-core/playwright';
 const approvedIntro = "I'm Son, a business guy in Vietnam. I don't have a software engineering background. I'm figuring out what I can build with AI, learning as I go, and writing down what works and what doesn't. I'm curious how far this can go as AI gets smarter.";
 const approvedBuild = "I'm a business guy trying to build things with AI and figure out what a future with superintelligence might mean for people like me.";
 const approvedDescription = 'Son is a business guy in Vietnam, learning to build things with AI and writing down what works and what does not.';
-for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const) {
+for (const [width, height] of [[375, 667], [390, 844], [1440, 900]]) for (const theme of ['dark', 'light'] as const) {
   test(`About-first home ${width} ${theme}`, async ({ page }) => {
-    await page.setViewportSize({ width, height: width === 390 ? 844 : 900 });
+    await page.setViewportSize({ width, height });
     await page.addInitScript(t => localStorage.setItem('theme', t), theme);
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
@@ -19,17 +19,17 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     expect(words).toBeLessThanOrEqual(60);
     await expect(intro).toContainText('Vietnam');
     const box = (await intro.boundingBox())!;
-    expect(box.y + box.height).toBeLessThan(width === 390 ? 844 : 900);
+    expect(box.y + box.height).toBeLessThan(height);
     expect(await page.evaluate(() => innerWidth)).toBe(width);
     await expect(page.locator('.masthead')).toHaveCount(0);
-    await expect(page.locator('main h2')).toHaveText(['Selected projects', 'Contact', 'Newsletter']);
-    const notice = page.locator('.front-newsletter .signup-closed');
-    await expect(notice).toBeVisible();
-    await expect(page.locator('form.subscribe-form, .front-newsletter input')).toHaveCount(0);
-    const newsletter = (await page.locator('.front-newsletter').boundingBox())!;
+    await expect(page.locator('main h2')).toHaveText(['Selected projects', 'Contact']);
+    await expect(page.locator('main a[href="#home-projects"]')).toHaveCount(0);
+    await expect(page.locator('main a[href="/subscribe"], .signup-closed, .front-newsletter')).toHaveCount(0);
+    await expect(page.locator('form, input, button[type="submit"], [data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
     const contact = (await page.locator('.front-contact').boundingBox())!;
-    expect(newsletter.y).toBeGreaterThanOrEqual(contact.y + contact.height);
-    expect(newsletter.y).toBeGreaterThanOrEqual(844);
+    await expect(page.locator('.front-contact a')).toHaveCount(1);
+    await expect(page.locator('.front-contact a')).toHaveAttribute('href', 'mailto:son@sonwork.org');
+    await expect(page.locator('.front-contact button')).toHaveAccessibleName('Copy email');
     const profile = (await page.locator('.front-about').boundingBox())!;
     const projects = (await page.locator('.front-projects').boundingBox())!;
     expect(projects.y).toBeGreaterThanOrEqual(profile.y + profile.height);
@@ -42,6 +42,13 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     expect(contact.y).toBeGreaterThanOrEqual(detailsBox.y + detailsBox.height);
     await expect(page.getByText(approvedIntro, { exact: true })).toHaveCount(1);
     await expect(page.locator('.hermes-note')).toHaveText('Hermes is my main driver now. I use it to build things, try ideas, and learn as I go.');
+    await expect(details.locator('.hermes-note')).toHaveCount(1);
+    expect(await page.locator('.front-projects').evaluate(projects => {
+      const note = document.querySelector('.hermes-note')!;
+      const contact = document.querySelector('.front-contact')!;
+      return !!(projects.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING)
+        && !!(note.compareDocumentPosition(contact) & Node.DOCUMENT_POSITION_FOLLOWING);
+    })).toBe(true);
     await expect(page.locator('.home-build')).toHaveCount(1);
     await expect(page.locator('.home-more')).toHaveCount(1);
     if (width === 1440) expect(profile.width).toBeGreaterThan(1000);
@@ -50,10 +57,15 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     await expect(entries).toHaveCount(3);
     const actions = entries.first().locator('.build-action a');
     await expect(actions).toHaveCount(2);
-    await expect(actions.nth(0)).toHaveAttribute('href', '/work/trivia-hub');
-    await expect(actions.nth(1)).toHaveAttribute('href', 'https://games.sonwork.org');
-    await expect(actions.nth(0).locator('svg')).toHaveCount(0);
-    await expect(actions.nth(1).locator('svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(actions.nth(0)).toHaveAttribute('href', 'https://games.sonwork.org');
+    await expect(actions.nth(1)).toHaveAttribute('href', '/work/trivia-hub');
+    await expect(actions.nth(0).locator('svg')).toHaveAttribute('aria-hidden', 'true');
+    await expect(actions.nth(1).locator('svg')).toHaveCount(0);
+    await expect(entries.locator('.build-desc')).toHaveText([
+      'Daily games with one shared reset.',
+      'Type in English and Vietnamese on Omarchy.',
+      'A food diary for meals and who you ate with.',
+    ]);
     await expect(entries.nth(1).locator('a')).not.toHaveCount(0);
     await expect(entries.last().locator('a')).toHaveCount(0);
     await expect(entries.last()).toContainText('Building');
@@ -99,7 +111,7 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   });
   test(`About without JS ${width} ${theme}`, async ({ browser, baseURL }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: theme, viewport: { width, height: width === 390 ? 844 : 900 } });
+    const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: theme, viewport: { width, height } });
     const page = await context.newPage();
     await page.goto(baseURL!);
     await expect(page.locator('.home-intro')).toHaveText(approvedIntro);
@@ -107,8 +119,8 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     await expect(page.locator('details p')).toBeVisible();
     await expect(page.getByRole('link', { name: 'son@sonwork.org', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
     await expect(page.getByRole('button', { name: 'Copy email' })).toBeHidden();
-    await expect(page.locator('.front-newsletter .signup-closed')).toBeVisible();
-    await expect(page.locator('form.subscribe-form, .front-newsletter input')).toHaveCount(0);
+    await expect(page.locator('.signup-closed, .front-newsletter, main a[href="/subscribe"]')).toHaveCount(0);
+    await expect(page.locator('form, input, button[type="submit"], [data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.goto(`${baseURL}/about/`);
     await expect(page.locator('.contributions li')).toHaveCount(2);

@@ -20,6 +20,8 @@ colors:
   light-ink-3: "oklch(0.3 0.024 252)"
   light-lume: "oklch(0.36 0.12 258)"
   light-human: "oklch(0.5 0.13 48)"
+  sky: "#04070e"
+  light-sky: "#e5e9ee"
 typography:
   display:
     fontFamily: "Space Mono, ui-monospace, monospace"
@@ -27,6 +29,11 @@ typography:
     fontWeight: 700
     lineHeight: 0.95
     letterSpacing: "-0.045em"
+  phone-display:
+    fontFamily: "Space Mono, ui-monospace, monospace"
+    fontSize: "clamp(3.25rem, 15vw, 4rem)"
+    fontWeight: 700
+    lineHeight: 1.04
   headline:
     fontFamily: "Space Mono, ui-monospace, monospace"
     fontSize: "clamp(1.875rem, 7vw, 3.25rem)"
@@ -114,21 +121,21 @@ components:
 ## Readability and project-proof refinement
 
 - Metadata, status labels, navigation and footer links use 0.75rem Space Mono. Secondary ink keeps its existing hue, with stronger small-text contrast in both themes. Figure captions use 0.875rem Geist.
-- Desktop introductory and article prose use a 54ch measure, checked against the actual copy. The wide project grid, heading sizes and body font sizes are unchanged.
-- The existing fixed scenery mask admits less terrain through its reading corridor. No page-attached scrim, new scene layer, animation, asset or scroll handler is added; the outer flanks and planet anchors are retained.
+- Desktop introductory and article prose use a 54ch measure, checked against the actual copy. The wide project grid and body font sizes are unchanged; the phone name scale is documented below.
+- The existing fixed scenery mask admits less terrain through its reading corridor. No page-attached scrim, new scene layer, animation, asset or scroll handler is added. Desktop anchors are retained; phone Earth and Neptune sit above the introduction and clear of the name.
 - Footer links reflow below a 22rem container width so larger labels remain whole inside their 44px targets, rather than crossing cell dividers.
-- Trivia Hub begins with `/images/trivia-hub-october-2026.webp`: a genuine retained October development capture, not a mockup or a claim about today's live build. The stripped original is 1440x900, with descriptive alt text, an explicit development caption and reserved aspect ratio. Approved case-study prose remains unchanged.
-- Native responsive delivery selects 480px or 800px WebP variants on phones, retaining the original for larger displays. This first-screen image loads eagerly at high priority; lazy loading it regressed the existing Lighthouse paint budget. No image-loading JavaScript or relaxed performance threshold is used.
-- Chromium emulation covered 320/340/375/390/768/1440px in both themes, enlarged text and the image without JavaScript. Sampled rendered text contrast against the actual scenery remained above 4.5:1. Physical-device and Safari behavior is not verified.
+- Trivia Hub uses genuine retained October development imagery, not a mockup or a claim about today's live build. Below 641px, a readable Lock detail replaces the desktop hub overview. Approved case-study prose remains unchanged.
+- Native `<picture>` delivery selects 420px or 700px phone crops and retains the 480px/800px/1440px desktop variants. Source dimensions reserve the selected aspect ratio before image bytes arrive. The first-screen image stays eager and high priority; no image-loading JavaScript or relaxed performance threshold is used.
+- Explicit full-size phone and desktop links work without JavaScript. Chromium checks verified the phone image viewer and Back restoring the reading position with JavaScript on and off, plus unchanged image geometry during blocked image delivery at phone DPR 1/2 and desktop DPR 1. Physical-device and Safari behavior is not verified.
 
 ## Project discovery and closed signup
 
-- The introduction and Hermes note remain first. Selected projects follow immediately; the exploration disclosure and full-About link sit below projects, before Contact. Visual, keyboard and screen-reader order use the same DOM at every width. Desktop retains the three-column project list.
-- Trivia Hub has separate Case study and Play actions. Only outbound links carry an outbound arrow. Both actions retain 44px targets.
-- While signup is closed, Home and `/subscribe` show a readable 1rem Geist notice instead of an email field and disabled button. The fourth header link is Contact, a native `/#home-contact` anchor with space below the sticky header. `/subscribe` retains its legacy removal information and Writing exit.
+- The name and complete introduction lead directly into Selected projects, without a duplicate jump link. The Hermes note, exploration disclosure and full-About link follow projects, before Contact. Visual, keyboard and screen-reader order use the same DOM at every width. Desktop retains the three-column project list.
+- Trivia Hub puts Play before Case study. On phones, Play and Keymarchy's Live page use square outlined primary actions; Case study and Source remain secondary links. Hairline rules separate stacked projects. Outbound arrows and 44px minimum targets are retained.
+- Home has no closed newsletter section. Contact keeps the email address and Copy email; social destinations remain once in the shared footer. `/subscribe` keeps the noninteractive closed-signup notice, legacy removal information and Writing exit; existing article-footer notices are unchanged. The fourth header link remains a native `/#home-contact` anchor with space below the sticky header.
 - Build's live-game link has its own 44px-high target above the case-study row overlay, including its top and bottom padding. No JavaScript is needed.
 - Revealing Copy email does not change the email-row or footer geometry; the button aligns to the existing 44px row rather than a font-dependent baseline.
-- Chromium checks at 375x812 and 390x844 show the complete first-project actions in the opening viewport. Both themes also fit at 320px, 768px and 1440px without horizontal overflow. These are emulated viewports, not physical-phone or Safari evidence.
+- Chromium checks at 320x667, 375x667 and 390x844 show both first-project actions completely in the opening viewport. Both themes, 200% root text and the 719/720px breakpoint were checked without horizontal overflow or clipped navigation labels. Trusted touch scrolling retained the 46px navigation strip; a theme tap preserved the reading position. These are emulated viewports, not physical-phone or Safari evidence.
 
 ## Same-theme homepage polish (2026-11-10)
 
@@ -238,11 +245,11 @@ A restrained palette: navy neutrals plus one periwinkle accent, with one warm si
 **Character:** Space Mono is squared and slab-leaning, the typewriter in the North Star. Geist stays quiet so long posts read easily at 390px. Both are self-hosted woff2 in latin and vietnamese subsets (`public/fonts/`, SIL OFL), so "Lê Sơn" renders from the face itself.
 
 ### Hierarchy
-- **Display** (700, clamp(2.75rem, 12.5vw, 7.25rem), 0.95, uppercase): reserved for prominent identity headings; home uses a restrained 2.75rem to 4.5rem name. Index pages use a smaller step (clamp(2.25rem, 9vw, 4.5rem), uppercase).
+- **Display** (700, clamp(2.75rem, 12.5vw, 7.25rem), 0.95, uppercase): reserved for prominent identity headings. Home's phone name uses clamp(3.25rem, 15vw, 4rem), line-height 1.04; the desktop maximum remains 4.5rem. Index pages use a smaller step (clamp(2.25rem, 9vw, 4.5rem), uppercase).
 - **Headline** (700, clamp(1.875rem, 7vw, 3.25rem), 1.08): titles of posts, case studies and About, set as written, not uppercased.
 - **Title** (Geist 600, 1.0625rem, 1.19rem from 900px): row titles in contents and lists.
-- **Body** (Geist 400, 1.0625rem, 1.7): prose, max 68ch. Summaries step down to 0.9375rem.
-- **Label** (Space Mono 400, 0.6875rem, 0.08em, uppercase): nav, meta rows, fact labels, form labels, status labels. Numbers use tabular figures.
+- **Body** (Geist 400, 1.0625rem, 1.7): prose, max 54ch. Summaries step down to 0.9375rem.
+- **Label** (Space Mono 400, 0.75rem, 0.08em, uppercase): nav, meta rows, fact labels, form labels, status labels. Numbers use tabular figures.
 
 ### Named Rules
 **The Two Faces Rule.** Space Mono and Geist, nothing else. Space Mono never sets running prose; Geist never sets a heading above row level.
@@ -253,10 +260,10 @@ A restrained palette: navy neutrals plus one periwinkle accent, with one warm si
 
 One frame: max 1180px, gutter 16px on phones and 32px from 900px. Spacing follows a 4px base (4, 8, 12, 16, 24, 32, 48, 64), with more space above a heading than below it.
 
-- **Header:** sticky. On phones it is a 52px bar (wordmark plus theme toggle) over a 4-cell nav strip with 44px cells. From 720px it becomes one row: wordmark, nav cells and toggle.
-- **Front page (About-first):** on phones, Son's name and collection-sourced 40 to 60 word first-person introduction lead. A native What I'm exploring disclosure adds existing About facts without hiding the summary. Selected projects follow, with Trivia Hub primary, then Keymarchy and unlinked building Perfeat. Contact includes visible mailto and a copy-email action with truthful status. One slim newsletter form comes last. From 900px a full-width opening profile band keeps the introduction at a readable 65ch. Selected work supports it below, with Trivia Hub beside compact side-project rows. Contact and newsletter follow below at a restrained 48rem maximum. Nothing is sticky. The name stays at 2.75rem to 4.5rem; summary is Geist 1.1875rem. No giant newsletter masthead.
+- **Header:** sticky. On phones, a 52px wordmark-and-Mount row sits above four navigation cells and the theme toggle. The brand row scrolls away, leaving an opaque 46px strip; keyboard focus brings it back into view. Safe-area padding is retained. From 720px the header is one row, with a wrapping fallback for enlarged text.
+- **Front page (About-first):** the name and collection-sourced first-person introduction lead, then projects, secondary About details and Contact. The introduction keeps its 54ch maximum. Projects stack on phones and use the existing three-column grid from 900px. Contact contains a visible mailto and a copy-email action with truthful status. No homepage newsletter section or sticky content panel is added.
 - **Rows:** a 2.25rem index column (3rem from 900px) and a body column. Each row is separated by a faint rule.
-- **Prose pages:** a single left-aligned column at 68ch. The header ends on a rule, or on its fact table.
+- **Prose pages:** a single left-aligned column at 54ch. The header ends on a rule, or on its fact table.
 - **Side projects:** stacked on phones. From 900px they become a 14rem title column beside the text.
 
 ## Elevation & Depth
@@ -283,9 +290,9 @@ Square corners throughout (radius 0): buttons, inputs, nav cells, tags, labels, 
 - **Focus:** the border turns lume, with the outline inset.
 
 ### Navigation
-- **Style:** ruled cells in Space Mono 0.6875rem uppercase, ink-2. Subscribe is lume only while signup is open (`signupOpen` in `src/lib/signup.ts`, the same flag that wires the form); release builds keep signup off, so there it is ink-2 like the other items. The current page shows ink text with a 2px lume underline.
-- **Mobile:** a 4-cell grid under the bar, every cell at least 44px.
-- **Structure:** the wordmark is the Home link and sits inside the Main nav, so every page, Home included, marks itself with `aria-current`. The theme toggle sits outside the nav, top right.
+- **Style:** ruled cells in Space Mono 0.75rem uppercase, ink-2. Build, Writing, About and Contact remain direct links. The current page shows ink text with a 2px lume underline.
+- **Mobile:** four navigation cells and a 44px theme control share the lower strip. Enlarged labels wrap into whole cells rather than clipping.
+- **Structure:** the wordmark is the Home link inside Main nav and uses `aria-current`. The theme toggle now shares the nav-controls layout rather than an absolute top-right position. It stays reachable after the brand row scrolls away.
 
 ### Ruled Row (signature)
 A numbered row (01, 02, ...) with a Geist title, a Space Mono meta line (kind in lume, then date or host), and a summary. The title link stretches over the whole row, so the row is the touch target. Fact tables and secondary links sit above that overlay.

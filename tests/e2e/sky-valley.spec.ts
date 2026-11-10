@@ -398,12 +398,12 @@ test('native anchors/history/theme and disclosure/text/viewport changes retain u
     try {
     await page.goto('/');
     await settled(page);
-    const jump = page.locator('.overlook-link');
+    const contact = page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Contact', exact: true });
     await page.keyboard.press('Tab');
-    await jump.focus();
-    expect(await jump.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe('none');
+    await contact.focus();
+    expect(await contact.evaluate(el => getComputedStyle(el).outlineStyle)).not.toBe('none');
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/#home-projects$/);
+    await expect(page).toHaveURL(/#home-contact$/);
     await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(0);
     expect(await progress(page), 'Home scene progress stays 0 after the native anchor jump').toBe(0);
     const anchorY = await page.evaluate(() => scrollY);
@@ -417,11 +417,11 @@ test('native anchors/history/theme and disclosure/text/viewport changes retain u
     await expect.poll(() => progress(page)).toBeCloseTo(beforeTheme, 4);
     await note('settled-theme-before-link');
     expect(await page.evaluate(() => scrollY)).toBeCloseTo(anchorY, 0);
-    await page.locator('.build-entry h3 a').first().click();
-    await expect(page).toHaveURL(/\/work\/trivia-hub$/);
+    await page.locator('.home-more').click();
+    await expect(page).toHaveURL(/\/about$/);
     await note('native-detail');
     await page.goBack();
-    await expect(page).toHaveURL(/#home-projects$/);
+    await expect(page).toHaveURL(/#home-contact$/);
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
     await expect(page.locator('html')).not.toHaveAttribute('data-theme-vt', /.*/);
     await note('back-before-restoration-poll');

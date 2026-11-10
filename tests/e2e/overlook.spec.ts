@@ -7,100 +7,70 @@ async function expectSingletons(page: Page) {
   await expect(page.locator('h1')).toHaveText("I'm Son");
   await expect(page.locator('.mtn-scene')).toHaveCount(1);
   await expect(page.locator('.companion')).toHaveCount(1);
-  await expect(page.locator('.home-overlook')).toHaveCount(1);
-  await expect(page.locator('.overlook-link')).toHaveCount(1);
 }
 
-for (const width of [375, 390]) for (const theme of ['dark', 'light'] as const) {
-  test(`valley overlook phone ${width} ${theme}`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 844 });
+for (const [width, height] of [[375, 667], [390, 844]]) for (const theme of ['dark', 'light'] as const) {
+  test(`phone primary project action fits ${width}x${height} ${theme}`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
     await page.addInitScript(t => localStorage.setItem('theme', t), theme);
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
     await expectSingletons(page);
-    const wrapper = page.locator('.home-overlook');
-    await expect(wrapper).toHaveAttribute('data-home-direction', 'valley-overlook-r4');
-    await expect(wrapper).toHaveCSS('display', 'flex');
-    await expect(wrapper).toHaveCSS('flex-direction', 'column');
     const h1 = page.locator('h1');
-    const h1Box = (await h1.boundingBox())!;
+    const heading = (await h1.boundingBox())!;
     const lineHeight = parseFloat(await h1.evaluate(el => getComputedStyle(el).lineHeight));
-    // R7: the unchanged-size name sits on one line at ordinary phone sizes.
-    expect(h1Box.height).toBeGreaterThanOrEqual(lineHeight * 0.9);
-    expect(h1Box.height).toBeLessThanOrEqual(lineHeight * 1.1);
-    expect(h1Box.x + h1Box.width).toBeLessThanOrEqual(width);
-    expect(parseFloat(await h1.evaluate(el => getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(52);
-    const box = (await wrapper.boundingBox())!;
-    // Content-driven: headline, one small scale-based gap and the 44px jump; no scenic spacer.
-    const jumpBox = (await page.locator('.overlook-link').boundingBox())!;
-    const gap = jumpBox.y - (h1Box.y + h1Box.height);
-    expect(gap).toBeGreaterThanOrEqual(8);
-    expect(gap).toBeLessThanOrEqual(24);
-    expect(box.height).toBeLessThanOrEqual(h1Box.height + 24 + jumpBox.height + 2);
-    expect(box.x + box.width).toBeLessThanOrEqual(width);
-    const link = page.locator('.overlook-link');
-    await expect(link).toBeVisible();
-    await expect(link).toHaveText('Selected projects');
-    await expect(link).toHaveAttribute('href', '#home-projects');
-    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await expect(link.locator('svg')).toHaveAttribute('aria-hidden', 'true');
-    expect(await page.evaluate(() => innerWidth)).toBe(width);
+    expect(heading.height).toBeLessThanOrEqual(lineHeight * 1.1);
+    const primary = page.getByRole('link', { name: /^Play\b.*Trivia Hub$/ });
+    await expect(primary).toHaveAttribute('href', 'https://games.sonwork.org');
+    const action = (await primary.boundingBox())!;
+    expect(action.height).toBeGreaterThanOrEqual(44);
+    expect(action.width).toBeGreaterThanOrEqual(44);
+    expect(action.y).toBeGreaterThanOrEqual(0);
+    expect(action.y + action.height).toBeLessThanOrEqual(height);
+    expect(action.x).toBeGreaterThanOrEqual(0);
+    expect(action.x + action.width).toBeLessThanOrEqual(width);
+    expect(await page.evaluate(() => scrollY)).toBe(0);
+    const entries = page.locator('.build-entry');
+    const first = (await entries.first().boundingBox())!;
+    const second = (await entries.nth(1).boundingBox())!;
+    expect(second.y - (first.y + first.height)).toBeGreaterThanOrEqual(16);
+    expect(await entries.nth(1).evaluate(el => parseFloat(getComputedStyle(el).borderTopWidth))).toBe(1);
+    await expect(entries.nth(1).getByRole('link', { name: /^Live page\b.*Keymarchy$/ })).toHaveClass('primary-action');
+    await expect(page.getByRole('heading', { name: 'Selected projects', exact: true })).toHaveAttribute('id', 'home-projects');
+    await expect(page.locator('.front-projects')).toHaveAttribute('aria-labelledby', 'home-projects');
     expect(await noOverflow(page)).toBe(true);
-    const intro = (await page.locator('.home-intro').boundingBox())!;
-    expect(intro.y + intro.height).toBeLessThan(844);
-    const firstProject = page.locator('.build-entry').first();
-    const actions = firstProject.locator('.build-action');
-    const actionsBox = (await actions.boundingBox())!;
-    expect(actionsBox.y + actionsBox.height).toBeLessThanOrEqual(844);
-    await expect(firstProject.getByRole('link', { name: /^Case study\b/ })).toBeInViewport();
-    await expect(firstProject.getByRole('link', { name: /^Play\b/ })).toBeInViewport();
-
-    await link.click();
-    await expect(page).toHaveURL(/#home-projects$/);
-    const target = page.locator('#home-projects');
-    await expect(target).toBeInViewport();
-    const headerBottom = await page.evaluate(() => document.querySelector('header')?.getBoundingClientRect().bottom ?? 0);
-    expect((await target.boundingBox())!.y).toBeGreaterThanOrEqual(headerBottom);
   });
 }
 
-for (const width of [320, 340, 430, 719]) {
-  test(`valley overlook boundary ${width}`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 800 });
+for (const width of [320, 340, 430, 719, 720, 1440]) {
+  test(`Home composition remains native and overflow-free at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
     await page.evaluate(() => document.fonts.ready);
-    expect(await page.evaluate(() => innerWidth)).toBe(width);
+    await expectSingletons(page);
     expect(await noOverflow(page)).toBe(true);
-    await expect(page.locator('.home-overlook')).toHaveCSS('display', 'flex');
-    await expect(page.locator('.overlook-link')).toBeVisible();
+    if (width === 1440) {
+      const entries = await page.locator('.build-entry').evaluateAll(els => els.map(el => {
+        const { x, y, width } = el.getBoundingClientRect();
+        return { x, y, width };
+      }));
+      expect(new Set(entries.map(entry => Math.round(entry.y))).size).toBe(1);
+      expect(entries[1].x).toBeGreaterThan(entries[0].x + entries[0].width);
+      expect(entries[2].x).toBeGreaterThan(entries[1].x + entries[1].width);
+    }
     await page.locator('summary').click();
     expect(await noOverflow(page)).toBe(true);
   });
 }
 
-for (const width of [720, 1440]) {
-  test(`valley overlook ${width} keeps default geometry`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 900 });
-    await page.goto('/');
-    await expectSingletons(page);
-    await expect(page.locator('.home-overlook')).toHaveCSS('display', 'contents');
-    await expect(page.locator('.overlook-link')).toBeHidden();
-    expect(await noOverflow(page)).toBe(true);
-  });
-}
-
-test('valley overlook is static under reduced motion', async ({ browser, baseURL }) => {
+test('Home content geometry is static under reduced motion', async ({ browser, baseURL }) => {
   const heights: number[] = [];
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     const context = await browser.newContext({ reducedMotion, viewport: { width: 390, height: 844 } });
     const page = await context.newPage();
     await page.goto(baseURL!);
     await page.evaluate(() => document.fonts.ready);
-    await expectSingletons(page);
-    heights.push(Math.round((await page.locator('.home-overlook').boundingBox())!.height));
-    const size = await page.locator('h1').evaluate(el => getComputedStyle(el).fontSize);
-    expect(parseFloat(size)).toBeGreaterThanOrEqual(52);
-    expect(Number.isFinite(heights.at(-1))).toBe(true);
+    heights.push(Math.round((await page.locator('.front-about').boundingBox())!.height));
     await context.close();
   }
   expect(heights[1]).toBe(heights[0]);
@@ -146,9 +116,9 @@ for (const width of [375, 1440]) {
     expect(outline.style).not.toBe('none');
     expect(outline.width).toBeGreaterThan(0);
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('link', { name: /^Case study\b/ })).toBeFocused();
-    await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: /^Play\b/ })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: /^Case study\b/ })).toBeFocused();
     await tabTo(page, '.home-build summary');
     await page.keyboard.press('Enter');
     await expect(page.locator('.home-build')).toHaveAttribute('open', '');
@@ -186,20 +156,31 @@ test('project arrow nudges 2px on focus and fine-pointer hover only when motion 
   }
 });
 
-test('valley overlook keeps native link and disclosure without JS',async ({ browser, baseURL }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
-  const page = await context.newPage();
-  await page.goto(baseURL!);
-  await expect(page.locator('h1')).toHaveText("I'm Son");
-  await expect(page.locator('.home-overlook')).toHaveCSS('display', 'flex');
-  const link = page.getByRole('link', { name: 'Selected projects', exact: true });
-  await expect(link).toHaveAttribute('href', '#home-projects');
-  await expect(link).toBeVisible();
-  await link.click();
-  await expect(page).toHaveURL(/#home-projects$/);
-  await expect(page.locator('#home-projects')).toBeInViewport();
-  await page.locator('summary').click();
-  await expect(page.locator('details p')).toBeVisible();
-  expect(await noOverflow(page)).toBe(true);
-  await context.close();
-});
+for (const [width, height] of [[375, 667], [390, 844]]) {
+  test(`Home keeps primary links and disclosure without JS at ${width}`, async ({ browser, baseURL }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width, height } });
+    const page = await context.newPage();
+    await page.goto(baseURL!);
+    await page.evaluate(() => document.fonts.ready);
+    const primary = page.getByRole('link', { name: /^Play\b.*Trivia Hub$/ });
+    await expect(primary).toHaveAttribute('href', 'https://games.sonwork.org');
+    const action = (await primary.boundingBox())!;
+    expect(action.y + action.height).toBeLessThanOrEqual(height);
+    expect(action.height).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => scrollY)).toBe(0);
+    await tabTo(page, playAction);
+    await expect(primary).toBeFocused();
+    await page.keyboard.press('Tab');
+    const caseStudy = page.getByRole('link', { name: /^Case study\b.*Trivia Hub$/ });
+    await expect(caseStudy).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/work\/trivia-hub\/?$/);
+    await page.goBack();
+    await page.locator('summary').click();
+    await expect(page.locator('details p')).toBeVisible();
+    await expect(page.locator('.home-details .hermes-note')).toHaveCount(1);
+    await expect(page.locator('.signup-closed, main a[href="/subscribe"], form, input')).toHaveCount(0);
+    expect(await noOverflow(page)).toBe(true);
+    await context.close();
+  });
+}
