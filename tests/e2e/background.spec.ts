@@ -125,9 +125,10 @@ function paintControls(first: Buffer, hidden: Buffer, restored: Buffer) {
   return { paint: difference(hidden), restoration: difference(restored), minimumPaintPixels: Math.max(64, Math.ceil(base.width * base.height * 0.001)) };
 }
 
-// Proof of paint: hiding only the scene makes a material difference beyond measured raster noise. For this isolated
-// diagnostic the companion is hidden and every other animation/transition is frozen, so identical content state
-// is compared and Mount or arrival effects cannot account for a difference. The styles are removed afterwards.
+// Proof of paint: hiding only the scene must change pixels beyond measured raster noise.
+// Isolate static scenery by disabling CSS motion and hiding Mount and WAAPI shooting-star clones:
+// animation:none does not stop Element.animate(), including a shot created between screenshots.
+// Separate motion tests cover these effects. All diagnostic styles are removed afterwards.
 async function painted(page: Page, js = true) {
   const { viewW, viewH } = await geometry(page);
   const clip = { x: 0, y: 300, width: viewW, height: viewH - 300 };
@@ -138,7 +139,7 @@ async function painted(page: Page, js = true) {
     document.head.append(s);
     return s;
   }, css);
-  const still = await style('*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; } .companion, #companion-return { visibility: hidden !important; }');
+  const still = await style('*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; } .companion, #companion-return, .sv-hs-shot { visibility: hidden !important; }');
   try {
     // Without JavaScript a page-side frame promise never resolves; screenshots paint synchronously.
     if (js) await page.evaluate(() => new Promise<void>(done => requestAnimationFrame(() => requestAnimationFrame(() => done()))));
