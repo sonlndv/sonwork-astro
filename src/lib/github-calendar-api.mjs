@@ -66,7 +66,9 @@ export function createCalendarService({ token, fetchImpl = globalThis.fetch, now
       const operation = (async () => {
         const range = windowAt(now());
         const response = await fetchImpl('https://api.github.com/graphql', {
-          method: 'POST', redirect: 'error', signal: controller.signal,
+          // Workers supports manual/follow, not error. Reject every non-2xx below;
+          // manual mode never forwards the credential to a redirect destination.
+          method: 'POST', redirect: 'manual', signal: controller.signal,
           headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', accept: 'application/vnd.github+json', 'user-agent': 'Sonwork-public-calendar' },
           body: JSON.stringify({ query: QUERY, variables: { from: range.from + 'T00:00:00Z', to: range.through + 'T23:59:59Z' } }),
         });
