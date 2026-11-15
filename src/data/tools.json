@@ -1,0 +1,7 @@
+[
+  { "id": "gbrain", "name": "gbrain", "purpose": "Shared memory for agents." },
+  { "id": "hermes", "name": "Hermes", "purpose": "A general-purpose assistant." },
+  { "id": "openmaus", "name": "OpenMaus", "purpose": "An agent workspace." },
+  { "id": "omp", "name": "OMP", "purpose": "Coding." },
+  { "id": "obsidian", "name": "Obsidian", "purpose": "Notes, research and writing." }
+]

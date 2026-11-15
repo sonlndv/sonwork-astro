@@ -1,121 +1,37 @@
----
-// Switches between dark and light. The first visit follows the system
-// setting; a click stores the choice. The head script in BaseLayout applies
-// the stored choice before first paint. Without JS the button stays hidden.
----
-<button class="theme-toggle" type="button" aria-label="Switch to light theme">
-  <svg class="icon-sun" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-    <rect x="6.5" y="6.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.5" />
-    <path d="M10 1.5v2.5M10 16v2.5M1.5 10H4M16 10h2.5M4 4l1.8 1.8M14.2 14.2L16 16M4 16l1.8-1.8M14.2 5.8L16 4" stroke="currentColor" stroke-width="1.5" />
-  </svg>
-  <svg class="icon-moon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-    <path d="M14.5 13.5A6.5 6.5 0 0 1 6.5 3.2a6.5 6.5 0 1 0 10.3 8.1 6.5 6.5 0 0 1-2.3 2.2Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="miter" />
-  </svg>
+<button class="theme-toggle" type="button" aria-label="Switch to light mode" hidden>
+  <svg data-theme-icon="sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" /></svg>
+  <svg data-theme-icon="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.9 13.1A9 9 0 0 1 10.9 3.1 9 9 0 1 0 20.9 13.1Z" /></svg>
 </button>
-
 <script>
   const root = document.documentElement;
   const button = document.querySelector<HTMLButtonElement>('.theme-toggle');
-  const light = window.matchMedia('(prefers-color-scheme: light)');
-
-  function current(): 'light' | 'dark' {
-    const set = root.dataset.theme;
-    if (set === 'light' || set === 'dark') return set;
-    return light.matches ? 'light' : 'dark';
+  const system = matchMedia('(prefers-color-scheme: light)');
+  function theme(): 'light' | 'dark' {
+    return root.dataset.theme === 'light' || root.dataset.theme === 'dark' ? root.dataset.theme : system.matches ? 'light' : 'dark';
   }
-
-  function label() {
-    if (!button) return;
-    const next = current() === 'dark' ? 'light' : 'dark';
-    button.setAttribute('aria-label', `Switch to ${next} theme`);
+  function sync() {
+    const next = theme() === 'dark' ? 'light' : 'dark';
+    if (button) {
+      button.setAttribute('aria-label', `Switch to ${next} mode`);
+      button.dataset.target = next;
+      button.hidden = false;
+    }
+    document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach(meta => {
+      meta.content = theme() === 'dark' ? '#03050b' : '#f9fafc';
+    });
   }
-
-  const motion = matchMedia('(prefers-reduced-motion: no-preference)');
-  const forced = matchMedia('(forced-colors: active)');
-  const APERTURE_MS = 480;
-  const FEATHER_PX = 4;
-  // Soft edge: a typed length animated beside clipPath in the same effect, read by a narrow radial mask
-  // in global.css. Its initial value is huge, so with no animation driving it the mask is fully opaque.
-  // Missing registerProperty or mask support keeps the sharp circle.
-  let featherReady = false;
-  try {
-    if (
-      typeof CSS !== 'undefined' && typeof CSS.registerProperty === 'function' &&
-      CSS.supports('mask-image', 'radial-gradient(circle at 0px 0px, #000 0px, transparent 1px)')
-    ) {
-      CSS.registerProperty({ name: '--aperture-r', syntax: '<length>', inherits: false, initialValue: '100000px' });
-      featherReady = true;
-    }
-  } catch {}
-  // Clears every flag and position this file owns on the root for the soft edge.
-  const clearEdge = () => {
-    delete root.dataset.themeVtEdge;
-    root.style.removeProperty('--aperture-x');
-    root.style.removeProperty('--aperture-y');
-  };
-  const endMarker = () => {
-    clearEdge();
-    delete root.dataset.themeVt;
-  };
-  let transition: ViewTransition | undefined;
-  let desired = current();
-  const settle = () => transition?.skipTransition();
-  motion.addEventListener('change', settle);
-  forced.addEventListener('change', settle);
-  button?.addEventListener('click', (event) => {
-    desired = (transition ? desired : current()) === 'dark' ? 'light' : 'dark';
-    transition?.skipTransition();
-    clearEdge();
-    // Always applies the latest wish, so a skipped earlier callback can never leave a stale theme.
-    const apply = () => {
-      root.dataset.theme = desired;
-      try { localStorage.setItem('theme', desired); } catch {}
-      label();
-    };
-    if (!motion.matches || forced.matches || typeof document.startViewTransition !== 'function') {
-      endMarker();
-      apply();
-      return;
-    }
-    // Day and night open from the real button centre (pointer and keyboard alike) out to the far corner.
-    const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const x = box.left + box.width / 2;
-    const y = box.top + box.height / 2;
-    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-    root.dataset.themeVt = 'aperture';
-    try {
-      const next = document.startViewTransition(apply);
-      transition = next;
-      void next.ready.then(() => {
-        if (transition !== next) return;
-        const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`];
-        const timing = { duration: APERTURE_MS, easing: 'cubic-bezier(0.5, 0, 0.15, 1)', pseudoElement: '::view-transition-new(root)' };
-        if (featherReady) {
-          try {
-            root.style.setProperty('--aperture-x', `${x}px`);
-            root.style.setProperty('--aperture-y', `${y}px`);
-            // Ends past the clip radius so the feather has left the viewport and the snapshot is fully opaque.
-            root.animate({ clipPath, '--aperture-r': ['0px', `${radius + FEATHER_PX}px`] }, timing);
-            root.dataset.themeVtEdge = 'feather';
-            return;
-          } catch {
-            clearEdge();
-          }
-        }
-        root.animate({ clipPath }, timing);
-      }).catch(() => {});
-      void next.finished.catch(() => {}).finally(() => {
-        if (transition !== next) return;
-        transition = undefined;
-        endMarker();
-        if (root.dataset.theme !== desired) apply();
-      });
-    } catch {
-      transition = undefined;
-      endMarker();
-      apply();
-    }
+  button?.addEventListener('click', () => {
+    const next = theme() === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch { /* A usable in-memory choice remains. */ }
+    sync();
   });
-  light.addEventListener('change', label);
-  label();
+  system.addEventListener('change', sync);
+  window.addEventListener('storage', event => {
+    if (event.key !== 'theme') return;
+    if (event.newValue === 'light' || event.newValue === 'dark') root.dataset.theme = event.newValue;
+    else delete root.dataset.theme;
+    sync();
+  });
+  sync();
 </script>

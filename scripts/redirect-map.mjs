@@ -17,6 +17,10 @@ export const HEADER = [
 
 export const MAP_FILE = new URL('../library/redirect-map.csv', import.meta.url);
 
+// Preserve historical CSV rows; only the approved rebuilt index supersedes its old redirect.
+// Exact paths, not a /series prefix: archived series details must still reach Writing.
+export const currentRouteOverride = path => path === '/series' || path === '/series/' ? '/series' : undefined;
+
 // Minimal RFC 4180 parser: quoted fields, doubled quotes, commas and newlines in quotes.
 export function parseCsv(text) {
   const rows = [];

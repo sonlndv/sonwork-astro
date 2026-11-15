@@ -23,13 +23,15 @@ for (const path of builtPages()) {
       await page.goto(path);
       const nav = page.getByRole('navigation', { name: 'Main' });
       const current = nav.locator('a[aria-current="page"]');
-      if (navSection(path) === '/subscribe') {
+      const section = navSection(path);
+      if (!section) {
         await expect(current).toHaveCount(0);
       } else {
         await expect(current).toHaveCount(1);
-        await expect(current).toHaveAttribute('href', navSection(path));
+        await expect(current).toHaveAttribute('href', section);
       }
-      await expect(nav.getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', '/#home-contact');
+      await expect(nav.locator('ul a')).toHaveText(['About Me', 'Series', 'Project']);
+      await expect(page.getByRole('navigation', { name: 'Archive and contact' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
       await expect(nav.getByRole('link', { name: 'Subscribe', exact: true })).toHaveCount(0);
     });
 
@@ -41,8 +43,7 @@ for (const path of builtPages()) {
       expect(overflow).toBeLessThanOrEqual(0);
     });
 
-    test('first Tab shows the skip link, which moves focus to main', async ({ page, isMobile }) => {
-      test.skip(isMobile, 'keyboard navigation is checked on desktop');
+    test('first Tab shows the skip link, which moves focus to main', async ({ page }) => {
       await page.goto(path);
       await page.keyboard.press('Tab');
       const skip = page.getByRole('link', { name: 'Skip to content' });

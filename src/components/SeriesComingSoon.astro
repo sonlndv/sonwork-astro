@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+interface Props { noIndex?: boolean; }
+const { noIndex = false } = Astro.props;
+---
+<BaseLayout title="Series" description="Coming soon." noIndex={noIndex}>
+  <section class="index-hero" aria-labelledby="series-title">
+    <h1 id="series-title">Series<span class="blue">.</span></h1>
+    <p>Coming soon</p>
+  </section>
+</BaseLayout>

@@ -1,12 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync, readdirSync } from 'node:fs';
+const tools = JSON.parse(readFileSync('src/data/tools.json', 'utf8')) as { id: string; name: string }[];
+const snapshot = JSON.parse(readFileSync('src/data/github-contributions.json', 'utf8'));
+const retainedPaths = JSON.parse(readFileSync('src/data/retained-series-slugs.json', 'utf8')).map((slug: string) => `/series/${slug}`);
 
 for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const) for (const javaScriptEnabled of [true, false]) {
   test(`production ${width} ${theme} JS=${javaScriptEnabled}`, async ({ browser, baseURL }) => {
     const context = await browser.newContext({ javaScriptEnabled, colorScheme: theme, viewport: { width, height: 900 } });
     await context.addInitScript(theme => localStorage.setItem('theme', theme), theme);
     const page = await context.newPage();
-    for (const path of ['/', '/about', '/work', '/work/trivia-hub', '/writing', '/writing/the-joy-of-malleable-products', '/subscribe']) {
+    for (const path of ['/', '/series', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', '/writing', '/writing/the-joy-of-malleable-products', '/subscribe']) {
       expect((await page.goto(`${baseURL}${path}`))?.status()).toBe(200);
       await expect(page.locator('h1')).toBeVisible();
       await expect(page.locator('.draft-label')).toHaveCount(0);
@@ -14,7 +17,8 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
       await expect(page.locator('[data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
-      await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', '/#home-contact');
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).locator('ul a')).toHaveText(['About Me', 'Series', 'Project']);
+      await expect(page.getByRole('navigation', { name: 'Archive and contact' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
       if (path === '/subscribe') {
         await expect(page.locator('.signup-closed')).toHaveText('Signup opens soon.');
         await expect(page.locator('.signup-closed')).toBeVisible();
@@ -28,12 +32,31 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       }
       if (path === '/') {
         await expect(page.locator('.home-intro')).toContainText('Vietnam');
-        await expect(page.locator('.front-projects h3')).toHaveText(['Trivia Hub', 'Keymarchy', 'Perfeat']);
+        const contacts = page.getByRole('navigation', { name: 'Contact Son', exact: true });
+        await expect(contacts.getByRole('link')).toHaveText(['son@sonwork.org', 'X @sonldv', 'GitHub sonlndv', 'LinkedIn in/sonle2003']);
+        expect(await contacts.getByRole('link').evaluateAll(els => els.map(el => el.getAttribute('href')))).toEqual(['mailto:son@sonwork.org', 'https://x.com/sonldv', 'https://github.com/sonlndv', 'https://www.linkedin.com/in/sonle2003/']);
+        await expect(page.locator('.home-feature, .planned-preview')).toHaveCount(0);
+        await expect(page.locator('h1')).toHaveText('Trying things with AI.Learning as I go.');
+        await expect(page.locator('.github-calendar')).toHaveCount(1);
+        await expect(page.locator('#calendar-description')).toContainText('2,165 contributions. Not live data.');
+        await expect(page.locator('.github-calendar details, .github-calendar select, [data-calendar-picker]')).toHaveCount(0);
+        const days = await page.locator('.calendar-day').evaluateAll(els => els.map(el => ({ date: (el as HTMLElement).dataset.date, count: Number((el as HTMLElement).dataset.count), level: Number((el as HTMLElement).dataset.level) })));
+        expect(days).toEqual(snapshot.days);
+        if (javaScriptEnabled) await expect(page.locator('.tool-choice')).toHaveText(tools.map(tool => tool.name));
+        else await expect(page.locator('.tools-static strong')).toHaveText(tools.map(tool => tool.name));
+        await expect(page.locator('.note-disclosure, main .draft-label')).toHaveCount(0);
         await expect(page.locator('main a[href="/subscribe"], .front-newsletter')).toHaveCount(0);
-        await expect(page.locator('.front-contact a')).toHaveCount(1);
-        await expect(page.locator('.home-details .hermes-note')).toHaveText('Hermes is my main driver now. I use it to build things, try ideas, and learn as I go.');
-        await expect(page.getByRole('link', { name: /^Play\b.*Trivia Hub$/ })).toHaveAttribute('href', 'https://games.sonwork.org');
-        await expect(page.getByRole('link', { name: /^Live page\b.*Keymarchy$/ })).toHaveAttribute('href', 'https://plugins.omarchy.org/plugin.html?id=sonlndv.vietkey');
+      }
+      if (path === '/project') {
+        await expect(page.locator('h1')).toHaveText('Coming soon.');
+        await expect(page.locator('main .work-card, main .build-entry')).toHaveCount(0);
+      }
+      if (path === '/series' || retainedPaths.includes(path)) {
+        await expect(page.locator('main')).toHaveText('Series.Coming soon');
+        await expect(page).toHaveTitle('Series | Son.');
+        await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Coming soon.');
+        await expect(page.locator('main a, main li, main time, main article, main button')).toHaveCount(0);
+        await expect(page.locator('main')).not.toContainText(/How I use|planned|Always-on|05/);
       }
       if (path === '/writing') {
         await expect(page.locator('main a[href^="/writing/"]')).toHaveCount(1);
@@ -54,11 +77,11 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
         expect(await image.evaluate((el: HTMLImageElement) => el.getBoundingClientRect().right <= innerWidth)).toBe(true);
       }
     }
-    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Contact', exact: true }).click();
-    await expect(page).toHaveURL(`${baseURL}/#home-contact`);
-    await expect(page.getByRole('heading', { name: 'Contact', exact: true })).toBeInViewport();
-    await expect(page.locator('.wordmark')).toHaveAttribute('aria-current', 'page');
-    await expect(page.locator('.site-nav li a[aria-current]')).toHaveCount(0);
+    await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'About Me', exact: true }).click();
+    await expect(page).toHaveURL(`${baseURL}/`);
+    await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'About Me', exact: true })).toHaveAttribute('aria-current', 'page');
+    expect((await page.request.get('/series/always-on-agents/available-isnt-always-thinking')).status()).toBe(404);
+    expect((await page.request.get('/series/always-on-agents')).status()).toBe(404);
     await context.close();
   });
 }

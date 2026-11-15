@@ -12,34 +12,37 @@ People who come across Son's work: developers, people in the Omarchy and coding-
 
 ## Product Purpose
 
-Sonwork (sonwork.org) is Son's portfolio and writing site, with newsletter signup disabled. The entrance is About-first: visitors understand who Son is and how he builds, then explore real projects or contact him. Closed newsletter information remains at `/subscribe`, not on the homepage.
+Son. (sonwork.org) is Son's About-first personal site: trying AI to automate parts of work, build useful things and share what he learns through notes, visual explanations and small examples. Newsletter signup is disabled. Closed newsletter information remains at `/subscribe`, not on the homepage.
 
 ## Positioning
 
-Son builds software with coding agents. He decides what gets built and how it should behave, the agents write most of the code, and the tests decide when it is done. Every claim on the site traces to a repo, a commit or a live link, and the writing includes what did not work.
+Son is learning by trying. Explain the difference between an idea, a local teaching simulation and a verified result; do not imply expert credentials, continuous thinking, live telemetry or completed work from usage. The site shares what worked, what did not and what remains uncertain.
 
 ## Operating Context
 
-- Static Astro 7 site, MDX content collections in `src/content/` (posts, work, side-projects, pages). Pages: home, work (with case studies), writing (with posts), about, subscribe, plus RSS and 404.
+- Static Astro 7 site, with MDX collections for series and nested notes as well as retained posts, work, side-projects and pages. Primary routes are About Me `/`, `/series`, `/series/[series]`, `/series/[series]/[note]` and `/project`.
+- Son's current review amendment leaves Series empty: only its heading and Coming soon inside shared chrome. About has no Series teaser. Retained Series URLs show the same generic state and metadata, never retired topic titles or a curriculum. Compatibility slugs live separately from the five tool identities/purposes. All MDX drafts/history remain untouched; draft-derived routes stay noindex in preview and absent from release.
+- `/writing`, `/work`, `/about`, `/subscribe`, RSS and deliberate legacy redirects are retained archives, not competing primary navigation. About has a compact wrapping public contact row: email son@sonwork.org, X @sonldv, GitHub sonlndv and LinkedIn in/sonle2003. Distinct profile spellings are intentional. Footer Contact remains a truthful mailto, never a form or outgoing message.
 - Content is written first and flipped from `draft: true` by Son once he approves it. Preview builds use `SHOW_DRAFTS=true`.
-- The launch keeps signup disabled with no PUBLIC_SIGNUP configuration. `/subscribe` shows a notice, not an editable form; Home omits the closed-signup section and the header links to Contact. Retired newsletter links retain truthful contact information at `/subscribe` and never claim an unsubscribe succeeded.
+- The launch keeps signup disabled with no PUBLIC_SIGNUP configuration. `/subscribe` shows a notice, not an editable form; Home omits the closed-signup section. Retired newsletter links retain truthful contact information at `/subscribe` and never claim an unsubscribe succeeded.
 - About, Trivia Hub, Keymarchy and Perfeat are approved for publication. The three original posts remain drafts; the separately approved Note is published and supplies the single production RSS item.
+- The new conceptual note remains `draft: true`, labelled private preview. Design approval and a passing local build do not approve publication. The Project page remains an honest Coming soon surface.
 - Static file output uses canonical URLs without trailing slashes. The existing Cloudflare Worker serves current assets, redirects mapped old pages, returns 410 for retired APIs/assets, and keeps ordinary unknown paths at 404. Legacy readings remain preserved in the public Git parent history.
 
 ## Capabilities and Constraints
 
 - Mobile-first. Visitors often arrive on a phone.
-- Lighthouse mobile at or above 95 for performance, accessibility and SEO; fonts self-hosted, no render-blocking third-party CSS.
-- Routes and content collections are fixed by the site structure phase; design work changes layouts, components, styles and markup only.
+- Lighthouse preserves the existing mobile performance floor of 98 and accessibility/SEO floors of 95 on every public page, median of three runs. Intentional draft noindex is asserted instead of public SEO, with the same performance/accessibility floors. Fonts are self-hosted; no render-blocking third-party CSS.
+- A simple five-tool row previews a short purpose on hover/focus and selects it on click/tap/keyboard. Below it, the real public GitHub profile contribution calendar uses the approved deterministic snapshot: 365 UTC dates, 16 Nov 2025–15 Nov 2026, 2,165 contributions, captured 15 Nov 2026. These are contributions, not commits-only or completed work. Its outer frame aligns with other sections; natural cells do not stretch. Visible UI is only heading/calendar/legend and contextual selected-date feedback. Preserve source date/count/intensity and capture/coverage/metric provenance nonvisually. Builds remain deterministic and offline. Son approved the fixed-account official GitHub API with a runtime-only dedicated public-read credential, a 15-minute server cache and last-good/snapshot fallback; see docs/GITHUB-CALENDAR-API.md. The browser refreshes the same-origin calendar while visible, with no cron or instant-realtime claim. Missing credentials remain an honest snapshot. The final UTC day may be partial.
+- The old conceptual reader/simulation source remains retained for future reuse, but current Series visitor paths do not render it. Its earlier browser contract is preserved as a non-executable historical reference. No account/model/tool requests run from Series.
 
 ## Brand Commitments
 
-- Name: Sonwork. Owner: Son (Lê Sơn).
+- Wordmark: Son. Existing domain/repository name: Sonwork. Owner: Son (Lê Sơn).
 - Voice: plain, direct, concrete numbers, no hedging, no em dashes, no emojis.
 - Never name a client, an employer or a school anywhere public.
-- Colour tokens carry over from the previous sonwork.org on Son's explicit word (2026-10-17): dark navy oklch ground, cyan "lume" accent, dark default with a light theme. Layouts and copy structure are new.
-- Style direction from Son (2026-10-18, overrides the old site's fonts): tech-futuristic, straightforward, minimal. Type voice is a square typewriter: one squared, slab-leaning monospace for display and headings. No pixel or bitmap fonts. Hairline rules, square corners (0 to 2px), tabular alignment, a terminal or spec-sheet feel, restrained motion. No glow, no decorative gradients, no shadowed cards, no growth green.
-- Faces (chosen 2026-10-18 from Son's shortlist, compared on real content at 390px): **Space Mono** for display, headings and meta, because it is the squarest and most slab-leaning of the five and ships a Vietnamese subset. **Geist** for long prose, because mono body text at 390px gives about 35 characters a line and slows reading. Martian Mono and Sometype Mono were dropped: no Vietnamese subset. IBM Plex Mono and Geist Mono have Vietnamese but read rounder and softer, less square. Both chosen faces are self-hosted OFL woff2 with latin and vietnamese subsets; "Lê Sơn" must render from the face, not a fallback.
+- Current approved Doop direction supersedes the old scenery and Space Mono display study: restrained blue, tactile near-black/white themes, exact open-ridge SVG and hairline rules, with 6px control/figure corners. No old mascot, mountainscape, planets or decorative dashboard cards.
+- Geist is the prose/heading face; Geist Mono is for labels, figures, source-like text and tabular numbers. Both are self-hosted OFL with Vietnamese subsets. See DESIGN.md and THIRD-PARTY-NOTICES.md.
 
 ## Evidence on Hand
 
@@ -50,10 +53,10 @@ Son builds software with coding agents. He decides what gets built and how it sh
 ## Product Principles
 
 1. Prove, don't claim: show the shipped thing and its numbers before any adjective.
-2. About-first entrance: identity and the complete first-person summary lead directly into projects and their actions. Secondary About details follow projects; Contact is reachable and social links stay in the shared footer.
+2. About-first entrance: a single-column introduction, compact public contacts, simple tools and one contribution grid. Series and Project stay sparse Coming soon pages. Writing/build archives and footer Contact remain reachable; choosing a tool never chooses a future Series destination.
 3. Son's words only: copy comes from the content collections, never invented.
 4. Honest status: drafts, pre-alpha and disabled states are labelled as what they are.
 
 ## Accessibility & Inclusion
 
-Touch targets at least 44px, axe with 0 serious or critical violations, `prefers-reduced-motion` respected, both themes meet contrast.
+General touch targets at least 44px, axe with 0 serious or critical violations, `prefers-reduced-motion` respected, both themes meet contrast. Son's chart-only amendment explicitly retains natural compact calendar day squares, with accurate date/count names, native touch selection, one roving keyboard stop/day-week arrows and browser zoom; do not claim a removed full-size picker or universal minimum-size certification. No-JS exposes every date/count in a nonvisual semantic table. Calendar scrolling stays inside its labelled region; hidden data introduces no focusable controls or visible explorer panel.

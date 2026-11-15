@@ -1,0 +1,40 @@
+---
+import tools from '../data/tools.json';
+---
+<section class="tools-section" aria-labelledby="tools-heading" data-tools>
+  <h2 id="tools-heading">Agents and tools I use</h2>
+  <p class="muted tools-description">Shared memory, three agents, and a place to think and write.</p>
+  <div class="tool-composition" data-tool-controls hidden>
+    <div class="tool-row" role="group" aria-label="Choose a tool to read its purpose">
+      {tools.map(tool => <button type="button" class="tool-choice" data-tool={tool.id} data-purpose={`${tool.name}: ${tool.purpose}`} aria-pressed="false" aria-controls="tool-purpose">{tool.id === 'obsidian' && <img src="/obsidian.svg" width="24" height="24" alt="" aria-hidden="true" />}{tool.name}</button>)}
+    </div>
+    <p id="tool-purpose" class="tool-purpose muted" aria-live="polite">Select a tool to see what I use it for.</p>
+  </div>
+  <noscript><ul class="tools-static">{tools.map(tool => <li><strong>{tool.name}</strong><span class="muted">{tool.purpose}</span></li>)}</ul></noscript>
+</section>
+<script>
+  const tools = document.querySelector<HTMLElement>('[data-tools]');
+  if (tools) {
+    const buttons = [...tools.querySelectorAll<HTMLButtonElement>('[data-tool]')];
+    const purpose = tools.querySelector<HTMLElement>('#tool-purpose')!;
+    const hint = purpose.textContent;
+    let selected: HTMLButtonElement | undefined;
+    function preview(button?: HTMLButtonElement) { purpose.textContent = button?.dataset.purpose ?? hint; }
+    function restore() {
+      const focused = buttons.find(button => button === document.activeElement);
+      preview(focused ?? selected);
+    }
+    for (const button of buttons) {
+      button.addEventListener('pointerenter', () => preview(button));
+      button.addEventListener('focus', () => preview(button));
+      button.addEventListener('blur', restore);
+      button.addEventListener('click', () => {
+        selected = button;
+        buttons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        preview(button);
+      });
+    }
+    tools.querySelector('.tool-row')!.addEventListener('pointerleave', restore);
+    tools.querySelector<HTMLElement>('[data-tool-controls]')!.hidden = false;
+  }
+</script>

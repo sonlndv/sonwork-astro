@@ -1,0 +1,84 @@
+import { expect, test } from '@playwright/test';
+const note = '/series/always-on-agents/available-isnt-always-thinking';
+
+for (const theme of ['dark', 'light'] as const) {
+  test(`local simulation supports start, next, play/pause, completion, replay and reset (${theme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.goto(note);
+    const sim = page.locator('[data-simulation]');
+    const button = (name: string) => sim.getByRole('button', { name, exact: true });
+    await expect(sim.locator('.sim-stages li')).toHaveCount(5);
+    await expect(button('Next stage')).toBeDisabled();
+    await expect(sim.locator('li[aria-current]')).toHaveCount(0);
+    // A deterministic browser clock observes actual owned scheduling, without a wall-clock delay.
+    await page.clock.install();
+    await button('New event').click();
+    await expect(sim).toHaveAttribute('data-step', '0');
+    await button('Next stage').click();
+    await expect(sim).toHaveAttribute('data-step', '1');
+    await button('Play simulation').click();
+    await expect(sim).toHaveAttribute('data-playing', 'true');
+    await page.clock.runFor(1500);
+    await expect(sim).toHaveAttribute('data-step', '2');
+    await button('Pause simulation').click();
+    await page.clock.runFor(3000);
+    await expect(sim).toHaveAttribute('data-step', '2');
+    await expect(sim).toHaveAttribute('data-playing', 'false');
+    await button('Play simulation').click();
+    await page.clock.runFor(3000);
+    await expect(sim).toHaveAttribute('data-step', '4');
+    await expect(sim).toHaveAttribute('data-playing', 'false');
+    await expect(sim.locator('[role="status"]')).toContainText('No further work runs.');
+    await expect(button('Next stage')).toBeDisabled();
+    await button('Replay').click(); await expect(sim).toHaveAttribute('data-step', '0');
+    await button('Reset').click(); await expect(sim).toHaveAttribute('data-step', '-1');
+    await expect(sim.locator('li[aria-current]')).toHaveCount(0);
+    await expect(sim).toContainText('No model, account or tool actions run.');
+  });
+}
+
+test('reduced motion is manual and live preference changes stop playback', async ({ page }) => {
+  await page.goto(note); await page.clock.install();
+  const sim = page.locator('[data-simulation]');
+  await sim.getByRole('button', { name: 'New event', exact: true }).click();
+  await sim.getByRole('button', { name: 'Play simulation', exact: true }).click();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(sim).toHaveAttribute('data-playing', 'false');
+  await expect(sim.getByRole('button', { name: 'Play simulation', exact: true })).toBeDisabled();
+  await expect(sim.locator('.sim-manual')).toBeVisible();
+  await page.clock.runFor(9000); await expect(sim).toHaveAttribute('data-step', '0');
+  for (let step = 1; step <= 4; step++) { await sim.getByRole('button', { name: 'Next stage', exact: true }).click(); await expect(sim).toHaveAttribute('data-step', String(step)); }
+  expect(await page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length)).toBe(0);
+});
+
+test('hidden and pagehide cancel owned playback without a catch-up or replay', async ({ page }) => {
+  await page.goto(note); await page.clock.install();
+  const sim = page.locator('[data-simulation]');
+  await sim.getByRole('button', { name: 'New event', exact: true }).click();
+  await sim.getByRole('button', { name: 'Play simulation', exact: true }).click();
+  await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, value: true }); document.dispatchEvent(new Event('visibilitychange')); });
+  await expect(sim).toHaveAttribute('data-playing', 'false');
+  await page.clock.runFor(9000); await expect(sim).toHaveAttribute('data-step', '0');
+  await page.evaluate(() => { Object.defineProperty(document, 'hidden', { configurable: true, value: false }); document.dispatchEvent(new Event('visibilitychange')); });
+  await page.clock.runFor(3000); await expect(sim).toHaveAttribute('data-step', '0');
+  await sim.getByRole('button', { name: 'Play simulation', exact: true }).click();
+  await page.evaluate(() => dispatchEvent(new PageTransitionEvent('pagehide')));
+  await page.clock.runFor(3000); await expect(sim).toHaveAttribute('data-step', '0');
+  await expect(sim).toHaveAttribute('data-playing', 'false');
+});
+
+for (const colorScheme of ['dark', 'light'] as const) test(`without JS the entire note and native disclosures remain usable (${colorScheme})`, async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, colorScheme, viewport: { width: 390, height: 844 } });
+  try {
+    const page = await context.newPage(); await page.goto(baseURL + note);
+    await expect(page.locator('.sim-stages li')).toHaveCount(5);
+    await expect(page.locator('.sim-controls')).toBeHidden();
+    await expect(page.locator('.prose')).toContainText('draft reply (not send)');
+    await expect(page.locator('.prose table tbody tr')).toHaveCount(3);
+    await page.getByText('Why not call this continuous thinking?', { exact: true }).click();
+    await expect(page.locator('.prose details p')).toBeVisible();
+    await expect(page.locator('.theme-toggle')).toBeHidden();
+    await page.getByRole('link', { name: 'Back to Always-on agents', exact: true }).click();
+    await expect(page).toHaveURL('/series/always-on-agents');
+  } finally { await context.close(); }
+});

@@ -21,7 +21,9 @@ export function builtPages(dist = 'dist'): string[] {
 }
 
 // The main nav entry that should carry aria-current on a page.
-export function navSection(path: string): string {
-  const first = path.split('/')[1];
-  return first ? `/${first}` : '/';
+export function navSection(path: string): string | undefined {
+  if (path === '/') return '/';
+  if (path === '/series' || path.startsWith('/series/')) return '/series';
+  if (path === '/project') return '/project';
+  return undefined; // Deliberately retained archives are not one of the three new primary destinations.
 }

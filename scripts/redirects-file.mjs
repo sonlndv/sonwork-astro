@@ -1,9 +1,10 @@
 // Generate ordinary 301 rules. The Worker handles 410s and private-query redirects.
-import { readRedirectMap } from './redirect-map.mjs';
+import { readRedirectMap, currentRouteOverride } from './redirect-map.mjs';
 
 export const REDIRECTS_HEADER = [
   '# Generated from library/redirect-map.csv by scripts/redirects-file.mjs. Do not edit.',
   '# 410 and private-query routes are handled by the Worker.',
+  '# The reclaimed Series index is served directly; historical CSV rows remain unchanged.',
 ];
 
 // /about/ and /about are the same page; / stays /.
@@ -21,7 +22,7 @@ export function redirectRules(rows = readRedirectMap().rows) {
     seen.add(from);
     rules.push({ from, to, status: 301 });
   };
-  const moved = rows.filter((row) => row.status === '301' && !privateRoute(row.old_path));
+  const moved = rows.filter((row) => row.status === '301' && !privateRoute(row.old_path) && !currentRouteOverride(row.old_path));
   for (const row of moved) add(row.old_path, row.new_path);
   for (const row of moved) {
     const twin = twinOf(row.old_path);

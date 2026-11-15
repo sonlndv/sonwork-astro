@@ -1,3 +1,11 @@
+# Current Son. design
+
+The approved Doop rebuild is documented in [docs/DOOP-DESIGN.md](docs/DOOP-DESIGN.md), with current product scope in PRODUCT.md. That design system replaces the scenic/typewriter study below. Current source uses Geist/Geist Mono, the exact open-ridge identity, blue tactile near-black/white themes, and five connected Astro route types. This remains a private implementation pending Son/Ultron's preview acceptance, not publication approval.
+
+Everything below is **historical reference only**. Its old fonts, scenic layout, motion, route and publication grants do not govern or authorize this new task. Retained privacy, draft, disabled-signup, Git-history and storage safeguards remain active through AGENTS.md and the current brief.
+
+<details><summary>Historical pre-Doop design record (preserved verbatim)</summary>
+
 ---
 name: Sonwork
 description: Son's portfolio and writing site, set like a ruled spec sheet in a square typewriter voice.
@@ -647,3 +655,5 @@ Son likes the C12 light theme and keeps its composition; the refinement asked is
 - **Policy.** One scheduler and one pointer policy: the work runs in the existing coalesced pointer frame, bodies are measured in measure() (never per event), and every cancel path (wheel/scroll, held input, keyboard, focus, pointer leave, blur, hidden, resize, theme, Pause, reduced motion, coarse input, forced colours) goes through clearCamera(), which hides the star and clears the canvases and restores the composed fallback. Fresh fine-mouse input is required to resume. The existing sky offset (at most 2px/1px) and exactly static terrain are unchanged; touch, phones, no-JS, reduced motion, Pause and forced colours are intentionally static. If an albedo image fails to load, the star still draws, no relight layer is created and the pre-shaded images stay (no blank sky). The effect exists on Home only.
 - **Remaining qualification.** Real-device and Safari/Firefox behaviour (foreignObject with CSS-projected parents, `mix-blend-mode: screen`), measured frame cost, native-pointer capture and release review are still open; this addendum does not record production acceptance.
 - **Limits unchanged.** No JS, per-scroll writes or scroll animation; the sky-only 2px/1px pointer cap, reduced motion, no-JS, forced-colors and non-Home rendering are unchanged. This is Lantern's implementation of Son's direction, not creative acceptance.
+
+</details>

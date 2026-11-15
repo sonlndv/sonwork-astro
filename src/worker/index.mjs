@@ -1,4 +1,15 @@
 import routes from './legacy-routes.json' with { type: 'json' };
+import { createCalendarService, calendarResponse } from '../lib/github-calendar-api.mjs';
+
+let calendarService;
+let calendarToken;
+function serviceFor(env) {
+  if (!calendarService || calendarToken !== env.GITHUB_CALENDAR_TOKEN) {
+    calendarToken = env.GITHUB_CALENDAR_TOKEN;
+    calendarService = createCalendarService({ token: calendarToken });
+  }
+  return calendarService;
+}
 
 const normalized = path => path.length > 1 ? path.replace(/\/$/, '') : path;
 const exact = new Map(routes.filter(r => !r.path.endsWith('*')).map(r => [normalized(r.path), r]));
@@ -19,6 +30,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = normalized(url.pathname);
+    if (url.pathname === '/api/github-calendar') return calendarResponse(request, serviceFor(env));
     // Strip the complete query before a private legacy link reaches any new page.
     if (path === '/api/unsubscribe') return redirect(request, '/subscribe', true);
     if (path === '/book' || path === '/book/status') return redirect(request, '/about', true);

@@ -1,101 +1,25 @@
 ---
-import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CopyEmail from '../components/CopyEmail.astro';
-import { isVisible } from '../lib/content';
-import '../styles/home.css';
-
-const about = await getEntry('pages', 'about');
-const copy = about && isVisible(about) ? about.data : undefined;
-const intro = copy?.homeIntro;
-
-// Unboxed entries. Summaries are fixed copy; destinations are the published ones.
-const builds = [
-  {
-    name: 'Trivia Hub',
-    href: '/work/trivia-hub',
-    status: 'Live',
-    desc: 'Daily games with one shared reset.',
-    links: [
-      { href: 'https://games.sonwork.org', label: 'Play', primary: true },
-      { href: '/work/trivia-hub', label: 'Case study', primary: false },
-    ],
-  },
-  {
-    name: 'Keymarchy',
-    status: 'Listed',
-    desc: 'Type in English and Vietnamese on Omarchy.',
-    links: [
-      { href: 'https://plugins.omarchy.org/plugin.html?id=sonlndv.vietkey', label: 'Live page', primary: true },
-      { href: 'https://github.com/sonlndv/omarchy-vietkey', label: 'Source', primary: false },
-    ],
-  },
-  {
-    name: 'Perfeat',
-    status: 'Building',
-    desc: 'A food diary for meals and who you ate with.',
-    links: [],
-  },
-];
+import ToolStrip from '../components/ToolStrip.astro';
+import GithubCalendar from '../components/GithubCalendar.astro';
 ---
-<BaseLayout title="Son" description={copy?.description ?? 'Software, writing and a newsletter from Son.'}>
-  <div class="front">
-    <section class="front-lead front-about" aria-labelledby="home-title" data-valley-landmark="entry">
-      <h1 id="home-title">{copy?.homeTitle ?? 'About'}</h1>
-      {intro && <p class="home-intro">{intro}</p>}
-    </section>
-
-    <div class="front-main">
-      <section class="front-projects" aria-labelledby="home-projects" data-valley-landmark="projects">
-        <div class="section-head">
-          <h2 id="home-projects">Selected projects</h2>
-          <a href="/work">All builds</a>
-        </div>
-        <ul class="build-list">
-          {builds.map((build) => (
-            <li class="build-entry">
-              <h3>{build.href ? <a href={build.href}>{build.name}</a> : build.name}</h3>
-              <p class="meta build-status">{build.status}</p>
-              <p class="build-desc">{build.desc}</p>
-              {build.links.length > 0 ? (
-                <ul class="links build-action">
-                  {build.links.map((link) => (
-                    <li>
-                      <a class:list={{ 'primary-action': link.primary }} href={link.href}>{link.label}{link.href.startsWith('https://') && <svg class="arrow" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 8L8 2M3.5 2H8v4.5" fill="none" stroke="currentColor" stroke-width="1.4"></path></svg>}<span class="visually-hidden">: {build.name}</span></a>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p class="build-action build-quiet">Not released yet.</p>
-              )}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section class="home-details" aria-labelledby="home-about">
-        <div class="section-head">
-          <h2 id="home-about">About</h2>
-        </div>
-        <p class="hermes-note"><a href="https://hermes-agent.nousresearch.com/docs/">Hermes</a> is my main driver now. I use it to build things, try ideas, and learn as I go.</p>
-        {copy?.homeBuild && <details class="home-build">
-          <summary>What I'm exploring</summary>
-          <p>{copy.homeBuild}</p>
-        </details>}
-        <a class="home-more" href="/about">Full About and contributions</a>
-      </section>
-
-      <section class="front-contact" aria-labelledby="home-contact" data-valley-landmark="contact">
-        <div class="section-head">
-          <h2 id="home-contact">Contact</h2>
-        </div>
-        <dl class="facts">
-          <div>
-            <dt>Email</dt>
-            <dd><a href="mailto:son@sonwork.org">son@sonwork.org</a><CopyEmail /></dd>
-          </div>
-        </dl>
-      </section>
-    </div>
-  </div>
+<BaseLayout title="Son." description="I’m Son, a business guy in Vietnam, trying things with AI and sharing what I learn through notes and visual explanations.">
+  <section class="about-opening" aria-labelledby="home-title">
+    <h1 id="home-title">Trying things with AI.<br /><span class="blue">Learning as I go.</span></h1>
+    <p class="home-intro">I’m Son, a business guy in Vietnam. I’m exploring how AI can automate parts of my work and help me build things I find useful.</p>
+    <p class="muted intro-secondary">I work with agents, try ideas and write down what works, what doesn’t and what I’m still figuring out. Here I share that journey through notes, visual explanations and small examples you can explore.</p>
+    <nav class="about-contacts" aria-label="Contact Son">
+      <ul>
+        <li><a href="mailto:son@sonwork.org">son@sonwork.org</a></li>
+        <li><a href="https://x.com/sonldv">X @sonldv</a></li>
+        <li><a href="https://github.com/sonlndv">GitHub sonlndv</a></li>
+        <li><a href="https://www.linkedin.com/in/sonle2003/">LinkedIn in/sonle2003</a></li>
+      </ul>
+    </nav>
+  </section>
+  <div class="about-tools"><ToolStrip /><GithubCalendar /></div>
+  <section class="home-project section-split" aria-labelledby="home-project-title">
+    <h2 id="home-project-title" class="mono muted">Project</h2>
+    <div><h3>Coming soon</h3><p class="muted">For now, I’m sharing what I’m learning.</p><a class="go" href="/project">About the project page <span aria-hidden="true">→</span></a></div>
+  </section>
 </BaseLayout>
