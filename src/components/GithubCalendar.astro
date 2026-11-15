@@ -1,0 +1,29 @@
+---
+import snapshot from '../data/github-contributions.json';
+import { calendarLayout } from '../lib/contribution-calendar.mjs';
+const { days, total, offset, weeks, months } = calendarLayout(snapshot);
+const dateLabel = (value: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${value}T00:00:00Z`));
+const captured = new Date(snapshot.retrievedAt).toISOString().slice(0, 10);
+const countLabel = (count: number) => `${count} ${count === 1 ? 'contribution' : 'contributions'}`;
+---
+<section class="github-calendar" aria-labelledby="github-heading" aria-describedby="calendar-description" data-calendar data-calendar-mode="snapshot" data-calendar-source="public-profile-snapshot" data-calendar-fetched-at={snapshot.retrievedAt}>
+  <h2 id="github-heading">GitHub contributions</h2>
+  <p id="calendar-description" class="visually-hidden">{dateLabel(snapshot.from)}–{dateLabel(snapshot.through)} · {total.toLocaleString('en-US')} contributions. Not live data. Public profile snapshot captured <time datetime={snapshot.retrievedAt}>{dateLabel(captured)}</time> from {snapshot.source}. Dates are UTC; the final day may be partial. Profile contributions include more than commits and may include anonymized private activity according to public profile visibility settings. These are activity counts, not completed work. Original GitHub intensity levels are retained. This static fallback is replaced only by a validated same-origin API response.</p>
+  <p id="calendar-help" class="visually-hidden">Use arrow keys to browse days and weeks, Home or End for the first or last date, and Enter or Space to select. Every square has its UTC date and contribution count.</p>
+  <div class="calendar-plot">
+    <div class="calendar-scroll" tabindex="0" role="region" aria-label="GitHub contribution calendar, scroll horizontally to see all dates" aria-describedby="calendar-help" style={`--weeks: ${weeks}`}>
+      <div class="calendar-months" aria-hidden="true">{months.map(month => <span style={`grid-column: ${month.column}`}>{month.label}</span>)}</div>
+      <div class="calendar-grid" role="group" aria-label="Daily GitHub contributions">
+        {Array.from({ length: offset }, () => <span class="calendar-empty" aria-hidden="true"></span>)}
+        {days.map((day, index) => <button type="button" class="calendar-day" data-date={day.date} data-count={day.count} data-level={day.level} aria-label={`${day.date}: ${countLabel(day.count)} (UTC)`} title={`${day.date}: ${countLabel(day.count)} (UTC)`} aria-pressed="false" tabindex={index === 0 ? 0 : -1} disabled></button>)}
+      </div>
+    </div>
+    <div class="calendar-foot mono muted"><span class="calendar-legend" aria-label="Contribution intensity from fewer to more">Fewer <span class="legend-squares" aria-hidden="true">{[0, 1, 2, 3, 4].map(level => <i data-level={level}></i>)}</span> More</span></div>
+    <p id="calendar-detail" class="calendar-detail muted" aria-live="polite" aria-atomic="true"></p>
+  </div>
+  <noscript><div class="visually-hidden"><table><caption>Every UTC date and contribution count in the public GitHub snapshot</caption><thead><tr><th scope="col">UTC date</th><th scope="col">Contributions</th></tr></thead><tbody>{days.map(day => <tr><th scope="row">{day.date}</th><td>{day.count}</td></tr>)}</tbody></table></div></noscript>
+</section>
+<script>
+  import { startCalendar } from '../lib/calendar-client';
+  startCalendar();
+</script>

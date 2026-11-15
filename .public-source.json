@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "excludedPrivateDrafts": [
+    "src/content/series/always-on-agents.mdx",
+    "src/content/notes/always-on-agents/available-isnt-always-thinking.mdx"
+  ]
+}

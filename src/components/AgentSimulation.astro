@@ -1,0 +1,63 @@
+---
+const stages = [
+  ['New event', 'A new support message arrives in a queue.'],
+  ['Context', 'Read the message and the relevant help article.'],
+  ['Tool action', 'Draft a reply; do not send it automatically.'],
+  ['Verified result', 'Check the draft against the article and queue it for review.'],
+  ['Wait', 'Stop this turn until a new event appears.'],
+];
+---
+<figure class="text-figure agent-simulation" data-simulation>
+  <figcaption>[ LOCAL TEACHING SIMULATION ]</figcaption>
+  <ol class="sim-stages" aria-label="Support message: one bounded turn">{stages.map(([label, explanation]) => <li><span class="stage-dot" aria-hidden="true"></span><strong>{label}</strong><span>{explanation}</span></li>)}</ol>
+  <div class="sim-controls" hidden>
+    <button class="primary" data-action="start" type="button">New event</button><button data-action="next" type="button" disabled>Next stage</button><button data-action="play" type="button" disabled>Play</button><button data-action="replay" type="button" disabled>Replay</button><button data-action="reset" type="button" disabled>Reset</button>
+  </div>
+  <p class="sim-status" role="status" aria-live="polite">Ready. Choose “New event” to begin.</p>
+  <p class="sim-safety">Illustration only. No model, account or tool actions run. A draft is not sent. The full explanation above works without controls.</p>
+  <p class="sim-manual mono muted" hidden>Reduced motion: use New event and Next stage. Automatic playback is off.</p>
+  <noscript><p class="mono muted">JavaScript is off. Read the five stages above in order; no simulation is running.</p></noscript>
+</figure>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-simulation]').forEach(figure => {
+    const buttons = Object.fromEntries([...figure.querySelectorAll<HTMLButtonElement>('[data-action]')].map(button => [button.dataset.action!, button]));
+    const rows = [...figure.querySelectorAll<HTMLElement>('.sim-stages > li')];
+    const status = figure.querySelector<HTMLElement>('.sim-status')!;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const messages = [
+      '1 of 5 · New event. A support message starts one bounded turn.',
+      '2 of 5 · Context. Select only the message and relevant help article.',
+      '3 of 5 · Scoped action. Draft a reply, without sending it.',
+      '4 of 5 · Verification. Check evidence and request human review.',
+      '5 of 5 · Wait. This turn is finished. No further work runs.',
+    ];
+    let step = -1;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    function pause() { if (timer !== undefined) clearTimeout(timer); timer = undefined; figure.dataset.playing = 'false'; buttons.play.textContent = 'Play'; buttons.play.setAttribute('aria-label', 'Play simulation'); }
+    function render() {
+      rows.forEach((row, index) => { if (index === step) row.setAttribute('aria-current', 'step'); else row.removeAttribute('aria-current'); });
+      figure.dataset.step = String(step);
+      status.textContent = step < 0 ? 'Ready. Choose “New event” to begin.' : messages[step];
+      buttons.next.disabled = step < 0 || step === 4;
+      buttons.play.disabled = reduced.matches || step < 0 || step === 4;
+      buttons.replay.disabled = buttons.reset.disabled = step < 0;
+      figure.querySelector<HTMLElement>('.sim-manual')!.hidden = !reduced.matches;
+    }
+    function advance() { if (step >= 0 && step < 4) step++; if (step === 4) pause(); render(); }
+    function schedule() {
+      timer = setTimeout(() => { timer = undefined; advance(); if (step < 4 && !document.hidden && !reduced.matches) schedule(); }, 1500);
+      figure.dataset.playing = 'true'; buttons.play.textContent = 'Pause'; buttons.play.setAttribute('aria-label', 'Pause simulation');
+    }
+    buttons.start.addEventListener('click', () => { pause(); step = 0; render(); });
+    buttons.next.addEventListener('click', () => { pause(); advance(); });
+    buttons.replay.addEventListener('click', () => { pause(); step = 0; render(); });
+    buttons.reset.addEventListener('click', () => { pause(); step = -1; render(); });
+    buttons.play.addEventListener('click', () => { if (timer !== undefined) pause(); else if (step >= 0 && step < 4 && !reduced.matches && !document.hidden) schedule(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+    window.addEventListener('pagehide', pause);
+    figure.closest('details')?.addEventListener('toggle', event => { if (!(event.target as HTMLDetailsElement).open) pause(); });
+    reduced.addEventListener('change', () => { pause(); render(); });
+    figure.querySelector<HTMLElement>('.sim-controls')!.hidden = false;
+    pause(); render();
+  });
+</script>

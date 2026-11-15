@@ -57,4 +57,29 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { posts, work, 'side-projects': sideProjects, pages };
+const series = defineCollection({
+  loader: glob({ pattern: '*.mdx', base: './src/content/series' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().min(10).max(300),
+    summary: z.string().min(10).max(200).optional(),
+    date: z.coerce.date(),
+    draft: z.boolean(),
+    featured: z.boolean().default(false),
+  }),
+});
+
+const notes = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/notes' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().min(10).max(300),
+    lede: z.string().min(10).max(500),
+    series: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    date: z.coerce.date(),
+    draft: z.boolean(),
+    order: z.number().int().positive(),
+  }),
+});
+
+export const collections = { posts, work, 'side-projects': sideProjects, pages, series, notes };

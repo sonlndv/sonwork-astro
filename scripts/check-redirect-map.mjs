@@ -8,7 +8,7 @@
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { HEADER, readRedirectMap } from './redirect-map.mjs';
+import { HEADER, readRedirectMap, currentRouteOverride } from './redirect-map.mjs';
 import { renderRedirects, samePage, twinOf, privateRoute } from './redirects-file.mjs';
 
 const dist = resolve(process.argv[2] ?? 'dist');
@@ -86,6 +86,12 @@ if (!existsSync(redirectsFile)) {
   ruleCount = rules.size;
   const explicit = new Set(rows.filter((r) => r.status === '301').map((r) => r.old_path));
   for (const { old_path: oldPath, new_path: newPath, status } of rows) {
+    const current = currentRouteOverride(oldPath);
+    if (current) {
+      if (rules.has(oldPath) || rules.has(current)) errors.push(`_redirects: reclaimed index ${current} must be served, not redirected`);
+      if (!servedBy(current)) errors.push(`reclaimed index ${current} is missing from the build`);
+      continue;
+    }
     if (status !== '301' || privateRoute(oldPath)) {
       if (rules.has(oldPath)) errors.push(`_redirects: ${oldPath} is a ${status}/Worker-handled row and must not be redirected`);
       continue;

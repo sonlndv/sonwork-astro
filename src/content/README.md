@@ -56,6 +56,16 @@ Two entries: Keymarchy and Perfeat. Smaller tools (the Obsidian theme, the Omawr
 | `homeBuild` | string, optional | Exploration copy for the native What I'm exploring disclosure; field name retained. |
 | `draft` | boolean | |
 
+### `series/` and `notes/`
+
+Series live at `series/<slug>.mdx`. Each has `title`, `description` (10–300 characters), optional short `summary` for the About disclosure, `date`, explicit `draft`, and optional `featured` (default false). The MDX body owns its introduction and any figures; the template never inserts first-series-specific prose.
+
+Notes live at `notes/<series-slug>/<note-slug>.mdx`. Each has `title`, `description` (10–300 characters), `lede` (10–500 characters), `series` (the exact parent slug), `date`, explicit `draft`, and positive integer `order`. Parent and directory must agree. Unknown parents and deeper paths fail the build. A draft parent hides all children in release output; preview can show draft parents and notes. Dates and tied feature choices are deterministic.
+
+Son's current amendment leaves Series empty. The index and retained current Series URLs show only Series/Coming soon with generic metadata, not collection copy, planned topics or a curriculum. About has no Series teaser; `src/data/tools.json` contains only tool identities/purposes. The separate `retained-series-slugs.json` preserves compatibility without choosing future topics. All MDX drafts and their flags remain intact for future reuse. Draft-derived preview URLs stay noindex and release output excludes them. Series/notes are not silently added to the historical post RSS feed.
+
+`src/data/github-contributions.json` is the exact allowlisted public snapshot selected for the contribution grid, not content publication or a network collector. It preserves UTC dates/counts/original levels and capture/source provenance. `src/lib/contribution-calendar.mjs` rejects extra fields, gaps, duplicates, invalid values and mismatched totals. Refresh is not automatic; a future manual update needs its own verified source receipt.
+
 ## Voice
 
 Son's rules: one idea per post, open with the claim, 300 to 800 words, concrete numbers, no hedging, plain words, end on the point. No em dashes, no emojis. No client, employer or school names. Every claim traces to a repo, a commit or a live link.

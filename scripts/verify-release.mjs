@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { request as httpRequest } from 'node:http';
 import { request as httpsRequest } from 'node:https';
 import { createHash } from 'node:crypto';
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { readRedirectMap, samplePath } from './redirect-map.mjs';
+import { readRedirectMap, samplePath, currentRouteOverride } from './redirect-map.mjs';
 
 // Node fetch overwrites Sec-Fetch-Mode with cors. Use HTTP directly so the
 // navigation gate exercises the same routing header a browser actually sends.
@@ -78,7 +78,10 @@ export async function verifyRelease(base, expectedSha, output) {
   const noteImageSha256 = '84cbb4083e00a864acad623637edfb0d55afd46ecfaafa0360aaf368f86894ab';
   const html = [];
   const notePath = '/writing/the-joy-of-malleable-products';
-  for (const path of ['/', '/about', '/work', '/work/trivia-hub', '/writing', notePath, '/subscribe']) {
+  const tools = JSON.parse(readFileSync(new URL('../src/data/tools.json', import.meta.url), 'utf8'));
+  const calendar = JSON.parse(readFileSync(new URL('../src/data/github-contributions.json', import.meta.url), 'utf8'));
+  const retainedPaths = JSON.parse(readFileSync(new URL('../src/data/retained-series-slugs.json', import.meta.url), 'utf8')).map(slug => `/series/${slug}`);
+  for (const path of ['/', '/series', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', '/writing', notePath, '/subscribe']) {
     await check(path, async () => {
       const response = await get(path);
       assert.equal(response.status, 200);
@@ -88,7 +91,8 @@ export async function verifyRelease(base, expectedSha, output) {
       assert.ok(body.includes(`href="https://sonwork.org${path}"`), 'canonical must use the production URL');
       assert.doesNotMatch(body, /\bdata-(?:signup-(?:url|key)|newsletter)=/);
       assert.doesNotMatch(body, /<form\b|<input\b|<button\b[^>]*type="submit"/);
-      assert.match(body, /<a\b[^>]*href="\/#home-contact"[^>]*>Contact<\/a>/);
+      for (const [href, label] of [['/', 'About Me'], ['/series', 'Series'], ['/project', 'Project']]) assert.ok(body.includes(`href="${href}"`) && body.includes(label), `missing primary destination ${label}`);
+      assert.match(body, /href="mailto:son@sonwork\.org"/);
       assert.doesNotMatch(body, /<a\b[^>]*href="\/subscribe"[^>]*>Subscribe<\/a>/);
       if (path === '/subscribe') {
         const notices = [...body.matchAll(/<p\b[^>]*class="signup-closed"[^>]*>Signup opens soon\.<\/p>/g)];
@@ -96,7 +100,27 @@ export async function verifyRelease(base, expectedSha, output) {
       } else if (path === '/') {
         assert.doesNotMatch(body, /<p\b[^>]*class=["'][^"']*\bsignup-closed\b/);
       }
-      if (path === '/') for (const text of ["I'm Son", 'Trivia Hub', 'Keymarchy', 'Perfeat']) assert.ok(body.includes(text), `missing ${text}`);
+      if (path === '/') {
+        for (const text of ['Trying things with AI.', 'Learning as I go.', 'Agents and tools I use', 'GitHub contributions', '2,165 contributions. Not live data.']) assert.ok(body.includes(text), `missing ${text}`);
+        const contacts = /<nav\b[^>]*aria-label="Contact Son"[^>]*>([\s\S]*?)<\/nav>/.exec(body)?.[1];
+        assert.ok(contacts, 'About must have its compact public contact row');
+        for (const href of ['mailto:son@sonwork.org', 'https://x.com/sonldv', 'https://github.com/sonlndv', 'https://www.linkedin.com/in/sonle2003/']) assert.ok(contacts.includes(`href="${href}"`), `missing exact public contact ${href}`);
+        assert.doesNotMatch(body, /How I use|See the planned|class="[^"]*\bplanned-preview\b/);
+        assert.doesNotMatch(body, /DATA CONNECTION PENDING|AI usage over time|GitHub commits|Always-on agents|data-doop-action/);
+        const days = [...body.matchAll(/<button\b[^>]*class="calendar-day"[^>]*>/g)].map(([tag]) => ({ date: /data-date="([^"]+)"/.exec(tag)?.[1], count: Number(/data-count="([^"]+)"/.exec(tag)?.[1]), level: Number(/data-level="([^"]+)"/.exec(tag)?.[1]) }));
+        assert.deepEqual(days, calendar.days, 'all approved UTC contribution counts and original levels must survive packaging');
+        for (const tool of tools) assert.ok(body.includes(`data-tool="${tool.id}"`), `missing simple tool ${tool.name}`);
+        assert.doesNotMatch(body, /class="(?:build-entry|front-projects)"/);
+      }
+      if (path === '/series' || retainedPaths.includes(path)) {
+        const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
+        assert.ok(main, 'Series must have its shared main landmark');
+        assert.equal(main.replace(/<[^>]+>/g, '').trim(), 'Series.Coming soon');
+        assert.ok(body.includes('<title>Series | Son.</title>'));
+        assert.ok(body.includes('name="description" content="Coming soon."'));
+        assert.doesNotMatch(main, /<a\b|<time\b|<article\b|<button\b|<li\b|How I use|planned|Always-on|05/);
+      }
+      if (path === '/project') assert.match(body, /Coming soon/);
       if (path === '/about') assert.match(body, /business guy in Vietnam/);
       if (path === '/work' || path === '/work/trivia-hub') assert.match(body, /Trivia Hub/);
       if (path === '/subscribe') {
@@ -130,6 +154,10 @@ export async function verifyRelease(base, expectedSha, output) {
       assert.ok(html.every(body => !body.includes(`/writing/${slug}`)));
     });
   }
+  for (const draftPath of ['/series/always-on-agents', '/series/always-on-agents/available-isnt-always-thinking']) await check(`preserved draft remains private ${draftPath}`, async () => {
+    assert.equal((await get(draftPath)).status, 404);
+    assert.ok(html.every(body => !body.includes(`href="${draftPath}"`)));
+  });
   await check('RSS', async () => {
     const response = await get('/rss.xml'); assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /xml/);
@@ -137,6 +165,7 @@ export async function verifyRelease(base, expectedSha, output) {
     assert.equal([...feed.matchAll(/<item[\s>]/g)].length, 1, 'RSS must contain exactly the approved Note');
     assert.match(feed, /<title>The joy of malleable products<\/title>/);
     assert.ok(feed.includes('/writing/the-joy-of-malleable-products'));
+    assert.doesNotMatch(feed, /available-isnt-always-thinking/);
     for (const slug of hiddenDrafts) assert.ok(!feed.includes(slug), `RSS must not include ${slug}`);
   });
   await check('Note image bytes', async () => {
@@ -177,7 +206,17 @@ export async function verifyRelease(base, expectedSha, output) {
     const variants = path.endsWith('/') && path !== '/' ? [path, path.slice(0, -1)] : [path];
     for (const variant of variants) for (const navigation of [false, true]) await check(`map ${variant} navigation=${navigation}`, async () => {
       const response = await get(variant, navigation ? { headers: { 'Sec-Fetch-Mode': 'navigate' } } : {});
-      if (row.status === '410') assert.equal(response.status, 410);
+      const current = currentRouteOverride(variant);
+      if (current) {
+        if (variant === current) assert.equal(response.status, 200, 'reclaimed Series index must load directly');
+        else {
+          assert.ok([301, 307, 308].includes(response.status));
+          assert.equal(new URL(response.headers.get('location'), base).pathname, current);
+        }
+        const page = await follow(variant);
+        assert.equal(page.status, 200);
+        assert.match(await page.text(), /<h1[^>]*>Series[\s<]/, 'historical index row must now reach the actual Series page');
+      } else if (row.status === '410') assert.equal(response.status, 410);
       else if (row.status === '301') {
         // /about/ is a canonical slash normalization by the asset host (307).
         const same = variant.replace(/\/$/, '') === row.new_path.replace(/\/$/, '');
@@ -198,8 +237,30 @@ export async function verifyRelease(base, expectedSha, output) {
     const r = await get('/projects/?utm_source=old'); assert.equal(r.status, 301);
     assert.equal(new URL(r.headers.get('location'), base).search, '?utm_source=old');
   });
+  await check('fixed public calendar API', async () => {
+    const response = await get('/api/github-calendar'); assert.equal(response.status, 200);
+    assert.match(response.headers.get('cache-control') ?? '', /no-store/);
+    assert.match(response.headers.get('x-robots-tag') ?? '', /noindex/);
+    const data = await response.json();
+    assert.deepEqual(Object.keys(data).sort(), ['calendar', 'meta']);
+    assert.deepEqual(Object.keys(data.meta).sort(), ['fetchedAt', 'mode', 'source', 'stale']);
+    assert.ok(['fresh', 'cache', 'stale', 'snapshot'].includes(data.meta.mode));
+    assert.equal(data.calendar.source, calendar.source);
+    assert.equal(data.calendar.days.length, 365);
+    assert.ok(data.calendar.days.every(day => Object.keys(day).sort().join(',') === 'count,date,level'));
+    if (data.meta.mode === 'snapshot') assert.deepEqual(data.calendar, calendar);
+    assert.equal((await get('/api/github-calendar', { method: 'HEAD' })).status, 200);
+    assert.equal((await get('/api/github-calendar?login=other')).status, 400);
+    assert.equal((await get('/api/github-calendar?query=mutation')).status, 400);
+    assert.equal((await get('/api/github-calendar/')).status, 410);
+    assert.equal((await get('/api/graphql')).status, 410);
+  });
   // Mutations are checked only on the local runtime, never against a live API.
   if (['127.0.0.1', 'localhost'].includes(new URL(base).hostname)) {
+    for (const method of ['POST', 'PUT', 'DELETE']) await check(`fixed calendar rejects ${method}`, async () => {
+      const response = await get('/api/github-calendar', { method }); assert.equal(response.status, 405);
+      assert.equal(response.headers.get('allow'), 'GET, HEAD');
+    });
     for (const method of ['HEAD', 'POST', 'DELETE']) await check(`retired API ${method}`, async () => {
       const r = await get('/api/retired-test', { method }); assert.equal(r.status, 410);
       if (method === 'HEAD') assert.equal(await r.text(), '');

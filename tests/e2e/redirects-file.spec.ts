@@ -6,7 +6,6 @@ import { redirectRules, samePage } from '../../scripts/redirects-file.mjs';
 const row = (old_path: string, new_path: string, status = '301') => ({ old_path, new_path, status });
 
 test.describe('_redirects generator', () => {
-  test.skip(({ isMobile }) => isMobile, 'no browser, runs once');
 
   test('leaves out rules between two forms of the same page', () => {
     const rules = redirectRules([row('/about/', '/about'), row('/work', '/work/'), row('/', '/'), row('/projects/', '/work')]);

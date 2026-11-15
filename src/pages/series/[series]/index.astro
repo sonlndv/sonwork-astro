@@ -1,0 +1,16 @@
+---
+import SeriesComingSoon from '../../../components/SeriesComingSoon.astro';
+import retainedSlugs from '../../../data/retained-series-slugs.json';
+import { getSeries } from '../../../lib/series';
+interface Props { noIndex: boolean; }
+export async function getStaticPaths() {
+  const entries = await getSeries();
+  const entryIds = new Set(entries.map(entry => entry.id));
+  return [
+    ...entries.map(entry => ({ params: { series: entry.id }, props: { noIndex: entry.data.draft } })),
+    ...retainedSlugs.filter(slug => !entryIds.has(slug)).map(slug => ({ params: { series: slug }, props: { noIndex: false } })),
+  ];
+}
+const { noIndex } = Astro.props;
+---
+<SeriesComingSoon noIndex={noIndex} />

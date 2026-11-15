@@ -1,0 +1,10 @@
+---
+import { flowNodes } from '../lib/series-policy.mjs';
+interface Props { title: string; text: string; }
+const { title, text } = Astro.props;
+const nodes = flowNodes(text);
+---
+<figure class="text-figure graph-flow">
+  <figcaption>[ {title} ]</figcaption>
+  <ol aria-label={title}>{nodes.map((node, index) => <li>{index > 0 && <span class="flow-arrow" aria-hidden="true">→</span>}<span>{node.label}</span></li>)}</ol>
+</figure>

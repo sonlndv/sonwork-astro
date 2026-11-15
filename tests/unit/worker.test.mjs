@@ -6,6 +6,15 @@ import { buildSha } from '../../scripts/build-release.mjs';
 const request = (path, method = 'GET') => new Request(`https://sonwork.org${path}`, { method });
 const env = (status = 404) => ({ ASSETS: { fetch: async () => new Response('asset', { status }) } });
 
+test('only the approved fixed calendar API is carved out; missing runtime token is safe snapshot', async () => {
+  const response = await worker.fetch(request('/api/github-calendar'), env());
+  assert.equal(response.status, 200);
+  const data = await response.json(); assert.equal(data.meta.mode, 'snapshot'); assert.equal(data.calendar.days.length, 365);
+  assert.equal((await worker.fetch(request('/api/github-calendar?login=other'), env())).status, 400);
+  assert.equal((await worker.fetch(request('/api/github-calendar', 'POST'), env())).status, 405);
+  for (const path of ['/api/github-calendar/', '/api/github-calendar/other', '/api/graphql', '/api/github-calendar.json']) assert.equal((await worker.fetch(request(path), env())).status, 410);
+});
+
 test('retired API and files return actual 410 for GET, HEAD and POST', async () => {
   for (const path of ['/api/notes', '/api/', '/login', '/logout', '/og/old.png', '/404/', '/404.html', '/404']) {
     for (const method of ['GET', 'HEAD', 'POST']) {

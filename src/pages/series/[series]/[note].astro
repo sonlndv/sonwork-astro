@@ -1,0 +1,14 @@
+---
+import SeriesComingSoon from '../../../components/SeriesComingSoon.astro';
+import { getSeries, getNotes } from '../../../lib/series';
+interface Props { noIndex: boolean; }
+export async function getStaticPaths() {
+  const paths = [];
+  for (const series of await getSeries()) for (const note of await getNotes(series.id)) {
+    paths.push({ params: { series: series.id, note: note.id.slice(series.id.length + 1) }, props: { noIndex: series.data.draft || note.data.draft } });
+  }
+  return paths;
+}
+const { noIndex } = Astro.props;
+---
+<SeriesComingSoon noIndex={noIndex} />

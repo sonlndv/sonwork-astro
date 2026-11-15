@@ -9,10 +9,11 @@
 // gzip 6, by Accept-Encoding. Images and fonts are never encoded. Without it, responses are raw bytes.
 
 import { createServer } from 'node:http';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, realpath } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { brotliCompressSync, gzipSync, constants as zlibConstants } from 'node:zlib';
+import { createCalendarService, calendarResponse } from '../src/lib/github-calendar-api.mjs';
 
 const types = {
   '.html': 'text/html; charset=utf-8',
@@ -42,7 +43,12 @@ async function findFile(root, pathname) {
   const base = join(root, rel.replace(/(.)\/$/, '$1'));
   if (base !== root && !base.startsWith(`${root}/`)) return null;
   for (const candidate of [base, join(base, 'index.html'), `${base}.html`]) {
-    if (await isFile(candidate)) return candidate;
+    if (await isFile(candidate)) {
+      const actual = await realpath(candidate);
+      const actualRoot = await realpath(root);
+      if (!actual.startsWith(`${actualRoot}/`)) return null;
+      return candidate;
+    }
   }
   return null;
 }
@@ -62,10 +68,17 @@ function acceptedEncodings(header) {
   return accepted;
 }
 
-export function startServer(dir = 'dist', port = 4322, { compress = false } = {}) {
+export function startServer(dir = 'dist', port = 4322, { compress = false, noIndex = false, calendarService = createCalendarService() } = {}) {
   const root = resolve(dir);
   const server = createServer(async (req, res) => {
     const { pathname } = new URL(req.url ?? '/', 'http://localhost');
+    if (pathname === '/api/github-calendar') {
+      // Only URL/method are consumed; Web Request rejects TRACE before our405 guard.
+      const response = await calendarResponse({ url: new URL(req.url, 'http://localhost').href, method: req.method }, calendarService);
+      res.writeHead(response.status, Object.fromEntries(response.headers));
+      res.end(req.method === 'HEAD' ? undefined : Buffer.from(await response.arrayBuffer()));
+      return;
+    }
     let file = null;
     try {
       file = await findFile(root, pathname);
@@ -77,6 +90,11 @@ export function startServer(dir = 'dist', port = 4322, { compress = false } = {}
     try {
       let body = await readFile(file);
       const headers = { 'content-type': types[extname(file)] ?? 'application/octet-stream' };
+      if (noIndex) {
+        headers['x-robots-tag'] = 'noindex, nofollow, noarchive';
+        headers['cache-control'] = 'no-store';
+        headers['referrer-policy'] = 'no-referrer';
+      }
       if (compress && compressible.has(extname(file))) {
         const accepted = acceptedEncodings(req.headers['accept-encoding']);
         headers.vary = 'accept-encoding';
@@ -91,7 +109,7 @@ export function startServer(dir = 'dist', port = 4322, { compress = false } = {}
       res.writeHead(status, headers);
       res.end(req.method === 'HEAD' ? undefined : body);
     } catch {
-      res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+      res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8', ...(noIndex ? { 'x-robots-tag': 'noindex, nofollow, noarchive', 'cache-control': 'no-store' } : {}) });
       res.end('Not found');
     }
   });

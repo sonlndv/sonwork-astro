@@ -1,0 +1,48 @@
+<section class="usage-section" aria-labelledby="chart-title" data-usage-chart>
+  <div class="chart-heading"><h2 id="chart-title">AI usage over time</h2><span class="mono muted">16 Oct–14 Nov 2026 · historical window</span></div>
+  <p class="chart-description muted" id="chart-description">Daily AI usage by selected tool; verified day-level records are not connected. Usage is not progress or completed work.</p>
+  <div data-chart-controls hidden>
+    <div class="chart-tabs" role="group" aria-label="Chart view"><button type="button" data-view="ai" aria-pressed="true">AI usage</button><button type="button" data-view="github" aria-pressed="false">GitHub commits</button></div>
+    <div class="usage-controls">
+      <span class="tool-control"><label for="usage-tool">Tool</label><select id="usage-tool" aria-controls="usage-status"><option value="hermes">Hermes Agent</option><option value="claude">Claude Code</option><option value="openmaus">OpenMaus</option></select></span>
+      <label for="usage-range">Range</label><select id="usage-range" aria-controls="usage-status"><option value="30">30 days</option><option value="7">7 days</option></select>
+      <span class="usage-unit" id="usage-unit">Unique session IDs with messages / day</span>
+    </div>
+  </div>
+  <div class="usage-chart" aria-describedby="chart-description">
+    <div class="chart-grid" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="pending-box"><strong>DATA CONNECTION PENDING</strong><p id="usage-status" aria-live="polite">Verified daily Hermes Agent records are not connected. No usage curve is shown.</p></div>
+    <div class="chart-dates mono" aria-hidden="true"><span id="usage-start">16 OCT</span><span>14 NOV</span></div>
+  </div>
+  <p class="mono muted chart-footnote">No values are plotted. Active dates are not daily volumes. Hover or tap details need verified dated counts; neither AI daily records nor public GitHub commit counts are connected. This is not live telemetry.</p>
+  <noscript><p class="mono muted">JavaScript is off. The chart remains pending for all three AI tools and GitHub; no data is hidden behind these controls.</p></noscript>
+  <details><summary>How counted</summary><div class="muted">The available snapshot covers 16 Oct to 14 Nov 2026, ending at 18:08 Asia/Ho_Chi_Minh; the final date is partial. Hermes: unique session IDs with messages across seven retained local stores. Claude Code: top-level sessions with non-synthetic model usage. OpenMaus: threads with messages; retained history starts 4 Nov, so coverage is shorter. The supplied daily metadata contains active date sets, not daily counts. Background automation and subagents contribute, and tool records can overlap. These measures must not be added together or treated as completed jobs, hours saved or provider-complete accounting. GitHub requires separately verified public-repository commits for sonlndv, not contribution-calendar totals.</div></details>
+  <details><summary>My stack — what I use</summary><div><dl class="stack-list"><div><dt>Machine</dt><dd>GMKtec NucBox K8 Plus (Ryzen 7 8845HS, Radeon 780M integrated graphics), Omarchy / Linux; iPhone for mobile access.</dd></div><div><dt>Agents</dt><dd>Hermes Agent for assistant workflows, Claude Code for coding, OpenMaus for the agent workspace.</dd></div><div><dt>Notes &amp; design</dt><dd>Obsidian and Doop.</dd></div></dl></div></details>
+</section>
+<script>
+  const chart = document.querySelector<HTMLElement>('[data-usage-chart]');
+  if (chart) {
+    const get = <T extends HTMLElement>(selector: string) => chart.querySelector<T>(selector)!;
+    const tool = get<HTMLSelectElement>('#usage-tool');
+    const range = get<HTMLSelectElement>('#usage-range');
+    const tools: Record<string, { name: string; unit: string }> = {
+      hermes: { name: 'Hermes Agent', unit: 'Unique session IDs with messages / day' },
+      claude: { name: 'Claude Code', unit: 'Top-level sessions with non-synthetic model usage / day' },
+      openmaus: { name: 'OpenMaus', unit: 'Threads with messages / day (history begins 4 Nov)' },
+    };
+    let view = 'ai';
+    function render() {
+      const github = view === 'github';
+      chart!.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
+      get('.tool-control').hidden = github;
+      get('#chart-title').textContent = github ? 'GitHub commits over time' : 'AI usage over time';
+      get('#chart-description').textContent = github ? 'Daily public-repository commit counts for sonlndv, once verified records are connected. Commits are not GitHub contributions.' : 'Daily AI usage by selected tool; verified day-level records are not connected. Usage is not progress or completed work.';
+      get('#usage-unit').textContent = github ? 'Public-repository commits / day' : tools[tool.value].unit;
+      get('#usage-start').textContent = range.value === '7' ? '08 NOV' : '16 OCT';
+      get('#usage-status').textContent = github ? `Verified daily public-repository commit counts for sonlndv in the selected ${range.value}-day window are not connected. No commit curve is shown.` : `Verified daily ${tools[tool.value].name} records for the selected ${range.value}-day window are not connected. No usage curve is shown.`;
+    }
+    chart.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(button => button.addEventListener('click', () => { view = button.dataset.view!; render(); }));
+    tool.addEventListener('change', render); range.addEventListener('change', render);
+    get('[data-chart-controls]').hidden = false; render();
+  }
+</script>

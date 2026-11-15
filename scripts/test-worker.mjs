@@ -7,6 +7,7 @@ import { once } from 'node:events';
 import assert from 'node:assert/strict';
 import { verifyRelease } from './verify-release.mjs';
 import { createArtifact, verifyArtifact } from './release-artifact.mjs';
+import { publicationScope, PRIVATE_PREVIEW_ROUTES } from './publication-scope.mjs';
 
 const fromPreview = process.argv.includes('--from-preview');
 const usePreview = process.argv.includes('--use-preview');
@@ -21,6 +22,10 @@ if (fromPreview) {
   }
   assert.ok(existsSync('dist/writing/a-keyboard-plugin-is-done-when-it-types.html'));
   assert.ok(existsSync('dist/writing/the-joy-of-malleable-products.html'));
+  const scope = publicationScope();
+  for (const path of PRIVATE_PREVIEW_ROUTES) {
+    assert.equal(existsSync(`dist${path}.html`), !scope.isPublicProjection, 'Private preview preserves draft routes; public source excludes them');
+  }
   assert.ok((readFileSync('dist/rss.xml', 'utf8').match(/<item>/g) ?? []).length > 1, 'preview RSS must carry the drafts as well as the Note');
   console.log('Preview fixture: draft posts, approved Note and populated RSS present before Wrangler starts');
 }
@@ -55,6 +60,8 @@ try {
   for (const slug of ['a-new-default-must-not-break-the-old-one', 'no-answer-leaves-the-server']) {
     assert.ok(!existsSync(`dist/writing/${slug}.html`), `Wrangler must rebuild production without draft ${slug}`);
   }
+  assert.ok(!existsSync('dist/series/always-on-agents/available-isnt-always-thinking.html'), 'conceptual note must remain unpublished');
+  assert.ok(!existsSync('dist/series/always-on-agents.html'), 'preserved Always-on series must remain a private draft, not a published upcoming-series lesson');
   const productionFeed = readFileSync('dist/rss.xml', 'utf8');
   assert.equal(productionFeed.match(/<item>/g)?.length, 1, 'production RSS must contain exactly the approved Note');
   assert.match(productionFeed, /the-joy-of-malleable-products/);
