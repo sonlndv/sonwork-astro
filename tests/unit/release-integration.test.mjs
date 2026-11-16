@@ -109,7 +109,7 @@ test('secret uploader rejects wrong Worker, stale/tampered artifact and output i
   assert.equal(existsSync(join(fixture.root, 'tampered')), false);
 });
 
-test('real locked Wrangler resolves the thin config and patches only the synthetic calendar Secret through stdin', { timeout: 60000 }, async t => {
+test('real locked Wrangler resolves the thin config and preserves other secrets across repeated synthetic stdin uploads', { timeout: 60000 }, async t => {
   const { createServer } = await import('node:http');
   const { spawn } = await import('node:child_process');
   const { once } = await import('node:events');
@@ -144,11 +144,21 @@ test('real locked Wrangler resolves the thin config and patches only the synthet
   }
   const listed = await run(['secret', 'list']); assert.equal(listed.code, 0, listed.output);
   const uploaded = await run(['secret', 'bulk'], JSON.stringify({ GITHUB_CALENDAR_TOKEN: secret })); assert.equal(uploaded.code, 0, uploaded.output);
-  assert.equal(requests.length, 2);
-  assert.deepEqual(JSON.parse(requests[1].body), { secrets: { GITHUB_CALENDAR_TOKEN: { name: 'GITHUB_CALENDAR_TOKEN', text: secret, type: 'secret_text' } } });
-  assert.equal(requests[1].contentType, 'application/merge-patch+json');
-  assert.equal(state.OTHER_SECRET, 'SYNTHETIC_EXISTING_VALUE'); assert.equal(state.GITHUB_CALENDAR_TOKEN, secret);
+  const repeated = await run(['secret', 'bulk'], JSON.stringify({ GITHUB_CALENDAR_TOKEN: secret })); assert.equal(repeated.code, 0, repeated.output);
+  for (const request of requests) {
+    assert.ok(!request.path.includes(secret), 'Native requests must not expose the synthetic credential in a URL');
+    if (request.method === 'GET') {
+      assert.equal(request.body, '', 'Read-only probes must not send secret payloads');
+      continue;
+    }
+    assert.equal(request.method, 'PATCH', `Unexpected native mutation: ${request.method} ${request.path}`);
+    assert.equal(request.path, '/client/v4/accounts/fixture/workers/scripts/sonwork/secrets-bulk');
+    assert.deepEqual(JSON.parse(request.body), { secrets: { GITHUB_CALENDAR_TOKEN: { name: 'GITHUB_CALENDAR_TOKEN', text: secret, type: 'secret_text' } } });
+    assert.equal(request.contentType, 'application/merge-patch+json');
+  }
+  assert.deepEqual(state, { OTHER_SECRET: 'SYNTHETIC_EXISTING_VALUE', GITHUB_CALENDAR_TOKEN: secret });
+  const beforeAbsent = requests.length;
   missing = true;
   const absent = await run(['secret', 'list']); assert.notEqual(absent.code, 0, 'Read-only precommand must fail before any upload/create when Worker is absent');
-  assert.ok(requests.slice(2).every(request => request.method === 'GET'));
+  assert.ok(requests.slice(beforeAbsent).every(request => request.method === 'GET'));
 });
