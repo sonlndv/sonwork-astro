@@ -1,6 +1,6 @@
 # Current Son. design
 
-The approved Doop rebuild is documented in [docs/DOOP-DESIGN.md](docs/DOOP-DESIGN.md), with current product scope in PRODUCT.md. That design system replaces the scenic/typewriter study below. Current source uses Geist/Geist Mono, the exact open-ridge identity, blue tactile near-black/white themes, and five connected Astro route types. This remains a private implementation pending Son/Ultron's preview acceptance, not publication approval.
+The approved Doop rebuild is documented in [docs/DOOP-DESIGN.md](docs/DOOP-DESIGN.md), with current product scope in PRODUCT.md. That design system replaces the scenic/typewriter study below. Current source uses Geist/Geist Mono, the exact open-ridge identity, the existing blue near-black/white themes, and five connected Astro route types. On 2026-11-16 Son approved publishing separate unfilled homepage section frames, with no particles or texture on Home. Copy, typography, layout, other routes and publication safeguards stay unchanged; a prepared source tree is not proof of deployment.
 
 Everything below is **historical reference only**. Its old fonts, scenic layout, motion, route and publication grants do not govern or authorize this new task. Retained privacy, draft, disabled-signup, Git-history and storage safeguards remain active through AGENTS.md and the current brief.
 

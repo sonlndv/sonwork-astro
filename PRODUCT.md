@@ -41,7 +41,7 @@ Son is learning by trying. Explain the difference between an idea, a local teach
 - Wordmark: Son. Existing domain/repository name: Sonwork. Owner: Son (Lê Sơn).
 - Voice: plain, direct, concrete numbers, no hedging, no em dashes, no emojis.
 - Never name a client, an employer or a school anywhere public.
-- Current approved Doop direction supersedes the old scenery and Space Mono display study: restrained blue, tactile near-black/white themes, exact open-ridge SVG and hairline rules, with 6px control/figure corners. No old mascot, mountainscape, planets or decorative dashboard cards.
+- Current approved Doop direction supersedes the old scenery and Space Mono display study: restrained blue, the existing near-black/white themes, exact open-ridge SVG and hairline rules, with 6px control/figure corners. Son approved publishing four unfilled homepage section frames on 2026-11-16, with clear ground and no particles or texture on Home. Other routes retain their existing material treatment. No old mascot, mountainscape, planets or decorative dashboard cards.
 - Geist is the prose/heading face; Geist Mono is for labels, figures, source-like text and tabular numbers. Both are self-hosted OFL with Vietnamese subsets. See DESIGN.md and THIRD-PARTY-NOTICES.md.
 
 ## Evidence on Hand

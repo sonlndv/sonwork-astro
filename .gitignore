@@ -19,3 +19,6 @@ dist-signup/
 
 .wrangler/
 public/release.json
+
+# Private design studies never enter source exports or release assets.
+/.omp/previews/

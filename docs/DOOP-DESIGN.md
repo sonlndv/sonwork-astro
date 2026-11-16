@@ -1,6 +1,6 @@
 # Son. Doop design system
 
-Current private implementation direction. Design selection, technical validation, Son/Ultron's creative acceptance and publication permission are separate.
+Current implementation direction. Son approved the homepage section-frame treatment for publication on 2026-11-16; technical validation and verified live deployment remain separate.
 
 ## Purpose and route types
 
@@ -30,7 +30,7 @@ Source of truth: `src/styles/global.css`.
 | Hairline | `oklch(0.3 0.008 254)` | ink 22% mixed into paper |
 | Blue | `oklch(0.8 0.11 254)` | `oklch(0.36 0.12 258)` |
 
-A local static tactile texture remains behind readable content, pointer-transparent and hidden in forced colours. Figures use quiet surfaces, 1px rules and 6px corners. No glows, decorative gradients or equal-card grids. Warm human-status ink means unfinished/private, not live activity.
+Home uses the existing flat near-black/white ground with separate unfilled hairline frames around the introduction, tools, GitHub contributions and Project sections. Each frame has one small blue top-left corner detail; the header and footer remain outside them. No particles, grain, ridge watermark, outer-page frame or prototype comparison controls ship on Home. Other routes retain their existing local static tactile texture, pointer-transparent and hidden in forced colours. Figures keep quiet surfaces, 1px rules and 6px corners. No glows, decorative gradients or equal-card grids. Warm human-status ink means unfinished/private, not live activity.
 
 ## Type and layout
 
@@ -40,6 +40,13 @@ A local static tactile texture remains behind readable content, pointer-transpar
 - About heading: two deliberate lines, blue second line, responsive 36–58px, 1.04 leading. Body 16px/1.65; primary intro 17px; lede 19px/1.55.
 - Clear primary/muted hierarchy. Hairline rules and section spacing replace floating cards. Lower series/project rows may use a small label column on desktop, then one column on narrow screens. The About introduction never becomes a two-column lesson.
 - Shared links/controls have at least 44px targets in both dimensions, wrap instead of clipping, and retain visible focus. Enlarge text without forcing nowrap or shrinking type.
+
+### Approved homepage section frames — 2026-11-16
+
+The frames reproduce the selected preview without changing content positions, widths, typography or colour tokens. A homepage-only body class scopes the treatment. The original Home dividers retain their geometry but become transparent where the new frames replace them. CSS pseudo-elements follow each section's natural height, extend 12px into the existing gutters, and remain pointer-transparent. Four distinct frames retain gaps at phone widths and enlarged text; tool purposes and calendar details may grow without clipping. There are no new surfaces, shadows, runtime scripts or motion. Forced colours hides the decorative frames and preserves the native content and controls.
+
+Private background studies stay outside tracked source and release assets. Their dropdown, styles, artwork and draft-preview server are not production features.
+
 
 ## Navigation and themes
 
