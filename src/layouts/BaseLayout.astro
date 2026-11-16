@@ -43,7 +43,7 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
     <style is:inline set:html={[fontsCss, globalCss].join('\n')}></style>
     <script type="speculationrules" is:inline set:html={speculationRules}></script>
   </head>
-  <body>
+  <body class:list={{ 'home-sections': path === '/' }}>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <div class="frame header-bar">

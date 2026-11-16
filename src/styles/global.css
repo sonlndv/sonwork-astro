@@ -1,4 +1,4 @@
-/* Son. Doop: approved blue ink, tactile paper, Geist reading and precise mono figures. */
+/* Son. Doop: blue ink, section frames, Geist reading and precise mono figures. */
 :root {
   --void: oklch(0.115 0.022 256); --ground: oklch(0.15 0.026 255); --line: oklch(0.3 0.008 254);
   --ink: oklch(0.965 0.006 250); --ink-2: oklch(0.88 0.014 250); --ink-3: oklch(0.7 0.02 252);
@@ -128,6 +128,42 @@ details > p, details > div { margin-top: 12px; }
 .note-disclosure > summary { font-weight: 600; }
 .home-project h3 { font-size: 1.0625rem; }
 .home-project p { margin-top: 4px; font-size: .875rem; }
+
+/* Homepage section frames: preserve the approved content geometry and clear ground. */
+body.home-sections::before { display: none; }
+.home-sections :is(.about-tools, .github-calendar, .home-project) { border-color: transparent; }
+.home-sections :is(.about-opening, .tools-section, .github-calendar, .home-project) {
+  --section-frame-start: -12px;
+  --section-frame-end: -12px;
+  position: relative;
+  isolation: isolate;
+}
+.home-sections .about-opening { --section-frame-start: 20px; --section-frame-end: 12px; }
+.home-sections .github-calendar { --section-frame-start: 10px; }
+.home-sections .home-project { --section-frame-start: 12px; --section-frame-end: -20px; }
+.home-sections :is(.about-opening, .tools-section, .github-calendar, .home-project)::before {
+  content: '';
+  position: absolute;
+  top: var(--section-frame-start);
+  bottom: var(--section-frame-end);
+  left: -12px;
+  right: -12px;
+  z-index: -1;
+  border: 1px solid var(--line);
+  pointer-events: none;
+}
+.home-sections :is(.about-opening, .tools-section, .github-calendar, .home-project)::after {
+  content: '';
+  position: absolute;
+  top: var(--section-frame-start);
+  left: -12px;
+  width: 12px;
+  height: 12px;
+  border-top: 1px solid var(--lume);
+  border-left: 1px solid var(--lume);
+  opacity: .6;
+  pointer-events: none;
+}
 .index-hero { padding: 92px 0 70px; }
 .index-hero h1 { margin-bottom: 23px; }
 .index-hero p { font-size: 1.125rem; line-height: 1.6; max-width: 630px; }
@@ -269,4 +305,4 @@ th { font: .75rem/1.5 var(--mono); color: var(--lume); }
 @media (max-width: 380px) { :root { --gutter: 20px; } .site-nav ul { gap: 14px; } .site-nav { gap: 8px; } .series-disclosure > summary { flex-wrap: wrap; gap: 8px; } }
 @media (prefers-reduced-motion: no-preference) { a, button { transition: color 150ms ease, border-color 150ms ease; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
-@media (forced-colors: active) { body::before { display: none; } .stage-dot { border-color: CanvasText; } button, .text-figure { border-color: CanvasText; } .calendar-day, .calendar-legend i { border: 1px solid CanvasText; } }
+@media (forced-colors: active) { body::before, .home-sections :is(.about-opening, .tools-section, .github-calendar, .home-project)::before, .home-sections :is(.about-opening, .tools-section, .github-calendar, .home-project)::after { display: none; } .stage-dot { border-color: CanvasText; } button, .text-figure { border-color: CanvasText; } .calendar-day, .calendar-legend i { border: 1px solid CanvasText; } }
