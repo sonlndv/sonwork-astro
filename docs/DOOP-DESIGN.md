@@ -1,6 +1,6 @@
 # Son. Doop design system
 
-Current implementation direction. Son approved the homepage section-frame treatment for publication on 2026-11-16; technical validation and verified live deployment remain separate.
+Current implementation direction. After desktop review on 2026-11-16, Son selected old-school editorial rules and requested consistent alignment, widths, natural heights and spacing across desktop and mobile. This supersedes section frames as the selected treatment. Technical validation, final visual acceptance and publication remain separate.
 
 ## Purpose and route types
 
@@ -30,20 +30,26 @@ Source of truth: `src/styles/global.css`.
 | Hairline | `oklch(0.3 0.008 254)` | ink 22% mixed into paper |
 | Blue | `oklch(0.8 0.11 254)` | `oklch(0.36 0.12 258)` |
 
-Home uses the existing flat near-black/white ground with separate unfilled hairline frames around the introduction, tools, GitHub contributions and Project sections. Each frame has one small blue top-left corner detail; the header and footer remain outside them. No particles, grain, ridge watermark, outer-page frame or prototype comparison controls ship on Home. Other routes retain their existing local static tactile texture, pointer-transparent and hidden in forced colours. Figures keep quiet surfaces, 1px rules and 6px corners. No glows, decorative gradients or equal-card grids. Warm human-status ink means unfinished/private, not live activity.
+Home uses the existing flat near-black/white ground with open horizontal hairlines between tools, GitHub contributions and Project. Each rule has a short blue leading segment; the introduction stays unboxed. Header and footer rules share the same contained column edges instead of spanning the viewport. No particles, grain, ridge watermark, outer-page frame or prototype comparison controls ship on Home. Other routes retain their existing local static tactile texture, pointer-transparent and hidden in forced colours. Figures keep quiet surfaces, 1px rules and 6px corners. No glows, decorative gradients or equal-card grids. Warm human-status ink means unfinished/private, not live activity.
 
 ## Type and layout
 
 - Geist headings/prose; Geist Mono measurements, labels, source-like figures and tabular numerals. Self-host Latin/Vietnamese subsets and retain OFL notices. No remote font CSS.
 - Desktop frame 1040px; reading/copy measure at most 720px. Full-width single-column sections do not imply unreadably wide paragraphs.
-- Gutters 24px, reducing to 20px below 380px. Natural page height, never prototype frame clipping.
+- Symmetric gutters are at least 24px at every width, increasing on both sides to the larger landscape safe-area inset when needed. Header, main, section rules and footer share the same edges. Footer padding includes the bottom safe area. Natural page height, never prototype frame clipping.
 - About heading: two deliberate lines, blue second line, responsive 36–58px, 1.04 leading. Body 16px/1.65; primary intro 17px; lede 19px/1.55.
-- Clear primary/muted hierarchy. Hairline rules and section spacing replace floating cards. Lower series/project rows may use a small label column on desktop, then one column on narrow screens. The About introduction never becomes a two-column lesson.
+- Clear primary/muted hierarchy. Hairline rules and section spacing replace floating cards. After reviewing the centered trial, Son requested the previous layout with better alignment on both sides. Tools, purpose feedback, calendar headings and Project content again align to the introduction's left edge inside a centered frame with equal outer gutters. Home's Project uses the same section-heading role as tools and contributions, not an offset label column. The About introduction never becomes a two-column lesson.
 - Shared links/controls have at least 44px targets in both dimensions, wrap instead of clipping, and retain visible focus. Enlarge text without forcing nowrap or shrinking type.
 
-### Approved homepage section frames — 2026-11-16
+### Selected editorial rules and responsive rhythm — 2026-11-16
 
-The frames reproduce the selected preview without changing content positions, widths, typography or colour tokens. A homepage-only body class scopes the treatment. The original Home dividers retain their geometry but become transparent where the new frames replace them. CSS pseudo-elements follow each section's natural height, extend 12px into the existing gutters, and remain pointer-transparent. Four distinct frames retain gaps at phone widths and enlarged text; tool purposes and calendar details may grow without clipping. There are no new surfaces, shadows, runtime scripts or motion. Forced colours hides the decorative frames and preserves the native content and controls.
+The homepage-only body class keeps the introduction open and gives tools, contributions and Project real 1px top rules with pointer-transparent 28px blue leading accents. There are no full rectangles, gutter-extending corner marks or fixed section heights. Shared header/footer rules align to the same maximum 1040px column.
+
+One fluid section-space value, 32–48px, separates every section and the footer at a given viewport. Rules have 24px of inner breathing room before their headings; the introduction's top space scales from 48–72px. Smaller groups use the existing 8/12/16/24px rhythm. Contact links and tools wrap from the left; tools retain at least 44px control targets. Purpose feedback and date details may grow without overlapping later sections.
+
+Empty calendar feedback reserves no row or margin, while its live region stays mounted; populated feedback enters normal flow. The no-JavaScript tool list has no trailing margin. Section spacing is measured after real content, not padded by invisible feedback buffers.
+
+Prose retains its 720px maximum measure. Calendar cells stay at their natural 12px size, and scrolling remains inside the chart's labelled region. Its 3px internal horizontal inset protects focus outlines; it is not a different outer page gutter. Desktop and phone use the same open editorial grammar, with no mobile-only framed fallback. Forced colours hides only the decorative blue accents and preserves the native rules, content and controls.
 
 Private background studies stay outside tracked source and release assets. Their dropdown, styles, artwork and draft-preview server are not production features.
 

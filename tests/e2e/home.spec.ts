@@ -91,6 +91,8 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(page.getByRole('table', { name: 'Every UTC date and contribution count in the public GitHub snapshot' })).toHaveCount(1);
       const rows = await page.locator('.github-calendar noscript tbody tr').evaluateAll(els => els.map(el => ({ date: el.querySelector('th')!.textContent, count: Number(el.querySelector('td')!.textContent) })));
       expect(rows).toEqual(snapshot.days.map(({ date, count }: { date: string; count: number }) => ({ date, count })));
+      const listTail = await page.evaluate(() => document.querySelector('.tools-section')!.getBoundingClientRect().bottom - document.querySelector('.tools-static')!.getBoundingClientRect().bottom);
+      expect(Math.abs(listTail)).toBeLessThanOrEqual(1);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     } finally { await context.close(); }
   });
