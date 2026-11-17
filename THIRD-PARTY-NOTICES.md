@@ -18,7 +18,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ## Fonts
 
-Geist and Geist Mono are self-hosted under SIL OFL 1.1. Notices: `public/fonts/OFL-Geist.txt`, `public/fonts/OFL-GeistMono.txt`. Existing Space Mono font files and notice remain as historical assets, but the Doop layout does not use the face. Added Geist 700 and Geist Mono 400 latin/Vietnamese/symbol subsets were downloaded from the Google Fonts stylesheets for these exact families and weights. No runtime font requests leave the site.
+Geist and Space Mono are used and self-hosted under SIL OFL 1.1. Notices: `public/fonts/OFL-Geist.txt`, `public/fonts/OFL-SpaceMono.txt`. Geist 400/600 serves body text and controls; Space Mono 400/700 serves labels and headings. Existing Geist Mono assets and `public/fonts/OFL-GeistMono.txt` remain historical assets, not the current brand font. No runtime font requests leave the site.
 
 ## Doop design translation
 
