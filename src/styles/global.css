@@ -133,22 +133,18 @@ details > p, details > div { margin-top: 12px; }
 .nested-notes { border-left: 1px solid var(--line); padding-left: 24px; margin-top: 24px; }
 .note-disclosure { border-top: 1px solid var(--line); margin-top: 16px; }
 .note-disclosure > summary { font-weight: 600; }
-.home-project > h2 { font-size: 1.45rem; margin-bottom: 16px; }
-.home-project h3 { font-size: 1.2rem; }
-.home-project p { margin: 8px 0 0; font-size: .875rem; }
-.home-project .go { margin-top: 16px; }
 
 /* Open sections share one responsive rhythm; content determines every height. */
 body.home-sections { --section-space: clamp(var(--s6), 4vw, var(--s7)); }
-.home-sections :is(.tools-section, .github-calendar, .home-project) {
+.home-sections :is(.tools-section, .github-calendar) {
   position: relative;
   min-width: 0;
   margin: 0;
   padding-top: var(--s5);
   border-top: 1px solid var(--line);
 }
-.home-sections :is(.home-project, .site-footer) { margin-top: var(--section-space); }
-.home-sections :is(.tools-section, .github-calendar, .home-project)::before {
+.home-sections .site-footer { margin-top: var(--section-space); }
+.home-sections :is(.tools-section, .github-calendar)::before {
   content: '';
   position: absolute;
   top: -1px;
@@ -251,12 +247,13 @@ th { font: .75rem/1.5 var(--mono); color: var(--lume); }
 .page-head h1, .prose-header h1 { margin-bottom: 24px; }
 .page-head p, .prose-header { max-width: 720px; }
 .prose-header { margin-bottom: 32px; }
+.note-location a { display: inline-flex; align-items: center; min-width: var(--hit); min-height: var(--hit); }
 .page-section { margin-top: 32px; }
 .rows, .side-rows { list-style: none; padding: 0; margin: 0; }
 .row { display: grid; grid-template-columns: 2.25rem minmax(0,1fr); gap: 16px; padding-block: 24px; border-bottom: 1px solid var(--line); }
 .row-index { color: var(--ink-3); font-size: .75rem; }
 .row h2, .row h3 { font-size: 1.375rem; }
-.row h2 a, .row h3 a { display: inline-flex; align-items: center; min-height: var(--hit); }
+.row h2 a, .row h3 a { display: inline-flex; align-items: center; min-width: var(--hit); min-height: var(--hit); overflow-wrap: anywhere; }
 .row .meta { display: flex; flex-wrap: wrap; gap: 12px; }
 .row p { margin-top: 8px; }
 .section-head { display: flex; gap: 16px; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--line); padding-block: 12px; }
@@ -307,4 +304,4 @@ th { font: .75rem/1.5 var(--mono); color: var(--lume); }
 @media (max-width: 380px) { .site-nav ul { gap: 14px; } .site-nav { gap: 8px; } .series-disclosure > summary { flex-wrap: wrap; gap: 8px; } }
 @media (prefers-reduced-motion: no-preference) { a, button { transition: color 150ms ease, border-color 150ms ease; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
-@media (forced-colors: active) { .editorial-rule-trace, .home-sections :is(.tools-section, .github-calendar, .home-project)::before { display: none; } .stage-dot { border-color: CanvasText; } button, .text-figure { border-color: CanvasText; } .calendar-day, .calendar-legend i { border: 1px solid CanvasText; } }
+@media (forced-colors: active) { .editorial-rule-trace, .home-sections :is(.tools-section, .github-calendar)::before { display: none; } .stage-dot { border-color: CanvasText; } button, .text-figure { border-color: CanvasText; } .calendar-day, .calendar-legend i { border: 1px solid CanvasText; } }

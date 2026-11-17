@@ -2,9 +2,9 @@
 
 ## Scope
 
-The current website publishes About, exact public contact links, a generic **Coming soon** Series surface and the existing approved pages. Tool selection is not a promise of future Series topics. Unapproved writing is not authorized for publication by a website release.
+The current website publishes About, exact public contact links, a Series index with Me and its approved note The joy of malleable products, a **Coming soon** Study surface and the existing approved pages. Series contains collections and their nested notes; Writing is retired with compatibility redirects. Tool selection is not a promise of future Series topics. Other unapproved writing is not authorized for publication by a website release.
 
-The canonical private source retains its two original Series MDX drafts and their history. A fresh public release clone excludes exactly those two sources, not the three already-public draft posts. The existing post draft flags and production guards remain unchanged. In the public clone those two unpublished Series paths return 404 even in preview; the five retained compatibility paths render generic Coming soon. The private preview retains generic noindex compatibility for the private draft-derived paths.
+The canonical private source retains its two original Series MDX drafts and their history. A fresh public release clone excludes exactly those two sources, not the three already-public draft posts. The existing post draft flags and publication protections remain enforced. In the public clone those two unpublished Series paths return 404 even in preview; the five retained compatibility paths render generic Coming soon. The private preview retains generic noindex compatibility for the private draft-derived paths and excludes their metadata from RSS.
 
 ## Current-base projection
 

@@ -8,7 +8,7 @@ const { title, description, type = 'website', noIndex = false } = Astro.props;
 const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1');
 const canonical = new URL(path, Astro.site);
 const robotsOff = noIndex;
-const nav = [{ href: '/', label: 'About Me' }, { href: '/series', label: 'Series' }, { href: '/project', label: 'Project' }];
+const nav = [{ href: '/', label: 'About Me' }, { href: '/series', label: 'Series' }, { href: '/study', label: 'Study' }, { href: 'mailto:son@sonwork.org', label: 'Contact' }];
 const current = (href: string) => href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
 const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/*' }, eagerness: 'moderate' }] });
 ---
@@ -21,7 +21,7 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
     <meta name="description" content={description} />
     {robotsOff && <meta name="robots" content="noindex, follow" />}
     {!noIndex && <link rel="canonical" href={canonical} />}
-    <link rel="alternate" type="application/rss+xml" title="Son. writing" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Son. notes" href="/rss.xml" />
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content="Son." />
     <meta property="og:title" content={title} />
@@ -59,9 +59,11 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
       <div class="frame footer-inner">
         <p>Son. / notes on learning with agents</p>
         <nav aria-label="Archive and contact">
-          <a href="/writing">Writing archive</a><a href="/work">Build archive</a><a href="mailto:son@sonwork.org">Contact</a><a href="/rss.xml">RSS</a>
+          <a href="/series">All series</a><a href="/work">Build archive</a><a href="mailto:son@sonwork.org">Contact</a><a href="/rss.xml">RSS</a>
         </nav>
-        <p>More notes when they’re ready.</p>
+        <nav aria-label="Pages in progress">
+          <a href="/project" aria-current={current('/project') ? 'page' : undefined}>Project (coming soon)</a>
+        </nav>
       </div>
     </footer>
   </body>

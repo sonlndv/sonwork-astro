@@ -6,12 +6,13 @@ Current implementation direction: Son approved the full private Mounty mockup an
 
 Mode: **Read**, with an About-first introduction. A record of learning, not a dashboard, expert manifesto or complete curriculum.
 
-- About Me `/`: unchanged single-column introduction, compact public contact row, simple five-tool purpose selector, one verified GitHub profile contribution grid and sparse Project link. No Series preview or teaser.
-- Series `/series`: only the Series heading and Coming soon within shared chrome. Son will choose future topics; no named plans, counts, dates, articles or curriculum.
-- `/series/[series]` and `/series/[series]/[note]`: retained current URLs use that same generic component and metadata. MDX source/history stays intact; draft-derived routes remain noindex in preview and absent from release.
+- About Me `/`: concise single-column introduction, compact public contact row, simple five-tool purpose selector and one verified GitHub profile contribution grid. The empty Project section is removed; unfinished pages remain in the shared footer.
+- Series `/series`: an index of published series. Me `/series/me` lists its Notes, including the approved The joy of malleable products at `/series/me/the-joy-of-malleable-products`. Notes retain their authored content, date and parent navigation.
+- `/series/[series]` and `/series/[series]/[note]`: published entries use collection/note views. Other retained URLs use the generic Coming soon component and metadata. Unapproved MDX source/history stays intact; draft-derived routes remain noindex in preview and absent from release.
+- Study `/study`: only its heading and Coming soon within shared chrome.
 - Project `/project`: honest Coming soon, not invented projects or promises.
 
-`/writing`, `/work`, `/about`, `/subscribe`, RSS and deliberate legacy redirects remain reachable archives, not competing primary navigation. Only the exact `/series` and `/series/` index paths supersede their historical redirect to Writing. The historical CSV stays unchanged; asset and Worker projections omit that index, and packaged HTTP checks require the actual Series page. Legacy series-detail redirects remain intact.
+Series replaces Writing as the public content structure. The former Writing index and approved article URLs redirect to Series and the nested Me note. `/work`, `/about`, `/subscribe`, RSS and deliberate legacy redirects remain reachable. Only the exact `/series` and `/series/` index paths supersede their historical redirect to Writing. The historical CSV stays unchanged; current content moves are projected into both asset and Worker routing. Legacy series-detail redirects remain intact and resolve through the retired Writing destination to Series.
 
 ## Identity and material
 
@@ -87,7 +88,13 @@ After phone review, tool selection uses immediate static accent text and immedia
 
 ## Navigation and themes
 
-Primary labels: **About Me / Series / Project**. Series stays current on nested routes. Use real native navigation. About contacts appear directly below the introduction as a wrapping row of visible, keyboard/touch-accessible links: son@sonwork.org, X @sonldv, GitHub sonlndv and LinkedIn in/sonle2003. Preserve exact public hrefs and distinct handles; no cards, form, mail backend or forced new tabs. Footer Contact remains a truthful mailto.
+Primary labels: **About Me / Series / Study / Contact** on every route. Series stays current on its nested collections and notes; Study has its own Coming soon page. Contact is a native mailto and never a current page. The shared footer labels **Project (coming soon)**, marks its current section and preserves archive/contact links. Project's return action goes directly to About. About contacts appear directly below the introduction as a wrapping row of visible, keyboard/touch-accessible links: son@sonwork.org, X @sonldv, GitHub sonlndv and LinkedIn in/sonle2003. Preserve exact public hrefs and distinct handles; no cards, form, mail backend or forced new tabs. Footer Contact remains a truthful mailto.
+
+### Combined refinement approved on 2026-11-17
+
+Son approved the tighter exploratory copy, useful-destination navigation and recent-first calendar together across the website, including publication through the existing release gates. This supersedes earlier references below to homepage Project content and three homepage section rules: only tools and contributions retain their existing open rules; the footer follows the calendar with the same responsive section spacing. Shared fonts, colours, gutters, authored archive content, drafts and privacy protections remain intact.
+
+The calendar starts at its newest dates when it overflows. The existing controller owns refresh and retains this initial view through content/layout changes until the first visitor interaction, after which the visitor owns scrolling. Counts, UTC chronology, 12px cells, selection, Home/End/arrow keys and accessible no-JavaScript data are unchanged. This does not introduce a new panel, loading animation or data request.
 
 Apply an explicit stored theme before paint, otherwise system preference. Persist through navigation/reload and synchronize storage events. Storage denial is nonfatal. No-JS gets complete system-theme CSS and hides the inactive theme button. Reduced motion removes transitions; forced colours retains native control semantics.
 
@@ -101,9 +108,9 @@ The visible section contains only the heading, month/day chart, small legend and
 
 ## Structured writing and local simulation
 
-The collections retain summary/body, lede, parent, order and draft state for future reuse. Parent/directory identity must agree; hidden parents cannot leak public children. Current Series templates deliberately do not render collection prose or old tool-topic definitions. Compatibility slugs are separate from tool identities/purposes and do not imply a publication plan.
+The collections retain summary/body, lede, parent, order and draft state. Parent/directory identity must agree; hidden parents cannot leak public children. Published series list their approved notes; published notes render their authored body with Series/parent navigation. The Me note preserves the existing approved body, date and image. Compatibility slugs are separate from tool identities/purposes and do not imply a publication plan.
 
-Both the preserved Always-on series and conceptual note stay `draft: true`. Their preview URLs show generic Series/Coming soon with noindex, not the old lessons or titles; release excludes both. The original three drafts and approved historical Note/single production RSS item remain unchanged. Series/notes do not silently enter the historical post feed.
+Both the preserved Always-on series and conceptual note stay `draft: true`. Their preview URLs show generic Series/Coming soon with noindex, not the old lessons or titles; release excludes both. The original three post drafts remain unchanged. The approved Me note supplies the single production RSS item at its new nested canonical URL; preview feeds retain the original post draft fixtures for the production-rebuild guard, while unapproved Series/Note metadata stays excluded in every mode.
 
 The retained reader source explains event → context → scoped action → verification → wait. Its bounded local simulation components and prose remain in source/history, but are not mounted on current Series visitor pages. The old browser lifecycle contract is preserved as a non-executable historical reference rather than left as a misleading active assertion.
 
@@ -113,7 +120,7 @@ The retained reader source explains event → context → scoped action → veri
 
 ## Verification and acceptance boundary
 
-Active contracts cover all primary and retained Series paths at 320/375/390/768/1440px, both themes and200% text, persistent themes, exact public contacts, native navigation, all five tool purposes, calendar data/details/API, generic Series content and metadata, reduced/no-JS, keyboard and axe. Retired planned-topic/discovery/reader assertions are explicitly superseded by Son's empty-Series request; security, draft/publication, redirect and quality floors are not relaxed. Historical specs remain non-executable references, not silently skipped tests.
+Active contracts cover all primary and retained Series paths at 320/375/390/768/1440px, both themes and200% text, persistent themes, exact public contacts, native Series/Me/Note navigation, coming-soon Study, all five tool purposes, calendar data/details/API, generic unapproved Series content and metadata, reduced/no-JS, keyboard and axe. Son's final Series/Note hierarchy supersedes the earlier empty-Series contract; security, draft/publication, redirect and quality floors are not relaxed. Historical planned-topic/discovery/reader specs remain non-executable references, not silently skipped tests.
 
 Run the full ordered install/check/test/build/production-artifact gate in AGENTS.md/DEPLOY.md on identified source. Public Lighthouse thresholds remain performance 98, accessibility/SEO 95, median of three. Source-confirmed noindex draft notes instead must remain noncrawlable, with unchanged performance/accessibility floors. No route is omitted.
 

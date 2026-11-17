@@ -1,16 +1,49 @@
 ---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { formatDate, isoDate } from '../../../lib/content';
 import SeriesComingSoon from '../../../components/SeriesComingSoon.astro';
 import retainedSlugs from '../../../data/retained-series-slugs.json';
-import { getSeries } from '../../../lib/series';
-interface Props { noIndex: boolean; }
+import { getSeries, getNotes, notePath } from '../../../lib/series';
+interface Props { entry?: CollectionEntry<'series'>; noIndex: boolean; }
 export async function getStaticPaths() {
   const entries = await getSeries();
   const entryIds = new Set(entries.map(entry => entry.id));
   return [
-    ...entries.map(entry => ({ params: { series: entry.id }, props: { noIndex: entry.data.draft } })),
+    ...entries.map(entry => ({ params: { series: entry.id }, props: { entry: entry.data.draft ? undefined : entry, noIndex: entry.data.draft } })),
     ...retainedSlugs.filter(slug => !entryIds.has(slug)).map(slug => ({ params: { series: slug }, props: { noIndex: false } })),
   ];
 }
-const { noIndex } = Astro.props;
+const { entry, noIndex } = Astro.props;
+const notes = entry ? (await getNotes(entry.id)).filter(note => !note.data.draft) : [];
 ---
-<SeriesComingSoon noIndex={noIndex} />
+{entry ? (
+  <BaseLayout title={entry.data.title} description={entry.data.description}>
+    <div class="index-page">
+      <header class="page-head">
+        <h1>{entry.data.title}</h1>
+        <p>{entry.data.description}</p>
+      </header>
+      <section class="page-section" aria-labelledby="series-notes">
+        <div class="section-head">
+          <h2 id="series-notes">Notes</h2>
+        </div>
+        <ol class="rows">
+          {notes.map((note, index) => (
+            <li>
+              <article class="row">
+                <span class="row-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <div class="row-body">
+                  <h3><a href={notePath(note)}>{note.data.title}</a></h3>
+                  <p class="meta"><time datetime={isoDate(note.data.date)}>{formatDate(note.data.date)}</time></p>
+                  <p>{note.data.description}</p>
+                </div>
+              </article>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <p class="back"><a href="/series">All series</a></p>
+    </div>
+  </BaseLayout>
+) : <SeriesComingSoon noIndex={noIndex} />}

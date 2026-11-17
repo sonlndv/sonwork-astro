@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-test('current Series templates share only the generic state while retaining draft visibility gates', async () => {
+test('Series templates retain the generic draft state beside published content', async () => {
   const reader = await readFile('src/pages/series/[series]/[note].astro', 'utf8');
   const series = await readFile('src/pages/series/[series]/index.astro', 'utf8');
   const home = await readFile('src/pages/index.astro', 'utf8');
@@ -10,7 +10,6 @@ test('current Series templates share only the generic state while retaining draf
     assert.match(source, /SeriesComingSoon/);
     assert.match(source, /getSeries/);
     assert.match(source, /noIndex/);
-    assert.doesNotMatch(source, /<Content|\.data\.(?:title|description|lede)/);
   }
   assert.match(reader, /getNotes/);
   assert.doesNotMatch(home, /How I use|planned-preview/);

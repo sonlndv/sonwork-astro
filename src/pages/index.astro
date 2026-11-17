@@ -6,8 +6,8 @@ import GithubCalendar from '../components/GithubCalendar.astro';
 <BaseLayout title="Son." description="I’m Son, a business guy in Vietnam, trying things with AI and sharing what I learn through notes and visual explanations.">
   <section class="about-opening" aria-labelledby="home-title">
     <h1 id="home-title">Trying things with AI.<br /><span class="blue">Learning as I go.</span></h1>
-    <p class="home-intro">I’m Son, a business guy in Vietnam. I’m exploring how AI can automate parts of my work and help me build things I find useful.</p>
-    <p class="muted intro-secondary">I work with agents, try ideas and write down what works, what doesn’t and what I’m still figuring out. Here I share that journey through notes, visual explanations and small examples you can explore.</p>
+    <p class="home-intro">I’m Son, a business guy in Vietnam, exploring how AI can help me automate work and build useful things.</p>
+    <p class="muted intro-secondary">I test ideas with coding agents and keep notes on what works and what doesn’t, with visual explanations and small examples.</p>
     <nav class="about-contacts" aria-label="Contact Son">
       <ul>
         <li><a href="mailto:son@sonwork.org">son@sonwork.org</a></li>
@@ -18,14 +18,10 @@ import GithubCalendar from '../components/GithubCalendar.astro';
     </nav>
   </section>
   <div class="about-tools"><ToolStrip /><GithubCalendar /></div>
-  <section class="home-project" aria-labelledby="home-project-title">
-    <h2 id="home-project-title">Project</h2>
-    <div><h3>Coming soon</h3><p class="muted">For now, I’m sharing what I’m learning.</p><a class="go" href="/project">About the project page <span aria-hidden="true">→</span></a></div>
-  </section>
 </BaseLayout>
 <script>
   const preference = matchMedia('(prefers-reduced-motion: reduce)');
-  const sections = [...document.querySelectorAll<HTMLElement>('.tools-section, .github-calendar, .home-project')];
+  const sections = [...document.querySelectorAll<HTMLElement>('.tools-section, .github-calendar')];
   for (const section of sections) {
     const trace = document.createElement('span');
     trace.className = 'editorial-rule-trace';

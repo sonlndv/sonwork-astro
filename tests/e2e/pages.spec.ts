@@ -30,7 +30,13 @@ for (const path of builtPages()) {
         await expect(current).toHaveCount(1);
         await expect(current).toHaveAttribute('href', section);
       }
-      await expect(nav.locator('ul a')).toHaveText(['About Me', 'Series', 'Project']);
+      await expect(nav.locator('ul a')).toHaveText(['About Me', 'Series', 'Study', 'Contact']);
+      await expect(nav.getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
+      const progress = page.getByRole('navigation', { name: 'Pages in progress', exact: true });
+      await expect(progress.getByRole('link')).toHaveText(['Project (coming soon)']);
+      const progressHref = path === '/project' ? '/project' : undefined;
+      if (progressHref) await expect(progress.locator('a[aria-current="page"]')).toHaveAttribute('href', progressHref);
+      else await expect(progress.locator('a[aria-current="page"]')).toHaveCount(0);
       await expect(page.getByRole('navigation', { name: 'Archive and contact' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
       await expect(nav.getByRole('link', { name: 'Subscribe', exact: true })).toHaveCount(0);
     });
