@@ -1,6 +1,6 @@
 # Son. Doop design system
 
-Current implementation direction. After desktop review on 2026-11-16, Son selected old-school editorial rules and requested consistent alignment, widths, natural heights and spacing across desktop and mobile. This supersedes section frames as the selected treatment. Technical validation, final visual acceptance and publication remain separate.
+Current implementation direction: Son approved the full private Mounty mockup and explicitly requested publication on 2026-11-17. Mounty replaces the initial Doop typography and material, not the content or editorial composition. The 2026-11-16 selection of old-school rules, consistent alignment, widths, natural heights and responsive spacing remains. Technical validation and release safeguards remain mandatory; publication approval does not authorize unrelated account, storage or data changes.
 
 ## Purpose and route types
 
@@ -21,6 +21,28 @@ Approved Doop exports and provenance live in private task evidence. The product 
 
 Source of truth: `src/styles/global.css`.
 
+### Approved Mounty material — 2026-11-17
+
+Use the original Mounty palette verified against the active Obsidian theme, **not Flexoki**. Dark and light are the approved mockup counterparts, not a new palette approximation.
+
+| Role | Dark | Light |
+|---|---|---|
+| Page | `#02050d` | `#f8fafd` |
+| Figure/control surface | `#050b16` | `#eef3f8` |
+| Primary ink | `#f0f4f7` | `#0b1421` |
+| Muted ink | `#abb2ba` | `#333e4c` |
+| Hairline | `#2b2e32` | `#b6bfc8` |
+| Link/action accent | `#39d0fc` | `#006cac` |
+| Section heading | `#82defa` | `#044974` |
+| Minor heading | `#83d5b4` | `#22684e` |
+| Bold/code emphasis | `#f5a67d` | `#96502a` |
+| Italic emphasis | `#c4b5fd` | `#6c4b99` |
+| Unfinished/private status | `#f5b488` | `#9c470d` |
+
+<details><summary>Historical initial Doop material (superseded by Mounty)</summary>
+
+The initial Doop treatment used Geist headings/prose and Geist Mono labels, a 36–58px responsive About heading, 1.65 body leading and a 720px reading cap. Home was flat; inner routes retained static tactile texture. Those typography/material choices and the palette below are historical, not current contracts.
+
 | Role | Dark | White |
 |---|---|---|
 | Page | `oklch(0.115 0.022 256)` | `oklch(0.985 0.004 250)` |
@@ -30,14 +52,16 @@ Source of truth: `src/styles/global.css`.
 | Hairline | `oklch(0.3 0.008 254)` | ink 22% mixed into paper |
 | Blue | `oklch(0.8 0.11 254)` | `oklch(0.36 0.12 258)` |
 
-Home uses the existing flat near-black/white ground with open horizontal hairlines between tools, GitHub contributions and Project. Each rule has a short blue leading segment; the introduction stays unboxed. Header and footer rules share the same contained column edges instead of spanning the viewport. No particles, grain, ridge watermark, outer-page frame or prototype comparison controls ship on Home. Other routes retain their existing local static tactile texture, pointer-transparent and hidden in forced colours. Figures keep quiet surfaces, 1px rules and 6px corners. No glows, decorative gradients or equal-card grids. Warm human-status ink means unfinished/private, not live activity.
+</details>
+
+Every route uses the approved flat Mounty ground with no grain, texture, particles, ridge watermark, outer-page frame or mockup controls. Home retains open horizontal hairlines between tools, GitHub contributions and Project, each with a short accent leading segment; the introduction stays unboxed. Header and footer rules share the same contained column edges instead of spanning the viewport. Figures and controls keep quiet surfaces, 1px rules and 6px corners. No glows, decorative gradients or equal-card grids. Warm human-status ink means unfinished/private, not live activity.
 
 ## Type and layout
 
-- Geist headings/prose; Geist Mono measurements, labels, source-like figures and tabular numerals. Self-host Latin/Vietnamese subsets and retain OFL notices. No remote font CSS.
-- Desktop frame 1040px; reading/copy measure at most 720px. Full-width single-column sections do not imply unreadably wide paragraphs.
+- Space Mono 700 headings, Geist prose, and Space Mono measurements, labels, source-like figures and tabular numerals. Use the exact Mounty font bytes verified against active Obsidian; self-host Latin/Vietnamese subsets and retain OFL notices. No remote font CSS, synthetic bold or Geist Mono substitution.
+- Desktop frame 1040px; reading/copy measure at most 68ch. Full-width single-column sections do not imply unreadably wide paragraphs.
 - Symmetric gutters are at least 24px at every width, increasing on both sides to the larger landscape safe-area inset when needed. Header, main, section rules and footer share the same edges. Footer padding includes the bottom safe area. Natural page height, never prototype frame clipping.
-- About heading: two deliberate lines, blue second line, responsive 36–58px, 1.04 leading. Body 16px/1.65; primary intro 17px; lede 19px/1.55.
+- About heading: retain its two deliberate lines and accent second line; H1 is 32px at the default root size, Space Mono 700, 1.3 leading and normal tracking. All headings use bold Space Mono with normal tracking; section headings use 1.45rem and H3 1.2rem. Body leading is 1.7; existing body, intro and lede size roles remain.
 - Clear primary/muted hierarchy. Hairline rules and section spacing replace floating cards. After reviewing the centered trial, Son requested the previous layout with better alignment on both sides. Tools, purpose feedback, calendar headings and Project content again align to the introduction's left edge inside a centered frame with equal outer gutters. Home's Project uses the same section-heading role as tools and contributions, not an offset label column. The About introduction never becomes a two-column lesson.
 - Shared links/controls have at least 44px targets in both dimensions, wrap instead of clipping, and retain visible focus. Enlarge text without forcing nowrap or shrinking type.
 
@@ -49,7 +73,7 @@ One fluid section-space value, 32–48px, separates every section and the footer
 
 Empty calendar feedback reserves no row or margin, while its live region stays mounted; populated feedback enters normal flow. The no-JavaScript tool list has no trailing margin. Section spacing is measured after real content, not padded by invisible feedback buffers.
 
-Prose retains its 720px maximum measure. Calendar cells stay at their natural 12px size, and scrolling remains inside the chart's labelled region. Its 3px internal horizontal inset protects focus outlines; it is not a different outer page gutter. Desktop and phone use the same open editorial grammar, with no mobile-only framed fallback. Forced colours hides only the decorative blue accents and preserves the native rules, content and controls.
+Prose retains its 68ch maximum measure. Calendar cells stay at their natural 12px size, and scrolling remains inside the chart's labelled region. Its 3px internal horizontal inset protects focus outlines; it is not a different outer page gutter. Desktop and phone use the same open editorial grammar, with no mobile-only framed fallback. Forced colours hides only decorative accents and preserves the native rules, content and controls.
 
 Private background studies stay outside tracked source and release assets. Their dropdown, styles, artwork and draft-preview server are not production features.
 
@@ -57,7 +81,7 @@ Private background studies stay outside tracked source and release assets. Their
 
 Son approved a single blue ink trace across each homepage section rule as it first enters view (760ms), with a short leading-accent draw (450ms). Only transforms and opacity animate; real rules and all content remain visible without JavaScript. Each section plays once per page visit. Reduced motion stays static, including when the system preference changes; forced colours hides decorative accents. No motion library, scroll loop, background motion or preview controls ship.
 
-After phone review, tool selection uses immediate static blue text and immediate purpose updates. There is no moving underline, selection border or purpose fade. Existing hover/focus previews, native click/tap/Enter/Space selection, visible keyboard focus, natural wrapping and no-JavaScript purposes remain intact. Colours, copy, typography, shared gutters and section geometry are unchanged.
+After phone review, tool selection uses immediate static accent text and immediate purpose updates. There is no moving underline, selection border or purpose fade. Existing hover/focus previews, native click/tap/Enter/Space selection, visible keyboard focus, natural wrapping and no-JavaScript purposes remain intact. Mounty changes palette and typography only; shared gutters, section geometry and these motion rules remain unchanged.
 
 
 
@@ -71,7 +95,7 @@ Apply an explicit stored theme before paint, otherwise system preference. Persis
 
 The approved revision replaces the old chart/toggle and stack architecture UI. A simple row/wrap displays gbrain, Hermes, OpenMaus, OMP and Obsidian. Hover/focus previews the supplied short purpose; click/tap/Enter/Space selects one purpose. Names remain visible and a no-JS list includes every purpose. Obsidian uses the exact reference logo locally; there are no connectors, hardware layers or old hidden prototype templates.
 
-Below it is the GitHub profile contribution grid: blue day-square intensities, UTC dates, month labels, fewer/more legend and exact date/count details. Its outer frame uses the same1040px/gutter geometry as header, main, tools, featured content, project and footer; internal cells keep their natural12px size and prose retains its720px measure. The allowlisted local snapshot is pinned byte-for-byte to the selected public source: 365 contiguous dates from 2025-11-16 through 2026-11-15, total 2,165, captured 15 Nov 2026. Contributions are not commits-only, public-repository totals, completed work or live telemetry. The final UTC day may be partial. Source and capture/coverage provenance remain in nonvisual accessible description/data, not visible method/source/help UI; original GitHub intensity levels are retained, not synthesized from unrelated usage records.
+Below it is the GitHub profile contribution grid: blue day-square intensities, UTC dates, month labels, fewer/more legend and exact date/count details. Its outer frame uses the same1040px/gutter geometry as header, main, tools, featured content, project and footer; internal cells keep their natural12px size and prose retains its68ch measure. The allowlisted local snapshot is pinned byte-for-byte to the selected public source: 365 contiguous dates from 2025-11-16 through 2026-11-15, total 2,165, captured 15 Nov 2026. Contributions are not commits-only, public-repository totals, completed work or live telemetry. The final UTC day may be partial. Source and capture/coverage provenance remain in nonvisual accessible description/data, not visible method/source/help UI; original GitHub intensity levels are retained, not synthesized from unrelated usage records.
 
 The visible section contains only the heading, month/day chart, small legend and contextual date/count feedback when used. The grid scrolls inside its labelled region on narrow screens. Natural compact data-visualisation cells retain native touch/focus, one roving Tab stop and day/week/Home/End keys; Son explicitly removed the visible picker/explorer, both accordions and all obsolete picker JS references. Do not claim equivalent large picker access or universal small-target compliance. No-JS retains every date/count in a nonvisual semantic table and disables nonfunctional square controls. Complete values do not depend on colour or hover. Builds make no network requests. The approved fixed-account read-only API refreshes through the same origin while visible, using a runtime-only dedicated public-read credential, 15-minute server cache and last-good/snapshot fallback; see GITHUB-CALENDAR-API.md. Provider fixtures prove tests, not live authentication. No cron, public deployment or production Secret installation is included.
 
@@ -93,4 +117,4 @@ Active contracts cover all primary and retained Series paths at 320/375/390/768/
 
 Run the full ordered install/check/test/build/production-artifact gate in AGENTS.md/DEPLOY.md on identified source. Public Lighthouse thresholds remain performance 98, accessibility/SEO 95, median of three. Source-confirmed noindex draft notes instead must remain noncrawlable, with unchanged performance/accessibility floors. No route is omitted.
 
-Default to a built snapshot on a verified unproxied loopback port, with noindex/no-store. Any explicitly approved private review origin is recorded separately in task evidence; it does not grant proxy configuration or publication changes. Keep source/byte manifests, real desktop/narrow screenshots, independent code/screenshot reviews and owned-process cleanup in durable task evidence. No automatic tunnel, public endpoint, push, merge, PR, deployment or account/storage change is implied. Physical device, Safari, screen-reader and human creative acceptance stay unclaimed until observed.
+Default to a built snapshot on a verified unproxied loopback port, with noindex/no-store. Any explicitly approved private review origin is recorded separately in task evidence; it does not grant proxy configuration changes. Son's 2026-11-17 Mounty approval explicitly requests publication through the existing release gates; private preview alone never grants it. Keep source/byte manifests, real desktop/narrow screenshots, independent code/screenshot reviews and owned-process cleanup in durable task evidence. No unrelated tunnel, account or storage change is implied. Physical-device, Safari and screen-reader verification, and post-release visual verification, stay unclaimed until observed; private Mounty creative approval is recorded above.
