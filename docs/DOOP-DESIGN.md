@@ -23,7 +23,7 @@ Source of truth: `src/styles/global.css`.
 
 ### Approved Mounty material — 2026-11-17
 
-Use the original Mounty palette verified against the active Obsidian theme, **not Flexoki**. Dark and light are the approved mockup counterparts, not a new palette approximation.
+Mounty supplies typography, flat backgrounds and neutral/semantic colours. After reviewing the published Mounty version, Son approved the previous periwinkle blue instead of the original cyan on 2026-11-17. The canonical identity, colour codes, fonts, logo and asset usage are in [BRAND-KIT.md](BRAND-KIT.md). This is a Son. brand adaptation, not the unchanged Obsidian Mounty palette or Flexoki.
 
 | Role | Dark | Light |
 |---|---|---|
@@ -32,8 +32,8 @@ Use the original Mounty palette verified against the active Obsidian theme, **no
 | Primary ink | `#f0f4f7` | `#0b1421` |
 | Muted ink | `#abb2ba` | `#333e4c` |
 | Hairline | `#2b2e32` | `#b6bfc8` |
-| Link/action accent | `#39d0fc` | `#006cac` |
-| Section heading | `#82defa` | `#044974` |
+| Link/action accent | `oklch(80% .11 254)` / `#8bc1ff` | `oklch(36% .12 258)` / `#0b3a7a` |
+| Section heading | `oklch(80% .11 254)` / `#8bc1ff` | `oklch(36% .12 258)` / `#0b3a7a` |
 | Minor heading | `#83d5b4` | `#22684e` |
 | Bold/code emphasis | `#f5a67d` | `#96502a` |
 | Italic emphasis | `#c4b5fd` | `#6c4b99` |

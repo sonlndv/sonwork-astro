@@ -2,8 +2,8 @@ import { expect, test } from '@playwright/test';
 import { builtPages } from './routes';
 
 const mountyPalette = {
-  dark: { page: 'rgb(2, 5, 13)', ink: 'rgb(240, 244, 247)', accent: 'rgb(57, 208, 252)', rule: 'rgb(43, 46, 50)' },
-  light: { page: 'rgb(248, 250, 253)', ink: 'rgb(11, 20, 33)', accent: 'rgb(0, 108, 172)', rule: 'rgb(182, 191, 200)' },
+  dark: { page: 'rgb(2, 5, 13)', ink: 'rgb(240, 244, 247)', accent: 'oklch(0.8 0.11 254)', rule: 'rgb(43, 46, 50)' },
+  light: { page: 'rgb(248, 250, 253)', ink: 'rgb(11, 20, 33)', accent: 'oklch(0.36 0.12 258)', rule: 'rgb(182, 191, 200)' },
 };
 
 for (const theme of ['dark', 'light'] as const) test(`shared Mounty typography and flat material, no retired scene or external requests (${theme})`, async ({ page }) => {
