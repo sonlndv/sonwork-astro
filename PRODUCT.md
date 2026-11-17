@@ -20,9 +20,9 @@ Son is learning by trying. Explain the difference between an idea, a local teach
 
 ## Operating Context
 
-- Static Astro 7 site, with MDX collections for series and nested notes as well as retained posts, work, side-projects and pages. Primary routes are About Me `/`, `/series`, `/series/[series]`, `/series/[series]/[note]` and `/project`.
+- Static Astro 7 site, with MDX collections for series and nested notes as well as retained posts, work, side-projects and pages. Shared primary navigation is About Me `/`, Writing `/writing` and native Contact `mailto:son@sonwork.org`. Series and Project remain available as explicitly unfinished footer destinations.
 - Son's current review amendment leaves Series empty: only its heading and Coming soon inside shared chrome. About has no Series teaser. Retained Series URLs show the same generic state and metadata, never retired topic titles or a curriculum. Compatibility slugs live separately from the five tool identities/purposes. All MDX drafts/history remain untouched; draft-derived routes stay noindex in preview and absent from release.
-- `/writing`, `/work`, `/about`, `/subscribe`, RSS and deliberate legacy redirects are retained archives, not competing primary navigation. About has a compact wrapping public contact row: email son@sonwork.org, X @sonldv, GitHub sonlndv and LinkedIn in/sonle2003. Distinct profile spellings are intentional. Footer Contact remains a truthful mailto, never a form or outgoing message.
+- Writing is a useful primary destination with its existing approved Note; `/work`, `/about`, `/subscribe`, RSS and deliberate legacy redirects remain reachable archives. About has a compact wrapping public contact row: email son@sonwork.org, X @sonldv, GitHub sonlndv and LinkedIn in/sonle2003. Distinct profile spellings are intentional. Contact remains a truthful mailto, never a form or outgoing message.
 - Content is written first and flipped from `draft: true` by Son once he approves it. Preview builds use `SHOW_DRAFTS=true`.
 - The launch keeps signup disabled with no PUBLIC_SIGNUP configuration. `/subscribe` shows a notice, not an editable form; Home omits the closed-signup section. Retired newsletter links retain truthful contact information at `/subscribe` and never claim an unsubscribe succeeded.
 - About, Trivia Hub, Keymarchy and Perfeat are approved for publication. The three original posts remain drafts; the separately approved Note is published and supplies the single production RSS item.
@@ -53,10 +53,12 @@ Son is learning by trying. Explain the difference between an idea, a local teach
 ## Product Principles
 
 1. Prove, don't claim: show the shipped thing and its numbers before any adjective.
-2. About-first entrance: a single-column introduction, compact public contacts, simple tools and one contribution grid. Series and Project stay sparse Coming soon pages. Writing/build archives and footer Contact remain reachable; choosing a tool never chooses a future Series destination.
+2. About-first entrance: a concise exploratory introduction, compact public contacts, simple tools and one contribution grid. The empty homepage Project section and repeated footer promise are removed. Series and Project stay sparse Coming soon pages, labelled in the shared footer; Project returns to About instead of another unfinished page. Choosing a tool never chooses a future Series destination.
 3. Son's words only: copy comes from the content collections, never invented.
 4. Honest status: drafts, pre-alpha and disabled states are labelled as what they are.
 
 ## Accessibility & Inclusion
+
+On an untouched calendar, initially expose the most recent dates whenever the full year does not fit. Keep chronological order, counts and natural cell dimensions. Async refresh and initial resizing may retain that view; after pointer, touch, wheel or keyboard interaction, preserve the visitor's position and existing selection/focus behavior. No-JavaScript content retains the complete accessible static data.
 
 General touch targets at least 44px, axe with 0 serious or critical violations, `prefers-reduced-motion` respected, both themes meet contrast. Son's chart-only amendment explicitly retains natural compact calendar day squares, with accurate date/count names, native touch selection, one roving keyboard stop/day-week arrows and browser zoom; do not claim a removed full-size picker or universal minimum-size certification. No-JS exposes every date/count in a nonvisual semantic table. Calendar scrolling stays inside its labelled region; hidden data introduces no focusable controls or visible explorer panel.

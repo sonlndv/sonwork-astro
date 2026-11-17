@@ -17,7 +17,10 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
       await expect(page.locator('[data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
-      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).locator('ul a')).toHaveText(['About Me', 'Series', 'Project']);
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).locator('ul a')).toHaveText(['About Me', 'Writing', 'Contact']);
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Writing', exact: true })).toHaveAttribute('href', '/writing');
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
+      await expect(page.getByRole('navigation', { name: 'Pages in progress', exact: true }).getByRole('link')).toHaveText(['Series (coming soon)', 'Project (coming soon)']);
       await expect(page.getByRole('navigation', { name: 'Archive and contact' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
       if (path === '/subscribe') {
         await expect(page.locator('.signup-closed')).toHaveText('Signup opens soon.');
@@ -35,7 +38,7 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
         const contacts = page.getByRole('navigation', { name: 'Contact Son', exact: true });
         await expect(contacts.getByRole('link')).toHaveText(['son@sonwork.org', 'X @sonldv', 'GitHub sonlndv', 'LinkedIn in/sonle2003']);
         expect(await contacts.getByRole('link').evaluateAll(els => els.map(el => el.getAttribute('href')))).toEqual(['mailto:son@sonwork.org', 'https://x.com/sonldv', 'https://github.com/sonlndv', 'https://www.linkedin.com/in/sonle2003/']);
-        await expect(page.locator('.home-feature, .planned-preview')).toHaveCount(0);
+        await expect(page.locator('.home-feature, .planned-preview, .home-project')).toHaveCount(0);
         await expect(page.locator('h1')).toHaveText('Trying things with AI.Learning as I go.');
         await expect(page.locator('.github-calendar')).toHaveCount(1);
         await expect(page.locator('#calendar-description')).toContainText('2,165 contributions. Not live data.');
@@ -50,6 +53,7 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       if (path === '/project') {
         await expect(page.locator('h1')).toHaveText('Coming soon.');
         await expect(page.locator('main .work-card, main .build-entry')).toHaveCount(0);
+        await expect(page.locator('.project-coming .go')).toHaveAttribute('href', '/');
       }
       if (path === '/series' || retainedPaths.includes(path)) {
         await expect(page.locator('main')).toHaveText('Series.Coming soon');

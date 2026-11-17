@@ -29,7 +29,8 @@ for (const width of [320, 375, 390, 768, 1440]) for (const theme of ['dark', 'li
 
 test('native mouse or touch first activation follows real links without interception', async ({ page, isMobile }) => {
   await page.goto('/');
-  const link = page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true });
+  const link = page.getByRole('navigation', { name: 'Pages in progress', exact: true }).getByRole('link', { name: 'Series (coming soon)', exact: true });
+  await link.scrollIntoViewIfNeeded();
   const box = (await link.boundingBox())!;
   expect(await link.evaluate(el => { const r = el.getBoundingClientRect(); return el.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)); })).toBe(true);
   if (isMobile) await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2); else await link.click();

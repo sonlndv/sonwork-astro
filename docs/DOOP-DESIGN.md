@@ -6,12 +6,12 @@ Current implementation direction: Son approved the full private Mounty mockup an
 
 Mode: **Read**, with an About-first introduction. A record of learning, not a dashboard, expert manifesto or complete curriculum.
 
-- About Me `/`: unchanged single-column introduction, compact public contact row, simple five-tool purpose selector, one verified GitHub profile contribution grid and sparse Project link. No Series preview or teaser.
+- About Me `/`: concise single-column introduction, compact public contact row, simple five-tool purpose selector and one verified GitHub profile contribution grid. The empty Project section is removed; unfinished pages remain in the shared footer.
 - Series `/series`: only the Series heading and Coming soon within shared chrome. Son will choose future topics; no named plans, counts, dates, articles or curriculum.
 - `/series/[series]` and `/series/[series]/[note]`: retained current URLs use that same generic component and metadata. MDX source/history stays intact; draft-derived routes remain noindex in preview and absent from release.
 - Project `/project`: honest Coming soon, not invented projects or promises.
 
-`/writing`, `/work`, `/about`, `/subscribe`, RSS and deliberate legacy redirects remain reachable archives, not competing primary navigation. Only the exact `/series` and `/series/` index paths supersede their historical redirect to Writing. The historical CSV stays unchanged; asset and Worker projections omit that index, and packaged HTTP checks require the actual Series page. Legacy series-detail redirects remain intact.
+Writing is the primary destination for existing approved notes. `/work`, `/about`, `/subscribe`, RSS and deliberate legacy redirects remain reachable archives. Only the exact `/series` and `/series/` index paths supersede their historical redirect to Writing. The historical CSV stays unchanged; asset and Worker projections omit that index, and packaged HTTP checks require the actual Series page. Legacy series-detail redirects remain intact.
 
 ## Identity and material
 
@@ -87,7 +87,13 @@ After phone review, tool selection uses immediate static accent text and immedia
 
 ## Navigation and themes
 
-Primary labels: **About Me / Series / Project**. Series stays current on nested routes. Use real native navigation. About contacts appear directly below the introduction as a wrapping row of visible, keyboard/touch-accessible links: son@sonwork.org, X @sonldv, GitHub sonlndv and LinkedIn in/sonle2003. Preserve exact public hrefs and distinct handles; no cards, form, mail backend or forced new tabs. Footer Contact remains a truthful mailto.
+Primary labels: **About Me / Writing / Contact** on every route. Writing stays current on its nested articles; Contact is a native mailto and never a current page. The shared footer labels **Series (coming soon)** and **Project (coming soon)**, marks their current section and preserves all existing routes. Project's return action goes directly to About. About contacts appear directly below the introduction as a wrapping row of visible, keyboard/touch-accessible links: son@sonwork.org, X @sonldv, GitHub sonlndv and LinkedIn in/sonle2003. Preserve exact public hrefs and distinct handles; no cards, form, mail backend or forced new tabs. Footer Contact remains a truthful mailto.
+
+### Combined refinement approved on 2026-11-17
+
+Son approved the tighter exploratory copy, useful-destination navigation and recent-first calendar together across the website, including publication through the existing release gates. This supersedes earlier references below to homepage Project content and three homepage section rules: only tools and contributions retain their existing open rules; the footer follows the calendar with the same responsive section spacing. Shared fonts, colours, gutters, authored archive content, drafts and privacy protections remain intact.
+
+The calendar starts at its newest dates when it overflows. The existing controller owns refresh and retains this initial view through content/layout changes until the first visitor interaction, after which the visitor owns scrolling. Counts, UTC chronology, 12px cells, selection, Home/End/arrow keys and accessible no-JavaScript data are unchanged. This does not introduce a new panel, loading animation or data request.
 
 Apply an explicit stored theme before paint, otherwise system preference. Persist through navigation/reload and synchronize storage events. Storage denial is nonfatal. No-JS gets complete system-theme CSS and hides the inactive theme button. Reduced motion removes transitions; forced colours retains native control semantics.
 

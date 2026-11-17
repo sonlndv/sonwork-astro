@@ -40,6 +40,27 @@ export function startCalendar() {
   }
   bind(); cells.addEventListener('pointerleave', restore);
 
+  let followingRecent = true;
+  const viewportInputs = ['pointerdown', 'touchstart', 'wheel', 'keydown', 'focusin'];
+  const inputOptions = { capture: true, passive: true };
+  function exposeRecentDates() {
+    if (followingRecent) region.scrollTo({ left: region.scrollWidth - region.clientWidth, behavior: 'instant' });
+  }
+  const viewportObserver = new ResizeObserver(exposeRecentDates);
+  function releaseViewport() {
+    followingRecent = false;
+    viewportObserver.disconnect();
+    for (const event of viewportInputs) region.removeEventListener(event, releaseViewport, inputOptions);
+  }
+  // Follow initial layout and refreshes only until the visitor takes control.
+  for (const event of viewportInputs) region.addEventListener(event, releaseViewport, inputOptions);
+  if (region.contains(document.activeElement)) releaseViewport();
+  else {
+    viewportObserver.observe(region);
+    viewportObserver.observe(cells);
+    exposeRecentDates();
+  }
+
   function markStale() {
     if (root.dataset.calendarSource !== 'github-graphql') return;
     root.dataset.calendarMode = 'stale';
@@ -71,6 +92,7 @@ export function startCalendar() {
     root.dataset.calendarMode = meta.mode; root.dataset.calendarSource = meta.source; root.dataset.calendarFetchedAt = meta.fetchedAt;
     provenance.textContent = `${data.from}–${data.through}: ${data.total.toLocaleString('en-US')} public profile contributions, not commits-only or completed work. Dates are UTC. Fetched ${meta.fetchedAt} using the official GitHub API with a 15-minute server cache; ${meta.stale ? 'showing stale last-good data' : 'auto-updated, not instant realtime'}. Source: ${data.source}.`;
     restore();
+    exposeRecentDates();
   }
   const interval = 15 * 60 * 1000;
   let timer: number | undefined, controller: AbortController | undefined, busy = false, lastAttempt = 0, stopped = false;
@@ -88,7 +110,7 @@ export function startCalendar() {
     finally { window.clearTimeout(deadline); busy = false; schedule(); }
   }
   document.addEventListener('visibilitychange', () => { window.clearTimeout(timer); if (!document.hidden) { if (Date.now() - lastAttempt >= interval) void refresh(); else schedule(); } });
-  window.addEventListener('pagehide', () => { stopped = true; window.clearTimeout(timer); controller?.abort(); });
+  window.addEventListener('pagehide', () => { stopped = true; releaseViewport(); window.clearTimeout(timer); controller?.abort(); });
   window.addEventListener('pageshow', event => {
     if (!event.persisted) return;
     stopped = false;

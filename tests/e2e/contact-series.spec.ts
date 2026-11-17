@@ -43,7 +43,7 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'Series');
       await expect(page.locator('main')).not.toContainText(retired);
       await expect(page.locator('main a, main time, main article, main details, main button, main li, [data-simulation]')).toHaveCount(0);
-      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true })).toHaveAttribute('aria-current', 'page');
+      await expect(page.getByRole('navigation', { name: 'Pages in progress', exact: true }).getByRole('link', { name: 'Series (coming soon)', exact: true })).toHaveAttribute('aria-current', 'page');
       if (path.includes('always-on-agents')) {
         await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, follow');
         await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);

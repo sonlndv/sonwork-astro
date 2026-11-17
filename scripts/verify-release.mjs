@@ -91,7 +91,12 @@ export async function verifyRelease(base, expectedSha, output) {
       assert.ok(body.includes(`href="https://sonwork.org${path}"`), 'canonical must use the production URL');
       assert.doesNotMatch(body, /\bdata-(?:signup-(?:url|key)|newsletter)=/);
       assert.doesNotMatch(body, /<form\b|<input\b|<button\b[^>]*type="submit"/);
-      for (const [href, label] of [['/', 'About Me'], ['/series', 'Series'], ['/project', 'Project']]) assert.ok(body.includes(`href="${href}"`) && body.includes(label), `missing primary destination ${label}`);
+      const primary = /<nav\b[^>]*aria-label="Main"[^>]*>([\s\S]*?)<\/nav>/.exec(body)?.[1];
+      assert.ok(primary, 'shared primary navigation must be present');
+      for (const [href, label] of [['/', 'About Me'], ['/writing', 'Writing'], ['mailto:son@sonwork.org', 'Contact']]) assert.ok(primary.includes(`href="${href}"`) && primary.includes(label), `missing primary destination ${label}`);
+      const progress = /<nav\b[^>]*aria-label="Pages in progress"[^>]*>([\s\S]*?)<\/nav>/.exec(body)?.[1];
+      assert.ok(progress, 'unfinished pages must remain accessible in the footer');
+      for (const [href, label] of [['/series', 'Series (coming soon)'], ['/project', 'Project (coming soon)']]) assert.ok(progress.includes(`href="${href}"`) && progress.includes(label), `missing unfinished destination ${label}`);
       assert.match(body, /href="mailto:son@sonwork\.org"/);
       assert.doesNotMatch(body, /<a\b[^>]*href="\/subscribe"[^>]*>Subscribe<\/a>/);
       if (path === '/subscribe') {

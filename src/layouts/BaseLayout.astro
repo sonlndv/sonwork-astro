@@ -8,7 +8,7 @@ const { title, description, type = 'website', noIndex = false } = Astro.props;
 const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1');
 const canonical = new URL(path, Astro.site);
 const robotsOff = noIndex;
-const nav = [{ href: '/', label: 'About Me' }, { href: '/series', label: 'Series' }, { href: '/project', label: 'Project' }];
+const nav = [{ href: '/', label: 'About Me' }, { href: '/writing', label: 'Writing' }, { href: 'mailto:son@sonwork.org', label: 'Contact' }];
 const current = (href: string) => href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
 const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/*' }, eagerness: 'moderate' }] });
 ---
@@ -61,7 +61,10 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
         <nav aria-label="Archive and contact">
           <a href="/writing">Writing archive</a><a href="/work">Build archive</a><a href="mailto:son@sonwork.org">Contact</a><a href="/rss.xml">RSS</a>
         </nav>
-        <p>More notes when they’re ready.</p>
+        <nav aria-label="Pages in progress">
+          <a href="/series" aria-current={current('/series') ? 'page' : undefined}>Series (coming soon)</a>
+          <a href="/project" aria-current={current('/project') ? 'page' : undefined}>Project (coming soon)</a>
+        </nav>
       </div>
     </footer>
   </body>
