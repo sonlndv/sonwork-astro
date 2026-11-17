@@ -23,3 +23,30 @@ import GithubCalendar from '../components/GithubCalendar.astro';
     <div><h3>Coming soon</h3><p class="muted">For now, I’m sharing what I’m learning.</p><a class="go" href="/project">About the project page <span aria-hidden="true">→</span></a></div>
   </section>
 </BaseLayout>
+<script>
+  const preference = matchMedia('(prefers-reduced-motion: reduce)');
+  const sections = [...document.querySelectorAll<HTMLElement>('.tools-section, .github-calendar, .home-project')];
+  for (const section of sections) {
+    const trace = document.createElement('span');
+    trace.className = 'editorial-rule-trace';
+    trace.setAttribute('aria-hidden', 'true');
+    section.append(trace);
+  }
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('rule-seen');
+        observer.unobserve(entry.target);
+      }
+    }
+  }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+  function syncRules() {
+    observer.disconnect();
+    for (const section of sections) {
+      section.classList.remove('rule-seen');
+      if (!preference.matches) observer.observe(section);
+    }
+  }
+  preference.addEventListener('change', syncRules);
+  syncRules();
+</script>

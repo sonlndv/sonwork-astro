@@ -53,6 +53,13 @@ Prose retains its 720px maximum measure. Calendar cells stay at their natural 12
 
 Private background studies stay outside tracked source and release assets. Their dropdown, styles, artwork and draft-preview server are not production features.
 
+### Restrained editorial motion — 2026-11-17
+
+Son approved a single blue ink trace across each homepage section rule as it first enters view (760ms), with a short leading-accent draw (450ms). Only transforms and opacity animate; real rules and all content remain visible without JavaScript. Each section plays once per page visit. Reduced motion stays static, including when the system preference changes; forced colours hides decorative accents. No motion library, scroll loop, background motion or preview controls ship.
+
+After phone review, tool selection uses immediate static blue text and immediate purpose updates. There is no moving underline, selection border or purpose fade. Existing hover/focus previews, native click/tap/Enter/Space selection, visible keyboard focus, natural wrapping and no-JavaScript purposes remain intact. Colours, copy, typography, shared gutters and section geometry are unchanged.
+
+
 
 ## Navigation and themes
 
