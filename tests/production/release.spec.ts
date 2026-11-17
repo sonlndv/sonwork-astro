@@ -9,7 +9,7 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     const context = await browser.newContext({ javaScriptEnabled, colorScheme: theme, viewport: { width, height: 900 } });
     await context.addInitScript(theme => localStorage.setItem('theme', theme), theme);
     const page = await context.newPage();
-    for (const path of ['/', '/series', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', '/writing', '/writing/the-joy-of-malleable-products', '/subscribe']) {
+    for (const path of ['/', '/series', '/series/me', '/study', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', '/series/me/the-joy-of-malleable-products', '/subscribe']) {
       expect((await page.goto(`${baseURL}${path}`))?.status()).toBe(200);
       await expect(page.locator('h1')).toBeVisible();
       await expect(page.locator('.draft-label')).toHaveCount(0);
@@ -17,7 +17,11 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
       await expect(page.locator('[data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
-      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).locator('ul a')).toHaveText(['About Me', 'Series', 'Project']);
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).locator('ul a')).toHaveText(['About Me', 'Series', 'Study', 'Contact']);
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true })).toHaveAttribute('href', '/series');
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Study', exact: true })).toHaveAttribute('href', '/study');
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
+      await expect(page.getByRole('navigation', { name: 'Pages in progress', exact: true }).getByRole('link')).toHaveText(['Project (coming soon)']);
       await expect(page.getByRole('navigation', { name: 'Archive and contact' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
       if (path === '/subscribe') {
         await expect(page.locator('.signup-closed')).toHaveText('Signup opens soon.');
@@ -28,14 +32,14 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       if (path === '/subscribe') {
         await expect(page.locator('main')).toContainText('No subscription has been changed here.');
         await expect(page.getByRole('link', { name: 'son@sonwork.org', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
-        await expect(page.getByRole('link', { name: 'All writing', exact: true })).toHaveAttribute('href', '/writing');
+        await expect(page.locator('main').getByRole('link', { name: 'All series', exact: true })).toHaveAttribute('href', '/series');
       }
       if (path === '/') {
         await expect(page.locator('.home-intro')).toContainText('Vietnam');
         const contacts = page.getByRole('navigation', { name: 'Contact Son', exact: true });
         await expect(contacts.getByRole('link')).toHaveText(['son@sonwork.org', 'X @sonldv', 'GitHub sonlndv', 'LinkedIn in/sonle2003']);
         expect(await contacts.getByRole('link').evaluateAll(els => els.map(el => el.getAttribute('href')))).toEqual(['mailto:son@sonwork.org', 'https://x.com/sonldv', 'https://github.com/sonlndv', 'https://www.linkedin.com/in/sonle2003/']);
-        await expect(page.locator('.home-feature, .planned-preview')).toHaveCount(0);
+        await expect(page.locator('.home-feature, .planned-preview, .home-project')).toHaveCount(0);
         await expect(page.locator('h1')).toHaveText('Trying things with AI.Learning as I go.');
         await expect(page.locator('.github-calendar')).toHaveCount(1);
         await expect(page.locator('#calendar-description')).toContainText('2,165 contributions. Not live data.');
@@ -50,20 +54,31 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       if (path === '/project') {
         await expect(page.locator('h1')).toHaveText('Coming soon.');
         await expect(page.locator('main .work-card, main .build-entry')).toHaveCount(0);
+        await expect(page.locator('.project-coming .go')).toHaveAttribute('href', '/');
       }
-      if (path === '/series' || retainedPaths.includes(path)) {
+      if (retainedPaths.includes(path)) {
         await expect(page.locator('main')).toHaveText('Series.Coming soon');
         await expect(page).toHaveTitle('Series | Son.');
         await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Coming soon.');
         await expect(page.locator('main a, main li, main time, main article, main button')).toHaveCount(0);
         await expect(page.locator('main')).not.toContainText(/How I use|planned|Always-on|05/);
       }
-      if (path === '/writing') {
-        await expect(page.locator('main a[href^="/writing/"]')).toHaveCount(1);
-        await expect(page.locator('main a[href="/writing/the-joy-of-malleable-products"]')).toHaveText('The joy of malleable products');
+      if (path === '/series') {
+        await expect(page.locator('main .rows > li')).toHaveCount(1);
+        await expect(page.locator('main a[href="/series/me"]')).toHaveText('Me');
         await expect(page.locator('main .empty')).toHaveCount(0);
       }
-      if (path === '/writing/the-joy-of-malleable-products') {
+      if (path === '/series/me') {
+        await expect(page.locator('h1')).toHaveText('Me');
+        await expect(page.getByRole('heading', { name: 'Notes', exact: true })).toBeVisible();
+        await expect(page.locator('main .rows > li')).toHaveCount(1);
+        await expect(page.locator('main a[href="/series/me/the-joy-of-malleable-products"]')).toHaveText('The joy of malleable products');
+      }
+      if (path === '/study') {
+        await expect(page.locator('h1')).toHaveText('Study');
+        await expect(page.locator('main .page-head p')).toHaveText('Coming soon.');
+      }
+      if (path === '/series/me/the-joy-of-malleable-products') {
         await expect(page.locator('h1')).toHaveText('The joy of malleable products');
         await expect(page.locator('video')).toHaveCount(0);
         const image = page.locator('article figure img');
@@ -75,7 +90,16 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
         await expect(page.locator('article figure a')).toHaveAttribute('href', 'https://github.com/sonlndv/Mounty');
         expect(await image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 800 && el.naturalHeight === 604)).toBe(true);
         expect(await image.evaluate((el: HTMLImageElement) => el.getBoundingClientRect().right <= innerWidth)).toBe(true);
+        await expect(page.getByRole('navigation', { name: 'Note location', exact: true }).getByRole('link')).toHaveText(['Series', 'Me']);
+        await expect(page.getByRole('link', { name: 'All notes in Me', exact: true })).toHaveAttribute('href', '/series/me');
       }
+    }
+    for (const [from, to] of [['/writing', '/series'], ['/writing/the-joy-of-malleable-products', '/series/me/the-joy-of-malleable-products']]) {
+      const moved = await page.request.get(`${baseURL}${from}`, { maxRedirects: 0 });
+      expect(moved.status()).toBe(301);
+      expect(new URL(moved.headers().location, baseURL).pathname).toBe(to);
+      await page.goto(`${baseURL}${from}`);
+      await expect(page).toHaveURL(`${baseURL}${to}`);
     }
     await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'About Me', exact: true }).click();
     await expect(page).toHaveURL(`${baseURL}/`);
@@ -85,22 +109,23 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     await context.close();
   });
 }
-test('production excludes all three original draft posts and publishes exactly the approved Note in RSS', async ({ request }) => {
+test('production excludes all three original draft posts and publishes exactly the approved Me note in RSS', async ({ request }) => {
   const note = 'the-joy-of-malleable-products.mdx';
   const files = readdirSync('src/content/posts').filter(f => f.endsWith('.mdx'));
-  expect(files.sort()).toHaveLength(4);
-  expect(files).toContain(note);
-  expect(readFileSync(`src/content/posts/${note}`, 'utf8')).toMatch(/^draft: false$/m);
-  const drafts = files.filter(f => f !== note);
+  expect(files).not.toContain(note);
+  const approved = readFileSync(`src/content/notes/me/${note}`, 'utf8');
+  expect(approved).toMatch(/^draft: false$/m);
+  expect(approved).toMatch(/^series: me$/m);
+  const drafts = files.sort();
   expect(drafts).toEqual(['a-keyboard-plugin-is-done-when-it-types.mdx', 'a-new-default-must-not-break-the-old-one.mdx', 'no-answer-leaves-the-server.mdx']);
   for (const file of drafts) {
     expect(readFileSync(`src/content/posts/${file}`, 'utf8')).toMatch(/^draft: true$/m);
     expect((await request.get(`/writing/${file.replace(/\.mdx$/, '')}`)).status()).toBe(404);
   }
-  expect((await request.get(`/writing/${note.replace(/\.mdx$/, '')}`)).status()).toBe(200);
+  expect((await request.get(`/series/me/${note.replace(/\.mdx$/, '')}`)).status()).toBe(200);
   const feed = await (await request.get('/rss.xml')).text();
   expect(feed.match(/<item>/g)).toHaveLength(1);
-  expect(feed).toContain('/writing/the-joy-of-malleable-products');
+  expect(feed).toContain('/series/me/the-joy-of-malleable-products');
   for (const file of drafts) expect(feed).not.toContain(file.replace(/\.mdx$/, ''));
 });
 

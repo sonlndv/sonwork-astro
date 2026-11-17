@@ -24,6 +24,6 @@ export function builtPages(dist = 'dist'): string[] {
 export function navSection(path: string): string | undefined {
   if (path === '/') return '/';
   if (path === '/series' || path.startsWith('/series/')) return '/series';
-  if (path === '/project') return '/project';
-  return undefined; // Deliberately retained archives are not one of the three new primary destinations.
+  if (path === '/study') return '/study';
+  return undefined; // Contact is a mailto; Project identifies itself in the footer.
 }

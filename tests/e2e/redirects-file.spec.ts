@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { redirectRules, samePage } from '../../scripts/redirects-file.mjs';
+import { currentRedirects } from '../../scripts/redirect-map.mjs';
 
 // The _redirects generator (scripts/redirects-file.mjs), without a host.
 const row = (old_path: string, new_path: string, status = '301') => ({ old_path, new_path, status });
@@ -10,6 +11,7 @@ test.describe('_redirects generator', () => {
   test('leaves out rules between two forms of the same page', () => {
     const rules = redirectRules([row('/about/', '/about'), row('/work', '/work/'), row('/', '/'), row('/projects/', '/work')]);
     expect(rules).toEqual([
+      ...currentRedirects.map(({ from, to }) => ({ from, to, status: 301 })),
       { from: '/projects/', to: '/work', status: 301 },
       { from: '/projects', to: '/work', status: 301 },
     ]);

@@ -8,14 +8,15 @@
 
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { HEADER, readRedirectMap, currentRouteOverride } from './redirect-map.mjs';
+import { HEADER, readRedirectMap, currentRouteOverride, currentRedirects } from './redirect-map.mjs';
 import { renderRedirects, samePage, twinOf, privateRoute } from './redirects-file.mjs';
 
 const dist = resolve(process.argv[2] ?? 'dist');
 const STATUSES = new Set(['301', '410', 'none']);
 
 function servedBy(path) {
-  const clean = path.split(/[?#]/)[0].replace(/(.)\/$/, '$1');
+  const target = currentRedirects.find(rule => rule.from === path)?.to ?? path;
+  const clean = target.split(/[?#]/)[0].replace(/(.)\/$/, '$1');
   const base = join(dist, clean);
   return [base, join(base, 'index.html'), `${base}.html`].some(
     (file) => existsSync(file) && statSync(file).isFile(),
@@ -85,7 +86,11 @@ if (!existsSync(redirectsFile)) {
   }
   ruleCount = rules.size;
   const explicit = new Set(rows.filter((r) => r.status === '301').map((r) => r.old_path));
+  for (const { from, to } of currentRedirects) {
+    if (rules.get(from) !== to) errors.push(`_redirects: approved content move ${from} -> ${to} is missing`);
+  }
   for (const { old_path: oldPath, new_path: newPath, status } of rows) {
+    if (currentRedirects.some(rule => rule.from === oldPath)) continue;
     const current = currentRouteOverride(oldPath);
     if (current) {
       if (rules.has(oldPath) || rules.has(current)) errors.push(`_redirects: reclaimed index ${current} must be served, not redirected`);

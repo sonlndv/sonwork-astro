@@ -19,6 +19,7 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(toggle.locator(`[data-theme-icon="${initial === 'sun' ? 'moon' : 'sun'}"]`)).toBeVisible();
     await expect(toggle.locator(`[data-theme-icon="${initial}"]`)).toBeHidden();
     await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true }).click();
+    await expect(page).toHaveURL('/series');
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', next);
     await expect(page.locator('.theme-toggle')).toHaveAttribute('aria-label', `Switch to ${theme} mode`);

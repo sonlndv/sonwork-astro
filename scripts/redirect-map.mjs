@@ -21,6 +21,12 @@ export const MAP_FILE = new URL('../library/redirect-map.csv', import.meta.url);
 // Exact paths, not a /series prefix: archived series details must still reach Writing.
 export const currentRouteOverride = path => path === '/series' || path === '/series/' ? '/series' : undefined;
 
+// Preserve links to the retired Writing section and the approved note's old URL.
+export const currentRedirects = [
+  ['/writing', '/series'],
+  ['/writing/the-joy-of-malleable-products', '/series/me/the-joy-of-malleable-products'],
+].flatMap(([from, to]) => [from, `${from}/`, `${from}.html`].map(path => ({ from: path, to })));
+
 // Minimal RFC 4180 parser: quoted fields, doubled quotes, commas and newlines in quotes.
 export function parseCsv(text) {
   const rows = [];

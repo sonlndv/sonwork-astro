@@ -1,14 +1,37 @@
 ---
+import { render, type CollectionEntry } from 'astro:content';
+import ProseLayout from '../../../layouts/ProseLayout.astro';
+import { formatDate, isoDate } from '../../../lib/content';
 import SeriesComingSoon from '../../../components/SeriesComingSoon.astro';
 import { getSeries, getNotes } from '../../../lib/series';
-interface Props { noIndex: boolean; }
+interface Props { noIndex: boolean; entry?: CollectionEntry<'notes'>; parent?: CollectionEntry<'series'>; }
 export async function getStaticPaths() {
   const paths = [];
   for (const series of await getSeries()) for (const note of await getNotes(series.id)) {
-    paths.push({ params: { series: series.id, note: note.id.slice(series.id.length + 1) }, props: { noIndex: series.data.draft || note.data.draft } });
+    const published = !series.data.draft && !note.data.draft;
+    paths.push({
+      params: { series: series.id, note: note.id.slice(series.id.length + 1) },
+      props: { noIndex: !published, entry: published ? note : undefined, parent: published ? series : undefined },
+    });
   }
   return paths;
 }
-const { noIndex } = Astro.props;
+const { entry, parent, noIndex } = Astro.props;
+const rendered = entry && parent ? await render(entry) : undefined;
+const Content = rendered?.Content;
 ---
-<SeriesComingSoon noIndex={noIndex} />
+{entry && parent && Content ? (
+  <ProseLayout title={entry.data.title} description={entry.data.description}>
+    <Fragment slot="meta">
+      <p class="meta"><time datetime={isoDate(entry.data.date)}>{formatDate(entry.data.date)}</time></p>
+      <nav class="meta note-location" aria-label="Note location">
+        <a href="/series">Series</a><span aria-hidden="true"> / </span><a href={`/series/${parent.id}`}>{parent.data.title}</a>
+      </nav>
+    </Fragment>
+    <Content />
+    <Fragment slot="end">
+      <p class="back"><a href={`/series/${parent.id}`}>All notes in {parent.data.title}</a></p>
+      <p class="back"><a href="/series">All series</a></p>
+    </Fragment>
+  </ProseLayout>
+) : <SeriesComingSoon noIndex={noIndex} />}

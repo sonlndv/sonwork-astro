@@ -21,12 +21,14 @@ if (fromPreview) {
     assert.equal(code, 0, 'preview fixture build must succeed');
   }
   assert.ok(existsSync('dist/writing/a-keyboard-plugin-is-done-when-it-types.html'));
-  assert.ok(existsSync('dist/writing/the-joy-of-malleable-products.html'));
+  assert.ok(existsSync('dist/series/me/the-joy-of-malleable-products.html'));
   const scope = publicationScope();
   for (const path of PRIVATE_PREVIEW_ROUTES) {
     assert.equal(existsSync(`dist${path}.html`), !scope.isPublicProjection, 'Private preview preserves draft routes; public source excludes them');
   }
-  assert.ok((readFileSync('dist/rss.xml', 'utf8').match(/<item>/g) ?? []).length > 1, 'preview RSS must carry the drafts as well as the Note');
+  const previewFeed = readFileSync('dist/rss.xml', 'utf8');
+  assert.ok((previewFeed.match(/<item>/g) ?? []).length > 1, 'preview RSS must carry the original draft posts as well as the Note');
+  for (const privatePath of PRIVATE_PREVIEW_ROUTES) assert.ok(!previewFeed.includes(privatePath), 'private Series/Notes must not enter preview RSS');
   console.log('Preview fixture: draft posts, approved Note and populated RSS present before Wrangler starts');
 }
 
@@ -56,7 +58,9 @@ try {
   // Always exercise the guarded normal command: a preview cannot survive Wrangler's build.
   await startWorker();
   assert.ok(!existsSync('dist/writing/a-keyboard-plugin-is-done-when-it-types.html'), 'Wrangler must rebuild production');
-  assert.ok(existsSync('dist/writing/the-joy-of-malleable-products.html'), 'approved Note must be in the production build');
+  assert.ok(existsSync('dist/series/me/the-joy-of-malleable-products.html'), 'approved Me note must be in the production build');
+  assert.ok(!existsSync('dist/writing/the-joy-of-malleable-products.html'), 'the old article asset must give way to its canonical redirect');
+  assert.ok(!existsSync('dist/writing.html'), 'Writing must no longer be a public section');
   for (const slug of ['a-new-default-must-not-break-the-old-one', 'no-answer-leaves-the-server']) {
     assert.ok(!existsSync(`dist/writing/${slug}.html`), `Wrangler must rebuild production without draft ${slug}`);
   }

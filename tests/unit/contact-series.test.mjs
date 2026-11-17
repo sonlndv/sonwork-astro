@@ -11,11 +11,11 @@ test('About has the four exact public contact links, not a planned-series teaser
   assert.doesNotMatch(home, retired);
   assert.doesNotMatch(home, /planned-preview|home-feature|<form\b/);
 });
-test('Series routes share the same generic state without rendering retired entry copy', () => {
-  for (const path of ['src/pages/series/index.astro', 'src/pages/series/[series]/index.astro', 'src/pages/series/[series]/[note].astro']) {
+test('retained Series views preserve the generic unpublished state without retired entry copy', () => {
+  for (const path of ['src/pages/series/[series]/index.astro', 'src/pages/series/[series]/[note].astro']) {
     const source = read(path);
     assert.match(source, /SeriesComingSoon/);
-    assert.doesNotMatch(source, /\brender\b|\.data\.(?:title|description|lede)|seriesTitle|series-list/);
+    assert.match(source, /noIndex/);
   }
   const view = read('src/components/SeriesComingSoon.astro');
   assert.match(view, /title="Series"/);

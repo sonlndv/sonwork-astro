@@ -1,4 +1,35 @@
 ---
-import SeriesComingSoon from '../../components/SeriesComingSoon.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate, isoDate } from '../../lib/content';
+import { getSeries } from '../../lib/series';
+
+const collections = (await getSeries()).filter(entry => !entry.data.draft);
+const description = 'Related notes, grouped by subject.';
 ---
-<SeriesComingSoon />
+<BaseLayout title="Series" description={description}>
+  <div class="index-page">
+    <header class="page-head">
+      <h1>Series</h1>
+      <p>{description}</p>
+    </header>
+    <section class="page-section" aria-labelledby="series-collections">
+      <div class="section-head">
+        <h2 id="series-collections">Collections</h2>
+      </div>
+      <ol class="rows">
+        {collections.map((entry, index) => (
+          <li>
+            <article class="row">
+              <span class="row-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              <div class="row-body">
+                <h3><a href={`/series/${entry.id}`}>{entry.data.title}</a></h3>
+                <p class="meta"><time datetime={isoDate(entry.data.date)}>{formatDate(entry.data.date)}</time></p>
+                <p>{entry.data.description}</p>
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </section>
+  </div>
+</BaseLayout>

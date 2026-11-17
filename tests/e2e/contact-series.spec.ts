@@ -8,7 +8,7 @@ const links = [
   ['LinkedIn in/sonle2003', 'https://www.linkedin.com/in/sonle2003/'],
 ];
 const oldPaths = ['how-i-use-gbrain', 'how-i-use-hermes', 'how-i-use-openmaus', 'how-i-use-omp', 'how-i-use-obsidian'];
-const currentSeriesPaths = ['/series', ...oldPaths.map(slug => `/series/${slug}`), ...scope.privatePreviewRoutes];
+const currentSeriesPaths = [...oldPaths.map(slug => `/series/${slug}`), ...scope.privatePreviewRoutes];
 const retired = /How I use|planned series|planned topics|five practical|Always-on agents|Available isn.t always thinking|05\s*(?:notes|series)/i;
 
 for (const theme of ['dark', 'light'] as const) {
@@ -54,7 +54,35 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(page.locator('main')).not.toContainText(retired);
     }
   });
-  test(`contacts and empty Series remain complete without JavaScript (${theme})`, async ({ browser, baseURL }) => {
+  test(`Series contains Me and its real note, with native return navigation (${theme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.goto('/');
+    await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true }).click();
+    await expect(page).toHaveURL('/series');
+    await expect(page.locator('main .rows > li')).toHaveCount(1);
+    await page.locator('main').getByRole('link', { name: 'Me', exact: true }).click();
+    await expect(page).toHaveURL('/series/me');
+    await expect(page.getByRole('heading', { name: 'Notes', exact: true })).toBeVisible();
+    await expect(page.locator('main .rows > li')).toHaveCount(1);
+    await page.locator('main').getByRole('link', { name: 'The joy of malleable products', exact: true }).click();
+    await expect(page).toHaveURL('/series/me/the-joy-of-malleable-products');
+    await expect(page.locator('h1')).toHaveText('The joy of malleable products');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sonwork.org/series/me/the-joy-of-malleable-products');
+    await expect(page.locator('main time')).toHaveAttribute('datetime', '2026-11-04');
+    const feed = await (await page.request.get('/rss.xml')).text();
+    expect(feed).toContain('/series/me/the-joy-of-malleable-products');
+    for (const privatePath of PRIVATE_PREVIEW_ROUTES) expect(feed).not.toContain(privatePath);
+    expect(feed).not.toMatch(retired);
+    const location = page.getByRole('navigation', { name: 'Note location', exact: true });
+    await expect(location.getByRole('link')).toHaveText(['Series', 'Me']);
+    await expect(location.getByRole('link', { name: 'Me', exact: true })).toHaveAttribute('href', '/series/me');
+    await page.getByRole('link', { name: 'All notes in Me', exact: true }).click();
+    await expect(page).toHaveURL('/series/me');
+    await page.locator('main').getByRole('link', { name: 'All series', exact: true }).click();
+    await expect(page).toHaveURL('/series');
+    await expect(page.locator('main')).not.toContainText(retired);
+  });
+  test(`contacts, Series hierarchy and retained routes remain complete without JavaScript (${theme})`, async ({ browser, baseURL }) => {
     const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: theme, viewport: { width: 320, height: 667 } });
     try {
       const page = await context.newPage();
@@ -67,6 +95,16 @@ for (const theme of ['dark', 'light'] as const) {
       }
       await expect(page.locator('.tools-static strong')).toHaveCount(5);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true }).click();
+      await expect(page).toHaveURL(`${baseURL}/series`);
+      await page.locator('main').getByRole('link', { name: 'Me', exact: true }).click();
+      await expect(page).toHaveURL(`${baseURL}/series/me`);
+      await page.locator('main').getByRole('link', { name: 'The joy of malleable products', exact: true }).click();
+      await expect(page).toHaveURL(`${baseURL}/series/me/the-joy-of-malleable-products`);
+      await expect(page.locator('h1')).toHaveText('The joy of malleable products');
+      await expect(page.locator('article figure img')).toBeVisible();
+      await page.getByRole('link', { name: 'All notes in Me', exact: true }).click();
+      await expect(page).toHaveURL(`${baseURL}/series/me`);
       for (const path of currentSeriesPaths) {
         expect((await page.goto(`${baseURL}${path}`))?.status()).toBe(200);
         await expect(page.locator('main')).toHaveText('Series.Coming soon');
