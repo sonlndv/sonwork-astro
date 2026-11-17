@@ -78,7 +78,7 @@ test('theme choice survives rapid toggles, keyboard, routes and reload', async (
   await expect(toggle).toBeFocused(); await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await toggle.evaluate((button: HTMLButtonElement) => { button.click(); button.click(); button.click(); });
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  for (const path of ['/series', '/series/always-on-agents', '/project', '/writing', '/about']) {
+  for (const path of ['/series', '/series/me/the-joy-of-malleable-products', '/series/always-on-agents', '/project', '/study', '/about']) {
     await page.goto(path); await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   }
   await page.reload(); await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');

@@ -26,3 +26,20 @@ test('historical CSV is retained, while its reclaimed index cannot enter emitted
     assert.equal(runtimeRoutes(rows).find(r => r.path === path)?.target, '/writing');
   }
 });
+test('retired Writing URLs redirect to Series and the approved nested note in both routing projections', () => {
+  const rows = [row('/writing/', '/writing', 'none')];
+  const assets = redirectRules(rows);
+  const runtime = runtimeRoutes(rows);
+  for (const [path, target] of [
+    ['/writing', '/series'],
+    ['/writing/', '/series'],
+    ['/writing.html', '/series'],
+    ['/writing/the-joy-of-malleable-products', '/series/me/the-joy-of-malleable-products'],
+    ['/writing/the-joy-of-malleable-products/', '/series/me/the-joy-of-malleable-products'],
+    ['/writing/the-joy-of-malleable-products.html', '/series/me/the-joy-of-malleable-products'],
+  ]) {
+    assert.deepEqual(assets.find(rule => rule.from === path), { from: path, to: target, status: 301 });
+    assert.deepEqual(runtime.find(rule => rule.path === path), { path, target, status: 301 });
+  }
+  assert.equal(readRedirectMap().rows.find(rule => rule.old_path === '/writing/')?.status, 'none');
+});

@@ -73,3 +73,53 @@ test('invalid API response never erases static data or breaks independent tools'
   await page.locator('.calendar-day').first().focus(); await page.keyboard.press('End'); await page.keyboard.press('Enter');
   await expect(page.locator('#calendar-detail')).toHaveText('2026-11-15 · 0 contributions (UTC)'); expect(errors).toEqual([]);
 });
+
+test('recent-first survives delayed rollover but yields to user scroll across refresh and cache restore', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.clock.install();
+  const rollover = structuredClone(snapshot); const removed = rollover.days.shift();
+  rollover.from = rollover.days[0].date; rollover.through = '2026-11-16';
+  rollover.days.push({ date: rollover.through, count: 7, level: 1 }); rollover.total += 7 - removed.count;
+  const { promise: pending, resolve: deliver } = Promise.withResolvers<void>();
+  let calls = 0;
+  await page.route('**/api/github-calendar', async route => {
+    const request = ++calls;
+    if (request === 1) await pending;
+    const calendar = structuredClone(rollover);
+    if (request > 1) { calendar.days.at(-1).count = 8; calendar.total++; }
+    await route.fulfill({ json: { calendar, meta } });
+  });
+  await page.goto('/');
+  const region = page.locator('.calendar-scroll');
+  const latestIsVisible = () => region.evaluate(element => {
+    const lastDay = element.querySelector('.calendar-day:last-child');
+    if (!lastDay) return false;
+    const last = lastDay.getBoundingClientRect();
+    const viewport = element.getBoundingClientRect();
+    return element.scrollWidth > element.clientWidth &&
+      Math.abs(element.scrollLeft - (element.scrollWidth - element.clientWidth)) <= 1 &&
+      last.left >= viewport.left && last.right <= viewport.right;
+  });
+  await expect.poll(latestIsVisible).toBe(true);
+  deliver();
+  await expect(page.locator('.calendar-day').last()).toHaveAttribute('data-date', rollover.through);
+  await expect.poll(latestIsVisible).toBe(true);
+
+  await region.hover();
+  await page.mouse.wheel(-180, 0);
+  await expect.poll(() => region.evaluate(element => element.scrollLeft)).toBeLessThan(400);
+  await region.evaluate(element => element.scrollTo({ left: 120, behavior: 'instant' }));
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.clock.fastForward(15 * 60 * 1000 + 1);
+  await expect(page.locator('.calendar-day').last()).toHaveAttribute('data-count', '8');
+  expect(await region.evaluate(element => element.scrollLeft)).toBe(120);
+
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pagehide', { persisted: true })));
+  await page.clock.fastForward(16 * 60 * 1000);
+  expect(calls).toBe(2);
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+  await expect.poll(() => calls).toBe(3);
+  await page.setViewportSize({ width: 390, height: 900 });
+  expect(await region.evaluate(element => element.scrollLeft)).toBe(120);
+  await expect(page.locator('.calendar-day')).toHaveCount(365);
+});

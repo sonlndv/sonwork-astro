@@ -4,7 +4,7 @@ import { request as httpsRequest } from 'node:https';
 import { createHash } from 'node:crypto';
 import { writeFileSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { readRedirectMap, samplePath, currentRouteOverride } from './redirect-map.mjs';
+import { readRedirectMap, samplePath, currentRouteOverride, currentRedirects } from './redirect-map.mjs';
 
 // Node fetch overwrites Sec-Fetch-Mode with cors. Use HTTP directly so the
 // navigation gate exercises the same routing header a browser actually sends.
@@ -77,11 +77,11 @@ export async function verifyRelease(base, expectedSha, output) {
   const hiddenDrafts = ['a-keyboard-plugin-is-done-when-it-types', 'a-new-default-must-not-break-the-old-one', 'no-answer-leaves-the-server'];
   const noteImageSha256 = '84cbb4083e00a864acad623637edfb0d55afd46ecfaafa0360aaf368f86894ab';
   const html = [];
-  const notePath = '/writing/the-joy-of-malleable-products';
+  const notePath = '/series/me/the-joy-of-malleable-products';
   const tools = JSON.parse(readFileSync(new URL('../src/data/tools.json', import.meta.url), 'utf8'));
   const calendar = JSON.parse(readFileSync(new URL('../src/data/github-contributions.json', import.meta.url), 'utf8'));
   const retainedPaths = JSON.parse(readFileSync(new URL('../src/data/retained-series-slugs.json', import.meta.url), 'utf8')).map(slug => `/series/${slug}`);
-  for (const path of ['/', '/series', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', '/writing', notePath, '/subscribe']) {
+  for (const path of ['/', '/series', '/series/me', '/study', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', notePath, '/subscribe']) {
     await check(path, async () => {
       const response = await get(path);
       assert.equal(response.status, 200);
@@ -91,7 +91,13 @@ export async function verifyRelease(base, expectedSha, output) {
       assert.ok(body.includes(`href="https://sonwork.org${path}"`), 'canonical must use the production URL');
       assert.doesNotMatch(body, /\bdata-(?:signup-(?:url|key)|newsletter)=/);
       assert.doesNotMatch(body, /<form\b|<input\b|<button\b[^>]*type="submit"/);
-      for (const [href, label] of [['/', 'About Me'], ['/series', 'Series'], ['/project', 'Project']]) assert.ok(body.includes(`href="${href}"`) && body.includes(label), `missing primary destination ${label}`);
+      const primary = /<nav\b[^>]*aria-label="Main"[^>]*>([\s\S]*?)<\/nav>/.exec(body)?.[1];
+      assert.ok(primary, 'shared primary navigation must be present');
+      for (const [href, label] of [['/', 'About Me'], ['/series', 'Series'], ['/study', 'Study'], ['mailto:son@sonwork.org', 'Contact']]) assert.ok(primary.includes(`href="${href}"`) && primary.includes(label), `missing primary destination ${label}`);
+      assert.ok(!primary.includes('href="/writing"'), 'Writing is no longer a primary section');
+      const progress = /<nav\b[^>]*aria-label="Pages in progress"[^>]*>([\s\S]*?)<\/nav>/.exec(body)?.[1];
+      assert.ok(progress, 'unfinished pages must remain accessible in the footer');
+      assert.ok(progress.includes('href="/project"') && progress.includes('Project (coming soon)'), 'Project must remain clearly unfinished');
       assert.match(body, /href="mailto:son@sonwork\.org"/);
       assert.doesNotMatch(body, /<a\b[^>]*href="\/subscribe"[^>]*>Subscribe<\/a>/);
       if (path === '/subscribe') {
@@ -112,7 +118,7 @@ export async function verifyRelease(base, expectedSha, output) {
         for (const tool of tools) assert.ok(body.includes(`data-tool="${tool.id}"`), `missing simple tool ${tool.name}`);
         assert.doesNotMatch(body, /class="(?:build-entry|front-projects)"/);
       }
-      if (path === '/series' || retainedPaths.includes(path)) {
+      if (retainedPaths.includes(path)) {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
         assert.ok(main, 'Series must have its shared main landmark');
         assert.equal(main.replace(/<[^>]+>/g, '').trim(), 'Series.Coming soon');
@@ -126,11 +132,23 @@ export async function verifyRelease(base, expectedSha, output) {
       if (path === '/subscribe') {
         assert.match(body, /Legacy newsletter links are retired\. No subscription has been changed here\./);
         assert.match(body, /href="mailto:son@sonwork\.org"/);
-        assert.match(body, /href="\/writing">All writing<\/a>/);
+        assert.match(body, /href="\/series">All series<\/a>/);
       }
-      if (path === '/writing') {
-        assert.ok(body.includes(`href="${notePath}"`), 'Writing must link the approved Note');
-        assert.equal([...body.matchAll(/href="\/writing\/[^"]+"/g)].length, 1, 'Writing must list exactly one post');
+      if (path === '/series') {
+        const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
+        assert.ok(main?.includes('href="/series/me"'), 'Series must list the approved Me collection');
+        assert.equal([...main.matchAll(/href="\/series\/[^"]+"/g)].length, 1, 'Series must list exactly the approved collection');
+      }
+      if (path === '/series/me') {
+        const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
+        assert.match(main, /<h1[^>]*>Me<\/h1>/);
+        assert.match(main, /<h2[^>]*>Notes<\/h2>/);
+        assert.ok(main.includes(`href="${notePath}"`), 'Me must link its approved note');
+        assert.equal([...main.matchAll(/href="\/series\/me\/[^"]+"/g)].length, 1, 'Me must list exactly the approved note');
+      }
+      if (path === '/study') {
+        assert.match(body, /<h1[^>]*>Study<\/h1>/);
+        assert.match(body, /Coming soon\./);
       }
       if (path === notePath) {
         assert.match(body, /<h1[^>]*>The joy of malleable products<\/h1>/);
@@ -139,6 +157,8 @@ export async function verifyRelease(base, expectedSha, output) {
         assert.match(body, /<img[^>]*src="\/images\/mounty-dark-demo\.png"/);
         assert.match(body, /href="https:\/\/github\.com\/sonlndv\/Mounty"/);
         assert.doesNotMatch(body, /<video\b|href="\/work\/mounty"/);
+        assert.match(body, /aria-label="Note location"/);
+        assert.ok(body.includes('href="/series/me"'), 'the note must link back to its Me series');
       }
       if (path !== '/') {
         const variant = await get(`${path}/`);
@@ -148,6 +168,12 @@ export async function verifyRelease(base, expectedSha, output) {
       }
     });
   }
+  for (const { from, to } of currentRedirects) await check(`content move ${from}`, async () => {
+    const response = await get(from);
+    assert.equal(response.status, 301);
+    assert.equal(new URL(response.headers.get('location'), base).pathname, to);
+    assert.equal((await follow(from)).status, 200);
+  });
   for (const slug of hiddenDrafts) {
     await check(`hidden draft ${slug}`, async () => {
       assert.equal((await get(`/writing/${slug}`)).status, 404);
@@ -164,7 +190,7 @@ export async function verifyRelease(base, expectedSha, output) {
     const feed = await response.text();
     assert.equal([...feed.matchAll(/<item[\s>]/g)].length, 1, 'RSS must contain exactly the approved Note');
     assert.match(feed, /<title>The joy of malleable products<\/title>/);
-    assert.ok(feed.includes('/writing/the-joy-of-malleable-products'));
+    assert.ok(feed.includes(notePath));
     assert.doesNotMatch(feed, /available-isnt-always-thinking/);
     for (const slug of hiddenDrafts) assert.ok(!feed.includes(slug), `RSS must not include ${slug}`);
   });

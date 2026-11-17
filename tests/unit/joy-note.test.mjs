@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const source = readFileSync('src/content/posts/the-joy-of-malleable-products.mdx', 'utf8');
+const source = readFileSync('src/content/notes/me/the-joy-of-malleable-products.mdx', 'utf8');
 const [, frontmatter, body] = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
 
 const before = 'I made Mounty';
@@ -21,7 +21,9 @@ test('the Note is published with the approved frontmatter', () => {
   assert.match(frontmatter, /^description: I like a clean look and good typography\.$/m);
   assert.match(frontmatter, /^date: 2026-11-04$/m);
   assert.match(frontmatter, /^draft: false$/m);
-  assert.match(frontmatter, /^tags: \[\]$/m);
+  assert.match(frontmatter, /^lede: I like a clean look and good typography\.$/m);
+  assert.match(frontmatter, /^series: me$/m);
+  assert.match(frontmatter, /^order: 1$/m);
 });
 
 test('the Note has exactly the five approved paragraphs in order, with no in-body h1', () => {

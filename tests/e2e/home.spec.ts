@@ -12,7 +12,7 @@ for (const theme of ['dark', 'light'] as const) {
     page.on('request', request => { if (new URL(request.url()).hostname !== '127.0.0.1') external.push(request.url()); });
     await page.goto('/');
     await expect(page.locator('h1')).toHaveText('Trying things with AI.Learning as I go.');
-    await expect(page.locator('.home-intro')).toHaveText('I’m Son, a business guy in Vietnam. I’m exploring how AI can automate parts of my work and help me build things I find useful.');
+    await expect(page.locator('.home-intro')).toHaveText('I’m Son, a business guy in Vietnam, exploring how AI can help me automate work and build useful things.');
     await expect(page.locator('.tool-choice')).toHaveText(tools.map(tool => tool.name));
     await expect(page.locator('.github-calendar')).toHaveCount(1);
     await expect(page.locator('.calendar-day')).toHaveCount(365);
@@ -27,7 +27,7 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(page.locator('#calendar-description time')).toHaveAttribute('datetime', snapshot.retrievedAt);
     const bounds = await page.locator('.about-opening, .about-tools').evaluateAll(els => els.map(el => ({ left: el.getBoundingClientRect().left, width: el.getBoundingClientRect().width })));
     expect(bounds[0]).toEqual(bounds[1]);
-    await expect(page.locator('.home-feature, .planned-preview')).toHaveCount(0);
+    await expect(page.locator('.home-feature, .planned-preview, .home-project')).toHaveCount(0);
     await expect(page.getByRole('navigation', { name: 'Contact Son', exact: true }).getByRole('link')).toHaveCount(4);
     await expect(page.locator('main')).not.toContainText('Always-on agents');
     await expect(page.locator('.usage-chart, .chart-tabs, .stack-list, .series-disclosure, [data-simulation], [data-doop-action]')).toHaveCount(0);
@@ -98,19 +98,25 @@ for (const theme of ['dark', 'light'] as const) {
   });
 }
 
-test('generic Series and Project stay reachable through native navigation and history', async ({ page }) => {
+test('Series, Study and unfinished pages stay reachable through native navigation and history', async ({ page }) => {
   await page.goto('/');
   const mainNav = () => page.getByRole('navigation', { name: 'Main', exact: true });
+  const progressNav = () => page.getByRole('navigation', { name: 'Pages in progress', exact: true });
   await mainNav().getByRole('link', { name: 'Series', exact: true }).click();
   await expect(page).toHaveURL('/series');
-  await expect(page.locator('main')).toHaveText('Series.Coming soon');
-  await mainNav().getByRole('link', { name: 'Project', exact: true }).click();
+  await expect(page.locator('main').getByRole('link', { name: 'Me', exact: true })).toHaveAttribute('href', '/series/me');
+  await expect(mainNav().getByRole('link', { name: 'Series', exact: true })).toHaveAttribute('aria-current', 'page');
+  await mainNav().getByRole('link', { name: 'Study', exact: true }).click();
+  await expect(page).toHaveURL('/study');
+  await expect(page.locator('h1')).toHaveText('Study');
+  await expect(page.locator('main .page-head p')).toHaveText('Coming soon.');
+  await progressNav().getByRole('link', { name: 'Project (coming soon)', exact: true }).click();
   await expect(page.locator('h1')).toHaveText('Coming soon.');
   await expect(page.locator('main .row, main .work-card, main .build-entry')).toHaveCount(0);
-  await page.getByRole('link', { name: 'Read the series', exact: false }).click();
-  await expect(page).toHaveURL('/series');
+  await page.getByRole('link', { name: 'Back to About Me', exact: false }).click();
+  await expect(page).toHaveURL('/');
   await page.goBack(); await expect(page).toHaveURL('/project');
-  await page.goForward(); await expect(page).toHaveURL('/series');
+  await page.goForward(); await expect(page).toHaveURL('/');
   await mainNav().getByRole('link', { name: 'About Me', exact: true }).click();
   await expect(page).toHaveURL('/');
   await expect(page.getByRole('navigation', { name: 'Contact Son' })).toBeVisible();

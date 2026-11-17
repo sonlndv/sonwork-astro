@@ -413,5 +413,35 @@
     "path": "/404/",
     "target": "",
     "status": 410
+  },
+  {
+    "path": "/writing",
+    "target": "/series",
+    "status": 301
+  },
+  {
+    "path": "/writing/",
+    "target": "/series",
+    "status": 301
+  },
+  {
+    "path": "/writing.html",
+    "target": "/series",
+    "status": 301
+  },
+  {
+    "path": "/writing/the-joy-of-malleable-products",
+    "target": "/series/me/the-joy-of-malleable-products",
+    "status": 301
+  },
+  {
+    "path": "/writing/the-joy-of-malleable-products/",
+    "target": "/series/me/the-joy-of-malleable-products",
+    "status": 301
+  },
+  {
+    "path": "/writing/the-joy-of-malleable-products.html",
+    "target": "/series/me/the-joy-of-malleable-products",
+    "status": 301
   }
 ]
