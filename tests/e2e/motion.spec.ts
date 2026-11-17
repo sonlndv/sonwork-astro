@@ -15,7 +15,17 @@ for (const theme of ['dark', 'light'] as const) test(`one shared tactile theme, 
     expect(await page.locator('h1').evaluate(el => getComputedStyle(el).fontFamily)).toContain('Geist');
     expect(await page.locator('h1').evaluate(el => getComputedStyle(el).fontFamily)).not.toContain('Mono');
     expect(await page.locator('.wordmark').evaluate(el => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
-    expect(await page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length)).toBe(0);
+    if (path === '/') {
+      const timing = await page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').map(a => a.effect!.getTiming()));
+      for (const motion of timing) {
+        expect(motion.iterations).toBe(1);
+        expect(typeof motion.duration).toBe('number');
+        expect(motion.duration).toBeLessThanOrEqual(800);
+      }
+      await expect.poll(() => page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length), { timeout: 1500 }).toBe(0);
+    } else {
+      expect(await page.evaluate(() => document.getAnimations().filter(a => a.playState === 'running').length)).toBe(0);
+    }
   }
   expect(failures).toEqual([]);
 });
