@@ -6,6 +6,8 @@
   const root = document.documentElement;
   const button = document.querySelector<HTMLButtonElement>('.theme-toggle');
   const system = matchMedia('(prefers-color-scheme: light)');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let activeTransition: ViewTransition | undefined;
   function theme(): 'light' | 'dark' {
     return root.dataset.theme === 'light' || root.dataset.theme === 'dark' ? root.dataset.theme : system.matches ? 'light' : 'dark';
   }
@@ -20,11 +22,37 @@
       meta.content = theme() === 'dark' ? '#03050b' : '#f9fafc';
     });
   }
-  button?.addEventListener('click', () => {
+  function changeTheme() {
     const next = theme() === 'dark' ? 'light' : 'dark';
     root.dataset.theme = next;
     try { localStorage.setItem('theme', next); } catch { /* A usable in-memory choice remains. */ }
     sync();
+  }
+  button?.addEventListener('click', () => {
+    activeTransition?.skipTransition();
+    if (reducedMotion.matches || !document.startViewTransition) {
+      changeTheme();
+      return;
+    }
+    const box = button.getBoundingClientRect();
+    const x = box.left + box.width / 2;
+    const y = box.top + box.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    root.style.setProperty('--ink-x', `${x}px`);
+    root.style.setProperty('--ink-y', `${y}px`);
+    root.style.setProperty('--ink-radius', `${radius}px`);
+    root.classList.add('ink-switching');
+    const transition = document.startViewTransition(changeTheme);
+    activeTransition = transition;
+    transition.finished.then(() => {
+      if (activeTransition === transition) {
+        activeTransition = undefined;
+        root.classList.remove('ink-switching');
+      }
+    });
+  });
+  reducedMotion.addEventListener('change', () => {
+    if (reducedMotion.matches) activeTransition?.skipTransition();
   });
   system.addEventListener('change', sync);
   window.addEventListener('storage', event => {

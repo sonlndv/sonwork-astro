@@ -107,7 +107,10 @@ export async function verifyRelease(base, expectedSha, output) {
         assert.doesNotMatch(body, /<p\b[^>]*class=["'][^"']*\bsignup-closed\b/);
       }
       if (path === '/') {
-        for (const text of ['Trying things with AI.', 'Learning as I go.', 'Agents and tools I use', 'GitHub contributions', '2,165 contributions. Not live data.']) assert.ok(body.includes(text), `missing ${text}`);
+        const headline = /<h1\b[^>]*>([\s\S]*?)<\/h1>/.exec(body)?.[1];
+        assert.ok(headline, 'About must retain its main headline');
+        assert.equal(headline.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(), 'Trying things with AI.Learning as I go.', 'About headline text must survive animated span markup');
+        for (const text of ['Agents and tools I use', 'GitHub contributions', '2,165 contributions. Not live data.']) assert.ok(body.includes(text), `missing ${text}`);
         const contacts = /<nav\b[^>]*aria-label="Contact Son"[^>]*>([\s\S]*?)<\/nav>/.exec(body)?.[1];
         assert.ok(contacts, 'About must have its compact public contact row');
         for (const href of ['mailto:son@sonwork.org', 'https://x.com/sonldv', 'https://github.com/sonlndv', 'https://www.linkedin.com/in/sonle2003/']) assert.ok(contacts.includes(`href="${href}"`), `missing exact public contact ${href}`);

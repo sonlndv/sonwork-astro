@@ -12,6 +12,10 @@ for (const path of [...builtPages(), '/no-such-page/']) {
     test(`${path} in ${colorScheme} mode has no serious axe violations`, async ({ page }, testInfo) => {
       await page.emulateMedia({ colorScheme });
       await page.goto(path);
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        await Promise.all(document.getAnimations().map(animation => animation.finished));
+      });
       const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
 
       const describe = (v: (typeof violations)[number]) =>
