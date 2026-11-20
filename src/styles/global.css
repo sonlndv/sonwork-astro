@@ -81,7 +81,37 @@ p { margin: 0 0 18px; }
 .footer-inner nav { flex-basis: 100%; }
 .go { display: inline-flex; gap: 8px; align-items: center; min-height: var(--hit); text-decoration: underline; font-weight: 600; margin-top: 18px; }
 .about-opening { padding: clamp(48px, 6vw, 72px) 0 0; }
-.about-opening h1 { font-size: 2rem; line-height: 1.3; letter-spacing: normal; margin-bottom: 24px; text-wrap: initial; }
+.about-opening h1 { max-inline-size: 100%; font-size: clamp(2.25rem, 10.2vw, 4rem); line-height: 1.1; letter-spacing: normal; margin-bottom: 36px; text-wrap: initial; }
+.ink-line { display: inline-block; max-inline-size: 100%; overflow-wrap: anywhere; }
+.ink-accent { display: inline-block; max-inline-size: 100%; }
+.ink-underline { padding-block-end: .18em; background-image: linear-gradient(currentColor, currentColor); background-position: left bottom; background-repeat: no-repeat; background-size: 100% 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.ink-switching a, .ink-switching button { transition: none; }
+::view-transition-old(root), ::view-transition-new(root) { mix-blend-mode: normal; animation: none; }
+@media (max-width: 700px) {
+  .ink-line { display: block; }
+  .ink-accent { inline-size: fit-content; }
+  .ink-title-break { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .js .ink-line { animation: ink-arrive 640ms cubic-bezier(.22, 1, .36, 1) backwards; }
+  .js .ink-line:nth-child(2) { animation-delay: 100ms; }
+  .js .ink-accent .ink-line:first-child { animation-delay: 220ms; }
+  .js .ink-accent .ink-line:last-child { animation-delay: 340ms; }
+  .js .ink-underline { animation: ink-stroke 520ms 480ms cubic-bezier(.22, 1, .36, 1) backwards; }
+  ::view-transition-new(root) { animation: ink-theme 680ms cubic-bezier(.4, 0, .2, 1) both; }
+}
+@keyframes ink-arrive {
+  from { opacity: 0; transform: translateY(.35em); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ink-stroke {
+  from { background-size: 0% 2px; }
+  to { background-size: 100% 2px; }
+}
+@keyframes ink-theme {
+  from { clip-path: circle(0px at var(--ink-x) var(--ink-y)); }
+  to { clip-path: circle(var(--ink-radius) at var(--ink-x) var(--ink-y)); }
+}
 .home-intro { font-size: 1.0625rem; max-width: var(--measure); margin-bottom: 12px; }
 .intro-secondary { max-width: var(--measure); margin-bottom: 0; }
 .about-contacts { margin-top: 24px; max-width: var(--measure); }
