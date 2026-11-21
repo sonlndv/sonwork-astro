@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { writeFileSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { readRedirectMap, samplePath, currentRouteOverride, currentRedirects } from './redirect-map.mjs';
+import { legacySuffixLang } from './redirects-file.mjs';
 
 // Node fetch overwrites Sec-Fetch-Mode with cors. Use HTTP directly so the
 // navigation gate exercises the same routing header a browser actually sends.
@@ -114,8 +115,8 @@ export async function verifyRelease(base, expectedSha, output) {
       assert.match(body, /href="mailto:son@sonwork\.org"/);
       assert.doesNotMatch(body, /<a\b[^>]*href="\/subscribe"[^>]*>Subscribe<\/a>/);
       if (path === '/subscribe') {
-        const notices = [...body.matchAll(/<p\b[^>]*class="signup-closed"[^>]*>Signup opens soon\.<\/p>/g)];
-        assert.equal(notices.length, 1, 'legacy Subscribe must show one noninteractive notice');
+        const notices = [...body.matchAll(/<p\b[^>]*class="signup-closed i18n"[^>]*data-vi="Sắp mở đăng ký\."[^>]*>Signup opens soon\.<\/p>/g)];
+        assert.equal(notices.length, 1, 'legacy Subscribe must show one noninteractive notice, switched by the toggle');
       } else if (path === '/') {
         assert.doesNotMatch(body, /<p\b[^>]*class=["'][^"']*\bsignup-closed\b/);
       }
@@ -138,8 +139,10 @@ export async function verifyRelease(base, expectedSha, output) {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
         assert.ok(main, 'Series must have its shared main landmark');
         assert.equal(main.replace(/<[^>]+>/g, '').trim(), 'Series.Coming soon');
-        assert.ok(body.includes('<title class="i18n">Series | Son.</title>'));
-        assert.ok(body.includes('name="description" content="Coming soon."'));
+        assert.ok(body.includes('<title class="i18n" data-vi="Loạt bài | Son.">Series | Son.</title>'), 'Series stub title must switch with the toggle, not stay English-only');
+        assert.ok(body.includes('name="description" content="Coming soon." class="i18n" data-vi="Sắp có."'), 'Series stub description must switch with the toggle, not stay English-only');
+        assert.match(main, /class="i18n" data-vi="Loạt bài"/);
+        assert.match(main, /class="i18n" data-vi="Sắp có"/);
         assert.doesNotMatch(main, /<a\b|<time\b|<article\b|<button\b|<li\b|How I use|planned|Always-on|05/);
       }
       if (path === '/project') assert.match(body, /Coming soon/);
@@ -210,7 +213,10 @@ export async function verifyRelease(base, expectedSha, output) {
   for (const { from, to } of currentRedirects) await check(`content move ${from}`, async () => {
     const response = await get(from);
     assert.equal(response.status, 301);
-    assert.equal(new URL(response.headers.get('location'), base).pathname, to);
+    const location = new URL(response.headers.get('location'), base);
+    assert.equal(location.pathname, to);
+    const lang = legacySuffixLang(from);
+    assert.equal(location.search, lang ? `?lang=${lang}` : '', 'a retired per-language URL must carry its language onto the merged page');
     assert.equal((await follow(from)).status, 200);
   });
   for (const slug of hiddenDrafts) {

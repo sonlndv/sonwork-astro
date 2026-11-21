@@ -44,6 +44,11 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
       try {
         const theme = localStorage.getItem('theme');
         if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme;
+        // A retired per-language note URL (…-vi, …-en) now 301s into the one
+        // merged page with ?lang=<lang> added, so the choice the old link
+        // promised still lands instead of silently falling back to English.
+        const queryLang = new URLSearchParams(location.search).get('lang');
+        if (queryLang === 'vi' || queryLang === 'en') localStorage.setItem('lang', queryLang);
         const lang = localStorage.getItem('lang');
         if (lang === 'vi') { document.documentElement.dataset.lang = 'vi'; document.documentElement.lang = 'vi'; }
       } catch { /* Storage denial keeps the complete English-interface fallback. */ }
@@ -124,6 +129,14 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
         document.addEventListener('sonwork:lang', function (event) {
           apply(event.detail && event.detail.lang === 'vi' ? 'vi' : 'en');
         });
+        // The one-time ?lang= signal from a retired per-language URL is now
+        // applied and saved; drop it so the address bar reads the plain page.
+        if (new URLSearchParams(location.search).has('lang')) {
+          const params = new URLSearchParams(location.search);
+          params.delete('lang');
+          const query = params.toString();
+          history.replaceState(null, '', location.pathname + (query ? `?${query}` : '') + location.hash);
+        }
       })();
     </script>
   </body>

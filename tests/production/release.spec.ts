@@ -74,6 +74,16 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
         await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Coming soon.');
         await expect(page.locator('main a, main li, main time, main article, main button')).toHaveCount(0);
         await expect(page.locator('main')).not.toContainText(/How I use|planned|Always-on|05/);
+        if (javaScriptEnabled) {
+          // The generic stub pages are not a product exception: the global
+          // toggle must switch them too, not leave them English-only.
+          await page.locator('.lang-toggle').click();
+          await expect(page.locator('main')).toHaveText('Loạt bàiSắp có');
+          await expect(page).toHaveTitle('Loạt bài | Son.');
+          await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', 'Sắp có.');
+          await page.locator('.lang-toggle').click();
+          await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+        }
       }
       if (path === '/series') {
         await expect(page.locator('main .rows > li')).toHaveCount(2);
@@ -176,6 +186,19 @@ test('production excludes all three original draft posts and publishes exactly t
   for (const file of drafts) expect(feed).not.toContain(file.replace(/\.mdx$/, ''));
 });
 
+test('a retired per-language OpenMaus note URL lands on the merged page already in that language', async ({ page, baseURL }) => {
+  await page.goto(`${baseURL}${openMausPath}/${openMausNote.slug}-vi`);
+  await expect(page).toHaveURL(`${baseURL}${openMausPath}/${openMausNote.slug}`);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
+  await expect(page.locator('h1')).toHaveText(openMausNote.titleVi);
+  expect(await page.evaluate(() => localStorage.getItem('lang'))).toBe('vi');
+
+  await page.goto(`${baseURL}${openMausPath}/${openMausNote.slug}-en`);
+  await expect(page).toHaveURL(`${baseURL}${openMausPath}/${openMausNote.slug}`);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('h1')).toHaveText(openMausNote.titleEn);
+  expect(await page.evaluate(() => localStorage.getItem('lang'))).toBe('en');
+});
 
 test('unknown error page is noindex without a canonical or OG URL to a gone path', async ({ page }) => {
   expect((await page.goto('/review-unknown-error-page'))?.status()).toBe(404);
