@@ -15,7 +15,7 @@ for (const width of [320, 375, 390, 768, 1440]) for (const theme of ['dark', 'li
         // removing the explorer UI. Accurate names, roving keys, native touch,
         // zoom and nonvisual static data are verified separately. Other targets
         // keep the existing minimum; this is not a blanket small-button exception.
-        const targets = await page.locator('.site-nav a, .footer-inner a, .breadcrumb a, .note-location a, .row h2 a, .row h3 a, button:visible:not(.calendar-day), summary:visible, select:visible, .go:visible, .reader-backlinks a, .series-list a, .about-contacts a').evaluateAll(els => els.map(el => ({ text: el.textContent, r: el.getBoundingClientRect().toJSON(), clipped: el.scrollWidth > el.clientWidth + 1 })));
+        const targets = await page.locator('.site-nav a, .footer-inner a, .breadcrumb a, .note-location a, .lang-switch a, .row h2 a, .row h3 a, button:visible:not(.calendar-day), summary:visible, select:visible, .go:visible, .reader-backlinks a, .series-list a, .about-contacts a').evaluateAll(els => els.map(el => ({ text: el.textContent, r: el.getBoundingClientRect().toJSON(), clipped: el.scrollWidth > el.clientWidth + 1 })));
         for (const target of targets) {
           expect(target.r.height, `${path} ${size}: ${target.text}`).toBeGreaterThanOrEqual(43.9);
           expect(target.r.width, `${path} ${size}: ${target.text}`).toBeGreaterThanOrEqual(43.9);
@@ -32,29 +32,33 @@ for (const width of [320, 390, 402, 430, 1280]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
     await expect(page.locator('.theme-toggle')).toBeVisible();
+    await expect(page.locator('.lang-toggle')).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
     const boxes = await page.locator('.site-header').evaluate(header => {
       const rect = (element: Element) => element.getBoundingClientRect().toJSON();
       return {
         wordmark: rect(header.querySelector('.wordmark')!),
-        toggle: rect(header.querySelector('.theme-toggle')!),
+        themeToggle: rect(header.querySelector('.theme-toggle')!),
+        langToggle: rect(header.querySelector('.lang-toggle')!),
         links: Array.from(header.querySelectorAll('.site-nav a'), rect),
       };
     });
-    const { wordmark, toggle, links } = boxes;
+    const { wordmark, themeToggle, langToggle, links } = boxes;
     expect(links).toHaveLength(5);
-    expect(toggle.top).toBe(wordmark.top);
-    expect(toggle.left).toBeGreaterThanOrEqual(wordmark.right);
+    expect(themeToggle.top).toBe(wordmark.top);
+    expect(langToggle.top).toBe(wordmark.top);
+    expect(themeToggle.left).toBeGreaterThanOrEqual(wordmark.right);
+    expect(langToggle.left).toBeGreaterThanOrEqual(themeToggle.right);
     for (const link of links) {
       expect(link.top).toBe(links[0].top);
       if (width <= 700) expect(link.top).toBeGreaterThanOrEqual(wordmark.bottom);
       else expect(link.top).toBe(wordmark.top);
     }
-    const row = width <= 700 ? links : [wordmark, ...links, toggle];
+    const row = width <= 700 ? links : [wordmark, ...links, themeToggle, langToggle];
     for (let index = 1; index < row.length; index++) {
       expect(row[index].left).toBeGreaterThanOrEqual(row[index - 1].right);
     }
-    for (const box of [wordmark, toggle, ...links]) {
+    for (const box of [wordmark, themeToggle, langToggle, ...links]) {
       expect(box.width).toBeGreaterThanOrEqual(44);
       expect(box.height).toBeGreaterThanOrEqual(44);
       expect(box.left).toBeGreaterThanOrEqual(0);

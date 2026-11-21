@@ -1,0 +1,19 @@
+---
+import { notePath, type Translation } from '../lib/series';
+interface Props { translations: Translation[]; current: 'en' | 'vi' }
+const { translations, current } = Astro.props;
+---
+<nav class="meta lang-switch" aria-label="Language">
+  {translations.map((translation, index) => (
+    <Fragment>
+      {index > 0 && <span aria-hidden="true"> · </span>}
+      {translation.lang === current ? (
+        <span aria-current="true" lang={translation.lang}>{translation.label}</span>
+      ) : translation.note ? (
+        <a href={notePath(translation.note)} lang={translation.lang} hreflang={translation.lang}>{translation.label}</a>
+      ) : (
+        <span class="lang-missing" lang={translation.lang}>{translation.label} <span class="muted">(not yet translated)</span></span>
+      )}
+    </Fragment>
+  ))}
+</nav>

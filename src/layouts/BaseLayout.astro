@@ -2,13 +2,20 @@
 import fontsCss from '../styles/fonts.css?inline';
 import globalCss from '../styles/global.css?inline';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import LanguageToggle from '../components/LanguageToggle.astro';
 import SonBrand from '../components/SonBrand.astro';
 interface Props { title: string; description: string; type?: 'website' | 'article'; noIndex?: boolean; }
 const { title, description, type = 'website', noIndex = false } = Astro.props;
 const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1');
 const canonical = new URL(path, Astro.site);
 const robotsOff = noIndex;
-const nav = [{ href: '/', label: 'About Me' }, { href: '/series', label: 'Series' }, { href: '/study', label: 'Study' }, { href: '/hobbies', label: 'Hobbies' }, { href: 'mailto:son@sonwork.org', label: 'Contact' }];
+const nav = [
+  { href: '/', label: 'About Me', labelVi: 'Giới thiệu' },
+  { href: '/series', label: 'Series', labelVi: 'Series' },
+  { href: '/study', label: 'Study', labelVi: 'Học tập' },
+  { href: '/hobbies', label: 'Hobbies', labelVi: 'Sở thích' },
+  { href: 'mailto:son@sonwork.org', label: 'Contact', labelVi: 'Liên hệ' },
+];
 const current = (href: string) => href === '/' ? path === '/' : path === href || path.startsWith(`${href}/`);
 const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/*' }, eagerness: 'moderate' }] });
 ---
@@ -35,7 +42,9 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
       try {
         const theme = localStorage.getItem('theme');
         if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme;
-      } catch { /* Storage denial keeps the complete system-theme fallback. */ }
+        const lang = localStorage.getItem('lang');
+        if (lang === 'vi') document.documentElement.dataset.lang = 'vi';
+      } catch { /* Storage denial keeps the complete English-interface fallback. */ }
       document.documentElement.classList.add('js');
     </script>
     <link rel="preload" href="/fonts/geist-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -44,27 +53,49 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
     <script type="speculationrules" is:inline set:html={speculationRules}></script>
   </head>
   <body class:list={{ 'home-sections': path === '/' }}>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="skip-link" href="#main"><span class="i18n" data-vi="Bỏ qua, đến nội dung chính">Skip to content</span></a>
     <header class="site-header">
       <div class="frame header-bar">
         <a class="wordmark" href="/" aria-label="Son. — About Me"><SonBrand /></a>
         <nav class="site-nav" aria-label="Main">
-          <ul>{nav.map(item => <li><a href={item.href} aria-current={current(item.href) ? 'page' : undefined}>{item.label}</a></li>)}</ul>
+          <ul>{nav.map(item => <li><a href={item.href} aria-current={current(item.href) ? 'page' : undefined}><span class="i18n" data-vi={item.labelVi}>{item.label}</span></a></li>)}</ul>
         </nav>
-        <ThemeToggle />
+        <div class="header-controls">
+          <ThemeToggle />
+          <LanguageToggle />
+        </div>
       </div>
     </header>
     <main id="main" class="frame" tabindex="-1"><slot /></main>
     <footer class="site-footer">
       <div class="frame footer-inner">
-        <p>Son. / notes on learning with agents</p>
+        <p><span class="i18n" data-vi="Son. / ghi chú về học cùng các trợ lý AI">Son. / notes on learning with agents</span></p>
         <nav aria-label="Archive and contact">
-          <a href="/series">All series</a><a href="/work">Build archive</a><a href="mailto:son@sonwork.org">Contact</a><a href="/rss.xml">RSS</a>
+          <a href="/series"><span class="i18n" data-vi="Tất cả series">All series</span></a><a href="/work"><span class="i18n" data-vi="Kho dự án">Build archive</span></a><a href="mailto:son@sonwork.org"><span class="i18n" data-vi="Liên hệ">Contact</span></a><a href="/rss.xml">RSS</a>
         </nav>
         <nav aria-label="Pages in progress">
-          <a href="/project" aria-current={current('/project') ? 'page' : undefined}>Project (coming soon)</a>
+          <a href="/project" aria-current={current('/project') ? 'page' : undefined}><span class="i18n" data-vi="Dự án (sắp ra mắt)">Project (coming soon)</span></a>
         </nav>
       </div>
     </footer>
+    <script is:inline>
+      (function () {
+        // Each .i18n span renders one language's text as its only text node,
+        // so textContent, the accessible name and screen readers only ever
+        // see the language currently shown — never both concatenated.
+        function apply(lang) {
+          document.querySelectorAll('.i18n[data-vi]').forEach(function (el) {
+            if (el.dataset.en === undefined) el.dataset.en = el.textContent || '';
+            const vi = lang === 'vi';
+            el.textContent = vi ? el.dataset.vi : el.dataset.en;
+            if (vi) el.setAttribute('lang', 'vi'); else el.removeAttribute('lang');
+          });
+        }
+        apply(document.documentElement.dataset.lang === 'vi' ? 'vi' : 'en');
+        document.addEventListener('sonwork:lang', function (event) {
+          apply(event.detail && event.detail.lang === 'vi' ? 'vi' : 'en');
+        });
+      })();
+    </script>
   </body>
 </html>
