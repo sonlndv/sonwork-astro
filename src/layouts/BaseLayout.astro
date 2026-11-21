@@ -50,8 +50,8 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
         <a class="wordmark" href="/" aria-label="Son. — About Me"><SonBrand /></a>
         <nav class="site-nav" aria-label="Main">
           <ul>{nav.map(item => <li><a href={item.href} aria-current={current(item.href) ? 'page' : undefined}>{item.label}</a></li>)}</ul>
-          <ThemeToggle />
         </nav>
+        <ThemeToggle />
       </div>
     </header>
     <main id="main" class="frame" tabindex="-1"><slot /></main>

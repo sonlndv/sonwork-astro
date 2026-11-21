@@ -27,6 +27,42 @@ for (const width of [320, 375, 390, 768, 1440]) for (const theme of ['dark', 'li
   });
 }
 
+for (const width of [320, 390, 402, 430, 1280]) {
+  test(`shared header keeps its controls together at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await expect(page.locator('.theme-toggle')).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    const boxes = await page.locator('.site-header').evaluate(header => {
+      const rect = (element: Element) => element.getBoundingClientRect().toJSON();
+      return {
+        wordmark: rect(header.querySelector('.wordmark')!),
+        toggle: rect(header.querySelector('.theme-toggle')!),
+        links: Array.from(header.querySelectorAll('.site-nav a'), rect),
+      };
+    });
+    const { wordmark, toggle, links } = boxes;
+    expect(links).toHaveLength(5);
+    expect(toggle.top).toBe(wordmark.top);
+    expect(toggle.left).toBeGreaterThanOrEqual(wordmark.right);
+    for (const link of links) {
+      expect(link.top).toBe(links[0].top);
+      if (width <= 700) expect(link.top).toBeGreaterThanOrEqual(wordmark.bottom);
+      else expect(link.top).toBe(wordmark.top);
+    }
+    const row = width <= 700 ? links : [wordmark, ...links, toggle];
+    for (let index = 1; index < row.length; index++) {
+      expect(row[index].left).toBeGreaterThanOrEqual(row[index - 1].right);
+    }
+    for (const box of [wordmark, toggle, ...links]) {
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(box.left).toBeGreaterThanOrEqual(0);
+      expect(box.right).toBeLessThanOrEqual(width);
+    }
+  });
+}
+
 test('native mouse or touch first activation follows real links without interception', async ({ page, isMobile }) => {
   await page.goto('/');
   const link = page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true });
