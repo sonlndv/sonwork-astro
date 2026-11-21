@@ -9,7 +9,7 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     const context = await browser.newContext({ javaScriptEnabled, colorScheme: theme, viewport: { width, height: 900 } });
     await context.addInitScript(theme => localStorage.setItem('theme', theme), theme);
     const page = await context.newPage();
-    for (const path of ['/', '/series', '/series/me', '/study', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', '/series/me/the-joy-of-malleable-products', '/subscribe']) {
+    for (const path of ['/', '/series', '/series/me', '/study', '/hobbies', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', '/series/me/the-joy-of-malleable-products', '/subscribe']) {
       expect((await page.goto(`${baseURL}${path}`))?.status()).toBe(200);
       await expect(page.locator('h1')).toBeVisible();
       await expect(page.locator('.draft-label')).toHaveCount(0);
@@ -17,9 +17,10 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
       await expect(page.locator('[data-signup-url], [data-signup-key], [data-newsletter]')).toHaveCount(0);
-      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).locator('ul a')).toHaveText(['About Me', 'Series', 'Study', 'Contact']);
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).locator('ul a')).toHaveText(['About Me', 'Series', 'Study', 'Hobbies', 'Contact']);
       await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true })).toHaveAttribute('href', '/series');
       await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Study', exact: true })).toHaveAttribute('href', '/study');
+      await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Hobbies', exact: true })).toHaveAttribute('href', '/hobbies');
       await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
       await expect(page.getByRole('navigation', { name: 'Pages in progress', exact: true }).getByRole('link')).toHaveText(['Project (coming soon)']);
       await expect(page.getByRole('navigation', { name: 'Archive and contact' }).getByRole('link', { name: 'Contact', exact: true })).toHaveAttribute('href', 'mailto:son@sonwork.org');
@@ -77,6 +78,11 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       if (path === '/study') {
         await expect(page.locator('h1')).toHaveText('Study');
         await expect(page.locator('main .page-head p')).toHaveText('Coming soon.');
+      }
+      if (path === '/hobbies') {
+        await expect(page.locator('h1')).toHaveText('Hobbies');
+        await expect(page.locator('main .page-head p')).toHaveText('Coming soon.');
+        await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Hobbies', exact: true })).toHaveAttribute('aria-current', 'page');
       }
       if (path === '/series/me/the-joy-of-malleable-products') {
         await expect(page.locator('h1')).toHaveText('The joy of malleable products');
