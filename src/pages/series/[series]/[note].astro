@@ -3,36 +3,65 @@ import { render, type CollectionEntry } from 'astro:content';
 import ProseLayout from '../../../layouts/ProseLayout.astro';
 import { formatDate, isoDate } from '../../../lib/content';
 import SeriesComingSoon from '../../../components/SeriesComingSoon.astro';
-import LanguageSwitch from '../../../components/LanguageSwitch.astro';
-import { getSeries, getNotes, getTranslations } from '../../../lib/series';
-import { languageOf } from '../../../lib/i18n-policy.mjs';
-interface Props { noIndex: boolean; entry?: CollectionEntry<'notes'>; parent?: CollectionEntry<'series'>; }
+import { getSeries, getLogicalNotes, type LogicalNote } from '../../../lib/series';
+
+interface Props { noIndex: boolean; logical?: LogicalNote; parent?: CollectionEntry<'series'>; }
+
 export async function getStaticPaths() {
   const paths = [];
-  for (const series of await getSeries()) for (const note of await getNotes(series.id)) {
-    const published = !series.data.draft && !note.data.draft;
-    paths.push({
-      params: { series: series.id, note: note.id.slice(series.id.length + 1) },
-      props: { noIndex: !published, entry: published ? note : undefined, parent: published ? series : undefined },
-    });
+  for (const series of await getSeries()) {
+    for (const logical of await getLogicalNotes(series.id)) {
+      const published = !series.data.draft;
+      paths.push({
+        params: { series: series.id, note: logical.id.slice(series.id.length + 1) },
+        props: { noIndex: !published, logical: published ? logical : undefined, parent: published ? series : undefined },
+      });
+    }
   }
   return paths;
 }
-const { entry, parent, noIndex } = Astro.props;
-const rendered = entry && parent ? await render(entry) : undefined;
-const Content = rendered?.Content;
-const translations = entry ? await getTranslations(entry) : undefined;
+
+const { logical, parent, noIndex } = Astro.props;
+const en = logical?.translations.find(t => t.lang === 'en')?.note;
+const vi = logical?.translations.find(t => t.lang === 'vi')?.note;
+const enRendered = en ? await render(en) : undefined;
+const viRendered = vi ? await render(vi) : undefined;
+const EnContent = enRendered?.Content;
+const ViContent = viRendered?.Content;
+// With only one language published, that body stays visible under any UI
+// language (data-note-lang="any"); the missing-translation notice below
+// takes its place only when the toggle is switched to the absent language.
+const bothAvailable = Boolean(en && vi);
 ---
-{entry && parent && Content ? (
-  <ProseLayout title={entry.data.title} description={entry.data.description}>
+{logical && parent && (EnContent || ViContent) ? (
+  <ProseLayout
+    title={(en ?? vi)!.data.title}
+    titleVi={en && vi ? vi.data.title : undefined}
+    description={(en ?? vi)!.data.description}
+    descriptionVi={en && vi ? vi.data.description : undefined}
+  >
     <Fragment slot="meta">
-      <p class="meta"><time datetime={isoDate(entry.data.date)}>{formatDate(entry.data.date)}</time></p>
+      <p class="meta"><time datetime={isoDate(logical.data.date)}>{formatDate(logical.data.date)}</time></p>
       <nav class="meta note-location" aria-label="Note location">
         <a href="/series">Series</a><span aria-hidden="true"> / </span><a href={`/series/${parent.id}`}>{parent.data.title}</a>
       </nav>
-      {translations && <LanguageSwitch translations={translations} current={languageOf(entry.id)} />}
     </Fragment>
-    <Content />
+    {EnContent && (
+      <div data-note-lang={bothAvailable ? 'en' : 'any'}>
+        <EnContent />
+      </div>
+    )}
+    {!EnContent && ViContent && (
+      <p class="lang-missing-note" data-note-lang="en" lang="en">This note isn’t translated into English yet. Showing the Vietnamese version below.</p>
+    )}
+    {ViContent && (
+      <div data-note-lang={bothAvailable ? 'vi' : 'any'}>
+        <ViContent />
+      </div>
+    )}
+    {!ViContent && EnContent && (
+      <p class="lang-missing-note" data-note-lang="vi" lang="en">This note isn’t translated into Vietnamese yet. Showing the English version above.</p>
+    )}
     <Fragment slot="end">
       <p class="back"><a href={`/series/${parent.id}`}>All notes in {parent.data.title}</a></p>
       <p class="back"><a href="/series">All series</a></p>

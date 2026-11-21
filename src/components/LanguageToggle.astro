@@ -23,6 +23,7 @@
   function changeLang() {
     const next = lang() === 'vi' ? 'en' : 'vi';
     root.dataset.lang = next;
+    root.lang = next;
     try { localStorage.setItem('lang', next); } catch { /* A usable in-memory choice remains. */ }
     sync();
     broadcast(next);
@@ -30,8 +31,8 @@
   button?.addEventListener('click', changeLang);
   window.addEventListener('storage', event => {
     if (event.key !== 'lang') return;
-    if (event.newValue === 'vi') root.dataset.lang = 'vi';
-    else delete root.dataset.lang;
+    if (event.newValue === 'vi') { root.dataset.lang = 'vi'; root.lang = 'vi'; }
+    else { delete root.dataset.lang; root.lang = 'en'; }
     sync();
     broadcast(lang());
   });

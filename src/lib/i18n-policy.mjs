@@ -28,3 +28,21 @@ export function translationsOf(note, notes) {
   const byLang = new Map(notes.filter(candidate => topicOf(candidate.id) === topic).map(candidate => [languageOf(candidate.id), candidate]));
   return LANGS.map(lang => ({ lang, label: LANG_LABELS[lang], note: byLang.get(lang) }));
 }
+
+// Groups a flat, already-sorted note list into one array per topic (every
+// language variant of the same note, in encounter order). A topic's own
+// position is the position of its first-seen member, so collapsing an
+// EN/VI pair to one row never reorders the topics around it.
+export function topicsOf(notes) {
+  const order = [];
+  const groups = new Map();
+  for (const note of notes) {
+    const topic = topicOf(note.id);
+    if (!groups.has(topic)) {
+      groups.set(topic, []);
+      order.push(topic);
+    }
+    groups.get(topic).push(note);
+  }
+  return order.map(topic => groups.get(topic));
+}

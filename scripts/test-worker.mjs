@@ -17,7 +17,7 @@ assert.ok(!usePreview || fromPreview, '--use-preview requires --from-preview');
 const outputIndex = process.argv.indexOf('--artifact-output');
 const artifactDirectory = outputIndex < 0 ? undefined : resolve(process.argv[outputIndex + 1] ?? assert.fail('--artifact-output requires a directory'));
 const openMausPath = '/series/how-i-use-openmaus';
-const openMausNotes = ['openmaus-explained-en', 'openmaus-explained-vi'];
+const openMausSlug = 'openmaus-explained';
 if (fromPreview) {
   if (!usePreview) {
     const preview = spawn('npm', ['run', 'build:preview'], { stdio: 'inherit' });
@@ -26,16 +26,16 @@ if (fromPreview) {
   }
   assert.ok(existsSync('dist/writing/a-keyboard-plugin-is-done-when-it-types.html'));
   assert.ok(existsSync('dist/series/me/the-joy-of-malleable-products.html'));
-  for (const slug of openMausNotes) assert.ok(existsSync(`dist${openMausPath}/${slug}.html`), `preview must include ${slug}`);
+  assert.ok(existsSync(`dist${openMausPath}/${openMausSlug}.html`), 'preview must include the one bilingual OpenMaus note page');
   const scope = publicationScope();
   for (const path of PRIVATE_PREVIEW_ROUTES) {
     assert.equal(existsSync(`dist${path}.html`), !scope.isPublicProjection, 'Private preview preserves draft routes; public source excludes them');
   }
   const previewFeed = readFileSync('dist/rss.xml', 'utf8');
-  assert.equal((previewFeed.match(/<item>/g) ?? []).length, 6, 'preview RSS must carry three original draft posts and three approved notes');
-  for (const slug of openMausNotes) assert.ok(previewFeed.includes(`${openMausPath}/${slug}`), `preview RSS must include ${slug}`);
+  assert.equal((previewFeed.match(/<item>/g) ?? []).length, 5, 'preview RSS must carry three original draft posts, the Me note and one logical OpenMaus note');
+  assert.ok(previewFeed.includes(`${openMausPath}/${openMausSlug}`), 'preview RSS must include the OpenMaus note');
   for (const privatePath of PRIVATE_PREVIEW_ROUTES) assert.ok(!previewFeed.includes(privatePath), 'private Series/Notes must not enter preview RSS');
-  console.log('Preview fixture: three draft posts, Me and both OpenMaus notes present in RSS before Wrangler starts');
+  console.log('Preview fixture: three draft posts, Me and one logical OpenMaus note present in RSS before Wrangler starts');
 }
 
 const temporary = mkdtempSync(join(tmpdir(), 'sonwork-runtime-'));
@@ -79,7 +79,9 @@ try {
   assert.ok(!existsSync('dist/writing/a-keyboard-plugin-is-done-when-it-types.html'), 'Wrangler must rebuild production');
   assert.ok(existsSync('dist/series/me/the-joy-of-malleable-products.html'), 'approved Me note must be in the production build');
   assert.ok(existsSync(`dist${openMausPath}.html`), 'approved OpenMaus collection must be in the production build');
-  for (const slug of openMausNotes) assert.ok(existsSync(`dist${openMausPath}/${slug}.html`), `production must include ${slug}`);
+  assert.ok(existsSync(`dist${openMausPath}/${openMausSlug}.html`), 'production must include the one bilingual OpenMaus note page');
+  assert.ok(!existsSync(`dist${openMausPath}/${openMausSlug}-en.html`), 'the old English-only URL must give way to its canonical redirect');
+  assert.ok(!existsSync(`dist${openMausPath}/${openMausSlug}-vi.html`), 'the old Vietnamese-only URL must give way to its canonical redirect');
   assert.ok(!existsSync('dist/writing/the-joy-of-malleable-products.html'), 'the old article asset must give way to its canonical redirect');
   assert.ok(!existsSync('dist/writing.html'), 'Writing must no longer be a public section');
   for (const slug of ['a-new-default-must-not-break-the-old-one', 'no-answer-leaves-the-server']) {
@@ -88,11 +90,11 @@ try {
   assert.ok(!existsSync('dist/series/always-on-agents/available-isnt-always-thinking.html'), 'conceptual note must remain unpublished');
   assert.ok(!existsSync('dist/series/always-on-agents.html'), 'preserved Always-on series must remain a private draft, not a published upcoming-series lesson');
   const productionFeed = readFileSync('dist/rss.xml', 'utf8');
-  assert.equal(productionFeed.match(/<item>/g)?.length, 3, 'production RSS must contain exactly the Me note and both OpenMaus notes');
-  for (const slug of openMausNotes) assert.ok(productionFeed.includes(`${openMausPath}/${slug}`), `production RSS must include ${slug}`);
+  assert.equal(productionFeed.match(/<item>/g)?.length, 2, 'production RSS must contain exactly one Me item and one logical OpenMaus item');
+  assert.ok(productionFeed.includes(`${openMausPath}/${openMausSlug}`), 'production RSS must include the OpenMaus note');
   assert.match(productionFeed, /the-joy-of-malleable-products/);
   assert.doesNotMatch(productionFeed, /a-keyboard-plugin-is-done-when-it-types|a-new-default-must-not-break-the-old-one|no-answer-leaves-the-server/);
-  console.log('Wrangler production rebuild: three drafts absent; Me and both OpenMaus notes present with exactly three RSS items');
+  console.log('Wrangler production rebuild: three drafts absent; Me and one logical OpenMaus note present with exactly two RSS items');
   const { gitSHA } = JSON.parse(readFileSync('dist/release.json', 'utf8'));
   if (artifactDirectory) {
     await stopWorker();

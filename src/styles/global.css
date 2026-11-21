@@ -272,10 +272,13 @@ th { font: .75rem/1.5 var(--mono); color: var(--lume); }
 .page-head p, .prose-header { max-width: 720px; }
 .prose-header { margin-bottom: 32px; }
 .note-location a { display: inline-flex; align-items: center; min-width: var(--hit); min-height: var(--hit); }
-.lang-switch { margin-top: 8px; }
-.lang-switch a { display: inline-flex; align-items: center; min-width: var(--hit); min-height: var(--hit); }
-.lang-switch [aria-current] { color: var(--ink); }
-.lang-missing { color: var(--ink-3); }
+/* One note body per language: the current UI language shows its own body
+   (or the sole body that exists, marked data-note-lang="any") and hides the
+   other, with no JS needed for initial-paint correctness. */
+[data-note-lang="vi"] { display: none; }
+:root[data-lang="vi"] [data-note-lang="en"] { display: none; }
+:root[data-lang="vi"] [data-note-lang="vi"] { display: block; }
+.lang-missing-note { color: var(--ink-3); font-style: italic; margin-bottom: 16px; }
 .page-section { margin-top: 32px; }
 .rows, .side-rows { list-style: none; padding: 0; margin: 0; }
 .row { display: grid; grid-template-columns: 2.25rem minmax(0,1fr); gap: 16px; padding-block: 24px; border-bottom: 1px solid var(--line); }

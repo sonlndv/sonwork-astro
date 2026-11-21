@@ -20,20 +20,20 @@ export function builtPages(dist = 'dist'): string[] {
   return pages.sort();
 }
 
-// A built note page whose language switch still shows the untranslated
-// state (no <a> pairing link, a .lang-missing span), found by reading the
-// built HTML rather than hardcoding a note id — so this stays correct as
-// translations are added or removed, regardless of merge order. Returns
-// undefined when every note is fully translated; callers should skip
-// rather than fail, since that's a content fact, not a defect.
-export function untranslatedNotePage(dist = 'dist'): string | undefined {
+// A built note page whose body is still missing the given language (its
+// data-note-lang="any" body and a .lang-missing-note notice for that
+// language), found by reading the built HTML rather than hardcoding a note
+// id — so this stays correct as translations are added or removed,
+// regardless of merge order. Returns undefined when every note is fully
+// translated into that language; callers should skip rather than fail,
+// since that's a content fact, not a defect.
+export function untranslatedNotePage(dist = 'dist', lang: 'en' | 'vi' = 'vi'): string | undefined {
   return builtPages(dist)
     .filter(page => page.startsWith('/series/') && page.split('/').length > 3)
     .find(page => {
       const file = join(dist, page === '/' ? 'index.html' : `${page.slice(1)}.html`);
       const html = readFileSync(file, 'utf8');
-      const switcher = /<nav class="meta lang-switch"[^>]*>([\s\S]*?)<\/nav>/.exec(html)?.[1];
-      return !!switcher && switcher.includes('lang-missing') && !switcher.includes('<a ');
+      return html.includes(`data-note-lang="any"`) && html.includes(`class="lang-missing-note" data-note-lang="${lang}"`);
     });
 }
 

@@ -21,10 +21,13 @@ export const MAP_FILE = new URL('../library/redirect-map.csv', import.meta.url);
 // Exact paths, not a /series prefix: archived series details must still reach Writing.
 export const currentRouteOverride = path => path === '/series' || path === '/series/' ? '/series' : undefined;
 
-// Preserve links to the retired Writing section and the approved note's old URL.
+// Preserve links to the retired Writing section, the approved note's old URL,
+// and the old per-language OpenMaus note URLs now that EN/VI share one page.
 export const currentRedirects = [
   ['/writing', '/series'],
   ['/writing/the-joy-of-malleable-products', '/series/me/the-joy-of-malleable-products'],
+  ['/series/how-i-use-openmaus/openmaus-explained-en', '/series/how-i-use-openmaus/openmaus-explained'],
+  ['/series/how-i-use-openmaus/openmaus-explained-vi', '/series/how-i-use-openmaus/openmaus-explained'],
 ].flatMap(([from, to]) => [from, `${from}/`, `${from}.html`].map(path => ({ from: path, to })));
 
 // Minimal RFC 4180 parser: quoted fields, doubled quotes, commas and newlines in quotes.

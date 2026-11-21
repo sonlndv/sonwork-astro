@@ -4,17 +4,23 @@ const tools = JSON.parse(readFileSync('src/data/tools.json', 'utf8')) as { id: s
 const snapshot = JSON.parse(readFileSync('src/data/github-contributions.json', 'utf8'));
 const retainedPaths = JSON.parse(readFileSync('src/data/retained-series-slugs.json', 'utf8')).map((slug: string) => `/series/${slug}`);
 const openMausPath = '/series/how-i-use-openmaus';
-const openMausNotes = [
-  { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', image: '/images/openmaus-en-website-r10.png', alt: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.' },
-  { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', image: '/images/openmaus-vi-website-r10.png', alt: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.' },
-];
+// One logical note: the global EN/VI toggle switches its title, metadata
+// and diagram, in place on one page — never a second slug or a second link.
+const openMausNote = {
+  slug: 'openmaus-explained',
+  titleEn: 'What is OpenMaus?', titleVi: 'OpenMaus là gì?',
+  imageEn: '/images/openmaus-en-website-r10.png', imageVi: '/images/openmaus-vi-website-r10.png',
+  altEn: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.',
+  altVi: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.',
+};
+const openMausNotePath = `${openMausPath}/${openMausNote.slug}`;
 
 for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const) for (const javaScriptEnabled of [true, false]) {
   test(`production ${width} ${theme} JS=${javaScriptEnabled}`, async ({ browser, baseURL }) => {
     const context = await browser.newContext({ javaScriptEnabled, colorScheme: theme, viewport: { width, height: 900 } });
     await context.addInitScript(theme => localStorage.setItem('theme', theme), theme);
     const page = await context.newPage();
-    for (const path of ['/', '/series', '/series/me', '/study', '/hobbies', ...retainedPaths, ...openMausNotes.map(note => `${openMausPath}/${note.slug}`), '/project', '/about', '/work', '/work/trivia-hub', '/series/me/the-joy-of-malleable-products', '/subscribe']) {
+    for (const path of ['/', '/series', '/series/me', '/study', '/hobbies', ...retainedPaths, openMausNotePath, '/project', '/about', '/work', '/work/trivia-hub', '/series/me/the-joy-of-malleable-products', '/subscribe']) {
       expect((await page.goto(`${baseURL}${path}`))?.status()).toBe(200);
       await expect(page.locator('h1')).toBeVisible();
       await expect(page.locator('.draft-label')).toHaveCount(0);
@@ -84,24 +90,26 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       if (path === openMausPath) {
         await expect(page.locator('h1')).toHaveText('How I use OpenMaus');
         await expect(page).toHaveTitle('How I use OpenMaus | Son.');
-        await expect(page.locator('main .rows h3 a')).toHaveText(openMausNotes.map(note => note.title));
-        for (const note of openMausNotes) await expect(page.getByRole('link', { name: note.title, exact: true })).toHaveAttribute('href', `${openMausPath}/${note.slug}`);
+        await expect(page.locator('main .rows h3 a')).toHaveText([openMausNote.titleEn]);
+        await expect(page.getByRole('link', { name: openMausNote.titleEn, exact: true })).toHaveAttribute('href', openMausNotePath);
       }
-      const openMausNote = openMausNotes.find(note => path === `${openMausPath}/${note.slug}`);
-      if (openMausNote) {
-        await expect(page.locator('h1')).toHaveText(openMausNote.title);
-        await expect(page).toHaveTitle(`${openMausNote.title} | Son.`);
-        await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', openMausNote.title);
+      if (path === openMausNotePath) {
+        await expect(page.locator('h1')).toHaveText(openMausNote.titleEn);
+        await expect(page).toHaveTitle(`${openMausNote.titleEn} | Son.`);
+        await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', openMausNote.titleEn);
         await expect(page.locator('meta[name="robots"][content*="noindex"], main button, main select')).toHaveCount(0);
         await expect(page.locator('main time')).toHaveAttribute('datetime', '2026-11-21');
-        const image = page.locator('article .prose img');
-        await expect(image).toHaveCount(1);
-        await expect(image).toHaveAttribute('src', openMausNote.image);
-        await expect(image).toHaveAttribute('alt', openMausNote.alt);
-        await image.scrollIntoViewIfNeeded();
-        await expect(image).toBeVisible();
-        await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 1440 && el.naturalHeight === 1200)).toBe(true);
-        expect(await image.evaluate(el => { const bounds = el.getBoundingClientRect(); return bounds.left >= 0 && bounds.right <= innerWidth; })).toBe(true);
+        const images = page.locator('article .prose img');
+        // Both language diagrams render into the DOM; the toggle CSS-hides one.
+        await expect(images).toHaveCount(2);
+        const enImage = page.locator(`article .prose img[src="${openMausNote.imageEn}"]`);
+        const viImage = page.locator(`article .prose img[src="${openMausNote.imageVi}"]`);
+        await expect(enImage).toHaveAttribute('alt', openMausNote.altEn);
+        await expect(viImage).toHaveAttribute('alt', openMausNote.altVi);
+        await enImage.scrollIntoViewIfNeeded();
+        await expect(enImage).toBeVisible();
+        await expect.poll(() => enImage.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 1440 && el.naturalHeight === 1200)).toBe(true);
+        expect(await enImage.evaluate(el => { const bounds = el.getBoundingClientRect(); return bounds.left >= 0 && bounds.right <= innerWidth; })).toBe(true);
         await expect(page.getByRole('navigation', { name: 'Note location', exact: true }).getByRole('link')).toHaveText(['Series', 'How I use OpenMaus']);
         await expect(page.getByRole('link', { name: 'All notes in How I use OpenMaus', exact: true })).toHaveAttribute('href', openMausPath);
       }
@@ -145,7 +153,7 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
     await context.close();
   });
 }
-test('production excludes all three original draft posts and publishes exactly the Me note and two OpenMaus notes in RSS', async ({ request }) => {
+test('production excludes all three original draft posts and publishes exactly the Me note and the one logical OpenMaus note in RSS', async ({ request }) => {
   const note = 'the-joy-of-malleable-products.mdx';
   const files = readdirSync('src/content/posts').filter(f => f.endsWith('.mdx'));
   expect(files).not.toContain(note);
@@ -161,12 +169,10 @@ test('production excludes all three original draft posts and publishes exactly t
   expect((await request.get(`/series/me/${note.replace(/\.mdx$/, '')}`)).status()).toBe(200);
   const feed = await (await request.get('/rss.xml')).text();
   const items = feed.match(/<item>[\s\S]*?<\/item>/g) ?? [];
-  expect(items).toHaveLength(3);
+  expect(items).toHaveLength(2);
   expect(items.filter(item => item.includes('<title>The joy of malleable products</title>') && item.includes('/series/me/the-joy-of-malleable-products'))).toHaveLength(1);
-  for (const note of openMausNotes) {
-    expect((await request.get(`${openMausPath}/${note.slug}`)).status()).toBe(200);
-    expect(items.filter(item => item.includes(`<title>${note.title}</title>`) && item.includes(`<link>https://sonwork.org${openMausPath}/${note.slug}</link>`))).toHaveLength(1);
-  }
+  expect((await request.get(openMausNotePath)).status()).toBe(200);
+  expect(items.filter(item => item.includes(`<title>${openMausNote.titleEn}</title>`) && item.includes(`<link>https://sonwork.org${openMausNotePath}</link>`))).toHaveLength(1);
   for (const file of drafts) expect(feed).not.toContain(file.replace(/\.mdx$/, ''));
 });
 
