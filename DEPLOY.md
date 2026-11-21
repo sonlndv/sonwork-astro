@@ -10,7 +10,7 @@ The GitHub CI workflow (`.github/workflows/ci.yml`) validates pushes, pull reque
 
 ## Checks
 
-Use Node >=22.22.0:
+Use Node >=22.23.4 (the patched Astro toolchain's minimum):
 
 ```
 npm ci
