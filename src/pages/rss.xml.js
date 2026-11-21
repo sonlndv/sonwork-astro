@@ -11,6 +11,7 @@ export async function GET(context) {
     title: 'Sonwork',
     description: 'Notes by Son on building software with coding agents.',
     site: context.site,
+    trailingSlash: false,
     items: entries.map((entry) => ({
       title: entry.data.title,
       description: entry.data.description,

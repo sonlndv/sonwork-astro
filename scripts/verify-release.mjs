@@ -78,10 +78,15 @@ export async function verifyRelease(base, expectedSha, output) {
   const noteImageSha256 = '84cbb4083e00a864acad623637edfb0d55afd46ecfaafa0360aaf368f86894ab';
   const html = [];
   const notePath = '/series/me/the-joy-of-malleable-products';
+  const openMausPath = '/series/how-i-use-openmaus';
+  const openMausNotes = [
+    { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', image: '/images/openmaus-en-website-r10.png', alt: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.', sha256: '81622ad3c41368b6d5dce1ab9fdf724496f8b8efdc88be941582c06b19209ebc' },
+    { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', image: '/images/openmaus-vi-website-r10.png', alt: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.', sha256: '3f9c43bf2cf88ff9c0dfa7576a2a5958380b7740c563a39cc9363905a08ca741' },
+  ];
   const tools = JSON.parse(readFileSync(new URL('../src/data/tools.json', import.meta.url), 'utf8'));
   const calendar = JSON.parse(readFileSync(new URL('../src/data/github-contributions.json', import.meta.url), 'utf8'));
   const retainedPaths = JSON.parse(readFileSync(new URL('../src/data/retained-series-slugs.json', import.meta.url), 'utf8')).map(slug => `/series/${slug}`);
-  for (const path of ['/', '/series', '/series/me', '/study', ...retainedPaths, '/project', '/about', '/work', '/work/trivia-hub', notePath, '/subscribe']) {
+  for (const path of ['/', '/series', '/series/me', '/study', ...retainedPaths, ...openMausNotes.map(note => `${openMausPath}/${note.slug}`), '/project', '/about', '/work', '/work/trivia-hub', notePath, '/subscribe']) {
     await check(path, async () => {
       const response = await get(path);
       assert.equal(response.status, 200);
@@ -121,7 +126,7 @@ export async function verifyRelease(base, expectedSha, output) {
         for (const tool of tools) assert.ok(body.includes(`data-tool="${tool.id}"`), `missing simple tool ${tool.name}`);
         assert.doesNotMatch(body, /class="(?:build-entry|front-projects)"/);
       }
-      if (retainedPaths.includes(path)) {
+      if (retainedPaths.includes(path) && path !== openMausPath) {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
         assert.ok(main, 'Series must have its shared main landmark');
         assert.equal(main.replace(/<[^>]+>/g, '').trim(), 'Series.Coming soon');
@@ -140,7 +145,8 @@ export async function verifyRelease(base, expectedSha, output) {
       if (path === '/series') {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
         assert.ok(main?.includes('href="/series/me"'), 'Series must list the approved Me collection');
-        assert.equal([...main.matchAll(/href="\/series\/[^"]+"/g)].length, 1, 'Series must list exactly the approved collection');
+        assert.ok(main?.includes(`href="${openMausPath}"`), 'Series must list the approved OpenMaus collection');
+        assert.equal([...main.matchAll(/href="\/series\/[^"]+"/g)].length, 2, 'Series must list exactly Me and OpenMaus');
       }
       if (path === '/series/me') {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
@@ -148,6 +154,26 @@ export async function verifyRelease(base, expectedSha, output) {
         assert.match(main, /<h2[^>]*>Notes<\/h2>/);
         assert.ok(main.includes(`href="${notePath}"`), 'Me must link its approved note');
         assert.equal([...main.matchAll(/href="\/series\/me\/[^"]+"/g)].length, 1, 'Me must list exactly the approved note');
+      }
+      if (path === openMausPath) {
+        const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
+        assert.match(main, /<h1[^>]*>How I use OpenMaus<\/h1>/);
+        const links = [...main.matchAll(/<h3[^>]*><a href="([^"]+)"[^>]*>([^<]+)<\/a><\/h3>/g)];
+        assert.deepEqual(links.map(([, href, title]) => ({ href, title })), openMausNotes.map(note => ({ href: `${openMausPath}/${note.slug}`, title: note.title })));
+      }
+      const openMausNote = openMausNotes.find(note => path === `${openMausPath}/${note.slug}`);
+      if (openMausNote) {
+        const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
+        assert.equal(/<h1[^>]*>([^<]+)<\/h1>/.exec(main)?.[1], openMausNote.title);
+        assert.ok(body.includes(`<title>${openMausNote.title} | Son.</title>`));
+        assert.ok(body.includes(`property="og:title" content="${openMausNote.title}"`));
+        assert.doesNotMatch(body, /name="robots"[^>]*content="[^"]*noindex/);
+        assert.doesNotMatch(main, /<button\b|<select\b/);
+        const images = [...main.matchAll(/<img\b[^>]*>/g)];
+        assert.equal(images.length, 1, 'each language note must show one matching diagram');
+        assert.ok(images[0][0].includes(`src="${openMausNote.image}"`));
+        assert.ok(images[0][0].includes(`alt="${openMausNote.alt}"`));
+        assert.ok(main.includes(`href="${openMausPath}">All notes in How I use OpenMaus</a>`));
       }
       if (path === '/study') {
         assert.match(body, /<h1[^>]*>Study<\/h1>/);
@@ -191,7 +217,11 @@ export async function verifyRelease(base, expectedSha, output) {
     const response = await get('/rss.xml'); assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /xml/);
     const feed = await response.text();
-    assert.equal([...feed.matchAll(/<item[\s>]/g)].length, 1, 'RSS must contain exactly the approved Note');
+    const items = feed.match(/<item>[\s\S]*?<\/item>/g) ?? [];
+    assert.equal(items.length, 3, 'RSS must contain exactly the Me note and two OpenMaus notes');
+    for (const note of openMausNotes) {
+      assert.equal(items.filter(item => item.includes(`<title>${note.title}</title>`) && item.includes(`<link>https://sonwork.org${openMausPath}/${note.slug}</link>`)).length, 1, `RSS must pair the title and URL for ${note.slug}`);
+    }
     assert.match(feed, /<title>The joy of malleable products<\/title>/);
     assert.ok(feed.includes(notePath));
     assert.doesNotMatch(feed, /available-isnt-always-thinking/);
@@ -203,6 +233,13 @@ export async function verifyRelease(base, expectedSha, output) {
     const bytes = Buffer.from(await response.arrayBuffer());
     assert.equal(createHash('sha256').update(bytes).digest('hex'), noteImageSha256);
     assert.equal(bytes.readUInt32BE(16), 800); assert.equal(bytes.readUInt32BE(20), 604);
+  });
+  for (const note of openMausNotes) await check(`OpenMaus diagram ${note.slug}`, async () => {
+    const response = await get(note.image); assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type'), /image\/png/);
+    const bytes = Buffer.from(await response.arrayBuffer());
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), note.sha256);
+    assert.equal(bytes.readUInt32BE(16), 1440); assert.equal(bytes.readUInt32BE(20), 1200);
   });
   await check('unknown', async () => {
     const response = await get('/release-unknown-path-404'); assert.equal(response.status, 404);
