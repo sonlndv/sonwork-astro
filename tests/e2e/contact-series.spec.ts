@@ -8,7 +8,12 @@ const links = [
   ['LinkedIn in/sonle2003', 'https://www.linkedin.com/in/sonle2003/'],
 ];
 const oldPaths = ['how-i-use-gbrain', 'how-i-use-hermes', 'how-i-use-openmaus', 'how-i-use-omp', 'how-i-use-obsidian'];
-const currentSeriesPaths = [...oldPaths.map(slug => `/series/${slug}`), ...scope.privatePreviewRoutes];
+const openMausPath = '/series/how-i-use-openmaus';
+const openMausNotes = [
+  { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', image: '/images/openmaus-en-website-r10.png', alt: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.' },
+  { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', image: '/images/openmaus-vi-website-r10.png', alt: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.' },
+];
+const currentSeriesPaths = [...oldPaths.filter(slug => slug !== 'how-i-use-openmaus').map(slug => `/series/${slug}`), ...scope.privatePreviewRoutes];
 const retired = /How I use|planned series|planned topics|five practical|Always-on agents|Available isn.t always thinking|05\s*(?:notes|series)/i;
 
 for (const theme of ['dark', 'light'] as const) {
@@ -33,7 +38,7 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(page.locator('.planned-preview, .home-feature, .about-opening a[href^="/series/"]')).toHaveCount(0);
     await expect(page.locator('form, input, [data-tools] a')).toHaveCount(0);
   });
-  test(`every retained Series destination is only generic Coming soon including metadata (${theme})`, async ({ page }) => {
+  test(`unpublished retained Series destinations stay generic Coming soon including metadata (${theme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: theme });
     for (const path of currentSeriesPaths) {
       expect((await page.goto(path))?.status(), path).toBe(200);
@@ -54,12 +59,13 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(page.locator('main')).not.toContainText(retired);
     }
   });
-  test(`Series contains Me and its real note, with native return navigation (${theme})`, async ({ page }) => {
+  test(`Series contains Me and OpenMaus, with native return navigation (${theme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: theme });
     await page.goto('/');
     await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true }).click();
     await expect(page).toHaveURL('/series');
-    await expect(page.locator('main .rows > li')).toHaveCount(1);
+    await expect(page.locator('main .rows > li')).toHaveCount(2);
+    await expect(page.locator('main').getByRole('link', { name: 'How I use OpenMaus', exact: true })).toHaveAttribute('href', openMausPath);
     await page.locator('main').getByRole('link', { name: 'Me', exact: true }).click();
     await expect(page).toHaveURL('/series/me');
     await expect(page.getByRole('heading', { name: 'Notes', exact: true })).toBeVisible();
@@ -72,7 +78,8 @@ for (const theme of ['dark', 'light'] as const) {
     const feed = await (await page.request.get('/rss.xml')).text();
     expect(feed).toContain('/series/me/the-joy-of-malleable-products');
     for (const privatePath of PRIVATE_PREVIEW_ROUTES) expect(feed).not.toContain(privatePath);
-    expect(feed).not.toMatch(retired);
+    for (const note of openMausNotes) expect(feed).toContain(`${openMausPath}/${note.slug}`);
+    expect(feed).not.toMatch(/planned series|planned topics|Always-on agents|Available isn.t always thinking/i);
     const location = page.getByRole('navigation', { name: 'Note location', exact: true });
     await expect(location.getByRole('link')).toHaveText(['Series', 'Me']);
     await expect(location.getByRole('link', { name: 'Me', exact: true })).toHaveAttribute('href', '/series/me');
@@ -80,7 +87,37 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(page).toHaveURL('/series/me');
     await page.locator('main').getByRole('link', { name: 'All series', exact: true }).click();
     await expect(page).toHaveURL('/series');
-    await expect(page.locator('main')).not.toContainText(retired);
+    await expect(page.locator('main .rows > li')).toHaveCount(2);
+  });
+  test(`OpenMaus has separate English and Vietnamese links, titles and matching diagrams (${theme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.goto('/series');
+    await page.locator('main').getByRole('link', { name: 'How I use OpenMaus', exact: true }).click();
+    await expect(page).toHaveURL(openMausPath);
+    await expect(page.locator('h1')).toHaveText('How I use OpenMaus');
+    await expect(page.locator('main .rows h3 a')).toHaveText(openMausNotes.map(note => note.title));
+    for (const note of openMausNotes) {
+      const link = page.locator('main').getByRole('link', { name: note.title, exact: true });
+      await expect(link).toHaveAttribute('href', `${openMausPath}/${note.slug}`);
+      await link.click();
+      await expect(page).toHaveURL(`${openMausPath}/${note.slug}`);
+      await expect(page.locator('h1')).toHaveText(note.title);
+      await expect(page).toHaveTitle(`${note.title} | Son.`);
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://sonwork.org${openMausPath}/${note.slug}`);
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', note.title);
+      await expect(page.locator('main time')).toHaveAttribute('datetime', '2026-11-21');
+      const image = page.locator('article .prose img');
+      await expect(image).toHaveCount(1);
+      await expect(image).toHaveAttribute('src', note.image);
+      await expect(image).toHaveAttribute('alt', note.alt);
+      await image.scrollIntoViewIfNeeded();
+      await expect(image).toBeVisible();
+      await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 1440 && el.naturalHeight === 1200)).toBe(true);
+      await expect(page.locator('main button, main select, .draft-label, meta[name="robots"][content*="noindex"]')).toHaveCount(0);
+      await expect(page.getByRole('navigation', { name: 'Note location', exact: true }).getByRole('link')).toHaveText(['Series', 'How I use OpenMaus']);
+      await page.getByRole('link', { name: 'All notes in How I use OpenMaus', exact: true }).click();
+      await expect(page).toHaveURL(openMausPath);
+    }
   });
   test(`contacts, Series hierarchy and retained routes remain complete without JavaScript (${theme})`, async ({ browser, baseURL }) => {
     const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: theme, viewport: { width: 320, height: 667 } });
@@ -105,6 +142,19 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(page.locator('article figure img')).toBeVisible();
       await page.getByRole('link', { name: 'All notes in Me', exact: true }).click();
       await expect(page).toHaveURL(`${baseURL}/series/me`);
+      await page.goto(`${baseURL}/series`);
+      await page.locator('main').getByRole('link', { name: 'How I use OpenMaus', exact: true }).click();
+      for (const note of openMausNotes) {
+        await page.locator('main').getByRole('link', { name: note.title, exact: true }).click();
+        await expect(page).toHaveURL(`${baseURL}${openMausPath}/${note.slug}`);
+        await expect(page.locator('h1')).toHaveText(note.title);
+        const image = page.locator('article .prose img');
+        await expect(image).toHaveAttribute('src', note.image);
+        await image.scrollIntoViewIfNeeded();
+        await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 1440 && el.naturalHeight === 1200)).toBe(true);
+        await page.getByRole('link', { name: 'All notes in How I use OpenMaus', exact: true }).click();
+        await expect(page).toHaveURL(`${baseURL}${openMausPath}`);
+      }
       for (const path of currentSeriesPaths) {
         expect((await page.goto(`${baseURL}${path}`))?.status()).toBe(200);
         await expect(page.locator('main')).toHaveText('Series.Coming soon');

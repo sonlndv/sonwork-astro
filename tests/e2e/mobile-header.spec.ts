@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { publicationScope } from '../../scripts/publication-scope.mjs';
 const retained = JSON.parse(readFileSync('src/data/retained-series-slugs.json', 'utf8')).map((slug: string) => `/series/${slug}`);
-const routes = ['/', '/series', '/series/me', '/series/me/the-joy-of-malleable-products', '/study', ...retained, ...publicationScope().privatePreviewRoutes, '/project'];
+const routes = ['/', '/series', '/series/me', '/series/me/the-joy-of-malleable-products', '/series/how-i-use-openmaus/openmaus-explained-en', '/series/how-i-use-openmaus/openmaus-explained-vi', '/study', ...retained, ...publicationScope().privatePreviewRoutes, '/project'];
 for (const width of [320, 375, 390, 768, 1440]) for (const theme of ['dark', 'light'] as const) {
   test(`all current route types reflow at ${width}px ${theme}, normal and 200% text`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 }); await page.emulateMedia({ colorScheme: theme });
