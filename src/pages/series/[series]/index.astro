@@ -4,7 +4,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { formatDate, isoDate } from '../../../lib/content';
 import SeriesComingSoon from '../../../components/SeriesComingSoon.astro';
 import retainedSlugs from '../../../data/retained-series-slugs.json';
-import { getSeries, getNotes, notePath } from '../../../lib/series';
+import { getSeries, getLogicalNotes, notePath } from '../../../lib/series';
 interface Props { entry?: CollectionEntry<'series'>; noIndex: boolean; }
 export async function getStaticPaths() {
   const entries = await getSeries();
@@ -15,35 +15,40 @@ export async function getStaticPaths() {
   ];
 }
 const { entry, noIndex } = Astro.props;
-const notes = entry ? (await getNotes(entry.id)).filter(note => !note.data.draft) : [];
+// One row per topic, not per language file — a reader toggling EN/VI sees
+// the same notes list either way, never a doubled count.
+const notes = entry ? await getLogicalNotes(entry.id) : [];
 ---
 {entry ? (
-  <BaseLayout title={entry.data.title} description={entry.data.description}>
+  <BaseLayout title={entry.data.title} titleVi={entry.data.titleVi} description={entry.data.description} descriptionVi={entry.data.descriptionVi}>
     <div class="index-page">
       <header class="page-head">
-        <h1>{entry.data.title}</h1>
-        <p>{entry.data.description}</p>
+        <h1 class="i18n" data-vi={entry.data.titleVi}>{entry.data.title}</h1>
+        <p class="i18n" data-vi={entry.data.descriptionVi}>{entry.data.description}</p>
       </header>
       <section class="page-section" aria-labelledby="series-notes">
         <div class="section-head">
-          <h2 id="series-notes">Notes</h2>
+          <h2 id="series-notes" class="i18n" data-vi="Ghi chép">Notes</h2>
         </div>
         <ol class="rows">
-          {notes.map((note, index) => (
-            <li>
-              <article class="row">
-                <span class="row-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                <div class="row-body">
-                  <h3><a href={notePath(note)}>{note.data.title}</a></h3>
-                  <p class="meta"><time datetime={isoDate(note.data.date)}>{formatDate(note.data.date)}</time></p>
-                  <p>{note.data.description}</p>
-                </div>
-              </article>
-            </li>
-          ))}
+          {notes.map((note, index) => {
+            const vi = note.translations.find(t => t.lang === 'vi')?.note;
+            return (
+              <li>
+                <article class="row">
+                  <span class="row-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                  <div class="row-body">
+                    <h3><a href={notePath(note)}><span class="i18n" data-vi={vi?.data.title}>{note.data.title}</span></a></h3>
+                    <p class="meta"><time datetime={isoDate(note.data.date)}>{formatDate(note.data.date)}</time></p>
+                    <p class="i18n" data-vi={vi?.data.description}>{note.data.description}</p>
+                  </div>
+                </article>
+              </li>
+            );
+          })}
         </ol>
       </section>
-      <p class="back"><a href="/series">All series</a></p>
+      <p class="back"><a href="/series"><span class="i18n" data-vi="Tất cả loạt bài">All series</span></a></p>
     </div>
   </BaseLayout>
 ) : <SeriesComingSoon noIndex={noIndex} />}

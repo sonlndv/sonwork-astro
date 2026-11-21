@@ -1,17 +1,17 @@
 ---
-import { getSeries, getNotes, notePath } from '../lib/series';
+import { getSeries, getLogicalNotes, notePath } from '../lib/series';
 
 const series = await getSeries();
-const notes = (await Promise.all(series.map(entry => getNotes(entry.id))))
+const notes = (await Promise.all(series.map(entry => getLogicalNotes(entry.id))))
   .flat()
-  .filter(note => !note.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 const note = notes[0];
+const vi = note?.translations.find(t => t.lang === 'vi')?.note;
 ---
 <section class="notes-spotlight" aria-labelledby="notes-heading">
-  <h2 id="notes-heading">Notes spotlight</h2>
+  <h2 id="notes-heading" class="i18n" data-vi="Ghi chép nổi bật">Notes spotlight</h2>
   {note ? <>
-    <h3 class="note-title"><a href={notePath(note)}>{note.data.title}</a></h3>
-    <p class="note-lede muted">{note.data.lede}</p>
-  </> : <p class="muted tools-description">No published notes yet.</p>}
+    <h3 class="note-title"><a href={notePath(note)}><span class="i18n" data-vi={vi?.data.title}>{note.data.title}</span></a></h3>
+    <p class="note-lede muted i18n" data-vi={vi?.data.lede}>{note.data.lede}</p>
+  </> : <p class="muted tools-description i18n" data-vi="Chưa có ghi chép nào được đăng.">No published notes yet.</p>}
 </section>

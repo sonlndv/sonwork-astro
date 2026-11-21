@@ -14,6 +14,11 @@ export const privateRoute = path => /^\/book(?:\/status)?\/?$/.test(path) || /^\
 
 export const twinOf = (path) => (path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : null);
 
+// A retired per-language note URL (…-vi, …-en) must still select that
+// language on arrival at the merged page, not silently fall back to English.
+export const legacySuffixLang = (path) =>
+  /-vi(?:\/|\.html)?$/.test(path) ? 'vi' : /-en(?:\/|\.html)?$/.test(path) ? 'en' : undefined;
+
 export function redirectRules(rows = readRedirectMap().rows) {
   const rules = [];
   const seen = new Set();
@@ -22,7 +27,10 @@ export function redirectRules(rows = readRedirectMap().rows) {
     seen.add(from);
     rules.push({ from, to, status: 301 });
   };
-  for (const { from, to } of currentRedirects) add(from, to);
+  for (const { from, to } of currentRedirects) {
+    const lang = legacySuffixLang(from);
+    add(from, lang ? `${to}?lang=${lang}` : to);
+  }
   const moved = rows.filter((row) => row.status === '301' && !privateRoute(row.old_path) && !currentRouteOverride(row.old_path) && !currentRedirects.some(rule => rule.from === row.old_path));
   for (const row of moved) add(row.old_path, row.new_path);
   for (const row of moved) {

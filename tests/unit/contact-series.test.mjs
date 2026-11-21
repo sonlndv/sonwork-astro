@@ -25,5 +25,5 @@ test('retained Series views preserve the generic unpublished state without retir
 test('tool purposes have no selected curriculum or route metadata', () => {
   const tools = JSON.parse(read('src/data/tools.json'));
   assert.deepEqual(tools.map(tool => tool.name), ['gbrain', 'Hermes', 'OpenMaus', 'OMP', 'Obsidian']);
-  for (const tool of tools) assert.deepEqual(Object.keys(tool).sort(), ['id', 'name', 'purpose']);
+  for (const tool of tools) assert.deepEqual(Object.keys(tool).sort(), ['id', 'name', 'purpose', 'purposeVi']);
 });

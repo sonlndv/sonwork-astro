@@ -45,7 +45,7 @@ for (const theme of ['dark', 'light'] as const) for (const width of [320, 390, 7
     await expect(description).toContainText('2,165 contributions. Not live data.');
     await expect(description).toContainText('UTC');
     await expect(description).toContainText('2026');
-    await expect(page.locator('[data-calendar]')).toHaveAttribute('aria-describedby', 'calendar-description');
+    await expect(page.locator('[data-calendar]')).toHaveAttribute('aria-describedby', 'calendar-description calendar-description-vi');
     await page.locator('.calendar-day').first().focus();
     await expect(page.locator('#calendar-detail')).not.toBeEmpty();
     const feedbackSpacing = await page.evaluate(() => {

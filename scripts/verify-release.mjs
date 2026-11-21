@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { writeFileSync, readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { readRedirectMap, samplePath, currentRouteOverride, currentRedirects } from './redirect-map.mjs';
+import { legacySuffixLang } from './redirects-file.mjs';
 
 // Node fetch overwrites Sec-Fetch-Mode with cors. Use HTTP directly so the
 // navigation gate exercises the same routing header a browser actually sends.
@@ -79,14 +80,22 @@ export async function verifyRelease(base, expectedSha, output) {
   const html = [];
   const notePath = '/series/me/the-joy-of-malleable-products';
   const openMausPath = '/series/how-i-use-openmaus';
-  const openMausNotes = [
-    { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', image: '/images/openmaus-en-website-r10.png', alt: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.', sha256: '81622ad3c41368b6d5dce1ab9fdf724496f8b8efdc88be941582c06b19209ebc' },
-    { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', image: '/images/openmaus-vi-website-r10.png', alt: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.', sha256: '3f9c43bf2cf88ff9c0dfa7576a2a5958380b7740c563a39cc9363905a08ca741' },
-  ];
+  // One logical note: the global EN/VI toggle switches its title, metadata
+  // and diagram, in place on one page — never a second slug or a second link.
+  const openMausNote = {
+    slug: 'openmaus-explained',
+    titleEn: 'What is OpenMaus?', titleVi: 'OpenMaus là gì?',
+    imageEn: '/images/openmaus-en-website-r10.png', imageVi: '/images/openmaus-vi-website-r10.png',
+    altEn: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.',
+    altVi: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.',
+    sha256En: '81622ad3c41368b6d5dce1ab9fdf724496f8b8efdc88be941582c06b19209ebc',
+    sha256Vi: '3f9c43bf2cf88ff9c0dfa7576a2a5958380b7740c563a39cc9363905a08ca741',
+  };
+  const openMausNotePath = `${openMausPath}/${openMausNote.slug}`;
   const tools = JSON.parse(readFileSync(new URL('../src/data/tools.json', import.meta.url), 'utf8'));
   const calendar = JSON.parse(readFileSync(new URL('../src/data/github-contributions.json', import.meta.url), 'utf8'));
   const retainedPaths = JSON.parse(readFileSync(new URL('../src/data/retained-series-slugs.json', import.meta.url), 'utf8')).map(slug => `/series/${slug}`);
-  for (const path of ['/', '/series', '/series/me', '/study', ...retainedPaths, ...openMausNotes.map(note => `${openMausPath}/${note.slug}`), '/project', '/about', '/work', '/work/trivia-hub', notePath, '/subscribe']) {
+  for (const path of ['/', '/series', '/series/me', '/study', ...retainedPaths, openMausNotePath, '/project', '/about', '/work', '/work/trivia-hub', notePath, '/subscribe']) {
     await check(path, async () => {
       const response = await get(path);
       assert.equal(response.status, 200);
@@ -106,8 +115,8 @@ export async function verifyRelease(base, expectedSha, output) {
       assert.match(body, /href="mailto:son@sonwork\.org"/);
       assert.doesNotMatch(body, /<a\b[^>]*href="\/subscribe"[^>]*>Subscribe<\/a>/);
       if (path === '/subscribe') {
-        const notices = [...body.matchAll(/<p\b[^>]*class="signup-closed"[^>]*>Signup opens soon\.<\/p>/g)];
-        assert.equal(notices.length, 1, 'legacy Subscribe must show one noninteractive notice');
+        const notices = [...body.matchAll(/<p\b[^>]*class="signup-closed i18n"[^>]*data-vi="Sắp mở đăng ký\."[^>]*>Signup opens soon\.<\/p>/g)];
+        assert.equal(notices.length, 1, 'legacy Subscribe must show one noninteractive notice, switched by the toggle');
       } else if (path === '/') {
         assert.doesNotMatch(body, /<p\b[^>]*class=["'][^"']*\bsignup-closed\b/);
       }
@@ -130,8 +139,10 @@ export async function verifyRelease(base, expectedSha, output) {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
         assert.ok(main, 'Series must have its shared main landmark');
         assert.equal(main.replace(/<[^>]+>/g, '').trim(), 'Series.Coming soon');
-        assert.ok(body.includes('<title>Series | Son.</title>'));
-        assert.ok(body.includes('name="description" content="Coming soon."'));
+        assert.ok(body.includes('<title class="i18n" data-vi="Loạt bài | Son.">Series | Son.</title>'), 'Series stub title must switch with the toggle, not stay English-only');
+        assert.ok(body.includes('name="description" content="Coming soon." class="i18n" data-vi="Sắp có."'), 'Series stub description must switch with the toggle, not stay English-only');
+        assert.match(main, /class="i18n" data-vi="Loạt bài"/);
+        assert.match(main, /class="i18n" data-vi="Sắp có"/);
         assert.doesNotMatch(main, /<a\b|<time\b|<article\b|<button\b|<li\b|How I use|planned|Always-on|05/);
       }
       if (path === '/project') assert.match(body, /Coming soon/);
@@ -140,7 +151,7 @@ export async function verifyRelease(base, expectedSha, output) {
       if (path === '/subscribe') {
         assert.match(body, /Legacy newsletter links are retired\. No subscription has been changed here\./);
         assert.match(body, /href="mailto:son@sonwork\.org"/);
-        assert.match(body, /href="\/series">All series<\/a>/);
+        assert.match(body, /href="\/series"><span class="i18n" data-vi="Tất cả loạt bài">All series<\/span><\/a>/);
       }
       if (path === '/series') {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
@@ -158,22 +169,24 @@ export async function verifyRelease(base, expectedSha, output) {
       if (path === openMausPath) {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
         assert.match(main, /<h1[^>]*>How I use OpenMaus<\/h1>/);
-        const links = [...main.matchAll(/<h3[^>]*><a href="([^"]+)"[^>]*>([^<]+)<\/a><\/h3>/g)];
-        assert.deepEqual(links.map(([, href, title]) => ({ href, title })), openMausNotes.map(note => ({ href: `${openMausPath}/${note.slug}`, title: note.title })));
+        const links = [...main.matchAll(/<h3[^>]*><a href="([^"]+)"[^>]*><span[^>]*>([^<]+)<\/span><\/a><\/h3>/g)];
+        assert.deepEqual(links.map(([, href, title]) => ({ href, title })), [{ href: openMausNotePath, title: openMausNote.titleEn }], 'OpenMaus must list exactly one logical note, not one per language');
       }
-      const openMausNote = openMausNotes.find(note => path === `${openMausPath}/${note.slug}`);
-      if (openMausNote) {
+      if (path === openMausNotePath) {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
-        assert.equal(/<h1[^>]*>([^<]+)<\/h1>/.exec(main)?.[1], openMausNote.title);
-        assert.ok(body.includes(`<title>${openMausNote.title} | Son.</title>`));
-        assert.ok(body.includes(`property="og:title" content="${openMausNote.title}"`));
+        assert.equal(/<h1[^>]*>([^<]+)<\/h1>/.exec(main)?.[1], openMausNote.titleEn);
+        assert.ok(body.includes(`<title class="i18n" data-vi="${openMausNote.titleVi} | Son.">${openMausNote.titleEn} | Son.</title>`));
+        assert.ok(body.includes(`property="og:title" content="${openMausNote.titleEn}"`));
         assert.doesNotMatch(body, /name="robots"[^>]*content="[^"]*noindex/);
         assert.doesNotMatch(main, /<button\b|<select\b/);
         const images = [...main.matchAll(/<img\b[^>]*>/g)];
-        assert.equal(images.length, 1, 'each language note must show one matching diagram');
-        assert.ok(images[0][0].includes(`src="${openMausNote.image}"`));
-        assert.ok(images[0][0].includes(`alt="${openMausNote.alt}"`));
-        assert.ok(main.includes(`href="${openMausPath}">All notes in How I use OpenMaus</a>`));
+        assert.equal(images.length, 2, 'the bilingual note must render both language diagrams, one CSS-hidden by the global toggle');
+        const bySrc = Object.fromEntries(images.map(([tag]) => [/src="([^"]+)"/.exec(tag)?.[1], tag]));
+        assert.ok(bySrc[openMausNote.imageEn]?.includes(`alt="${openMausNote.altEn}"`));
+        assert.ok(bySrc[openMausNote.imageVi]?.includes(`alt="${openMausNote.altVi}"`));
+        assert.match(main, /OpenMaus is an agent workspace/);
+        assert.match(main, /OpenMaus là không gian làm việc/);
+        assert.ok(main.includes(`href="${openMausPath}"><span class="i18n" data-vi="Tất cả bài trong Cách mình dùng OpenMaus">All notes in How I use OpenMaus</span></a>`));
       }
       if (path === '/study') {
         assert.match(body, /<h1[^>]*>Study<\/h1>/);
@@ -200,7 +213,10 @@ export async function verifyRelease(base, expectedSha, output) {
   for (const { from, to } of currentRedirects) await check(`content move ${from}`, async () => {
     const response = await get(from);
     assert.equal(response.status, 301);
-    assert.equal(new URL(response.headers.get('location'), base).pathname, to);
+    const location = new URL(response.headers.get('location'), base);
+    assert.equal(location.pathname, to);
+    const lang = legacySuffixLang(from);
+    assert.equal(location.search, lang ? `?lang=${lang}` : '', 'a retired per-language URL must carry its language onto the merged page');
     assert.equal((await follow(from)).status, 200);
   });
   for (const slug of hiddenDrafts) {
@@ -218,10 +234,8 @@ export async function verifyRelease(base, expectedSha, output) {
     assert.match(response.headers.get('content-type'), /xml/);
     const feed = await response.text();
     const items = feed.match(/<item>[\s\S]*?<\/item>/g) ?? [];
-    assert.equal(items.length, 3, 'RSS must contain exactly the Me note and two OpenMaus notes');
-    for (const note of openMausNotes) {
-      assert.equal(items.filter(item => item.includes(`<title>${note.title}</title>`) && item.includes(`<link>https://sonwork.org${openMausPath}/${note.slug}</link>`)).length, 1, `RSS must pair the title and URL for ${note.slug}`);
-    }
+    assert.equal(items.length, 2, 'RSS must contain exactly one logical entry per published topic: Me and OpenMaus');
+    assert.equal(items.filter(item => item.includes(`<title>${openMausNote.titleEn}</title>`) && item.includes(`<link>https://sonwork.org${openMausNotePath}</link>`)).length, 1, 'RSS must pair the title and URL for the one logical OpenMaus entry');
     assert.match(feed, /<title>The joy of malleable products<\/title>/);
     assert.ok(feed.includes(notePath));
     assert.doesNotMatch(feed, /available-isnt-always-thinking/);
@@ -234,11 +248,13 @@ export async function verifyRelease(base, expectedSha, output) {
     assert.equal(createHash('sha256').update(bytes).digest('hex'), noteImageSha256);
     assert.equal(bytes.readUInt32BE(16), 800); assert.equal(bytes.readUInt32BE(20), 604);
   });
-  for (const note of openMausNotes) await check(`OpenMaus diagram ${note.slug}`, async () => {
-    const response = await get(note.image); assert.equal(response.status, 200);
+  // Both language diagrams still ship as distinct image files even though the
+  // page/route itself collapsed to one logical note.
+  for (const [image, sha256] of [[openMausNote.imageEn, openMausNote.sha256En], [openMausNote.imageVi, openMausNote.sha256Vi]]) await check(`OpenMaus diagram ${image}`, async () => {
+    const response = await get(image); assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /image\/png/);
     const bytes = Buffer.from(await response.arrayBuffer());
-    assert.equal(createHash('sha256').update(bytes).digest('hex'), note.sha256);
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), sha256);
     assert.equal(bytes.readUInt32BE(16), 1440); assert.equal(bytes.readUInt32BE(20), 1200);
   });
   await check('unknown', async () => {

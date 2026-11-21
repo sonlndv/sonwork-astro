@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { languageOf, topicOf, translationsOf, LANGS, LANG_LABELS } from '../../src/lib/i18n-policy.mjs';
+import { languageOf, topicOf, translationsOf, topicsOf, LANGS, LANG_LABELS } from '../../src/lib/i18n-policy.mjs';
 
 const note = id => ({ id });
 
@@ -41,4 +41,28 @@ test('translationsOf reports a missing side as undefined instead of guessing a l
 test('LANGS and LANG_LABELS stay in step', () => {
   assert.deepEqual(LANGS, ['en', 'vi']);
   assert.deepEqual(Object.keys(LANG_LABELS).sort(), [...LANGS].sort());
+});
+
+test('topicsOf collapses an EN/VI pair into one group, one entry per language note', () => {
+  const en = note('how-i-use-openmaus/openmaus-explained-en');
+  const vi = note('how-i-use-openmaus/openmaus-explained-vi');
+  assert.deepEqual(topicsOf([en, vi]), [[en, vi]]);
+});
+
+test('topicsOf keeps an untagged, translationless note as its own one-member group', () => {
+  const solo = note('me/the-joy-of-malleable-products');
+  assert.deepEqual(topicsOf([solo]), [[solo]]);
+});
+
+test('topicsOf orders each topic by where its first-seen member appeared, not by language', () => {
+  const vi = note('how-i-use-openmaus/openmaus-explained-vi');
+  const en = note('how-i-use-openmaus/openmaus-explained-en');
+  const solo = note('me/the-joy-of-malleable-products');
+  assert.deepEqual(topicsOf([solo, vi, en]), [[solo], [vi, en]]);
+});
+
+test('topicsOf returns one group per topic for several unrelated notes', () => {
+  const a = note('how-i-use-openmaus/openmaus-explained-en');
+  const b = note('how-i-use-openmaus/other-note-en');
+  assert.deepEqual(topicsOf([a, b]), [[a], [b]]);
 });

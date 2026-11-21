@@ -1,4 +1,4 @@
-<button class="copy-email" type="button" hidden data-copy-email="son@sonwork.org" aria-describedby="copy-email-status">Copy email</button>
+<button class="copy-email" type="button" hidden data-copy-email="son@sonwork.org" aria-describedby="copy-email-status"><span class="i18n" data-vi="Sao chép email">Copy email</span></button>
 <span id="copy-email-status" class="copy-status" role="status" aria-live="polite"></span>
 <script>
   const button = document.querySelector<HTMLButtonElement>('[data-copy-email]');
@@ -10,11 +10,14 @@
       button.setAttribute('aria-disabled', 'true');
       button.setAttribute('aria-busy', 'true');
       status.textContent = '';
+      const vi = typeof window.sonworkLang === 'function' && window.sonworkLang() === 'vi';
       try {
         await navigator.clipboard.writeText(button.dataset.copyEmail!);
-        status.textContent = 'Email copied.';
+        status.textContent = vi ? 'Đã sao chép email.' : 'Email copied.';
       } catch {
-        status.textContent = 'Could not copy. Select the address or open your email app.';
+        status.textContent = vi
+          ? 'Không sao chép được. Hãy chọn địa chỉ hoặc mở ứng dụng email.'
+          : 'Could not copy. Select the address or open your email app.';
       } finally {
         button.removeAttribute('aria-disabled');
         button.removeAttribute('aria-busy');

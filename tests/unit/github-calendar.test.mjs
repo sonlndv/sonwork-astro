@@ -52,7 +52,7 @@ test('invalid, noncontiguous, duplicated or falsified snapshot values fail close
 test('chart-only source removes obsolete picker bindings and retains nonvisual semantics', () => {
   const source = readFileSync('src/components/GithubCalendar.astro', 'utf8');
   assert.doesNotMatch(source, /data-calendar-picker|picker\.|Browse daily counts|About this snapshot/);
-  assert.match(source, /aria-describedby="calendar-description"/);
+  assert.match(source, /aria-describedby="calendar-description calendar-description-vi"/);
   assert.match(source, /id="calendar-description" class="visually-hidden"/);
   assert.match(source, /<noscript>[\s\S]*class="visually-hidden"[\s\S]*<table/);
 });

@@ -4,17 +4,19 @@ import DraftLabel from '../components/DraftLabel.astro';
 
 interface Props {
   title: string;
+  titleVi?: string;
   description: string;
+  descriptionVi?: string;
   draft?: boolean;
   type?: 'website' | 'article';
 }
 
-const { title, description, draft = false, type = 'article' } = Astro.props;
+const { title, titleVi, description, descriptionVi, draft = false, type = 'article' } = Astro.props;
 ---
-<BaseLayout title={title} description={description} type={type}>
+<BaseLayout title={title} titleVi={titleVi} description={description} descriptionVi={descriptionVi} type={type}>
   <article class="prose-page">
     <header class="prose-header">
-      <h1>{title}</h1>
+      <h1 class="i18n" data-vi={titleVi}>{title}</h1>
       {draft && <p class="meta"><DraftLabel /></p>}
       <slot name="meta" />
     </header>

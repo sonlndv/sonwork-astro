@@ -10,27 +10,27 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { title, summary, url, started, stack, draft } = entry.data;
+const { title, summary, summaryVi, url, started, stack, draft } = entry.data;
 const { Content } = await render(entry);
 ---
-<ProseLayout title={title} description={summary} draft={draft}>
+<ProseLayout title={title} description={summary} descriptionVi={summaryVi} draft={draft}>
   <Fragment slot="meta">
-    <p class="lede">{summary}</p>
+    <p class="lede i18n" data-vi={summaryVi}>{summary}</p>
     <dl class="facts">
       <div>
-        <dt>Live</dt>
+        <dt class="i18n" data-vi="Trang đang hoạt động">Live</dt>
         <dd><a href={url}>{new URL(url).host}<Arrow /></a></dd>
       </div>
       <div>
-        <dt>Started</dt>
+        <dt class="i18n" data-vi="Bắt đầu">Started</dt>
         <dd><time datetime={isoDate(started)}>{formatDate(started)}</time></dd>
       </div>
       <div>
-        <dt>Stack</dt>
+        <dt class="i18n" data-vi="Công nghệ sử dụng">Stack</dt>
         <dd>{stack.join(', ')}</dd>
       </div>
     </dl>
   </Fragment>
   <Content />
-  <p class="back" slot="end"><a href="/work">All work</a></p>
+  <p class="back" slot="end"><a href="/work"><span class="i18n" data-vi="Tất cả dự án">All work</span></a></p>
 </ProseLayout>

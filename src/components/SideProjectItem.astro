@@ -9,7 +9,7 @@ interface Props {
 }
 
 const { entry, compact = false } = Astro.props;
-const { title, blurb, status, url, repo, draft } = entry.data;
+const { title, blurb, blurbVi, status, url, repo, draft } = entry.data;
 const { Content } = await render(entry);
 
 const statusLabels = {
@@ -18,21 +18,27 @@ const statusLabels = {
   building: 'Building',
   'pre-alpha': 'Pre-alpha',
 } as const;
+const statusLabelsVi = {
+  listed: 'Đã có trên danh mục',
+  public: 'Kho mã công khai',
+  building: 'Đang phát triển',
+  'pre-alpha': 'Tiền alpha',
+} as const;
 ---
 <article class="side-project">
   <header>
     <h3>{title}</h3>
     <p class="meta">
-      <span class="status-label">{statusLabels[status]}</span>
+      <span class="status-label i18n" data-vi={statusLabelsVi[status]}>{statusLabels[status]}</span>
       {draft && <DraftLabel />}
     </p>
   </header>
-  <p>{blurb}</p>
+  <p class="i18n" data-vi={blurbVi}>{blurb}</p>
   {!compact && <div class="side-body"><Content /></div>}
   {(url || repo) && (
     <ul class="links">
-      {url && <li><a href={url}>Live page<Arrow /><span class="visually-hidden">: {title}</span></a></li>}
-      {repo && <li><a href={repo}>Source<Arrow /><span class="visually-hidden">: {title}</span></a></li>}
+      {url && <li><a href={url}><span class="i18n" data-vi="Trang đang hoạt động">Live page</span><Arrow /><span class="visually-hidden">: {title}</span></a></li>}
+      {repo && <li><a href={repo}><span class="i18n" data-vi="Mã nguồn">Source</span><Arrow /><span class="visually-hidden">: {title}</span></a></li>}
     </ul>
   )}
 </article>

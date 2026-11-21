@@ -8,11 +8,13 @@
   // The accessible name must contain the visible label (WCAG 2.5.3 / axe
   // label-content-name-mismatch), so it leads with the same text the button shows.
   function sync() {
-    const next = lang() === 'vi' ? 'en' : 'vi';
+    const current = lang();
+    const next = current === 'vi' ? 'en' : 'vi';
     if (button) {
-      const label = next.toUpperCase();
-      button.textContent = label;
-      button.setAttribute('aria-label', `${label} — switch to ${next === 'vi' ? 'Vietnamese' : 'English'} interface`);
+      button.textContent = next.toUpperCase();
+      button.setAttribute('aria-label', current === 'vi'
+        ? 'EN — Chuyển sang tiếng Anh'
+        : 'VI — switch to Vietnamese interface');
       button.dataset.target = next;
       button.hidden = false;
     }
@@ -23,6 +25,7 @@
   function changeLang() {
     const next = lang() === 'vi' ? 'en' : 'vi';
     root.dataset.lang = next;
+    root.lang = next;
     try { localStorage.setItem('lang', next); } catch { /* A usable in-memory choice remains. */ }
     sync();
     broadcast(next);
@@ -30,8 +33,8 @@
   button?.addEventListener('click', changeLang);
   window.addEventListener('storage', event => {
     if (event.key !== 'lang') return;
-    if (event.newValue === 'vi') root.dataset.lang = 'vi';
-    else delete root.dataset.lang;
+    if (event.newValue === 'vi') { root.dataset.lang = 'vi'; root.lang = 'vi'; }
+    else { delete root.dataset.lang; root.lang = 'en'; }
     sync();
     broadcast(lang());
   });

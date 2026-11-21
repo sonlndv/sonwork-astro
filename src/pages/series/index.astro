@@ -5,16 +5,17 @@ import { getSeries } from '../../lib/series';
 
 const collections = (await getSeries()).filter(entry => !entry.data.draft);
 const description = 'Related notes, grouped by subject.';
+const descriptionVi = 'Những ghi chép liên quan, được nhóm theo chủ đề.';
 ---
-<BaseLayout title="Series" description={description}>
+<BaseLayout title="Series" titleVi="Loạt bài" description={description} descriptionVi={descriptionVi}>
   <div class="index-page">
     <header class="page-head">
-      <h1>Series</h1>
-      <p>{description}</p>
+      <h1 class="i18n" data-vi="Loạt bài">Series</h1>
+      <p class="i18n" data-vi={descriptionVi}>{description}</p>
     </header>
     <section class="page-section" aria-labelledby="series-collections">
       <div class="section-head">
-        <h2 id="series-collections">Collections</h2>
+        <h2 id="series-collections" class="i18n" data-vi="Các loạt bài">Collections</h2>
       </div>
       <ol class="rows">
         {collections.map((entry, index) => (
@@ -22,9 +23,9 @@ const description = 'Related notes, grouped by subject.';
             <article class="row">
               <span class="row-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
               <div class="row-body">
-                <h3><a href={`/series/${entry.id}`}>{entry.data.title}</a></h3>
+                <h3><a href={`/series/${entry.id}`}><span class="i18n" data-vi={entry.data.titleVi}>{entry.data.title}</span></a></h3>
                 <p class="meta"><time datetime={isoDate(entry.data.date)}>{formatDate(entry.data.date)}</time></p>
-                <p>{entry.data.description}</p>
+                <p class="i18n" data-vi={entry.data.descriptionVi}>{entry.data.description}</p>
               </div>
             </article>
           </li>
