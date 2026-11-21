@@ -20,10 +20,10 @@ for (const theme of ['dark', 'light'] as const) for (const width of [320, 390, 7
     }
     expect(edges[0].left).toBeGreaterThanOrEqual(24);
     expect(Math.abs(edges[0].left - (width - edges[0].right))).toBeLessThanOrEqual(1);
-    const contentLefts = await page.locator('main').locator('h1, .about-contacts, .tools-section h2, .tool-choice:first-child, .tool-purpose, .github-calendar h2').evaluateAll(elements => elements.map(element => element.getBoundingClientRect().left));
+    const contentLefts = await page.locator('main').locator('h1, .about-contacts, .tools-section h2, .tool-choice:first-child, .tool-purpose, .github-calendar h2, .notes-spotlight h2').evaluateAll(elements => elements.map(element => element.getBoundingClientRect().left));
     for (const left of contentLefts) expect(Math.abs(left - edges[0].left)).toBeLessThanOrEqual(1);
     const spacing = await page.evaluate(() => {
-      const boxes = ['.about-opening', '.tools-section', '.github-calendar', '.footer-inner'].map(selector => document.querySelector(selector)!.getBoundingClientRect());
+      const boxes = ['.about-opening', '.tools-section', '.github-calendar', '.notes-spotlight', '.footer-inner'].map(selector => document.querySelector(selector)!.getBoundingClientRect());
       return boxes.slice(1).map((box, index) => box.top - boxes[index].bottom);
     });
     for (const gap of spacing) {
@@ -51,8 +51,8 @@ for (const theme of ['dark', 'light'] as const) for (const width of [320, 390, 7
     const feedbackSpacing = await page.evaluate(() => {
       const calendar = document.querySelector('.github-calendar')!.getBoundingClientRect();
       const detail = document.querySelector('#calendar-detail')!.getBoundingClientRect();
-      const footer = document.querySelector('.footer-inner')!.getBoundingClientRect();
-      return { tail: calendar.bottom - detail.bottom, gap: footer.top - detail.bottom };
+      const next = document.querySelector('.notes-spotlight')!.getBoundingClientRect();
+      return { tail: calendar.bottom - detail.bottom, gap: next.top - detail.bottom };
     });
     expect(Math.abs(feedbackSpacing.tail)).toBeLessThanOrEqual(1);
     expect(Math.abs(feedbackSpacing.gap - spacing[0])).toBeLessThanOrEqual(1);
@@ -60,7 +60,7 @@ for (const theme of ['dark', 'light'] as const) for (const width of [320, 390, 7
     await page.getByRole('button', { name: 'gbrain', exact: true }).click();
     await expect(page.getByRole('button', { name: 'gbrain', exact: true })).toHaveAttribute('aria-pressed', 'true');
     const reflow = await page.evaluate(() => {
-      const boxes = ['.about-opening', '.tools-section', '.github-calendar', '.footer-inner'].map(selector => document.querySelector(selector)!.getBoundingClientRect());
+      const boxes = ['.about-opening', '.tools-section', '.github-calendar', '.notes-spotlight', '.footer-inner'].map(selector => document.querySelector(selector)!.getBoundingClientRect());
       return { overflow: document.documentElement.scrollWidth > innerWidth, separated: boxes.slice(1).every((box, index) => box.top > boxes[index].bottom) };
     });
     expect(reflow.overflow).toBe(false);

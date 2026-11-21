@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ToolStrip from '../components/ToolStrip.astro';
 import GithubCalendar from '../components/GithubCalendar.astro';
+import NotesSpotlight from '../components/NotesSpotlight.astro';
 ---
 <BaseLayout title="Son." description="I’m Son, a business guy in Vietnam, trying things with AI and sharing what I learn through notes and visual explanations.">
   <section class="about-opening" aria-labelledby="home-title">
@@ -17,11 +18,11 @@ import GithubCalendar from '../components/GithubCalendar.astro';
       </ul>
     </nav>
   </section>
-  <div class="about-tools"><ToolStrip /><GithubCalendar /></div>
+  <div class="about-tools"><ToolStrip /><GithubCalendar /><NotesSpotlight /></div>
 </BaseLayout>
 <script>
   const preference = matchMedia('(prefers-reduced-motion: reduce)');
-  const sections = [...document.querySelectorAll<HTMLElement>('.tools-section, .github-calendar')];
+  const sections = [...document.querySelectorAll<HTMLElement>('.tools-section, .github-calendar, .notes-spotlight')];
   for (const section of sections) {
     const trace = document.createElement('span');
     trace.className = 'editorial-rule-trace';

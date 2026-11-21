@@ -130,6 +130,9 @@ p { margin: 0 0 18px; }
 .tools-static { list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-wrap: wrap; gap: 16px 32px; }
 .tools-static li { display: grid; gap: 4px; }
 .tools-static span { font-size: .875rem; }
+.note-title { margin-top: var(--s4); font-size: 1.25rem; }
+.note-title a { display: inline-flex; align-items: center; min-height: var(--hit); color: var(--lume); }
+.note-lede { margin: var(--s2) 0 0; font-size: .875rem; }
 .github-calendar { width: 100%; }
 .calendar-plot { width: max-content; max-width: 100%; }
 .calendar-scroll { overflow-x: auto; overflow-y: hidden; margin-top: 24px; padding: 4px 3px 8px; scrollbar-width: thin; }
@@ -166,7 +169,7 @@ details > p, details > div { margin-top: 12px; }
 
 /* Open sections share one responsive rhythm; content determines every height. */
 body.home-sections { --section-space: clamp(var(--s6), 4vw, var(--s7)); }
-.home-sections :is(.tools-section, .github-calendar) {
+.home-sections :is(.tools-section, .github-calendar, .notes-spotlight) {
   position: relative;
   min-width: 0;
   margin: 0;
@@ -174,7 +177,7 @@ body.home-sections { --section-space: clamp(var(--s6), 4vw, var(--s7)); }
   border-top: 1px solid var(--line);
 }
 .home-sections .site-footer { margin-top: var(--section-space); }
-.home-sections :is(.tools-section, .github-calendar)::before {
+.home-sections :is(.tools-section, .github-calendar, .notes-spotlight)::before {
   content: '';
   position: absolute;
   top: -1px;
@@ -320,4 +323,4 @@ th { font: .75rem/1.5 var(--mono); color: var(--lume); }
 @media (max-width: 380px) { .site-nav ul { gap: 14px; } .site-nav { gap: 8px; } .series-disclosure > summary { flex-wrap: wrap; gap: 8px; } }
 @media (prefers-reduced-motion: no-preference) { a, button { transition: color 150ms ease, border-color 150ms ease; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; } }
-@media (forced-colors: active) { .editorial-rule-trace, .home-sections :is(.tools-section, .github-calendar)::before { display: none; } button, .text-figure { border-color: CanvasText; } .calendar-day, .calendar-legend i { border: 1px solid CanvasText; } }
+@media (forced-colors: active) { .editorial-rule-trace, .home-sections :is(.tools-section, .github-calendar, .notes-spotlight)::before { display: none; } button, .text-figure { border-color: CanvasText; } .calendar-day, .calendar-legend i { border: 1px solid CanvasText; } }
