@@ -36,7 +36,8 @@ test('link gate checks nested and unlinked built pages', async () => {
     await writeFile(join(dir, 'child.html'), '<a href="/nested/page">nested</a>');
     await writeFile(join(dir, 'nested/page.html'), '<a href="/missing-nested">broken</a>');
     await writeFile(join(dir, 'unlinked.html'), '<a href="/missing-unlinked">broken</a>');
-    assert.equal((await glob(`${dir}/**/*.html`)).length, 5);
+    await writeFile(join(dir, 'nested/with space.html'), '<a href="/missing-encoded">broken</a>');
+    assert.equal((await glob(`${dir}/**/*.html`)).length, 6);
     const child = spawn(process.execPath, ['scripts/check-links.mjs', dir], { env: { ...process.env, LINKS_PORT: '0' } });
     let output = '';
     for (const stream of [child.stdout, child.stderr]) stream.on('data', chunk => { output += chunk; });
@@ -44,6 +45,20 @@ test('link gate checks nested and unlinked built pages', async () => {
     assert.equal(code, 1, output);
     assert.match(output, /BROKEN 404 .*\/missing-nested/);
     assert.match(output, /BROKEN 404 .*\/missing-unlinked/);
+    assert.match(output, /BROKEN 404 .*\/missing-encoded/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('link gate rejects an empty build instead of reporting success', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'empty-links-'));
+  try {
+    const child = spawn(process.execPath, ['scripts/check-links.mjs', dir]);
+    let output = '';
+    child.stderr.on('data', chunk => { output += chunk; });
+    assert.equal(await new Promise(resolve => child.on('close', resolve)), 1);
+    assert.match(output, /No built HTML pages/);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
