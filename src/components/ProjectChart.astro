@@ -1,0 +1,58 @@
+---
+// Static native SVG chart (Prism r18): bot definition, one example project branching into three
+// peer bots (own job, own output), then review/approve and publish. Desktop (shared row) and mobile (stacked)
+// layouts ship together with downward arrowhead markers; a plain CSS media query swaps them at
+// 600px, no JavaScript. Includes the genuine OpenMausBot app icon (self-contained base64 data
+// URI, Apache-2.0, see assets NOTICE carried in HANDOFF). Source fragments are the design
+// handoff's own markup, unmodified apart from id/class-scoping below.
+import en from './project-chart/chart-en.svg.txt?raw';
+import vi from './project-chart/chart-vi.svg.txt?raw';
+
+interface Props { lang: 'en' | 'vi' }
+const { lang } = Astro.props;
+const raw = lang === 'vi' ? vi : en;
+
+// Scope the shared wide/mobile classes, title/desc ids and arrowhead marker ids per language so
+// two instances never collide if ever placed on one page. Astro's own scoped <style> cannot reach
+// markup injected via set:html (it never receives a data-astro-cid attribute), so the stylesheet
+// below is emitted as part of the raw string instead and scoped manually with this same prefix.
+const prefix = `pc-${lang}`;
+function assertOne(pattern: string) {
+  if (raw.split(pattern).length !== 2) throw new Error(`project-chart ${lang}: expected exactly one ${pattern}`);
+}
+assertOne('class="wide"');
+assertOne('class="mobile"');
+assertOne('id="wide-title"');
+assertOne('id="wide-desc"');
+assertOne('id="wide-arrow"');
+assertOne('id="title"');
+assertOne('id="desc"');
+assertOne('id="arrow"');
+assertOne('aria-labelledby="wide-title wide-desc"');
+assertOne('aria-labelledby="title desc"');
+if (raw.includes('<script')) throw new Error(`project-chart ${lang}: unexpected <script>`);
+if (/(href|src)\s*=\s*["']https?:\/\//.test(raw)) throw new Error(`project-chart ${lang}: unexpected external resource reference`);
+if (/url\(\s*["']?https?:\/\//.test(raw)) throw new Error(`project-chart ${lang}: unexpected external url() reference`);
+if (!raw.includes('url(#wide-arrow)')) throw new Error(`project-chart ${lang}: missing wide arrowhead marker reference`);
+if (!raw.includes('url(#arrow)')) throw new Error(`project-chart ${lang}: missing mobile arrowhead marker reference`);
+
+const scoped = raw
+  .replace('class="wide"', `class="${prefix}-wide"`)
+  .replace('class="mobile"', `class="${prefix}-mobile"`)
+  .replace('id="wide-title"', `id="${prefix}-wide-title"`)
+  .replace('id="wide-desc"', `id="${prefix}-wide-desc"`)
+  .replace('id="wide-arrow"', `id="${prefix}-wide-arrow"`)
+  .replace('id="title"', `id="${prefix}-mobile-title"`)
+  .replace('id="desc"', `id="${prefix}-mobile-desc"`)
+  .replace('id="arrow"', `id="${prefix}-mobile-arrow"`)
+  .replace('aria-labelledby="wide-title wide-desc"', `aria-labelledby="${prefix}-wide-title ${prefix}-wide-desc"`)
+  .replace('aria-labelledby="title desc"', `aria-labelledby="${prefix}-mobile-title ${prefix}-mobile-desc"`)
+  .replaceAll('url(#wide-arrow)', `url(#${prefix}-wide-arrow)`)
+  .replaceAll('url(#arrow)', `url(#${prefix}-mobile-arrow)`);
+
+const style = `<style>.${prefix}-wide{display:block}.${prefix}-wide svg{display:block;width:100%;height:auto}.${prefix}-mobile{display:none}.${prefix}-mobile svg{display:block;width:100%;height:auto}@media(max-width:600px){.${prefix}-wide{display:none}.${prefix}-mobile{display:block;max-width:440px;margin:auto}}</style>`;
+const markup = style + scoped;
+---
+<figure class="project-chart" style={{ margin: '2rem 0' }}>
+  <Fragment set:html={markup} />
+</figure>

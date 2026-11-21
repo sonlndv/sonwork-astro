@@ -10,8 +10,8 @@ const links = [
 const oldPaths = ['how-i-use-gbrain', 'how-i-use-hermes', 'how-i-use-openmaus', 'how-i-use-omp', 'how-i-use-obsidian'];
 const openMausPath = '/series/how-i-use-openmaus';
 const openMausNotes = [
-  { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', image: '/images/openmaus-en-website-r10.png', alt: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.' },
-  { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', image: '/images/openmaus-vi-website-r10.png', alt: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.' },
+  { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', chartTitle: 'One project. A team of specialists.', chartDesc: 'A bot is an AI teammate with its own role and instructions. Illustrative example. Introduce the project in a post. Individually assigned peer jobs return source notes, a draft and a posting checklist. The person reviews and approves the draft, then publishes the post. No required serial pipeline, automatic broadcast or actual completed run is depicted.', botLabels: ['Research bot', 'Writing bot', 'Planning bot'], idPrefix: 'pc-en' },
+  { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', chartTitle: 'Một dự án. Một nhóm chuyên trách.', chartDesc: 'Bot là trợ lý AI có vai trò và hướng dẫn riêng. Ví dụ minh hoạ. Viết bài đăng giới thiệu dự án. Từng bot cùng cấp được giao việc riêng, gửi ghi chú nguồn, bản nháp và các bước đăng bài. Người dùng xem lại, duyệt bản nháp rồi đăng bài. Không minh hoạ chuỗi tuần tự, tự động phát việc hay lần chạy thật.', botLabels: ['Bot nghiên cứu', 'Bot viết bài', 'Bot lập kế hoạch'], idPrefix: 'pc-vi' },
 ];
 const currentSeriesPaths = [...oldPaths.filter(slug => slug !== 'how-i-use-openmaus').map(slug => `/series/${slug}`), ...scope.privatePreviewRoutes];
 const retired = /How I use|planned series|planned topics|five practical|Always-on agents|Available isn.t always thinking|05\s*(?:notes|series)/i;
@@ -106,13 +106,25 @@ for (const theme of ['dark', 'light'] as const) {
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://sonwork.org${openMausPath}/${note.slug}`);
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', note.title);
       await expect(page.locator('main time')).toHaveAttribute('datetime', '2026-11-21');
-      const image = page.locator('article .prose img');
-      await expect(image).toHaveCount(1);
-      await expect(image).toHaveAttribute('src', note.image);
-      await expect(image).toHaveAttribute('alt', note.alt);
-      await image.scrollIntoViewIfNeeded();
-      await expect(image).toBeVisible();
-      await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 1440 && el.naturalHeight === 1200)).toBe(true);
+      const svgs = page.locator('article .prose .project-chart svg[role="img"]');
+      await expect(svgs).toHaveCount(2);
+      const wideSvg = page.locator(`article .prose .project-chart svg[aria-labelledby="${note.idPrefix}-wide-title ${note.idPrefix}-wide-desc"]`);
+      const mobileSvg = page.locator(`article .prose .project-chart svg[aria-labelledby="${note.idPrefix}-mobile-title ${note.idPrefix}-mobile-desc"]`);
+      await expect(wideSvg).toHaveAttribute('viewBox', '0 0 1440 1250');
+      await expect(mobileSvg).toHaveAttribute('viewBox', '0 0 360 1270');
+      for (const variant of ['wide', 'mobile']) {
+        await expect(page.locator(`#${note.idPrefix}-${variant}-title`)).toHaveText(note.chartTitle);
+        await expect(page.locator(`#${note.idPrefix}-${variant}-desc`)).toHaveText(note.chartDesc);
+      }
+      await expect(page.locator('article .prose .project-chart image[href^="data:image/svg+xml;base64,"]')).toHaveCount(2);
+      for (const label of note.botLabels) await expect(page.locator('article .prose .project-chart')).toContainText(label);
+      await expect(page.locator('article .prose script')).toHaveCount(0);
+      const narrow = (page.viewportSize()?.width ?? 1280) < 600;
+      const visibleSvg = narrow ? mobileSvg : wideSvg;
+      const hiddenSvg = narrow ? wideSvg : mobileSvg;
+      await visibleSvg.scrollIntoViewIfNeeded();
+      await expect(visibleSvg).toBeVisible();
+      await expect(hiddenSvg).toBeHidden();
       await expect(page.locator('main button, main select, .draft-label, meta[name="robots"][content*="noindex"]')).toHaveCount(0);
       await expect(page.getByRole('navigation', { name: 'Note location', exact: true }).getByRole('link')).toHaveText(['Series', 'How I use OpenMaus']);
       await page.getByRole('link', { name: 'All notes in How I use OpenMaus', exact: true }).click();
@@ -148,10 +160,12 @@ for (const theme of ['dark', 'light'] as const) {
         await page.locator('main').getByRole('link', { name: note.title, exact: true }).click();
         await expect(page).toHaveURL(`${baseURL}${openMausPath}/${note.slug}`);
         await expect(page.locator('h1')).toHaveText(note.title);
-        const image = page.locator('article .prose img');
-        await expect(image).toHaveAttribute('src', note.image);
-        await image.scrollIntoViewIfNeeded();
-        await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 1440 && el.naturalHeight === 1200)).toBe(true);
+        const mobileSvg = page.locator(`article .prose .project-chart svg[aria-labelledby="${note.idPrefix}-mobile-title ${note.idPrefix}-mobile-desc"]`);
+        await expect(mobileSvg).toHaveAttribute('viewBox', '0 0 360 1270');
+        await expect(page.locator(`#${note.idPrefix}-mobile-title`)).toHaveText(note.chartTitle);
+        await mobileSvg.scrollIntoViewIfNeeded();
+        await expect(mobileSvg).toBeVisible();
+        await expect(page.locator(`article .prose .project-chart svg[aria-labelledby="${note.idPrefix}-wide-title ${note.idPrefix}-wide-desc"]`)).toBeHidden();
         await page.getByRole('link', { name: 'All notes in How I use OpenMaus', exact: true }).click();
         await expect(page).toHaveURL(`${baseURL}${openMausPath}`);
       }

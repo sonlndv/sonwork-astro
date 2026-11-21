@@ -80,8 +80,8 @@ export async function verifyRelease(base, expectedSha, output) {
   const notePath = '/series/me/the-joy-of-malleable-products';
   const openMausPath = '/series/how-i-use-openmaus';
   const openMausNotes = [
-    { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', image: '/images/openmaus-en-website-r10.png', alt: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.', sha256: '81622ad3c41368b6d5dce1ab9fdf724496f8b8efdc88be941582c06b19209ebc' },
-    { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', image: '/images/openmaus-vi-website-r10.png', alt: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.', sha256: '3f9c43bf2cf88ff9c0dfa7576a2a5958380b7740c563a39cc9363905a08ca741' },
+    { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', chartTitle: 'One project. A team of specialists.', chartDesc: 'A bot is an AI teammate with its own role and instructions. Illustrative example. Introduce the project in a post. Individually assigned peer jobs return source notes, a draft and a posting checklist. The person reviews and approves the draft, then publishes the post. No required serial pipeline, automatic broadcast or actual completed run is depicted.', botLabels: ['Research bot', 'Writing bot', 'Planning bot'], idPrefix: 'pc-en' },
+    { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', chartTitle: 'Một dự án. Một nhóm chuyên trách.', chartDesc: 'Bot là trợ lý AI có vai trò và hướng dẫn riêng. Ví dụ minh hoạ. Viết bài đăng giới thiệu dự án. Từng bot cùng cấp được giao việc riêng, gửi ghi chú nguồn, bản nháp và các bước đăng bài. Người dùng xem lại, duyệt bản nháp rồi đăng bài. Không minh hoạ chuỗi tuần tự, tự động phát việc hay lần chạy thật.', botLabels: ['Bot nghiên cứu', 'Bot viết bài', 'Bot lập kế hoạch'], idPrefix: 'pc-vi' },
   ];
   const tools = JSON.parse(readFileSync(new URL('../src/data/tools.json', import.meta.url), 'utf8'));
   const calendar = JSON.parse(readFileSync(new URL('../src/data/github-contributions.json', import.meta.url), 'utf8'));
@@ -169,10 +169,17 @@ export async function verifyRelease(base, expectedSha, output) {
         assert.ok(body.includes(`property="og:title" content="${openMausNote.title}"`));
         assert.doesNotMatch(body, /name="robots"[^>]*content="[^"]*noindex/);
         assert.doesNotMatch(main, /<button\b|<select\b/);
-        const images = [...main.matchAll(/<img\b[^>]*>/g)];
-        assert.equal(images.length, 1, 'each language note must show one matching diagram');
-        assert.ok(images[0][0].includes(`src="${openMausNote.image}"`));
-        assert.ok(images[0][0].includes(`alt="${openMausNote.alt}"`));
+        const svgs = [...main.matchAll(/<svg\b[^>]*role="img"[^>]*>/g)];
+        assert.equal(svgs.length, 2, 'each language note must show the desktop and mobile diagram');
+        for (const variant of ['wide', 'mobile']) {
+          assert.ok(svgs.some(([svg]) => svg.includes(`aria-labelledby="${openMausNote.idPrefix}-${variant}-title ${openMausNote.idPrefix}-${variant}-desc"`)));
+          assert.ok(main.includes(`<title id="${openMausNote.idPrefix}-${variant}-title">${openMausNote.chartTitle}</title>`));
+          assert.ok(main.includes(`<desc id="${openMausNote.idPrefix}-${variant}-desc">${openMausNote.chartDesc}</desc>`));
+        }
+        assert.doesNotMatch(main, /<script\b/, 'the diagram must ship with zero script elements');
+        for (const label of openMausNote.botLabels) assert.ok(main.includes(label), `missing visible bot label ${label}`);
+        assert.equal((main.match(/data:image\/svg\+xml;base64,/g) || []).length, 2, 'each language note must show the app icon once per layout');
+        for (const variant of ['wide', 'mobile']) assert.ok(main.includes(`url(#${openMausNote.idPrefix}-${variant}-arrow)`), `missing ${variant} arrowhead marker reference`);
         assert.ok(main.includes(`href="${openMausPath}">All notes in How I use OpenMaus</a>`));
       }
       if (path === '/study') {
@@ -233,13 +240,6 @@ export async function verifyRelease(base, expectedSha, output) {
     const bytes = Buffer.from(await response.arrayBuffer());
     assert.equal(createHash('sha256').update(bytes).digest('hex'), noteImageSha256);
     assert.equal(bytes.readUInt32BE(16), 800); assert.equal(bytes.readUInt32BE(20), 604);
-  });
-  for (const note of openMausNotes) await check(`OpenMaus diagram ${note.slug}`, async () => {
-    const response = await get(note.image); assert.equal(response.status, 200);
-    assert.match(response.headers.get('content-type'), /image\/png/);
-    const bytes = Buffer.from(await response.arrayBuffer());
-    assert.equal(createHash('sha256').update(bytes).digest('hex'), note.sha256);
-    assert.equal(bytes.readUInt32BE(16), 1440); assert.equal(bytes.readUInt32BE(20), 1200);
   });
   await check('unknown', async () => {
     const response = await get('/release-unknown-path-404'); assert.equal(response.status, 404);
