@@ -17,7 +17,7 @@ const Heading = `h${headingLevel}` as 'h2' | 'h3';
 const items = posts.map((post, i) => ({ post, n: String(start + i).padStart(2, '0') }));
 ---
 {posts.length === 0 ? (
-  bare ? null : <p class="empty">No posts yet. Meanwhile, see <a href="/work">what I've built</a>.</p>
+  bare ? null : <p class="empty"><span class="i18n" data-vi="Chưa có bài viết nào. Trong lúc chờ, xem">No posts yet. Meanwhile, see</span> <a href="/work"><span class="i18n" data-vi="những thứ mình đã làm">what I've built</span></a>.</p>
 ) : bare ? (
   items.map(({ post, n }) => (
     <li>
@@ -26,7 +26,7 @@ const items = posts.map((post, i) => ({ post, n: String(start + i).padStart(2, '
         <div class="row-body">
           <Heading><a href={`/writing/${post.id}`}>{post.data.title}</a></Heading>
           <p class="meta">
-            <span class="kind">Post</span>
+            <span class="kind i18n" data-vi="Bài viết">Post</span>
             <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
             {post.data.draft && <DraftLabel />}
           </p>

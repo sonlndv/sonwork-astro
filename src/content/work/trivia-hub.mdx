@@ -1,6 +1,7 @@
 ---
 title: Trivia Hub
 summary: Five daily games in one place. Lock, Word, Scale, Fermi and Answers share one day number, one reset and one place to keep your streaks.
+summaryVi: Năm trò chơi hằng ngày ở cùng một nơi. Lock, Word, Scale, Fermi và Answers dùng chung số thứ tự ngày, giờ làm mới và nơi lưu chuỗi ngày chơi liên tiếp.
 status: live
 url: https://games.sonwork.org
 started: 2026-10-13
@@ -29,17 +30,21 @@ draft: false
       fetchpriority="high"
       decoding="async"
       alt="Trivia Hub's navy-and-gold interface for its daily games."
+      data-i18n-attr="alt"
+      data-vi-alt="Giao diện xanh navy và vàng của Trivia Hub dành cho các trò chơi hằng ngày."
       style={{ display: 'block', maxWidth: '100%', height: 'auto' }}
     />
   </picture>
   <figcaption>
-    Trivia Hub, October 2026 development imagery. Phone preview: Lock detail; desktop preview: hub overview.
+    <span class="i18n" data-vi="Hình ảnh Trivia Hub trong quá trình phát triển, tháng 10/2026. Bản xem trên điện thoại: màn chơi Lock; bản xem trên máy tính: tổng quan các trò chơi.">Trivia Hub, October 2026 development imagery. Phone preview: Lock detail; desktop preview: hub overview.</span>
     <ul class="links capture-links">
-      <li><a href="/images/trivia-hub-phone-october-2026.webp">Phone screenshot (full size)</a></li>
-      <li><a href="/images/trivia-hub-october-2026.webp">Desktop screenshot (full size)</a></li>
+      <li><a href="/images/trivia-hub-phone-october-2026.webp"><span class="i18n" data-vi="Ảnh chụp trên điện thoại (kích thước đầy đủ)">Phone screenshot (full size)</span></a></li>
+      <li><a href="/images/trivia-hub-october-2026.webp"><span class="i18n" data-vi="Ảnh chụp trên máy tính (kích thước đầy đủ)">Desktop screenshot (full size)</span></a></li>
     </ul>
   </figcaption>
 </figure>
+
+<div data-i18n-block="en">
 
 I like daily trivia games. The trouble is that each one lives on its own site, and every game has its own tab, its own reset time and its own streak to remember. So I built one hub for the games I want to play every day.
 
@@ -85,3 +90,54 @@ Each run starts its own temporary server and browser with a fixed date and fixed
 The next part is social. A friend groups API with private daily boards and invites you can revoke is merged, and so is a daily percentile and distribution API. Next comes the screen that shows them.
 
 The point stays the same: one place to play the games I like, every day.
+
+</div>
+
+<div data-i18n-block="vi" lang="vi">
+
+Mình thích các trò đố vui hằng ngày. Nhưng mỗi trò lại nằm trên một website riêng, mở ở một tab riêng, có giờ làm mới và chuỗi ngày chơi riêng phải nhớ. Thế là mình làm một nơi tập hợp những trò mình muốn chơi mỗi ngày.
+
+Trivia Hub đang hoạt động tại [games.sonwork.org](https://games.sonwork.org). Năm trò chơi, chung số thứ tự ngày và cùng làm mới lúc 04:00 UTC (11:00 giờ Việt Nam).
+
+## Bắt đầu từ việc tìm hiểu
+
+Đầu tiên, mình tìm hiểu cách một trò chơi hằng ngày hay vận hành. Mình quan sát cách Krillion hoạt động công khai: mỗi ngày có bảy câu hỏi mở giống nhau cho mọi người, mỗi câu khoảng 25 giây, điểm của câu trả lời được tính theo độ hiếm. Mình ghi lại vòng chơi, cách tính điểm, cách tạo bộ câu hỏi theo ngày và thẻ chia sẻ kết quả.
+
+Ngay từ ngày đầu, README đã ghi rõ nguyên tắc: chỉ tìm hiểu cách trò chơi hoạt động công khai, không xem nội dung cần đăng nhập, không sao chép tài nguyên hay bộ câu hỏi. Kết quả là thiết kế riêng của mình, với tên gọi, giao diện, câu hỏi và hình ảnh riêng.
+
+Có một khác biệt khá rõ. Trong Krillion, độ hiếm phụ thuộc vào câu trả lời của người chơi khác. Còn ở Answers của mình, các mức điểm do mình biên soạn: mình viết danh sách câu trả lời rồi phân loại câu nào dễ nghĩ tới, câu nào thú vị vì ít ai nghĩ ra. Nhờ vậy, trò chơi chạy được từ ngày đầu, khi chưa có cộng đồng người chơi.
+
+## Năm trò chơi
+
+- **Lock.** Mỗi ngày có hai mã gồm bốn và năm chữ số, không lặp chữ số. Mỗi mã có mười lượt đoán. Phản hồi chỉ cho biết số lượng, không chỉ ra chữ số nào.
+- **Word.** Mỗi ngày một từ gồm năm chữ cái, sáu lượt đoán, có chế độ khó để chọn.
+- **Scale.** Năm vòng. Một hình bóng đặt cạnh vật quen thuộc để bạn đoán nó cao hoặc dài gấp bao nhiêu lần. Mỗi vòng chỉ so một chiều.
+- **Fermi.** Mỗi ngày một câu hỏi, một lượt đoán, không giới hạn thời gian. Điểm phụ thuộc vào mức sai lệch theo tỉ lệ: đúng chính xác được 100 điểm, lệch gấp đôi được 70 điểm.
+- **Answers.** Bảy câu hỏi, mỗi câu 25 giây. Đưa ra một câu trả lời được chấp nhận. Câu trả lời khó nghĩ ra hơn được nhiều điểm hơn, tối đa 700 điểm mỗi ngày.
+
+Bốn trò giải đố không giới hạn thời gian. Riêng Answers giữ đồng hồ vì áp lực thời gian là một phần của trò chơi.
+
+## Quá trình làm
+
+Commit đầu tiên có từ ngày 13/10/2026. Đến 17/10/2026, nhánh main có 265 commit, trong đó 62 commit là merge. Phần lớn thay đổi được đưa vào qua các nhánh và pull request; những phần lớn được review trước khi merge.
+
+Nội dung cũng được kiểm tra như mã nguồn. Word có 1.266 đáp án được chọn lọc và 8.572 từ đoán được chấp nhận, được kiểm tra bằng công cụ xác thực. Scale có 63 hình bóng theo CC0, trong đó 18 hình thuộc Việt Nam, tạo thành 209 cặp. Các câu hỏi Fermi có công cụ xác thực riêng. Đây là những script chạy thủ công khi nội dung thay đổi, không thuộc bộ kiểm thử tự động.
+
+Việc tính điểm nằm ở server. Trình duyệt chỉ nhận đáp án sau khi bạn đã chơi xong phần đó. Mình có viết kỹ hơn về nguyên tắc này trong một bài riêng.
+
+## Cách kiểm tra
+
+Với thay đổi giao diện, hướng dẫn trong repo yêu cầu hai lượt kiểm tra qua mọi trò chơi. Cả hai đều chạy thủ công, không chạy trong CI:
+
+- **Luồng chơi.** Dùng bàn phím và thao tác con trỏ thực tế ở kích thước điện thoại (390 × 844) và máy tính (1440 × 900). Kiểm tra lượt đoán, kết quả, nội dung chia sẻ, đáp án ẩn, phím Escape, viền báo tiêu điểm trên mọi nút điều khiển và chế độ giảm chuyển động.
+- **Ảnh chụp màn hình.** Cũng các hành trình đó, được chụp thành 92 ảnh: trang tập hợp khi chưa chơi, chơi dở và hoàn tất; từng trò ở lúc bắt đầu, giữa lượt, lộ đáp án và hiện kết quả, ở cả hai kích thước, trong giao diện sáng và tối. Mình đặt ảnh của hai lượt cạnh nhau để so trước khi chấp nhận thiết kế mới.
+
+Mỗi lượt mở server và trình duyệt tạm riêng với ngày và dữ liệu kiểm thử cố định, nên không đụng tới trạng thái của người chơi thật.
+
+## Tiếp theo
+
+Phần tiếp theo là tính năng chơi cùng bạn bè. API nhóm bạn với bảng kết quả riêng mỗi ngày và lời mời có thể thu hồi đã được merge; API phân vị và phân bố kết quả hằng ngày cũng vậy. Tiếp theo là màn hình hiển thị các phần này.
+
+Mục đích vẫn như ban đầu: mỗi ngày có một nơi để chơi những trò mình thích.
+
+</div>

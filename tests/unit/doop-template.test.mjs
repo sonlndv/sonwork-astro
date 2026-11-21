@@ -11,7 +11,7 @@ test('Series templates retain the generic draft state beside published content',
     assert.match(source, /getSeries/);
     assert.match(source, /noIndex/);
   }
-  assert.match(reader, /getNotes/);
+  assert.match(reader, /getLogicalNotes/);
   assert.doesNotMatch(home, /How I use|planned-preview/);
 });
 test('the Son identity uses the actual selected native ridge, not an empty placeholder', async () => {

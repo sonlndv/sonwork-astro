@@ -7,13 +7,21 @@ export function startCalendar() {
   const scroll = calendar?.querySelector<HTMLElement>('.calendar-scroll');
   const detail = calendar?.querySelector<HTMLElement>('#calendar-detail');
   const description = calendar?.querySelector<HTMLElement>('#calendar-description');
+  const descriptionVi = calendar?.querySelector<HTMLElement>('#calendar-description-vi');
   if (!calendar || !grid || !months || !scroll || !detail || !description) return;
-  const root = calendar, cells = grid, labels = months, region = scroll, output = detail, provenance = description;
+  const root = calendar, cells = grid, labels = months, region = scroll, output = detail, provenance = description, provenanceVi = descriptionVi;
   let buttons: HTMLButtonElement[] = [];
   let current: HTMLButtonElement;
   let selected: HTMLButtonElement | undefined;
+  function currentLang(): 'en' | 'vi' { return typeof window.sonworkLang === 'function' ? window.sonworkLang() : 'en'; }
   const countLabel = (count: string | undefined) => `${count} ${count === '1' ? 'contribution' : 'contributions'}`;
-  function show(button?: HTMLButtonElement) { output.textContent = button ? `${button.dataset.date} · ${countLabel(button.dataset.count)} (UTC)` : ''; }
+  const countLabelVi = (count: string | undefined) => `${count} lượt đóng góp`;
+  function show(button?: HTMLButtonElement) {
+    if (!button) { output.textContent = ''; return; }
+    output.textContent = currentLang() === 'vi'
+      ? `${button.dataset.date} · ${countLabelVi(button.dataset.count)} (UTC)`
+      : `${button.dataset.date} · ${countLabel(button.dataset.count)} (UTC)`;
+  }
   function rove(button: HTMLButtonElement) { current.tabIndex = -1; button.tabIndex = 0; current = button; }
   function select(button: HTMLButtonElement) { selected?.setAttribute('aria-pressed', 'false'); selected = button; button.setAttribute('aria-pressed', 'true'); rove(button); show(button); }
   function restore() { show(buttons.find(button => button === document.activeElement) ?? selected); }
@@ -65,7 +73,9 @@ export function startCalendar() {
     if (root.dataset.calendarSource !== 'github-graphql') return;
     root.dataset.calendarMode = 'stale';
     const warning = ' Refresh unavailable; retaining the last received calendar.';
+    const warningVi = ' Chưa cập nhật được; đang giữ lại lịch nhận được gần nhất.';
     if (!provenance.textContent?.includes(warning)) provenance.textContent += warning;
+    if (provenanceVi && !provenanceVi.textContent?.includes(warningVi)) provenanceVi.textContent += warningVi;
   }
   function apply(payload: { calendar: unknown; meta: { mode: string; fetchedAt: string; stale: boolean; source: string } }) {
     const data = validateCalendar(payload.calendar);
@@ -78,7 +88,13 @@ export function startCalendar() {
     const sameDates = buttons.length === data.days.length && buttons.every((button, index) => button.dataset.date === data.days[index].date);
     function update(button: HTMLButtonElement, day: (typeof data.days)[number]) {
       button.dataset.date = day.date; button.dataset.count = String(day.count); button.dataset.level = String(day.level);
-      const name = `${day.date}: ${countLabel(String(day.count))} (UTC)`; button.setAttribute('aria-label', name); button.title = name;
+      const nameEn = `${day.date}: ${countLabel(String(day.count))} (UTC)`;
+      const nameVi = `${day.date}: ${countLabelVi(String(day.count))} (UTC)`;
+      button.setAttribute('data-i18n-attr', 'aria-label,title');
+      button.dataset.enAriaLabel = nameEn; button.dataset.viAriaLabel = nameVi;
+      button.dataset.enTitle = nameEn; button.dataset.viTitle = nameVi;
+      const name = currentLang() === 'vi' ? nameVi : nameEn;
+      button.setAttribute('aria-label', name); button.title = name;
     }
     if (sameDates) data.days.forEach((day, index) => update(buttons[index], day));
     else {
@@ -91,9 +107,14 @@ export function startCalendar() {
     }
     root.dataset.calendarMode = meta.mode; root.dataset.calendarSource = meta.source; root.dataset.calendarFetchedAt = meta.fetchedAt;
     provenance.textContent = `${data.from}–${data.through}: ${data.total.toLocaleString('en-US')} public profile contributions, not commits-only or completed work. Dates are UTC. Fetched ${meta.fetchedAt} using the official GitHub API with a 15-minute server cache; ${meta.stale ? 'showing stale last-good data' : 'auto-updated, not instant realtime'}. Source: ${data.source}.`;
+    if (provenanceVi) provenanceVi.textContent = `${data.from}–${data.through}: ${data.total.toLocaleString('vi-VN')} lượt đóng góp trên hồ sơ công khai, không chỉ gồm commit và không phải số công việc hoàn tất. Ngày được tính theo UTC. Dữ liệu lấy lúc ${meta.fetchedAt} qua API chính thức của GitHub, với cache trên server trong 15 phút; ${meta.stale ? 'đang hiển thị dữ liệu hợp lệ gần nhất, chưa được cập nhật' : 'tự động cập nhật, không phải dữ liệu tức thời'}. Nguồn: ${data.source}.`;
     restore();
     exposeRecentDates();
   }
+  // Both languages' provenance text are written together on every fetch, so
+  // the CSS data-i18n-block toggle alone keeps the visible one correct; only
+  // the single reactive #calendar-detail output needs a refresh on toggle.
+  document.addEventListener('sonwork:lang', () => restore());
   const interval = 15 * 60 * 1000;
   let timer: number | undefined, controller: AbortController | undefined, busy = false, lastAttempt = 0, stopped = false;
   function schedule() { window.clearTimeout(timer); if (!stopped && !document.hidden) timer = window.setTimeout(refresh, Math.max(0, interval - (Date.now() - lastAttempt))); }

@@ -20,6 +20,7 @@ const work = defineCollection({
   schema: z.object({
     title: z.string(),
     summary: z.string().min(10).max(300),
+    summaryVi: z.string().optional(),
     status: z.literal('live'),
     url: z.url(),
     started: z.coerce.date(),
@@ -34,6 +35,7 @@ const sideProjects = defineCollection({
   schema: z.object({
     title: z.string(),
     blurb: z.string().min(10).max(300),
+    blurbVi: z.string().optional(),
     status: z.enum(['listed', 'public', 'building', 'pre-alpha']),
     url: z.url().optional(),
     repo: z.url().optional(),
@@ -46,7 +48,9 @@ const pages = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/pages' }),
   schema: z.object({
     title: z.string(),
+    titleVi: z.string().optional(),
     description: z.string().min(10).max(200),
+    descriptionVi: z.string().optional(),
     homeTitle: z.string().optional(),
     homeIntro: z.string().refine(value => {
       const words = value.trim().split(/\s+/).length;
@@ -61,7 +65,9 @@ const series = defineCollection({
   loader: glob({ pattern: '*.mdx', base: './src/content/series' }),
   schema: z.object({
     title: z.string(),
+    titleVi: z.string().optional(),
     description: z.string().min(10).max(300),
+    descriptionVi: z.string().optional(),
     summary: z.string().min(10).max(200).optional(),
     date: z.coerce.date(),
     draft: z.boolean(),

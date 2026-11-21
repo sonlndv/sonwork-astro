@@ -4,14 +4,16 @@ import globalCss from '../styles/global.css?inline';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import LanguageToggle from '../components/LanguageToggle.astro';
 import SonBrand from '../components/SonBrand.astro';
-interface Props { title: string; description: string; type?: 'website' | 'article'; noIndex?: boolean; }
-const { title, description, type = 'website', noIndex = false } = Astro.props;
+interface Props { title: string; titleVi?: string; description: string; descriptionVi?: string; type?: 'website' | 'article'; noIndex?: boolean; }
+const { title, titleVi, description, descriptionVi, type = 'website', noIndex = false } = Astro.props;
+const pageTitle = title === 'Son.' ? title : `${title} | Son.`;
+const pageTitleVi = titleVi ? `${titleVi} | Son.` : undefined;
 const path = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '').replace(/(.)\/$/, '$1');
 const canonical = new URL(path, Astro.site);
 const robotsOff = noIndex;
 const nav = [
   { href: '/', label: 'About Me', labelVi: 'Giới thiệu' },
-  { href: '/series', label: 'Series', labelVi: 'Series' },
+  { href: '/series', label: 'Series', labelVi: 'Loạt bài' },
   { href: '/study', label: 'Study', labelVi: 'Học tập' },
   { href: '/hobbies', label: 'Hobbies', labelVi: 'Sở thích' },
   { href: 'mailto:son@sonwork.org', label: 'Contact', labelVi: 'Liên hệ' },
@@ -24,15 +26,15 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>{title === 'Son.' ? title : `${title} | Son.`}</title>
-    <meta name="description" content={description} />
+    <title class="i18n" data-vi={pageTitleVi}>{pageTitle}</title>
+    <meta name="description" content={description} class="i18n" data-vi={descriptionVi} />
     {robotsOff && <meta name="robots" content="noindex, follow" />}
     {!noIndex && <link rel="canonical" href={canonical} />}
-    <link rel="alternate" type="application/rss+xml" title="Son. notes" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Son. notes" href="/rss.xml" data-i18n-attr="title" data-vi-title="Ghi chép của Son." />
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content="Son." />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={title} class="i18n" data-vi={titleVi} />
+    <meta property="og:description" content={description} class="i18n" data-vi={descriptionVi} />
     {!noIndex && <meta property="og:url" content={canonical} />}
     <link rel="icon" href="/favicon.svg?v=son-ridge-1" type="image/svg+xml" />
     <meta name="color-scheme" content="dark light" />
@@ -42,8 +44,13 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
       try {
         const theme = localStorage.getItem('theme');
         if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme;
+        // A retired per-language note URL (…-vi, …-en) now 301s into the one
+        // merged page with ?lang=<lang> added, so the choice the old link
+        // promised still lands instead of silently falling back to English.
+        const queryLang = new URLSearchParams(location.search).get('lang');
+        if (queryLang === 'vi' || queryLang === 'en') localStorage.setItem('lang', queryLang);
         const lang = localStorage.getItem('lang');
-        if (lang === 'vi') document.documentElement.dataset.lang = 'vi';
+        if (lang === 'vi') { document.documentElement.dataset.lang = 'vi'; document.documentElement.lang = 'vi'; }
       } catch { /* Storage denial keeps the complete English-interface fallback. */ }
       document.documentElement.classList.add('js');
     </script>
@@ -53,11 +60,11 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
     <script type="speculationrules" is:inline set:html={speculationRules}></script>
   </head>
   <body class:list={{ 'home-sections': path === '/' }}>
-    <a class="skip-link" href="#main"><span class="i18n" data-vi="Bỏ qua, đến nội dung chính">Skip to content</span></a>
+    <a class="skip-link" href="#main"><span class="i18n" data-vi="Đến nội dung chính">Skip to content</span></a>
     <header class="site-header">
       <div class="frame header-bar">
-        <a class="wordmark" href="/" aria-label="Son. — About Me"><SonBrand /></a>
-        <nav class="site-nav" aria-label="Main">
+        <a class="wordmark" href="/" aria-label="Son. — About Me" data-i18n-attr="aria-label" data-vi-aria-label="Son. — Giới thiệu"><SonBrand /></a>
+        <nav class="site-nav" aria-label="Main" data-i18n-attr="aria-label" data-vi-aria-label="Điều hướng chính">
           <ul>{nav.map(item => <li><a href={item.href} aria-current={current(item.href) ? 'page' : undefined}><span class="i18n" data-vi={item.labelVi}>{item.label}</span></a></li>)}</ul>
         </nav>
         <div class="header-controls">
@@ -69,12 +76,12 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
     <main id="main" class="frame" tabindex="-1"><slot /></main>
     <footer class="site-footer">
       <div class="frame footer-inner">
-        <p><span class="i18n" data-vi="Son. / ghi chú về học cùng các trợ lý AI">Son. / notes on learning with agents</span></p>
-        <nav aria-label="Archive and contact">
-          <a href="/series"><span class="i18n" data-vi="Tất cả series">All series</span></a><a href="/work"><span class="i18n" data-vi="Kho dự án">Build archive</span></a><a href="mailto:son@sonwork.org"><span class="i18n" data-vi="Liên hệ">Contact</span></a><a href="/rss.xml">RSS</a>
+        <p><span class="i18n" data-vi="Son. / ghi chép quá trình học cùng trợ lý AI">Son. / notes on learning with agents</span></p>
+        <nav aria-label="Archive and contact" data-i18n-attr="aria-label" data-vi-aria-label="Kho nội dung và liên hệ">
+          <a href="/series"><span class="i18n" data-vi="Tất cả loạt bài">All series</span></a><a href="/work"><span class="i18n" data-vi="Kho dự án">Build archive</span></a><a href="mailto:son@sonwork.org"><span class="i18n" data-vi="Liên hệ">Contact</span></a><a href="/rss.xml">RSS</a>
         </nav>
-        <nav aria-label="Pages in progress">
-          <a href="/project" aria-current={current('/project') ? 'page' : undefined}><span class="i18n" data-vi="Dự án (sắp ra mắt)">Project (coming soon)</span></a>
+        <nav aria-label="Pages in progress" data-i18n-attr="aria-label" data-vi-aria-label="Trang đang hoàn thiện">
+          <a href="/project" aria-current={current('/project') ? 'page' : undefined}><span class="i18n" data-vi="Dự án (sắp có)">Project (coming soon)</span></a>
         </nav>
       </div>
     </footer>
@@ -82,19 +89,54 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
       (function () {
         // Each .i18n span renders one language's text as its only text node,
         // so textContent, the accessible name and screen readers only ever
-        // see the language currently shown — never both concatenated.
+        // see the language currently shown — never both concatenated. Meta
+        // and title tags carry their text in the content/textContent the
+        // browser and crawlers read, so the document itself (tab title,
+        // description, og:* tags) switches language along with the page.
         function apply(lang) {
+          const vi = lang === 'vi';
+          document.documentElement.lang = vi ? 'vi' : 'en';
           document.querySelectorAll('.i18n[data-vi]').forEach(function (el) {
+            if (el.tagName === 'META') {
+              if (el.dataset.en === undefined) el.dataset.en = el.getAttribute('content') || '';
+              el.setAttribute('content', vi ? el.dataset.vi : el.dataset.en);
+              return;
+            }
             if (el.dataset.en === undefined) el.dataset.en = el.textContent || '';
-            const vi = lang === 'vi';
             el.textContent = vi ? el.dataset.vi : el.dataset.en;
             if (vi) el.setAttribute('lang', 'vi'); else el.removeAttribute('lang');
           });
+          // Attribute-targeted variant: data-i18n-attr names comma-separated
+          // attributes whose values are stored per-attribute as
+          // data-vi-<attr> / cached as data-en-<attr> on first run, for
+          // elements (like calendar day buttons) whose translated text lives
+          // in aria-label/title rather than as a visible text node.
+          document.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
+            el.getAttribute('data-i18n-attr').split(',').forEach(function (attr) {
+              attr = attr.trim();
+              if (!attr) return;
+              const camel = attr.replace(/-([a-z])/g, function (_, c) { return c.toUpperCase(); });
+              const viKey = 'vi' + camel.charAt(0).toUpperCase() + camel.slice(1);
+              const enKey = 'en' + camel.charAt(0).toUpperCase() + camel.slice(1);
+              if (el.dataset[enKey] === undefined) el.dataset[enKey] = el.getAttribute(attr) || '';
+              const value = vi ? el.dataset[viKey] : el.dataset[enKey];
+              if (value !== undefined) el.setAttribute(attr, value);
+            });
+          });
         }
-        apply(document.documentElement.dataset.lang === 'vi' ? 'vi' : 'en');
+        window.sonworkLang = function () { return document.documentElement.dataset.lang === 'vi' ? 'vi' : 'en'; };
+        apply(window.sonworkLang());
         document.addEventListener('sonwork:lang', function (event) {
           apply(event.detail && event.detail.lang === 'vi' ? 'vi' : 'en');
         });
+        // The one-time ?lang= signal from a retired per-language URL is now
+        // applied and saved; drop it so the address bar reads the plain page.
+        if (new URLSearchParams(location.search).has('lang')) {
+          const params = new URLSearchParams(location.search);
+          params.delete('lang');
+          const query = params.toString();
+          history.replaceState(null, '', location.pathname + (query ? `?${query}` : '') + location.hash);
+        }
       })();
     </script>
   </body>

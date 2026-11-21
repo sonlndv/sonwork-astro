@@ -1,7 +1,7 @@
 [
-  { "id": "gbrain", "name": "gbrain", "purpose": "Shared memory for agents." },
-  { "id": "hermes", "name": "Hermes", "purpose": "A general-purpose assistant." },
-  { "id": "openmaus", "name": "OpenMaus", "purpose": "An agent workspace." },
-  { "id": "omp", "name": "OMP", "purpose": "Coding." },
-  { "id": "obsidian", "name": "Obsidian", "purpose": "Notes, research and writing." }
+  { "id": "gbrain", "name": "gbrain", "purpose": "Shared memory for agents.", "purposeVi": "Bộ nhớ chung cho các trợ lý AI." },
+  { "id": "hermes", "name": "Hermes", "purpose": "A general-purpose assistant.", "purposeVi": "Trợ lý đa năng." },
+  { "id": "openmaus", "name": "OpenMaus", "purpose": "An agent workspace.", "purposeVi": "Không gian làm việc với các trợ lý AI." },
+  { "id": "omp", "name": "OMP", "purpose": "Coding.", "purposeVi": "Lập trình." },
+  { "id": "obsidian", "name": "Obsidian", "purpose": "Notes, research and writing.", "purposeVi": "Ghi chú, nghiên cứu và viết lách." }
 ]

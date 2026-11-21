@@ -443,5 +443,35 @@
     "path": "/writing/the-joy-of-malleable-products.html",
     "target": "/series/me/the-joy-of-malleable-products",
     "status": 301
+  },
+  {
+    "path": "/series/how-i-use-openmaus/openmaus-explained-en",
+    "target": "/series/how-i-use-openmaus/openmaus-explained",
+    "status": 301
+  },
+  {
+    "path": "/series/how-i-use-openmaus/openmaus-explained-en/",
+    "target": "/series/how-i-use-openmaus/openmaus-explained",
+    "status": 301
+  },
+  {
+    "path": "/series/how-i-use-openmaus/openmaus-explained-en.html",
+    "target": "/series/how-i-use-openmaus/openmaus-explained",
+    "status": 301
+  },
+  {
+    "path": "/series/how-i-use-openmaus/openmaus-explained-vi",
+    "target": "/series/how-i-use-openmaus/openmaus-explained",
+    "status": 301
+  },
+  {
+    "path": "/series/how-i-use-openmaus/openmaus-explained-vi/",
+    "target": "/series/how-i-use-openmaus/openmaus-explained",
+    "status": 301
+  },
+  {
+    "path": "/series/how-i-use-openmaus/openmaus-explained-vi.html",
+    "target": "/series/how-i-use-openmaus/openmaus-explained",
+    "status": 301
   }
 ]

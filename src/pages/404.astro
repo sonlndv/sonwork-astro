@@ -1,16 +1,16 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
-<BaseLayout noIndex title="Page not found" description="This page does not exist on Sonwork.">
+<BaseLayout noIndex title="Page not found" titleVi="Không tìm thấy trang" description="This page does not exist on Sonwork." descriptionVi="Trang này không tồn tại trên Sonwork.">
   <div class="not-found">
     <header class="page-head">
-      <h1>Page not found</h1>
-      <p>There is nothing at this address. Try one of these:</p>
+      <h1 class="i18n" data-vi="Không tìm thấy trang">Page not found</h1>
+      <p class="i18n" data-vi="Địa chỉ này không có nội dung. Bạn có thể thử các trang sau:">There is nothing at this address. Try one of these:</p>
     </header>
     <ol class="rows">
-      <li class="row"><span class="row-index" aria-hidden="true">01</span><div class="row-body"><h2><a href="/">Home</a></h2></div></li>
-      <li class="row"><span class="row-index" aria-hidden="true">02</span><div class="row-body"><h2><a href="/work">Work</a></h2></div></li>
-      <li class="row"><span class="row-index" aria-hidden="true">03</span><div class="row-body"><h2><a href="/series">Series</a></h2></div></li>
+      <li class="row"><span class="row-index" aria-hidden="true">01</span><div class="row-body"><h2><a href="/"><span class="i18n" data-vi="Trang chủ">Home</span></a></h2></div></li>
+      <li class="row"><span class="row-index" aria-hidden="true">02</span><div class="row-body"><h2><a href="/work"><span class="i18n" data-vi="Dự án">Work</span></a></h2></div></li>
+      <li class="row"><span class="row-index" aria-hidden="true">03</span><div class="row-body"><h2><a href="/series"><span class="i18n" data-vi="Loạt bài">Series</span></a></h2></div></li>
     </ol>
   </div>
 </BaseLayout>

@@ -25,23 +25,23 @@ const newsletter = import.meta.env.PUBLIC_SIGNUP_NEWSLETTER;
   data-signup-key={signupKey}
   data-newsletter={newsletter}
 >
-  <label for={`${id}-email`}>Email address</label>
+  <label for={`${id}-email`} class="i18n" data-vi="Địa chỉ email">Email address</label>
   <div class="field-row">
     <input id={`${id}-email`} name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby={`${id}-status`} />
-    <button type="submit" disabled>Subscribe</button>
+    <button type="submit" disabled class="i18n" data-vi="Đăng ký nhận bài">Subscribe</button>
   </div>
   <div class="honeypot" aria-hidden="true">
-    <label for={`${id}-website`}>Leave this field empty</label>
+    <label for={`${id}-website`} class="i18n" data-vi="Để trống ô này">Leave this field empty</label>
     <input id={`${id}-website`} name="website" type="text" tabindex="-1" autocomplete="off" />
   </div>
   <p id={`${id}-status`} class="form-status" role="status" aria-live="polite"></p>
   <p id={`${id}-note`} class="form-note">
-    New posts by email. Confirm once, unsubscribe any time.{' '}
+    <span class="i18n" data-vi="Nhận bài mới qua email. Xác nhận một lần, huỷ đăng ký bất cứ lúc nào.">New posts by email. Confirm once, unsubscribe any time.</span>{' '}
     <noscript><span class="soon">Signup needs JavaScript.</span></noscript>
   </p>
 </form>
 ) : (
-  <p id={`${id}-note`} class="signup-closed">Signup opens soon.</p>
+  <p id={`${id}-note`} class="signup-closed i18n" data-vi="Sắp mở đăng ký.">Signup opens soon.</p>
 )}
 
 <script>
@@ -59,6 +59,20 @@ const newsletter = import.meta.env.PUBLIC_SIGNUP_NEWSLETTER;
     unreachable: "Couldn't reach the signup server. Check your connection and try again.",
     failed: 'Signup failed on our end. Try again later.',
   };
+  const MESSAGES_VI = {
+    sending: 'Đang gửi…',
+    created: 'Kiểm tra hộp thư và xác nhận email từ Sonwork để hoàn tất đăng ký.',
+    pending: 'Email này đã có trong danh sách chờ. Hãy xác nhận email mình vừa gửi lại.',
+    active: 'Bạn đã đăng ký rồi.',
+    other: 'Không thể đăng ký lại địa chỉ này tại đây.',
+    invalid: (message: string) => `Địa chỉ email này không hợp lệ: ${/[.?!]$/.test(message) ? message : `${message}.`}`,
+    rateLimited: 'Bạn đã thử quá nhiều lần. Chờ một phút rồi thử lại.',
+    unreachable: 'Không kết nối được với máy chủ đăng ký. Kiểm tra kết nối mạng rồi thử lại.',
+    failed: 'Hệ thống chưa xử lý được đăng ký. Vui lòng thử lại sau.',
+  };
+  function messages() {
+    return typeof window.sonworkLang === 'function' && window.sonworkLang() === 'vi' ? MESSAGES_VI : MESSAGES;
+  }
 
   function setup(form: HTMLFormElement) {
     const url = form.dataset.signupUrl;
@@ -74,11 +88,12 @@ const newsletter = import.meta.env.PUBLIC_SIGNUP_NEWSLETTER;
       status!.dataset.state = state;
       status!.textContent = text;
       if (link && /^https:\/\//.test(link.url)) {
+        const vi = typeof window.sonworkLang === 'function' && window.sonworkLang() === 'vi';
         const a = document.createElement('a');
         a.href = link.url;
         a.rel = 'noopener';
         a.target = '_blank';
-        a.textContent = `Open ${link.name}`;
+        a.textContent = `${vi ? 'Mở' : 'Open'} ${link.name}`;
         status!.append(' ', a);
       }
     }
@@ -99,13 +114,13 @@ const newsletter = import.meta.env.PUBLIC_SIGNUP_NEWSLETTER;
 
       // Bots fill every field; people never see this one. Tell the bot it worked.
       if (honeypot?.value) {
-        show('ok', MESSAGES.created);
+        show('ok', messages().created);
         return;
       }
 
       form.setAttribute('aria-busy', 'true');
       button.disabled = true;
-      show('busy', MESSAGES.sending);
+      show('busy', messages().sending);
 
       let response: Response;
       try {
@@ -116,26 +131,26 @@ const newsletter = import.meta.env.PUBLIC_SIGNUP_NEWSLETTER;
         });
       } catch {
         // Offline, DNS, or a CORS refusal: the browser doesn't say which.
-        show('error', MESSAGES.unreachable);
+        show('error', messages().unreachable);
         done();
         return;
       }
 
       const body: (Signup & Problem) | null = await response.json().catch(() => null);
       if (response.status === 201) {
-        show('ok', MESSAGES.created, body?.inbox);
+        show('ok', messages().created, body?.inbox);
         form.reset();
       } else if (response.status === 200) {
         const known = body?.status === 'pending' ? 'pending' : body?.status === 'active' ? 'active' : 'other';
-        show(known === 'other' ? 'error' : 'ok', MESSAGES[known], known === 'pending' ? body?.inbox : null);
+        show(known === 'other' ? 'error' : 'ok', messages()[known], known === 'pending' ? body?.inbox : null);
       } else if (response.status === 400 && body?.error?.message) {
-        show('error', MESSAGES.invalid(body.error.message));
+        show('error', messages().invalid(body.error.message));
         email.setAttribute('aria-invalid', 'true');
         email.focus();
       } else if (response.status === 429) {
-        show('error', MESSAGES.rateLimited);
+        show('error', messages().rateLimited);
       } else {
-        show('error', MESSAGES.failed);
+        show('error', messages().failed);
       }
       done();
     });
