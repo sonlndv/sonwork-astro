@@ -71,9 +71,14 @@ p { margin: 0 0 18px; }
 .site-nav ul { margin: 0; padding: 0; list-style: none; }
 .site-nav a { display: inline-flex; align-items: center; min-width: var(--hit); min-height: var(--hit); font-size: .875rem; color: var(--ink); text-decoration: none; }
 .site-nav a[aria-current] { color: var(--lume); text-decoration: underline; text-underline-offset: 8px; }
+.header-controls { display: inline-flex; align-items: center; gap: 8px; }
 .theme-toggle { color: var(--lume); display: inline-flex; align-items: center; justify-content: center; width: var(--hit); height: var(--hit); min-width: var(--hit); padding: 0; }
 .theme-toggle svg { display: none; width: 18px; height: 18px; flex: none; }
 .theme-toggle[data-target='light'] [data-theme-icon='sun'], .theme-toggle[data-target='dark'] [data-theme-icon='moon'] { display: block; }
+.lang-toggle { color: var(--lume); display: inline-flex; align-items: center; justify-content: center; min-width: var(--hit); min-height: var(--hit); padding: 0 10px; font: 700 .75rem/1 var(--mono); letter-spacing: .02em; }
+.i18n-vi { display: none; }
+html[data-lang='vi'] .i18n-en { display: none; }
+html[data-lang='vi'] .i18n-vi { display: inline; }
 .site-footer { margin-top: 72px; }
 .footer-inner { border-top: 1px solid var(--line); padding-block: 24px calc(32px + env(safe-area-inset-bottom, 0px)); color: var(--ink-3); font: .75rem/1.6 var(--mono); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; }
 .footer-inner p { margin: 0; }
@@ -303,11 +308,12 @@ th { font: .75rem/1.5 var(--mono); color: var(--lume); }
 @media (max-width: 700px) {
   .header-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; padding-block: 14px; gap: 8px 16px; }
   .wordmark { justify-self: start; }
-  .header-bar > .theme-toggle { grid-area: 1 / 2; }
+  .header-bar > .header-controls { grid-area: 1 / 2; justify-self: end; }
   .site-nav { grid-area: 2 / 1 / 3 / -1; margin-inline-start: 0; width: 100%; }
   .site-nav ul { width: 100%; gap: 8px 4px; justify-content: space-between; }
   .site-nav a { font-size: .8125rem; }
   .theme-toggle { font-size: .75rem; }
+  .lang-toggle { font-size: .75rem; }
   .home-feature { grid-template-columns: minmax(0,1fr); gap: 16px; }
   .index-hero { padding: 60px 0 48px; }
   .index-hero h1 { font-size: 2.875rem; }

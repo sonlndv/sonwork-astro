@@ -1,0 +1,31 @@
+<button class="lang-toggle" type="button" aria-label="Switch to Vietnamese interface" hidden>VI</button>
+<script>
+  const root = document.documentElement;
+  const button = document.querySelector<HTMLButtonElement>('.lang-toggle');
+  function lang(): 'en' | 'vi' {
+    return root.dataset.lang === 'vi' ? 'vi' : 'en';
+  }
+  function sync() {
+    const next = lang() === 'vi' ? 'en' : 'vi';
+    if (button) {
+      button.textContent = next.toUpperCase();
+      button.setAttribute('aria-label', `Switch to ${next === 'vi' ? 'Vietnamese' : 'English'} interface`);
+      button.dataset.target = next;
+      button.hidden = false;
+    }
+  }
+  function changeLang() {
+    const next = lang() === 'vi' ? 'en' : 'vi';
+    root.dataset.lang = next;
+    try { localStorage.setItem('lang', next); } catch { /* A usable in-memory choice remains. */ }
+    sync();
+  }
+  button?.addEventListener('click', changeLang);
+  window.addEventListener('storage', event => {
+    if (event.key !== 'lang') return;
+    if (event.newValue === 'vi') root.dataset.lang = 'vi';
+    else delete root.dataset.lang;
+    sync();
+  });
+  sync();
+</script>
