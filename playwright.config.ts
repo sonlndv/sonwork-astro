@@ -1,7 +1,8 @@
 import { defineConfig } from '@playwright/test';
 
 // Tests run against the built site in dist/ (build it first: `npm run build:preview`).
-const port = 4322;
+const baseURL = process.env.TEST_BASE_URL;
+if (!baseURL) throw new Error('Use npm run test:e2e to start an isolated, identity-checked server');
 const ci = Boolean(process.env.CI);
 
 export default defineConfig({
@@ -12,7 +13,7 @@ export default defineConfig({
   retries: ci ? 1 : 0,
   reporter: ci ? [['list'], ['html', { open: 'never' }]] : [['list']],
   use: {
-    baseURL: `http://127.0.0.1:${port}`,
+    baseURL,
     browserName: 'chromium',
     trace: 'retain-on-failure',
   },
@@ -20,9 +21,4 @@ export default defineConfig({
     { name: 'mobile', use: { viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true } },
     { name: 'desktop', use: { viewport: { width: 1280, height: 800 } } },
   ],
-  webServer: {
-    command: `node scripts/serve-dist.mjs dist ${port}`,
-    url: `http://127.0.0.1:${port}/`,
-    reuseExistingServer: !ci,
-  },
 });

@@ -113,7 +113,10 @@ export function startServer(dir = 'dist', port = 4322, { compress = false, noInd
       res.end('Not found');
     }
   });
-  return new Promise((done) => server.listen(port, '127.0.0.1', () => done(server)));
+  return new Promise((done, reject) => {
+    server.once('error', reject);
+    server.listen(port, '127.0.0.1', () => done(server));
+  });
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
