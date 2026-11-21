@@ -76,9 +76,6 @@ p { margin: 0 0 18px; }
 .theme-toggle svg { display: none; width: 18px; height: 18px; flex: none; }
 .theme-toggle[data-target='light'] [data-theme-icon='sun'], .theme-toggle[data-target='dark'] [data-theme-icon='moon'] { display: block; }
 .lang-toggle { color: var(--lume); display: inline-flex; align-items: center; justify-content: center; min-width: var(--hit); min-height: var(--hit); padding: 0 10px; font: 700 .75rem/1 var(--mono); letter-spacing: .02em; }
-.i18n-vi { display: none; }
-html[data-lang='vi'] .i18n-en { display: none; }
-html[data-lang='vi'] .i18n-vi { display: inline; }
 .site-footer { margin-top: 72px; }
 .footer-inner { border-top: 1px solid var(--line); padding-block: 24px calc(32px + env(safe-area-inset-bottom, 0px)); color: var(--ink-3); font: .75rem/1.6 var(--mono); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; }
 .footer-inner p { margin: 0; }

@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { untranslatedNotePage } from './routes';
 
-// The only published note on main has no Vietnamese sibling yet, so this is
-// the real, currently-built case for the untranslated state.
-const path = '/series/me/the-joy-of-malleable-products';
+// Found from the actual build rather than hardcoded, so this stays correct
+// as notes gain or lose a translation and regardless of merge order.
+const path = untranslatedNotePage();
 
 test('an untranslated note marks English current and Vietnamese as not yet translated', async ({ page }) => {
   await page.goto(path);

@@ -53,12 +53,12 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
     <script type="speculationrules" is:inline set:html={speculationRules}></script>
   </head>
   <body class:list={{ 'home-sections': path === '/' }}>
-    <a class="skip-link" href="#main"><span class="i18n-en">Skip to content</span><span class="i18n-vi" lang="vi">Bỏ qua, đến nội dung chính</span></a>
+    <a class="skip-link" href="#main"><span class="i18n" data-vi="Bỏ qua, đến nội dung chính">Skip to content</span></a>
     <header class="site-header">
       <div class="frame header-bar">
         <a class="wordmark" href="/" aria-label="Son. — About Me"><SonBrand /></a>
         <nav class="site-nav" aria-label="Main">
-          <ul>{nav.map(item => <li><a href={item.href} aria-current={current(item.href) ? 'page' : undefined}><span class="i18n-en">{item.label}</span><span class="i18n-vi" lang="vi">{item.labelVi}</span></a></li>)}</ul>
+          <ul>{nav.map(item => <li><a href={item.href} aria-current={current(item.href) ? 'page' : undefined}><span class="i18n" data-vi={item.labelVi}>{item.label}</span></a></li>)}</ul>
         </nav>
         <div class="header-controls">
           <ThemeToggle />
@@ -69,14 +69,33 @@ const speculationRules = JSON.stringify({ prefetch: [{ where: { href_matches: '/
     <main id="main" class="frame" tabindex="-1"><slot /></main>
     <footer class="site-footer">
       <div class="frame footer-inner">
-        <p><span class="i18n-en">Son. / notes on learning with agents</span><span class="i18n-vi" lang="vi">Son. / ghi chú về học cùng các trợ lý AI</span></p>
+        <p><span class="i18n" data-vi="Son. / ghi chú về học cùng các trợ lý AI">Son. / notes on learning with agents</span></p>
         <nav aria-label="Archive and contact">
-          <a href="/series"><span class="i18n-en">All series</span><span class="i18n-vi" lang="vi">Tất cả series</span></a><a href="/work"><span class="i18n-en">Build archive</span><span class="i18n-vi" lang="vi">Kho dự án</span></a><a href="mailto:son@sonwork.org"><span class="i18n-en">Contact</span><span class="i18n-vi" lang="vi">Liên hệ</span></a><a href="/rss.xml">RSS</a>
+          <a href="/series"><span class="i18n" data-vi="Tất cả series">All series</span></a><a href="/work"><span class="i18n" data-vi="Kho dự án">Build archive</span></a><a href="mailto:son@sonwork.org"><span class="i18n" data-vi="Liên hệ">Contact</span></a><a href="/rss.xml">RSS</a>
         </nav>
         <nav aria-label="Pages in progress">
-          <a href="/project" aria-current={current('/project') ? 'page' : undefined}><span class="i18n-en">Project (coming soon)</span><span class="i18n-vi" lang="vi">Dự án (sắp ra mắt)</span></a>
+          <a href="/project" aria-current={current('/project') ? 'page' : undefined}><span class="i18n" data-vi="Dự án (sắp ra mắt)">Project (coming soon)</span></a>
         </nav>
       </div>
     </footer>
+    <script is:inline>
+      (function () {
+        // Each .i18n span renders one language's text as its only text node,
+        // so textContent, the accessible name and screen readers only ever
+        // see the language currently shown — never both concatenated.
+        function apply(lang) {
+          document.querySelectorAll('.i18n[data-vi]').forEach(function (el) {
+            if (el.dataset.en === undefined) el.dataset.en = el.textContent || '';
+            const vi = lang === 'vi';
+            el.textContent = vi ? el.dataset.vi : el.dataset.en;
+            if (vi) el.setAttribute('lang', 'vi'); else el.removeAttribute('lang');
+          });
+        }
+        apply(document.documentElement.dataset.lang === 'vi' ? 'vi' : 'en');
+        document.addEventListener('sonwork:lang', function (event) {
+          apply(event.detail && event.detail.lang === 'vi' ? 'vi' : 'en');
+        });
+      })();
+    </script>
   </body>
 </html>
