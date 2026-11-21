@@ -1,5 +1,5 @@
 // Link check over the built site: serves dist/ with scripts/serve-dist.mjs,
-// crawls every page reachable from / and from the 404 page, and fails on any
+// checks every built HTML page, including unlinked routes, and fails on any
 // broken internal link or missing #fragment. External links are skipped
 // (rate limits and flaky hosts); pass --external to check them too.
 //
@@ -7,17 +7,20 @@
 
 import { check, LinkState } from 'linkinator';
 import { startServer } from './serve-dist.mjs';
+import { readdir } from 'node:fs/promises';
 
 const args = process.argv.slice(2);
 const external = args.includes('--external');
 const dir = args.find((arg) => !arg.startsWith('--')) ?? 'dist';
-const port = Number(process.env.LINKS_PORT ?? 4323);
-const origin = `http://127.0.0.1:${port}`;
+const port = Number(process.env.LINKS_PORT ?? 0);
 
 const server = await startServer(dir, port);
+const origin = `http://127.0.0.1:${server.address().port}`;
 try {
+  const pages = (await readdir(dir, { recursive: true })).filter(path => path.endsWith('.html')).sort();
+  if (!pages.length) throw new Error(`No built HTML pages in ${dir}`);
   const result = await check({
-    path: [`${origin}/`, `${origin}/404.html`],
+    path: pages.map(path => `${origin}/${path.split('/').map(encodeURIComponent).join('/')}`),
     recurse: true,
     checkFragments: true,
     redirects: 'error',

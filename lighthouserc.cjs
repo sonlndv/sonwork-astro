@@ -27,14 +27,14 @@ function builtPages(dist) {
   return pages;
 }
 
+const base = process.env.TEST_BASE_URL;
+if (!base) throw new Error('Use npm run test:lh to start an isolated, identity-checked server');
 const pages = builtPages('dist').sort((a, b) => a.route.localeCompare(b.route));
 
 module.exports = {
   ci: {
     collect: {
-      startServerCommand: 'node scripts/serve-dist.mjs dist 4324 --compress',
-      startServerReadyPattern: 'Serving',
-      url: pages.map((page) => `http://127.0.0.1:4324${page.route}`),
+      url: pages.map((page) => `${base}${page.route}`),
       numberOfRuns: 3,
       settings: {
         // Default form factor is mobile with simulated throttling.
@@ -45,7 +45,7 @@ module.exports = {
       // Only source-confirmed draft notes get the privacy expectation. Every
       // public page retains all three original category floors; no URL is skipped.
       assertMatrix: pages.map(page => ({
-        matchingUrlPattern: `^http://127\\.0\\.0\\.1:4324${page.route.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/?$`,
+        matchingUrlPattern: `^${base.replaceAll('.', '\\.')}${page.route.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/?$`,
         assertions: page.assertions,
       })),
     },

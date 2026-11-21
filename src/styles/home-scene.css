@@ -1,4 +1,4 @@
-/* Shared scene cascade, in its original order, inlined by BaseLayout on every route. */
-@import '../../public/mountains/mountains.css';
+/* Retained historical scene cascade; not imported by the active layout. */
+@import '../../historical/scenery/mountains/mountains.css';
 @import './home-world.css';
-@import '../../public/atmosphere.css';
+@import '../../historical/scenery/atmosphere.css';

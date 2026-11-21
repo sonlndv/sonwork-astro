@@ -10,7 +10,7 @@ The GitHub CI workflow (`.github/workflows/ci.yml`) validates pushes, pull reque
 
 ## Checks
 
-Use Node >=22.22.0:
+Use Node >=22.23.4 (the patched Astro toolchain's minimum):
 
 ```
 npm ci
@@ -28,13 +28,19 @@ Closed-signup checks require no Home signup section, a noninteractive notice on 
 
 The synthetic native-uploader integration check validates every mutating request's method, Worker endpoint, merge-patch content type and single-secret payload. It verifies unrelated secrets survive repeated uploads and that a missing-Worker precommand permits no writes. Read-only probes and idempotent repeats are not pinned to a total HTTP-call count.
 
-The active Doop checks cover persistent themes, native routes/navigation, exact public About contacts, five simple tool purposes, contribution-calendar data/API/fallback and 320–1440px/200% text reflow. Series index and every retained current Series URL show only the generic Series/Coming soon state and metadata, without planned topics, counts or teasers. All MDX material and draft flags are preserved; source-confirmed draft paths remain noindex in preview and404 in release. Historical scenic specs remain in `tests/historical/pre-doop/`; the retired reader/simulation browser contract is retained in `tests/historical/series-before-empty/` because that content is no longer shown to visitors. Lighthouse still covers every built preview route with unchanged performance/accessibility and applicable SEO/noncrawlable floors. No route is omitted to make the gate green.
+The active Doop checks cover persistent themes, native routes/navigation, exact public About contacts, five simple tool purposes, contribution-calendar data/API/fallback and 320–1440px/200% text reflow. The Series index publishes Me and its approved note at `/series/me/the-joy-of-malleable-products`; other retained current Series URLs show only the generic Coming soon state without planned topics, counts or teasers. All MDX material and draft flags are preserved; source-confirmed draft paths remain noindex in preview and 404 in release. Historical scenic specs remain in `tests/historical/pre-doop/`; the retired reader/simulation browser contract is retained in `tests/historical/series-before-empty/` because that content is no longer shown to visitors. Lighthouse still covers every built preview route with unchanged performance/accessibility and applicable SEO/noncrawlable floors. No route is omitted to make the gate green.
 
 For a private design review, build with `npm run build:preview`, copy only `dist/` to an immutable artifact directory, then use `node scripts/private-preview.mjs /absolute/built-artifact PORT`. It binds only 127.0.0.1, adds noindex/no-store even to 404s, rejects obvious source roots and stops after eight hours. Verify both the port and existing proxy targets before starting: a loopback bind alone does not rule out an existing reverse proxy. No new tunnel, Serve mapping or public endpoint is part of this workflow. Son separately authorized the existing exact tailnet HTTPS4373 → loopback4371 review route; task evidence owns that bounded service, snapshot, lifetime and rollback. Preserve other routes and never force-restart another owner. Keep source/byte manifests and process ownership beside the artifact; do not publish preview output.
 
 Astro uses file output and trailingSlash:never. Canonicals and internal links omit trailing slashes. Cloudflare uses drop-trailing-slash HTML handling. The assets binding supports _redirects; the Worker strips private booking/unsubscribe queries before asset handling and returns actual 410 for missing retired assets/APIs. Matching static assets bypass the Worker by default; only API, booking and explicit /404 paths run it first. not_found_handling:none lets missing legacy paths fall back to the Worker; ordinary unknowns fetch the noindex error document through ASSETS and retain HTTP 404. No /_astro/* Worker-first rule is used. Current assets beat retirement patterns. /404, /404/ and /404.html deliberately return 410; ordinary unknown paths return the custom page with status 404. /api/unsubscribe redirects without its query to truthful legacy-contact information; it does not perform or claim removal.
 
 References: [Cloudflare redirects](https://developers.cloudflare.com/workers/static-assets/redirects/), [HTML handling](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/), [Worker routing](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/).
+
+### Local harness isolation and dependencies
+
+Use `npm run test:e2e` and `npm run test:lh`, not their bare CLIs. Their wrapper owns a loopback server on an OS-assigned port, checks `/release.json` against the checkout build SHA before launching checks, and closes the server afterward. It never reuses another worktree's server. Link checks also bind an OS-assigned port and seed every built HTML file, including unlinked pages. Wrangler checks select a free port, require that child's readiness message, and verify the release SHA before proceeding; a port collision fails rather than attaching to a different server.
+
+The audit remediation upgrades Astro and Wrangler within their current major versions and LHCI to 0.16.1. Linkinator remains at 8.1.0: its scoped `glob` override selects patched 14.0.3 or newer instead of accepting npm audit's proposed Linkinator downgrade. Its consumer uses the unchanged `glob(pattern)` promise API; the link regression and full route gate exercise it. Recheck this override when Linkinator updates, and never apply audit `--force` blindly. Historical scenic assets and licenses live in `historical/scenery/`, outside release output.
 
 ## Release identity and live readback
 

@@ -1,6 +1,6 @@
 // Graded sky: re-renders the four real planet bodies in the mountains' palette, offline and deterministically.
 // Reads the ORIGINAL textures from src/assets/planet-sources/ (never referenced by a page) and writes graded WebP to
-// public/mountains/ with the same pixel size and unchanged alpha. Node built-ins and sharp only. Exits non-zero on failure.
+// historical/scenery/mountains/ with the same pixel size and unchanged alpha. Node built-ins and sharp only. Exits non-zero on failure.
 //
 //   node scripts/grade-planets.mjs [--weighted-blur]
 //
@@ -14,7 +14,7 @@ import path from 'node:path';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const srcDir = path.join(root, 'src/assets/planet-sources');
-const outDir = path.join(root, 'public/mountains');
+const outDir = path.join(root, 'historical/scenery/mountains');
 const weighted = process.argv.includes('--weighted-blur');
 
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);

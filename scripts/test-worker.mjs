@@ -4,6 +4,8 @@ import { mkdtempSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { once } from 'node:events';
+import { createServer } from 'node:net';
+import { buildSha } from './build-release.mjs';
 import assert from 'node:assert/strict';
 import { verifyRelease } from './verify-release.mjs';
 import { createArtifact, verifyArtifact } from './release-artifact.mjs';
@@ -33,7 +35,7 @@ if (fromPreview) {
 }
 
 const temporary = mkdtempSync(join(tmpdir(), 'sonwork-runtime-'));
-const base = 'http://127.0.0.1:8791';
+let base;
 let worker;
 async function stopWorker() {
   if (worker && worker.exitCode === null && worker.signalCode === null) {
@@ -43,13 +45,26 @@ async function stopWorker() {
   }
 }
 async function startWorker(extra = []) {
-  worker = spawn('node_modules/.bin/wrangler', ['dev', '--local', '--ip', '127.0.0.1', '--port', '8791', '--persist-to', temporary, ...extra], {
+  const reservation = createServer();
+  await new Promise((resolve, reject) => { reservation.once('error', reject); reservation.listen(0, '127.0.0.1', resolve); });
+  const port = reservation.address().port;
+  await new Promise(resolve => reservation.close(resolve));
+  base = `http://127.0.0.1:${port}`;
+  let ready = false;
+  let output = '';
+  worker = spawn('node_modules/.bin/wrangler', ['dev', '--local', '--ip', '127.0.0.1', '--port', String(port), '--inspector-port', '0', '--persist-to', temporary, ...extra], {
     stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, WRANGLER_SEND_METRICS: 'false', CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV: 'false' },
   });
   worker.stdout.pipe(process.stdout); worker.stderr.pipe(process.stderr);
+  worker.stdout.on('data', chunk => { output += chunk; ready = output.includes(`Ready on ${base}`); });
   for (let attempt = 0; attempt < 100; attempt++) {
     if (worker.exitCode !== null || worker.signalCode !== null) throw new Error(`Wrangler exited ${worker.exitCode ?? worker.signalCode}`);
-    try { const response = await fetch(`${base}/release.json`); if (response.status === 200) return; } catch {}
+    if (ready) {
+      const response = await fetch(`${base}/release.json`);
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).gitSHA, buildSha(), 'Worker must serve this checkout release');
+      return;
+    }
     await new Promise(resolve => setTimeout(resolve, 200));
   }
   throw new Error('Local Wrangler did not start');

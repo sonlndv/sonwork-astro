@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 // Build-only J2000 projection. These are the approved Home coordinates, magnitude hierarchy,
 // colours and reading-corridor hush; every route uses the same art. No executable SVG content.
@@ -44,3 +45,5 @@ export function writeStarSky() {
     if (!existsSync(target) || readFileSync(target, 'utf8') !== svg) writeFileSync(target, svg);
   }
 }
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) writeStarSky();
