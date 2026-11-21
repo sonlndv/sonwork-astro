@@ -138,7 +138,7 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(enImage).toBeHidden();
     await expect.poll(() => viImage.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 1440 && el.naturalHeight === 1200)).toBe(true);
 
-    await page.getByRole('link', { name: 'All notes in How I use OpenMaus', exact: true }).click();
+    await page.getByRole('link', { name: 'Tất cả bài trong Cách mình dùng OpenMaus', exact: true }).click();
     await expect(page).toHaveURL(openMausPath);
     await expect(page.locator('main .rows > li')).toHaveCount(1);
   });
@@ -162,7 +162,7 @@ for (const theme of ['dark', 'light'] as const) {
       await page.locator('main').getByRole('link', { name: 'The joy of malleable products', exact: true }).click();
       await expect(page).toHaveURL(`${baseURL}/series/me/the-joy-of-malleable-products`);
       await expect(page.locator('h1')).toHaveText('The joy of malleable products');
-      await expect(page.locator('article figure img')).toBeVisible();
+      await expect(page.locator('article figure img').first()).toBeVisible();
       await page.getByRole('link', { name: 'All notes in Me', exact: true }).click();
       await expect(page).toHaveURL(`${baseURL}/series/me`);
       await page.goto(`${baseURL}/series`);

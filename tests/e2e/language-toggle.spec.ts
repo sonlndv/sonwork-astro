@@ -25,17 +25,17 @@ test('the language toggle localizes header, footer, skip-link text and the docum
   await expect(page).toHaveURL('/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
   await expect(toggle).toHaveText('EN');
-  await expect(toggle).toHaveAttribute('aria-label', 'EN — switch to English interface');
+  await expect(toggle).toHaveAttribute('aria-label', 'EN — Chuyển sang tiếng Anh');
   await expect(firstNavLink).toHaveText('Giới thiệu');
   await expect(firstNavLink.locator('span')).toHaveAttribute('lang', 'vi');
-  await expect(page.locator('.skip-link')).toHaveText('Bỏ qua, đến nội dung chính');
-  await expect(firstFooterLink).toHaveText('Tất cả series');
+  await expect(page.locator('.skip-link')).toHaveText('Đến nội dung chính');
+  await expect(firstFooterLink).toHaveText('Tất cả loạt bài');
 });
 
 test('the language choice persists across navigation and reload', async ({ page }) => {
   await page.goto('/');
   await page.locator('.lang-toggle').click();
-  await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Series', exact: true }).click();
+  await page.getByRole('navigation', { name: 'Điều hướng chính', exact: true }).getByRole('link', { name: 'Loạt bài', exact: true }).click();
   await expect(page).toHaveURL('/series');
   await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
   await expect(page.locator('.lang-toggle')).toHaveText('EN');

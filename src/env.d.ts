@@ -12,3 +12,8 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+interface Window {
+  /** Reads the active UI language from the root element, set by BaseLayout's inline bootstrap/toggle script. */
+  sonworkLang?: () => 'en' | 'vi';
+}

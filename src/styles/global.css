@@ -279,6 +279,12 @@ th { font: .75rem/1.5 var(--mono); color: var(--lume); }
 :root[data-lang="vi"] [data-note-lang="en"] { display: none; }
 :root[data-lang="vi"] [data-note-lang="vi"] { display: block; }
 .lang-missing-note { color: var(--ink-3); font-style: italic; margin-bottom: 16px; }
+/* Generic block-level EN/VI pair for page content whose two editions differ
+   in structure (reordered sentences, embedded links) and so can't be swapped
+   as a single inline .i18n text node. Same mechanism as data-note-lang. */
+[data-i18n-block="vi"] { display: none; }
+:root[data-lang="vi"] [data-i18n-block="en"] { display: none; }
+:root[data-lang="vi"] [data-i18n-block="vi"] { display: block; }
 .page-section { margin-top: 32px; }
 .rows, .side-rows { list-style: none; padding: 0; margin: 0; }
 .row { display: grid; grid-template-columns: 2.25rem minmax(0,1fr); gap: 16px; padding-block: 24px; border-bottom: 1px solid var(--line); }

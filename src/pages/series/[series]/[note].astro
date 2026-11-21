@@ -42,8 +42,8 @@ const bothAvailable = Boolean(en && vi);
   >
     <Fragment slot="meta">
       <p class="meta"><time datetime={isoDate(logical.data.date)}>{formatDate(logical.data.date)}</time></p>
-      <nav class="meta note-location" aria-label="Note location">
-        <a href="/series">Series</a><span aria-hidden="true"> / </span><a href={`/series/${parent.id}`}>{parent.data.title}</a>
+      <nav class="meta note-location" aria-label="Note location" data-i18n-attr="aria-label" data-vi-aria-label="Vị trí bài viết">
+        <a href="/series"><span class="i18n" data-vi="Loạt bài">Series</span></a><span aria-hidden="true"> / </span><a href={`/series/${parent.id}`}><span class="i18n" data-vi={parent.data.titleVi}>{parent.data.title}</span></a>
       </nav>
     </Fragment>
     {EnContent && (
@@ -63,8 +63,8 @@ const bothAvailable = Boolean(en && vi);
       <p class="lang-missing-note" data-note-lang="vi" lang="en">This note isn’t translated into Vietnamese yet. Showing the English version above.</p>
     )}
     <Fragment slot="end">
-      <p class="back"><a href={`/series/${parent.id}`}>All notes in {parent.data.title}</a></p>
-      <p class="back"><a href="/series">All series</a></p>
+      <p class="back"><a href={`/series/${parent.id}`}><span class="i18n" data-vi={`Tất cả bài trong ${parent.data.titleVi ?? parent.data.title}`}>{`All notes in ${parent.data.title}`}</span></a></p>
+      <p class="back"><a href="/series"><span class="i18n" data-vi="Tất cả loạt bài">All series</span></a></p>
     </Fragment>
   </ProseLayout>
 ) : <SeriesComingSoon noIndex={noIndex} />}

@@ -17,7 +17,7 @@ const { Content } = await render(post);
   <Fragment slot="meta">
     <p class="meta"><time datetime={isoDate(date)}>{formatDate(date)}</time></p>
     {tags.length > 0 && (
-      <ul class="tags" aria-label="Tags">
+      <ul class="tags" aria-label="Tags" data-i18n-attr="aria-label" data-vi-aria-label="Thẻ chủ đề">
         {tags.map((tag) => <li>{tag}</li>)}
       </ul>
     )}
@@ -26,10 +26,10 @@ const { Content } = await render(post);
   <Fragment slot="end">
     <aside class="prose-end" aria-labelledby="post-subscribe-title">
       <div class="section-head">
-        <h2 id="post-subscribe-title">Subscribe</h2>
+        <h2 id="post-subscribe-title" class="i18n" data-vi="Đăng ký nhận bài">Subscribe</h2>
       </div>
       <SubscribeForm id="post-subscribe" />
     </aside>
-    <p class="back"><a href="/series">All series</a></p>
+    <p class="back"><a href="/series"><span class="i18n" data-vi="Tất cả loạt bài">All series</span></a></p>
   </Fragment>
 </ProseLayout>

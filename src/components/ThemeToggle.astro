@@ -14,7 +14,10 @@
   function sync() {
     const next = theme() === 'dark' ? 'light' : 'dark';
     if (button) {
-      button.setAttribute('aria-label', `Switch to ${next} mode`);
+      const vi = typeof window.sonworkLang === 'function' && window.sonworkLang() === 'vi';
+      button.setAttribute('aria-label', vi
+        ? (next === 'light' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối')
+        : `Switch to ${next} mode`);
       button.dataset.target = next;
       button.hidden = false;
     }
@@ -55,6 +58,7 @@
     if (reducedMotion.matches) activeTransition?.skipTransition();
   });
   system.addEventListener('change', sync);
+  document.addEventListener('sonwork:lang', sync);
   window.addEventListener('storage', event => {
     if (event.key !== 'theme') return;
     if (event.newValue === 'light' || event.newValue === 'dark') root.dataset.theme = event.newValue;

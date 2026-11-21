@@ -9,12 +9,12 @@ const shown = about && isVisible(about) ? about : undefined;
 const Content = shown ? (await render(shown)).Content : undefined;
 ---
 {shown && Content ? (
-  <ProseLayout title={shown.data.title} description={shown.data.description} draft={shown.data.draft} type="website">
+  <ProseLayout title={shown.data.title} titleVi={shown.data.titleVi} description={shown.data.description} descriptionVi={shown.data.descriptionVi} draft={shown.data.draft} type="website">
     <Content />
   </ProseLayout>
 ) : (
-  <BaseLayout title="About" description="About Son, with contact links.">
-    <h1>About</h1>
-    <p class="empty">This page is not published yet.</p>
+  <BaseLayout title="About" titleVi="Giới thiệu" description="About Son, with contact links." descriptionVi="Giới thiệu về Son và các cách liên hệ.">
+    <h1 class="i18n" data-vi="Giới thiệu">About</h1>
+    <p class="empty i18n" data-vi="Trang này chưa được đăng.">This page is not published yet.</p>
   </BaseLayout>
 )}

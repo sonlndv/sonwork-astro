@@ -148,7 +148,7 @@ export async function verifyRelease(base, expectedSha, output) {
       if (path === '/subscribe') {
         assert.match(body, /Legacy newsletter links are retired\. No subscription has been changed here\./);
         assert.match(body, /href="mailto:son@sonwork\.org"/);
-        assert.match(body, /href="\/series">All series<\/a>/);
+        assert.match(body, /href="\/series"><span class="i18n" data-vi="Tất cả loạt bài">All series<\/span><\/a>/);
       }
       if (path === '/series') {
         const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(body)?.[1];
@@ -183,7 +183,7 @@ export async function verifyRelease(base, expectedSha, output) {
         assert.ok(bySrc[openMausNote.imageVi]?.includes(`alt="${openMausNote.altVi}"`));
         assert.match(main, /OpenMaus is an agent workspace/);
         assert.match(main, /OpenMaus là không gian làm việc/);
-        assert.ok(main.includes(`href="${openMausPath}">All notes in How I use OpenMaus</a>`));
+        assert.ok(main.includes(`href="${openMausPath}"><span class="i18n" data-vi="Tất cả bài trong Cách mình dùng OpenMaus">All notes in How I use OpenMaus</span></a>`));
       }
       if (path === '/study') {
         assert.match(body, /<h1[^>]*>Study<\/h1>/);

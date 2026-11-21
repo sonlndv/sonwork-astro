@@ -125,13 +125,13 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
       if (path === '/series/me/the-joy-of-malleable-products') {
         await expect(page.locator('h1')).toHaveText('The joy of malleable products');
         await expect(page.locator('video')).toHaveCount(0);
-        const image = page.locator('article figure img');
+        const image = page.locator('article figure img').first();
         await expect(image).toHaveAttribute('src', '/images/mounty-dark-demo.png');
         await expect(image).toHaveAttribute('width', '800');
         await expect(image).toHaveAttribute('height', '604');
         await expect(image).toHaveAttribute('alt', 'Annotated Mounty dark-theme Obsidian demo vault showing the file sidebar, writing area and graph view.');
-        await expect(page.locator('article figure figcaption')).toHaveText('Mounty’s dark theme in a public demo vault with illustrative content.');
-        await expect(page.locator('article figure a')).toHaveAttribute('href', 'https://github.com/sonlndv/Mounty');
+        await expect(page.locator('article figure figcaption').first()).toHaveText('Mounty’s dark theme in a public demo vault with illustrative content.');
+        await expect(page.locator('article figure a').first()).toHaveAttribute('href', 'https://github.com/sonlndv/Mounty');
         expect(await image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 800 && el.naturalHeight === 604)).toBe(true);
         expect(await image.evaluate((el: HTMLImageElement) => el.getBoundingClientRect().right <= innerWidth)).toBe(true);
         await expect(page.getByRole('navigation', { name: 'Note location', exact: true }).getByRole('link')).toHaveText(['Series', 'Me']);

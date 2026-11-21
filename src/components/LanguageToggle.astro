@@ -8,11 +8,13 @@
   // The accessible name must contain the visible label (WCAG 2.5.3 / axe
   // label-content-name-mismatch), so it leads with the same text the button shows.
   function sync() {
-    const next = lang() === 'vi' ? 'en' : 'vi';
+    const current = lang();
+    const next = current === 'vi' ? 'en' : 'vi';
     if (button) {
-      const label = next.toUpperCase();
-      button.textContent = label;
-      button.setAttribute('aria-label', `${label} — switch to ${next === 'vi' ? 'Vietnamese' : 'English'} interface`);
+      button.textContent = next.toUpperCase();
+      button.setAttribute('aria-label', current === 'vi'
+        ? 'EN — Chuyển sang tiếng Anh'
+        : 'VI — switch to Vietnamese interface');
       button.dataset.target = next;
       button.hidden = false;
     }
