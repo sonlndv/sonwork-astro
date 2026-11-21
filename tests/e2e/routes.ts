@@ -25,5 +25,6 @@ export function navSection(path: string): string | undefined {
   if (path === '/') return '/';
   if (path === '/series' || path.startsWith('/series/')) return '/series';
   if (path === '/study') return '/study';
+  if (path === '/hobbies') return '/hobbies';
   return undefined; // Contact is a mailto; Project identifies itself in the footer.
 }

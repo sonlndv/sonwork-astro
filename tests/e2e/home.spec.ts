@@ -98,7 +98,7 @@ for (const theme of ['dark', 'light'] as const) {
   });
 }
 
-test('Series, Study and unfinished pages stay reachable through native navigation and history', async ({ page }) => {
+test('Series, Study, Hobbies and unfinished pages stay reachable through native navigation and history', async ({ page }) => {
   await page.goto('/');
   const mainNav = () => page.getByRole('navigation', { name: 'Main', exact: true });
   const progressNav = () => page.getByRole('navigation', { name: 'Pages in progress', exact: true });
@@ -110,6 +110,11 @@ test('Series, Study and unfinished pages stay reachable through native navigatio
   await expect(page).toHaveURL('/study');
   await expect(page.locator('h1')).toHaveText('Study');
   await expect(page.locator('main .page-head p')).toHaveText('Coming soon.');
+  await mainNav().getByRole('link', { name: 'Hobbies', exact: true }).click();
+  await expect(page).toHaveURL('/hobbies');
+  await expect(page.locator('h1')).toHaveText('Hobbies');
+  await expect(page.locator('main .page-head p')).toHaveText('Coming soon.');
+  await expect(mainNav().getByRole('link', { name: 'Hobbies', exact: true })).toHaveAttribute('aria-current', 'page');
   await progressNav().getByRole('link', { name: 'Project (coming soon)', exact: true }).click();
   await expect(page.locator('h1')).toHaveText('Coming soon.');
   await expect(page.locator('main .row, main .work-card, main .build-entry')).toHaveCount(0);
