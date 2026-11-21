@@ -5,8 +5,8 @@ const snapshot = JSON.parse(readFileSync('src/data/github-contributions.json', '
 const retainedPaths = JSON.parse(readFileSync('src/data/retained-series-slugs.json', 'utf8')).map((slug: string) => `/series/${slug}`);
 const openMausPath = '/series/how-i-use-openmaus';
 const openMausNotes = [
-  { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', image: '/images/openmaus-en-website-r10.png', alt: 'Supported AI engines connect to OpenMaus, where bots research, write and plan.' },
-  { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', image: '/images/openmaus-vi-website-r10.png', alt: 'Các engine AI kết nối với OpenMaus để các bot nghiên cứu, viết bài và lập kế hoạch.' },
+  { slug: 'openmaus-explained-en', title: 'What is OpenMaus?', chartTitle: 'One project. A team of specialists.', chartDesc: 'A bot is an AI teammate with its own role and instructions. Illustrative example. Introduce the project in a post. Individually assigned peer jobs return source notes, a draft and a posting checklist. The person reviews and approves the draft, then publishes the post. No required serial pipeline, automatic broadcast or actual completed run is depicted.', botLabels: ['Research bot', 'Writing bot', 'Planning bot'], idPrefix: 'pc-en' },
+  { slug: 'openmaus-explained-vi', title: 'OpenMaus là gì?', chartTitle: 'Một dự án. Một nhóm chuyên trách.', chartDesc: 'Bot là trợ lý AI có vai trò và hướng dẫn riêng. Ví dụ minh hoạ. Viết bài đăng giới thiệu dự án. Từng bot cùng cấp được giao việc riêng, gửi ghi chú nguồn, bản nháp và các bước đăng bài. Người dùng xem lại, duyệt bản nháp rồi đăng bài. Không minh hoạ chuỗi tuần tự, tự động phát việc hay lần chạy thật.', botLabels: ['Bot nghiên cứu', 'Bot viết bài', 'Bot lập kế hoạch'], idPrefix: 'pc-vi' },
 ];
 
 for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const) for (const javaScriptEnabled of [true, false]) {
@@ -94,14 +94,25 @@ for (const width of [390, 1440]) for (const theme of ['dark', 'light'] as const)
         await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', openMausNote.title);
         await expect(page.locator('meta[name="robots"][content*="noindex"], main button, main select')).toHaveCount(0);
         await expect(page.locator('main time')).toHaveAttribute('datetime', '2026-11-21');
-        const image = page.locator('article .prose img');
-        await expect(image).toHaveCount(1);
-        await expect(image).toHaveAttribute('src', openMausNote.image);
-        await expect(image).toHaveAttribute('alt', openMausNote.alt);
-        await image.scrollIntoViewIfNeeded();
-        await expect(image).toBeVisible();
-        await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth === 1440 && el.naturalHeight === 1200)).toBe(true);
-        expect(await image.evaluate(el => { const bounds = el.getBoundingClientRect(); return bounds.left >= 0 && bounds.right <= innerWidth; })).toBe(true);
+        const svgs = page.locator('article .prose .project-chart svg[role="img"]');
+        await expect(svgs).toHaveCount(2);
+        const wideSvg = page.locator(`article .prose .project-chart svg[aria-labelledby="${openMausNote.idPrefix}-wide-title ${openMausNote.idPrefix}-wide-desc"]`);
+        const mobileSvg = page.locator(`article .prose .project-chart svg[aria-labelledby="${openMausNote.idPrefix}-mobile-title ${openMausNote.idPrefix}-mobile-desc"]`);
+        await expect(wideSvg).toHaveAttribute('viewBox', '0 0 1440 1250');
+        await expect(mobileSvg).toHaveAttribute('viewBox', '0 0 360 1270');
+        for (const variant of ['wide', 'mobile']) {
+          await expect(page.locator(`#${openMausNote.idPrefix}-${variant}-title`)).toHaveText(openMausNote.chartTitle);
+          await expect(page.locator(`#${openMausNote.idPrefix}-${variant}-desc`)).toHaveText(openMausNote.chartDesc);
+        }
+        await expect(page.locator(`article .prose .project-chart image[href^="data:image/svg+xml;base64,"]`)).toHaveCount(2);
+        for (const label of openMausNote.botLabels) await expect(page.locator('article .prose .project-chart')).toContainText(label);
+        await expect(page.locator('article .prose script')).toHaveCount(0);
+        const visibleSvg = width < 600 ? mobileSvg : wideSvg;
+        const hiddenSvg = width < 600 ? wideSvg : mobileSvg;
+        await visibleSvg.scrollIntoViewIfNeeded();
+        await expect(visibleSvg).toBeVisible();
+        await expect(hiddenSvg).toBeHidden();
+        expect(await visibleSvg.evaluate(el => { const bounds = el.getBoundingClientRect(); return bounds.left >= 0 && bounds.right <= innerWidth; })).toBe(true);
         await expect(page.getByRole('navigation', { name: 'Note location', exact: true }).getByRole('link')).toHaveText(['Series', 'How I use OpenMaus']);
         await expect(page.getByRole('link', { name: 'All notes in How I use OpenMaus', exact: true })).toHaveAttribute('href', openMausPath);
       }
