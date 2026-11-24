@@ -1,6 +1,6 @@
 ---
 import snapshot from '../data/github-contributions.json';
-import { calendarLayout } from '../lib/contribution-calendar.mjs';
+import { calendarLayout, calendarSummary } from '../lib/contribution-calendar.mjs';
 const { days, total, offset, weeks, months } = calendarLayout(snapshot);
 const dateLabel = (value: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${value}T00:00:00Z`));
 const captured = new Date(snapshot.retrievedAt).toISOString().slice(0, 10);
@@ -21,7 +21,10 @@ const dateLabelVi = (value: string) => new Intl.DateTimeFormat('vi-VN', { day: '
         {days.map((day, index) => <button type="button" class="calendar-day" data-date={day.date} data-count={day.count} data-level={day.level} data-i18n-attr="aria-label,title" aria-label={`${day.date}: ${countLabel(day.count)} (UTC)`} data-vi-aria-label={`${day.date}: ${countLabelVi(day.count)} (UTC)`} title={`${day.date}: ${countLabel(day.count)} (UTC)`} data-vi-title={`${day.date}: ${countLabelVi(day.count)} (UTC)`} aria-pressed="false" tabindex={index === 0 ? 0 : -1} disabled></button>)}
       </div>
     </div>
-    <div class="calendar-foot mono muted"><span class="calendar-legend" aria-label="Contribution intensity from fewer to more" data-i18n-attr="aria-label" data-vi-aria-label="Mức đóng góp từ ít đến nhiều"><span class="i18n" data-vi="Ít">Fewer</span> <span class="legend-squares" aria-hidden="true">{[0, 1, 2, 3, 4].map(level => <i data-level={level}></i>)}</span> <span class="i18n" data-vi="Nhiều">More</span></span></div>
+    <div class="calendar-foot mono muted">
+      <div class="calendar-summary" aria-live="polite" aria-atomic="true">{['en', 'vi'].map(lang => <div data-i18n-block={lang} lang={lang}><span data-calendar-total={lang}>{calendarSummary(snapshot, lang).label}</span><span class="calendar-range" data-calendar-range={lang}>{calendarSummary(snapshot, lang).range}</span></div>)}</div>
+      <span class="calendar-legend" aria-label="Contribution intensity from fewer to more" data-i18n-attr="aria-label" data-vi-aria-label="Mức đóng góp từ ít đến nhiều"><span class="i18n" data-vi="Ít">Fewer</span> <span class="legend-squares" aria-hidden="true">{[0, 1, 2, 3, 4].map(level => <i data-level={level}></i>)}</span> <span class="i18n" data-vi="Nhiều">More</span></span>
+    </div>
     <p id="calendar-detail" class="calendar-detail muted" aria-live="polite" aria-atomic="true"></p>
   </div>
   <noscript><div class="visually-hidden"><table><caption>Every UTC date and contribution count in the public GitHub snapshot</caption><thead><tr><th scope="col">UTC date</th><th scope="col">Contributions</th></tr></thead><tbody>{days.map(day => <tr><th scope="row">{day.date}</th><td>{day.count}</td></tr>)}</tbody></table></div></noscript>

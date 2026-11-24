@@ -1,4 +1,4 @@
-import { calendarLayout, validateCalendar } from './contribution-calendar.mjs';
+import { calendarLayout, calendarSummary, validateCalendar } from './contribution-calendar.mjs';
 
 export function startCalendar() {
   const calendar = document.querySelector<HTMLElement>('[data-calendar]');
@@ -104,6 +104,13 @@ export function startCalendar() {
       cells.replaceChildren(fragment);
       labels.replaceChildren(...layout.months.map(month => { const span = document.createElement('span'); span.style.gridColumn = String(month.column); span.textContent = month.label; return span; }));
       region.style.setProperty('--weeks', String(layout.weeks)); bind(selectedDate, focusedDate);
+    }
+    for (const lang of ['en', 'vi']) {
+      const summary = calendarSummary(data, lang);
+      const total = root.querySelector(`[data-calendar-total="${lang}"]`);
+      const range = root.querySelector(`[data-calendar-range="${lang}"]`);
+      if (total) total.textContent = summary.label;
+      if (range) range.textContent = summary.range;
     }
     root.dataset.calendarMode = meta.mode; root.dataset.calendarSource = meta.source; root.dataset.calendarFetchedAt = meta.fetchedAt;
     provenance.textContent = `${data.from}–${data.through}: ${data.total.toLocaleString('en-US')} public profile contributions, not commits-only or completed work. Dates are UTC. Fetched ${meta.fetchedAt} using the official GitHub API with a 15-minute server cache; ${meta.stale ? 'showing stale last-good data' : 'auto-updated, not instant realtime'}. Source: ${data.source}.`;
