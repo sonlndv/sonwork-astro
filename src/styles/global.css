@@ -149,7 +149,9 @@ p { margin: 0 0 18px; }
 .calendar-grid [data-level='3'], .calendar-legend [data-level='3'] { background: color-mix(in srgb, var(--lume) 76%, var(--line)); }
 .calendar-grid [data-level='4'], .calendar-legend [data-level='4'] { background: var(--lume); }
 .calendar-day:hover:not(:disabled), .calendar-day:focus-visible, .calendar-day[aria-pressed='true'] { outline: 2px solid var(--ink); outline-offset: 1px; }
-.calendar-foot { display: flex; justify-content: flex-end; align-items: center; gap: 0 12px; flex-wrap: wrap; margin-top: 8px; font-size: .6875rem; }
+.calendar-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-top: 8px; font-size: .6875rem; }
+.calendar-summary { font-size: .75rem; }
+.calendar-range { display: block; font-size: .6875rem; }
 .calendar-legend, .legend-squares { display: inline-flex; align-items: center; gap: 4px; }
 .calendar-detail { margin: 0; font-size: .75rem; }
 .calendar-detail:not(:empty) { margin-top: 8px; }

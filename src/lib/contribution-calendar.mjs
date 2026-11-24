@@ -32,3 +32,15 @@ export function calendarLayout(snapshot) {
   const months = snapshot.days.flatMap((day, index) => index === 0 || day.date.endsWith('-01') ? [{ label: monthName.format(utcDate(day.date)), column: Math.floor((index + offset) / 7) + 1 }] : []);
   return { days: snapshot.days, total: snapshot.total, offset, weeks: Math.ceil((snapshot.days.length + offset) / 7), months };
 }
+
+export function calendarSummary(snapshot, lang = 'en') {
+  validateCalendar(snapshot);
+  if (snapshot.days.length !== 365) throw new TypeError('Annual total requires the full 365-day calendar');
+  const locale = lang === 'vi' ? 'vi-VN' : 'en-US';
+  const count = new Intl.NumberFormat(locale).format(snapshot.total);
+  const date = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+  return {
+    label: lang === 'vi' ? `${count} lượt đóng góp trong năm qua` : `${count} ${snapshot.total === 1 ? 'contribution' : 'contributions'} in the last year`,
+    range: `${date.format(utcDate(snapshot.from))} – ${date.format(utcDate(snapshot.through))} (UTC)`,
+  };
+}

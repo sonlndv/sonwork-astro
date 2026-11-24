@@ -10,6 +10,7 @@ export interface ContributionSnapshot {
   total: number;
 }
 export function validateCalendar(snapshot: unknown): ContributionSnapshot;
+export function calendarSummary(snapshot: ContributionSnapshot, lang?: string): { label: string; range: string };
 export function calendarLayout(snapshot: ContributionSnapshot): {
   days: ContributionDay[];
   total: number;
